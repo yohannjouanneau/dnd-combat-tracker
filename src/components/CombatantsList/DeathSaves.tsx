@@ -1,0 +1,41 @@
+import type { DeathSaves } from '../../types';
+
+type Props = {
+  value: DeathSaves;
+  onChange: (type: keyof DeathSaves, value: number) => void;
+};
+
+export default function DeathSaves({ value, onChange }: Props) {
+  return (
+    <div className="mb-4 bg-slate-900 rounded p-3 border border-red-500">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <div className="text-sm text-slate-400 mb-1">Successes</div>
+          <div className="flex gap-2">
+            {[1, 2, 3].map((i) => (
+              <button
+                key={i}
+                onClick={() => onChange('successes', value.successes === i ? i - 1 : i)}
+                className={`w-8 h-8 rounded border-2 transition ${value.successes >= i ? 'bg-green-600 border-green-500' : 'bg-slate-700 border-slate-600'}`}
+              />
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="text-sm text-slate-400 mb-1">Failures</div>
+          <div className="flex gap-2">
+            {[1, 2, 3].map((i) => (
+              <button
+                key={i}
+                onClick={() => onChange('failures', value.failures === i ? i - 1 : i)}
+                className={`w-8 h-8 rounded border-2 transition ${value.failures >= i ? 'bg-red-600 border-red-500' : 'bg-slate-700 border-slate-600'}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
