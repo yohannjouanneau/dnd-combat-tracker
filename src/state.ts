@@ -80,13 +80,20 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
   // Parked Groups Management
   const addParkedGroup = useCallback(() => {
     setState(prev => {
-      if (!prev.newCombatant.groupName || !prev.newCombatant.hp) return prev;
-      if (prev.newCombatant.initiativeGroups.length === 0) return prev;
-      if (prev.newCombatant.initiativeGroups.some(g => !g.initiative)) return prev;
+      const nc = prev.newCombatant;
+      if (!nc.groupName || !nc.hp) return prev;
+      if (nc.initiativeGroups.length === 0) return prev;
+      if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return prev;
+      
+      // If maxHp is empty, copy hp to maxHp
+      const groupToAdd = {
+        ...nc,
+        maxHp: nc.maxHp || nc.hp
+      };
       
       return {
         ...prev,
-        parkedGroups: [...prev.parkedGroups, { ...prev.newCombatant }],
+        parkedGroups: [...prev.parkedGroups, groupToAdd],
         newCombatant: {
           groupName: '',
           initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
@@ -168,29 +175,32 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
     const nc = state.newCombatant;
     if (!nc.groupName || !nc.hp) return;
     if (nc.initiativeGroups.length === 0) return;
-    if (nc.initiativeGroups.some(g => !g.initiative)) return;
+    if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return;
 
+    // If maxHp is empty, copy hp to maxHp
     await playerStore.create({
       groupName: nc.groupName,
       initiativeGroups: nc.initiativeGroups,
       hp: nc.hp,
-      maxHp: nc.maxHp,
+      maxHp: nc.maxHp || nc.hp,
       ac: nc.ac,
       color: nc.color
     });
 
     await loadPlayers();
+    
+    // Clear the form after saving player
     setState(prev => ({
-        ...prev,
-        newCombatant: {
-            groupName: '',
-            initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
-            hp: '',
-            maxHp: '',
-            ac: '',
-            color: '#3b82f6'
-          }
-    }))
+      ...prev,
+      newCombatant: {
+        groupName: '',
+        initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
+        hp: '',
+        maxHp: '',
+        ac: '',
+        color: '#3b82f6'
+      }
+    }));
   }, [state.newCombatant, loadPlayers]);
 
   const removePlayer = useCallback(async (id: string) => {
@@ -218,7 +228,10 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
       const nc = prev.newCombatant;
       if (!nc.groupName || !nc.hp) return prev;
       if (nc.initiativeGroups.length === 0) return prev;
-      if (nc.initiativeGroups.some(g => !g.initiative)) return prev;
+      if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return prev;
+
+      // If maxHp is empty, use hp as maxHp
+      const effectiveMaxHp = nc.maxHp || nc.hp;
 
       // Calculate total count across all initiative groups
       const totalCount = nc.initiativeGroups.reduce((sum, g) => sum + (parseInt(g.count) || 0), 0);
@@ -239,7 +252,7 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
             displayName: totalCount > 1 ? `${nc.groupName} ${letter}` : nc.groupName,
             initiative: parseFloat(group.initiative),
             hp: parseInt(nc.hp),
-            maxHp: parseInt(nc.maxHp || nc.hp),
+            maxHp: parseInt(effectiveMaxHp),
             ac: nc.ac ? parseInt(nc.ac) : 10,
             conditions: [],
             concentration: false,

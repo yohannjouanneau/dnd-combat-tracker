@@ -99,7 +99,7 @@ export default function AddCombatantForm({
 							id="combatMaxHp" 
 							label="Max HP" 
 							value={value.maxHp} 
-							placeholder="Max HP" 
+							placeholder="Max HP (optional)" 
 							onChange={(v) => onChange({ maxHp: v })} 
 						/>
 					</div>
