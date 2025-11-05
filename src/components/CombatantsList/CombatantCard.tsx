@@ -17,7 +17,6 @@ type Props = {
 };
 
 export default function CombatantCard({ combatant, isActive, conditions, onRemove, onDeltaHp, onDeathSaves, onToggleConcentration, onToggleCondition }: Props) {
-  const hpPct = (combatant.hp / combatant.maxHp) * 100;
   const isDying = combatant.hp === 0;
   return (
     <div
