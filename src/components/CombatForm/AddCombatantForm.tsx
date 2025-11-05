@@ -14,6 +14,8 @@ type Props = {
 	value: NewCombatant;
 	fromParkedName?: string | null;
 	totalCount: number;
+	isCollapsed: boolean;
+	onToggleCollapse: (collapsed: boolean) => void;
 	onChange: (patch: Partial<NewCombatant>) => void;
 	onSubmit: () => void;
 	onAddGroup: () => void;
@@ -29,6 +31,8 @@ export default function AddCombatantForm({
 	value, 
 	fromParkedName, 
 	totalCount,
+	isCollapsed,
+	onToggleCollapse,
 	onChange, 
 	onSubmit, 
 	onAddGroup,
@@ -37,8 +41,6 @@ export default function AddCombatantForm({
 	onRemoveInitiativeGroup,
 	onUpdateInitiativeGroup
 }: Props) {
-	const [isCollapsed, setIsCollapsed] = useState(false);
-
 	const getLetterRange = () => {
 		if (totalCount <= 1) return '';
 		const lastLetter = String.fromCharCode(65 + totalCount - 1);
@@ -48,7 +50,7 @@ export default function AddCombatantForm({
 	return (
 		<div ref={formRef} className="bg-slate-800 rounded-lg border border-slate-700 mb-6 overflow-hidden">
 			<button
-				onClick={() => setIsCollapsed(!isCollapsed)}
+				onClick={() => onToggleCollapse(!isCollapsed)}
 				className="w-full flex items-center justify-between p-6 hover:bg-slate-700 transition-colors"
 			>
 				<h2 className="text-xl font-semibold">Add Combatant</h2>
@@ -99,7 +101,7 @@ export default function AddCombatantForm({
 							id="combatMaxHp" 
 							label="Max HP" 
 							value={value.maxHp} 
-							placeholder="Max HP (optional)" 
+							placeholder="Max HP" 
 							onChange={(v) => onChange({ maxHp: v })} 
 						/>
 					</div>

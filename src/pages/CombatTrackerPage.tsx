@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Sword } from 'lucide-react';
 import ParkedGroupsPanel from '../components/ParkedGroups/ParkedGroupsPanel';
 import AddCombatantForm from '../components/CombatForm/AddCombatantForm';
@@ -16,6 +16,7 @@ type Props = {
 export default function CombatTrackerPage({ combatStateManager }: Props) {
   const formRef = useRef<HTMLDivElement>(null);
   const combatants = combatStateManager.state.combatants
+  const [formCollapsed, setFormCollapsed] = useState(false);
 
   const conditions = [
     'Blinded', 'Charmed', 'Deafened', 'Frightened', 'Grappled',
@@ -37,6 +38,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const handleIncludeParked = (combatant: any) => {
     combatStateManager.includeParkedGroup(combatant);
     if (formRef.current) {
+      setFormCollapsed(false); // Auto-expand
       formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
@@ -44,6 +46,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const handleIncludePlayer = (player: any) => {
     combatStateManager.includePlayer(player);
     if (formRef.current) {
+      setFormCollapsed(false); // Auto-expand
       formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
@@ -81,6 +84,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               : null
           }
           totalCount={combatStateManager.getTotalCombatantCount()}
+          isCollapsed={formCollapsed}
+          onToggleCollapse={setFormCollapsed}
           onChange={combatStateManager.updateNewCombatant}
           onSubmit={combatStateManager.addCombatant}
           onAddGroup={combatStateManager.addParkedGroup}
@@ -89,6 +94,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onRemoveInitiativeGroup={combatStateManager.removeInitiativeGroup}
           onUpdateInitiativeGroup={combatStateManager.updateInitiativeGroup}
         />
+
 
         {combatants.length > 0 && (
           <GroupsOverview groups={combatStateManager.getUniqueGroups() as GroupSummary[]} onRemoveGroup={combatStateManager.removeGroup} />
