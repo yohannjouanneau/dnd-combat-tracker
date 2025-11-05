@@ -4,7 +4,7 @@ import SaveBar from './components/SaveBar'
 import CombatTrackerPage from './pages/CombatTrackerPage'
 import type { SavedCombat } from './types'
 import CombatsPage from './pages/CombatsPage'
-import { combatStore } from './persistence/combatStore'
+import { combatStore } from './persistence/CombatStore'
 import { useCombatState } from './state'
 
 function App() {

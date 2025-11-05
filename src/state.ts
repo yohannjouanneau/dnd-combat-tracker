@@ -1,36 +1,42 @@
 import { useState, useCallback } from 'react';
-import type { CombatState, Combatant, NewCombatant, DeathSaves, GroupSummary } from './types';
+import type { CombatState, Combatant, NewCombatant, DeathSaves, GroupSummary, InitiativeGroup } from './types';
 
 export type CombatStateManager = {
-    // State
-    state: CombatState;
-    
-    // Parked Groups
-    addParkedGroup: () => void;
-    removeParkedGroup: (name: string) => void;
-    includeParkedGroup: (combatant: NewCombatant) => void;
-    
-    // New Combatant Form
-    updateNewCombatant: (patch: Partial<NewCombatant>) => void;
-    
-    // Combatants
-    addCombatant: () => void;
-    removeCombatant: (id: number) => void;
-    removeGroup: (groupName: string) => void;
-    updateHP: (id: number, change: number) => void;
-    toggleCondition: (id: number, condition: string) => void;
-    toggleConcentration: (id: number) => void;
-    updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
-    
-    // Turn Management
-    nextTurn: () => void;
-    prevTurn: () => void;
-    
-    // Utility
-    getUniqueGroups: () => GroupSummary[];
-    loadState: (newState: CombatState) => void;
-    resetState: () => void;
-  };
+  // State
+  state: CombatState;
+  
+  // Parked Groups
+  addParkedGroup: () => void;
+  removeParkedGroup: (name: string) => void;
+  includeParkedGroup: (combatant: NewCombatant) => void;
+  
+  // New Combatant Form
+  updateNewCombatant: (patch: Partial<NewCombatant>) => void;
+  
+  // Initiative Groups
+  addInitiativeGroup: () => void;
+  removeInitiativeGroup: (id: string) => void;
+  updateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
+  
+  // Combatants
+  addCombatant: () => void;
+  removeCombatant: (id: number) => void;
+  removeGroup: (groupName: string) => void;
+  updateHP: (id: number, change: number) => void;
+  toggleCondition: (id: number, condition: string) => void;
+  toggleConcentration: (id: number) => void;
+  updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
+  
+  // Turn Management
+  nextTurn: () => void;
+  prevTurn: () => void;
+  
+  // Utility
+  getUniqueGroups: () => GroupSummary[];
+  getTotalCombatantCount: () => number;
+  loadState: (newState: CombatState) => void;
+  resetState: () => void;
+};
 
 const getInitialState = (): CombatState => ({
   combatants: [],
@@ -39,11 +45,10 @@ const getInitialState = (): CombatState => ({
   parkedGroups: [],
   newCombatant: {
     groupName: '',
-    initiative: '',
+    initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
     hp: '',
     maxHp: '',
     ac: '',
-    count: '1',
     color: '#3b82f6'
   }
 });
@@ -54,20 +59,19 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
   // Parked Groups Management
   const addParkedGroup = useCallback(() => {
     setState(prev => {
-      if (!prev.newCombatant.groupName || !prev.newCombatant.initiative || !prev.newCombatant.hp) {
-        return prev;
-      }
+      if (!prev.newCombatant.groupName || !prev.newCombatant.hp) return prev;
+      if (prev.newCombatant.initiativeGroups.length === 0) return prev;
+      if (prev.newCombatant.initiativeGroups.some(g => !g.initiative)) return prev;
       
       return {
         ...prev,
         parkedGroups: [...prev.parkedGroups, { ...prev.newCombatant }],
         newCombatant: {
           groupName: '',
-          initiative: '',
+          initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
           hp: '',
           maxHp: '',
           ac: '',
-          count: '1',
           color: '#3b82f6'
         }
       };
@@ -96,39 +100,93 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
     }));
   }, []);
 
+  // Initiative Groups Management
+  const addInitiativeGroup = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      newCombatant: {
+        ...prev.newCombatant,
+        initiativeGroups: [
+          ...prev.newCombatant.initiativeGroups,
+          { id: crypto.randomUUID(), initiative: '', count: '1' }
+        ]
+      }
+    }));
+  }, []);
+
+  const removeInitiativeGroup = useCallback((id: string) => {
+    setState(prev => {
+      const filtered = prev.newCombatant.initiativeGroups.filter(g => g.id !== id);
+      // Keep at least one group
+      if (filtered.length === 0) return prev;
+      
+      return {
+        ...prev,
+        newCombatant: {
+          ...prev.newCombatant,
+          initiativeGroups: filtered
+        }
+      };
+    });
+  }, []);
+
+  const updateInitiativeGroup = useCallback((id: string, patch: Partial<InitiativeGroup>) => {
+    setState(prev => ({
+      ...prev,
+      newCombatant: {
+        ...prev.newCombatant,
+        initiativeGroups: prev.newCombatant.initiativeGroups.map(g =>
+          g.id === id ? { ...g, ...patch } : g
+        )
+      }
+    }));
+  }, []);
+
   // Combatant Management
   const addCombatant = useCallback(() => {
     setState(prev => {
       const nc = prev.newCombatant;
-      if (!nc.groupName || !nc.initiative || !nc.hp) return prev;
+      if (!nc.groupName || !nc.hp) return prev;
+      if (nc.initiativeGroups.length === 0) return prev;
+      if (nc.initiativeGroups.some(g => !g.initiative)) return prev;
 
-      const count = parseInt(nc.count) || 1;
+      // Calculate total count across all initiative groups
+      const totalCount = nc.initiativeGroups.reduce((sum, g) => sum + (parseInt(g.count) || 0), 0);
+      if (totalCount === 0) return prev;
+
       const baseId = Date.now();
+      let globalLetterIndex = 0;
+      const newCombatants: Combatant[] = [];
 
-      const newCombatants = Array.from({ length: count }, (_, index) => {
-        const letter = String.fromCharCode(65 + index); // A, B, C, etc.
-        return {
-          id: baseId + index,
-          name: nc.groupName,
-          displayName: count > 1 ? `${nc.groupName} ${letter}` : nc.groupName,
-          initiative: parseFloat(nc.initiative),
-          hp: parseInt(nc.hp),
-          maxHp: parseInt(nc.maxHp || nc.hp),
-          ac: nc.ac ? parseInt(nc.ac) : 10,
-          conditions: [],
-          concentration: false,
-          deathSaves: { successes: 0, failures: 0 },
-          groupName: nc.groupName,
-          color: nc.color,
-          groupIndex: index
-        } as Combatant;
+      // Create combatants for each initiative group
+      nc.initiativeGroups.forEach(group => {
+        const count = parseInt(group.count) || 0;
+        for (let i = 0; i < count; i++) {
+          const letter = String.fromCharCode(65 + globalLetterIndex);
+          newCombatants.push({
+            id: baseId + globalLetterIndex,
+            name: nc.groupName,
+            displayName: totalCount > 1 ? `${nc.groupName} ${letter}` : nc.groupName,
+            initiative: parseFloat(group.initiative),
+            hp: parseInt(nc.hp),
+            maxHp: parseInt(nc.maxHp || nc.hp),
+            ac: nc.ac ? parseInt(nc.ac) : 10,
+            conditions: [],
+            concentration: false,
+            deathSaves: { successes: 0, failures: 0 },
+            groupName: nc.groupName,
+            color: nc.color,
+            groupIndex: globalLetterIndex
+          });
+          globalLetterIndex++;
+        }
       });
 
+      // Merge and sort all combatants
       const updated = [...prev.combatants, ...newCombatants].sort((a, b) => {
         if (b.initiative !== a.initiative) {
           return b.initiative - a.initiative;
         }
-        // Same initiative: sort by group, then by index within group
         if (a.groupName !== b.groupName) {
           return a.groupName.localeCompare(b.groupName);
         }
@@ -140,11 +198,10 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
         combatants: updated,
         newCombatant: {
           groupName: '',
-          initiative: '',
+          initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
           hp: '',
           maxHp: '',
           ac: '',
-          count: '1',
           color: '#3b82f6'
         }
       };
@@ -271,6 +328,12 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
     return Array.from(groups.values());
   }, [state.combatants]);
 
+  const getTotalCombatantCount = useCallback(() => {
+    return state.newCombatant.initiativeGroups.reduce((sum, g) => {
+      return sum + (parseInt(g.count) || 0);
+    }, 0);
+  }, [state.newCombatant.initiativeGroups]);
+
   const loadState = useCallback((newState: CombatState) => {
     setState(newState);
   }, []);
@@ -291,6 +354,11 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
     // New Combatant Form
     updateNewCombatant,
     
+    // Initiative Groups
+    addInitiativeGroup,
+    removeInitiativeGroup,
+    updateInitiativeGroup,
+    
     // Combatants
     addCombatant,
     removeCombatant,
@@ -306,6 +374,7 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
     
     // Utility
     getUniqueGroups,
+    getTotalCombatantCount,
     loadState,
     resetState
   };

@@ -51,12 +51,18 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           formRef={formRef}
           colorPresets={colorPresets}
           value={combatStateManager.state.newCombatant}
-          fromParkedName={combatStateManager.state.parkedGroups.some(g => g.groupName === combatStateManager.state.newCombatant.groupName) ? combatStateManager.state.newCombatant.groupName : null}
-          onChange={(patch) => {
-            combatStateManager.updateNewCombatant({ ...combatStateManager.state.newCombatant, ...patch })
-          }}
+          fromParkedName={
+            combatStateManager.state.parkedGroups.some(g => g.groupName === combatStateManager.state.newCombatant.groupName) 
+              ? combatStateManager.state.newCombatant.groupName 
+              : null
+          }
+          totalCount={combatStateManager.getTotalCombatantCount()}
+          onChange={combatStateManager.updateNewCombatant}
           onSubmit={combatStateManager.addCombatant}
           onAddGroup={combatStateManager.addParkedGroup}
+          onAddInitiativeGroup={combatStateManager.addInitiativeGroup}
+          onRemoveInitiativeGroup={combatStateManager.removeInitiativeGroup}
+          onUpdateInitiativeGroup={combatStateManager.updateInitiativeGroup}
         />
 
         {combatants.length > 0 && (

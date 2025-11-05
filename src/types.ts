@@ -19,13 +19,18 @@ export type Combatant = {
   groupIndex: number;
 };
 
+export type InitiativeGroup = {
+  id: string;
+  initiative: string;
+  count: string;
+};
+
 export type NewCombatant = {
   groupName: string;
-  initiative: string;
+  initiativeGroups: InitiativeGroup[];
   hp: string;
   maxHp: string;
   ac: string;
-  count: string;
   color: string;
 };
 
@@ -52,4 +57,3 @@ export type SavedCombat = {
   updatedAt: number;
   data: CombatState;
 };
-

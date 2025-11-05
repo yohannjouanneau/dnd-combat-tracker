@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { SavedCombat, CombatState } from '../types';
-import { combatStore } from '../persistence/combatStore';
 import LabeledTextInput from '../components/common/LabeledTextInput';
+import { combatStore } from '../persistence/CombatStore';
 
 type Props = {
   onOpen: (id: string) => void;
@@ -21,8 +21,7 @@ export default function CombatsPage({ onOpen }: Props) {
     if (!name.trim()) return;
     const emptyState: CombatState = {
       combatants: [], currentTurn: 0, round: 1, parkedGroups: [],
-      newCombatant: { groupName: '', initiative: '', hp: '', maxHp: '', ac: '', count: '1', color: '#3b82f6' },
-      newParkedGroup: { name: '', color: '#3b82f6' }
+      newCombatant: { groupName: '', initiativeGroups: [], hp: '', maxHp: '', ac: '', color: '#3b82f6' },
     };
     
     const created = await combatStore.create({ name: name.trim(), description: description.trim(), data: emptyState, createdAt: Date.now(), updatedAt: Date.now(), id: '' } as any);
