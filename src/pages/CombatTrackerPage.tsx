@@ -7,6 +7,7 @@ import TurnControls from '../components/TurnControls/TurnControls';
 import CombatantsList from '../components/CombatantsList/CombatantsList';
 import type { GroupSummary } from '../types';
 import type { CombatStateManager } from '../state';
+import SavedPlayersPanel from '../components/CombatForm/SavedPlayerPanel';
 
 type Props = {
   combatStateManager: CombatStateManager;
@@ -33,6 +34,21 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     { name: 'Cyan', value: '#06b6d4' }
   ];
 
+  const handleIncludeParked = (combatant: any) => {
+    combatStateManager.includeParkedGroup(combatant);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleIncludePlayer = (player: any) => {
+    combatStateManager.includePlayer(player);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
       <div className="max-w-6xl mx-auto">
@@ -41,11 +57,19 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           <h1 className="text-4xl font-bold">Combat Tracker</h1>
         </div>
 
-        <ParkedGroupsPanel
-          parkedGroups={combatStateManager.state.parkedGroups}
-          onInclude={combatStateManager.includeParkedGroup}
-          onRemove={combatStateManager.removeParkedGroup}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SavedPlayersPanel
+            savedPlayers={combatStateManager.savedPlayers}
+            onInclude={handleIncludePlayer}
+            onRemove={combatStateManager.removePlayer}
+          />
+
+          <ParkedGroupsPanel
+            parkedGroups={combatStateManager.state.parkedGroups}
+            onInclude={handleIncludeParked}
+            onRemove={combatStateManager.removeParkedGroup}
+          />
+        </div>
 
         <AddCombatantForm
           formRef={formRef}
@@ -60,6 +84,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onChange={combatStateManager.updateNewCombatant}
           onSubmit={combatStateManager.addCombatant}
           onAddGroup={combatStateManager.addParkedGroup}
+          onSaveAsPlayer={combatStateManager.addPlayerFromForm}
           onAddInitiativeGroup={combatStateManager.addInitiativeGroup}
           onRemoveInitiativeGroup={combatStateManager.removeInitiativeGroup}
           onUpdateInitiativeGroup={combatStateManager.updateInitiativeGroup}

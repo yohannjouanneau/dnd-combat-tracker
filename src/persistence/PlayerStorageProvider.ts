@@ -1,5 +1,4 @@
-import type { SavedCombat } from "../types";
-
+import type { SavedPlayer } from "../types";
 
 function safeParse<T>(raw: string | null): T[] {
   if (!raw) return [] as unknown as T[];
@@ -15,57 +14,60 @@ function generateId(): string {
   return ([1,2,3,4,5,6,7,8,9,0].map(() =>
     Math.random().toString(36).slice(2)
   ).join('').slice(0,16));
-  // Typical output: '9sjh38qw2kt1zuxf'
 }
 
-export class LocalStorageProvider {
+export class PlayerStorageProvider {
   private key: string;
 
   constructor(key: string) {
     this.key = key;
   }
 
-  private readAll(): SavedCombat[] {
-    return safeParse<SavedCombat>(localStorage.getItem(this.key));
+  private readAll(): SavedPlayer[] {
+    return safeParse<SavedPlayer>(localStorage.getItem(this.key));
   }
 
-  private writeAll(items: SavedCombat[]): void {
+  private writeAll(items: SavedPlayer[]): void {
     localStorage.setItem(this.key, safeStringify(items));
   }
 
-  async list(): Promise<SavedCombat[]> {
+  async list(): Promise<SavedPlayer[]> {
     return this.readAll();
   }
 
-  async get(id: string): Promise<SavedCombat | undefined> {
+  async get(id: string): Promise<SavedPlayer | undefined> {
     return this.readAll().find(i => i.id === id);
   }
 
-  async create(data: Omit<SavedCombat, 'id' | 'createdAt' | 'updatedAt'> & Partial<Pick<SavedCombat, 'id' | 'createdAt' | 'updatedAt'>>): Promise<SavedCombat> {
+  async create(data: Omit<SavedPlayer, 'id' | 'createdAt' | 'updatedAt'> & Partial<Pick<SavedPlayer, 'id' | 'createdAt' | 'updatedAt'>>): Promise<SavedPlayer> {
     const now = Date.now();
     const generatedId = generateId();
     const id = data.id as string;
-    const combatId = id?.trim() !== '' ? id : generatedId
-    const item: SavedCombat = {
-      id: combatId,
-      createdAt: (data as any).createdAt ?? now,
-      updatedAt: (data as any).updatedAt ?? now,
-      description: (data as any).description ?? '',
-      name: (data as any).name ?? '',
-      data: (data as any).data ?? {},
+    const playerId = id?.trim() !== '' ? id : generatedId;
+    
+    const item: SavedPlayer = {
+      id: playerId,
+      groupName: data.groupName,
+      initiativeGroups: data.initiativeGroups,
+      hp: data.hp,
+      maxHp: data.maxHp,
+      ac: data.ac,
+      color: data.color,
+      createdAt: data.createdAt ?? now,
+      updatedAt: data.updatedAt ?? now
     };
-    console.log('DEBUG ==> item:', item);
+    
     const items = this.readAll();
     items.push(item);
     this.writeAll(items);
     return item;
   }
 
-  async update(id: string, patch: Partial<SavedCombat>): Promise<SavedCombat> {
+  async update(id: string, patch: Partial<SavedPlayer>): Promise<SavedPlayer> {
     const items = this.readAll();
     const idx = items.findIndex(i => i.id === id);
-    if (idx < 0) throw new Error('Not found');
-    const merged = { ...items[idx], ...patch, updatedAt: Date.now() } as SavedCombat;
+    if (idx < 0) throw new Error('Player not found');
+    const merged = { ...items[idx], ...patch, updatedAt: Date.now() } as SavedPlayer;
     items[idx] = merged;
     this.writeAll(items);
     return merged;
@@ -76,5 +78,3 @@ export class LocalStorageProvider {
     this.writeAll(items);
   }
 }
-
-

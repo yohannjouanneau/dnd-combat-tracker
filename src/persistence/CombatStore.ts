@@ -1,12 +1,12 @@
 import type { SavedCombat } from '../types';
-import { LocalStorageProvider } from './LocalStorageProvider';
+import { CombatStorageProvider } from './CombatStorageProvider';
 
 const STORAGE_KEY = 'dnd-ct:combats:v1';
 
 export class CombatStore {
-  private provider: LocalStorageProvider;
+  private provider: CombatStorageProvider;
 
-  constructor(provider: LocalStorageProvider = new LocalStorageProvider(STORAGE_KEY)) {
+  constructor(provider: CombatStorageProvider = new CombatStorageProvider(STORAGE_KEY)) {
     this.provider = provider;
   }
 

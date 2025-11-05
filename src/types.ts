@@ -57,3 +57,15 @@ export type SavedCombat = {
   updatedAt: number;
   data: CombatState;
 };
+
+export type SavedPlayer = {
+  id: string;
+  groupName: string;
+  initiativeGroups: InitiativeGroup[];
+  hp: string;
+  maxHp: string;
+  ac: string;
+  color: string;
+  createdAt: number;
+  updatedAt: number;
+};

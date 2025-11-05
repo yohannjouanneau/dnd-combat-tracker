@@ -1,9 +1,14 @@
-import { useState, useCallback } from 'react';
-import type { CombatState, Combatant, NewCombatant, DeathSaves, GroupSummary, InitiativeGroup } from './types';
+import { useState, useCallback, useEffect } from 'react';
+import type { CombatState, Combatant, NewCombatant, DeathSaves, GroupSummary, InitiativeGroup, SavedPlayer } from './types';
+import { playerStore } from './persistence/PlayerStore';
 
 export type CombatStateManager = {
   // State
   state: CombatState;
+  
+  // Saved Players
+  savedPlayers: SavedPlayer[];
+  loadPlayers: () => Promise<void>;
   
   // Parked Groups
   addParkedGroup: () => void;
@@ -17,6 +22,11 @@ export type CombatStateManager = {
   addInitiativeGroup: () => void;
   removeInitiativeGroup: (id: string) => void;
   updateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
+  
+  // Player Management
+  addPlayerFromForm: () => Promise<void>;
+  removePlayer: (id: string) => Promise<void>;
+  includePlayer: (player: SavedPlayer) => void;
   
   // Combatants
   addCombatant: () => void;
@@ -55,6 +65,17 @@ const getInitialState = (): CombatState => ({
 
 export function useCombatState(initialState?: CombatState): CombatStateManager {
   const [state, setState] = useState<CombatState>(initialState || getInitialState());
+  const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
+
+  // Load players on mount
+  useEffect(() => {
+    loadPlayers();
+  }, []);
+
+  const loadPlayers = useCallback(async () => {
+    const players = await playerStore.list();
+    setSavedPlayers(players);
+  }, []);
 
   // Parked Groups Management
   const addParkedGroup = useCallback(() => {
@@ -138,6 +159,55 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
         initiativeGroups: prev.newCombatant.initiativeGroups.map(g =>
           g.id === id ? { ...g, ...patch } : g
         )
+      }
+    }));
+  }, []);
+
+  // Player Management
+  const addPlayerFromForm = useCallback(async () => {
+    const nc = state.newCombatant;
+    if (!nc.groupName || !nc.hp) return;
+    if (nc.initiativeGroups.length === 0) return;
+    if (nc.initiativeGroups.some(g => !g.initiative)) return;
+
+    await playerStore.create({
+      groupName: nc.groupName,
+      initiativeGroups: nc.initiativeGroups,
+      hp: nc.hp,
+      maxHp: nc.maxHp,
+      ac: nc.ac,
+      color: nc.color
+    });
+
+    await loadPlayers();
+    setState(prev => ({
+        ...prev,
+        newCombatant: {
+            groupName: '',
+            initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
+            hp: '',
+            maxHp: '',
+            ac: '',
+            color: '#3b82f6'
+          }
+    }))
+  }, [state.newCombatant, loadPlayers]);
+
+  const removePlayer = useCallback(async (id: string) => {
+    await playerStore.delete(id);
+    await loadPlayers();
+  }, [loadPlayers]);
+
+  const includePlayer = useCallback((player: SavedPlayer) => {
+    setState(prev => ({
+      ...prev,
+      newCombatant: {
+        groupName: player.groupName,
+        initiativeGroups: player.initiativeGroups,
+        hp: player.hp,
+        maxHp: player.maxHp,
+        ac: player.ac,
+        color: player.color
       }
     }));
   }, []);
@@ -346,6 +416,10 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
     // State
     state,
     
+    // Saved Players
+    savedPlayers,
+    loadPlayers,
+    
     // Parked Groups
     addParkedGroup,
     removeParkedGroup,
@@ -358,6 +432,11 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
     addInitiativeGroup,
     removeInitiativeGroup,
     updateInitiativeGroup,
+    
+    // Player Management
+    addPlayerFromForm,
+    removePlayer,
+    includePlayer,
     
     // Combatants
     addCombatant,

@@ -3,8 +3,8 @@ import type { NewCombatant, InitiativeGroup } from '../../types';
 import LabeledTextInput from '../common/LabeledTextInput';
 import LabeledNumberInput from '../common/LabeledNumberInput';
 import ColorPicker from '../common/ColorPicker';
-import { Plus, ChevronDown } from 'lucide-react';
 import InitiativeGroupInput from './InitiativeGroupInput';
+import { Plus, ChevronDown, Save } from 'lucide-react';
 
 type ColorPreset = { name: string; value: string };
 
@@ -17,6 +17,7 @@ type Props = {
 	onChange: (patch: Partial<NewCombatant>) => void;
 	onSubmit: () => void;
 	onAddGroup: () => void;
+	onSaveAsPlayer: () => void;
 	onAddInitiativeGroup: () => void;
 	onRemoveInitiativeGroup: (id: string) => void;
 	onUpdateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
@@ -31,6 +32,7 @@ export default function AddCombatantForm({
 	onChange, 
 	onSubmit, 
 	onAddGroup,
+	onSaveAsPlayer,
 	onAddInitiativeGroup,
 	onRemoveInitiativeGroup,
 	onUpdateInitiativeGroup
@@ -160,6 +162,14 @@ export default function AddCombatantForm({
 						>
 							<Plus className="w-4 h-4" />
 							Add to Parked Groups
+						</button>
+						<button 
+							onClick={onSaveAsPlayer} 
+							className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded flex items-center gap-2 transition"
+							title="Save as player for reuse across combats"
+						>
+							<Save className="w-4 h-4" />
+							Save as Player
 						</button>
 					</div>
 				</div>
