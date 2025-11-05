@@ -64,13 +64,17 @@ const getInitialState = (): CombatState => ({
 });
 
 export function useCombatState(initialState?: CombatState): CombatStateManager {
-  const [state, setState] = useState<CombatState>(initialState || getInitialState());
+  const [state, setState] = useState<CombatState>(getInitialState());
   const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
 
   // Load players on mount
   useEffect(() => {
     loadPlayers();
   }, []);
+
+  useEffect(() => {
+    setState(initialState || getInitialState())
+  }, [initialState]);
 
   const loadPlayers = useCallback(async () => {
     const players = await playerStore.list();
