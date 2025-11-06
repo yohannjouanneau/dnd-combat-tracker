@@ -1,18 +1,17 @@
-type Preset = { name: string; value: string };
+import { DEFAULT_COLOR_PRESET } from "../../constants";
 
 type Props = {
-	presets: Preset[];
 	value: string;
 	onChange: (value: string) => void;
 	label?: string;
 };
 
-export default function ColorPicker({ presets, value, onChange, label }: Props) {
+export default function ColorPicker({value, onChange, label }: Props) {
 	return (
 		<div className="flex flex-col gap-1">
 			{label && <label className="text-sm text-slate-300">{label}</label>}
 			<div className="flex gap-1">
-				{presets.map((preset) => (
+				{DEFAULT_COLOR_PRESET.map((preset) => (
 					<button
 						key={preset.value}
 						onClick={() => onChange(preset.value)}

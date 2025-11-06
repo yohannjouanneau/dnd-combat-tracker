@@ -9,7 +9,6 @@ import CombatantAvatar from '../common/CombatantAvatar';
 type Props = {
   combatant: Combatant;
   isActive: boolean;
-  conditions: string[];
   onRemove: (id: number) => void;
   onDeltaHp: (id: number, delta: number) => void;
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
@@ -19,8 +18,7 @@ type Props = {
 
 export default function CombatantCard({ 
   combatant, 
-  isActive, 
-  conditions, 
+  isActive,  
   onRemove, 
   onDeltaHp, 
   onDeathSaves, 
@@ -29,9 +27,6 @@ export default function CombatantCard({
 }: Props) {
   const isDying = combatant.hp === 0;
 
-  console.log('DEBUG ==> Image url ', combatant.imageUrl);
-  
-  
   return (
     <div
       className={`bg-slate-800 rounded-lg p-6 border-2 transition ${
@@ -90,7 +85,6 @@ export default function CombatantCard({
         onToggle={() => onToggleConcentration(combatant.id)} 
       />
       <ConditionsList 
-        allConditions={conditions} 
         activeConditions={combatant.conditions} 
         onToggle={(c) => onToggleCondition(combatant.id, c)} 
       />

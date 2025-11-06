@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { SavedCombat, CombatState } from '../types';
 import LabeledTextInput from '../components/common/LabeledTextInput';
 import { dataStore } from '../persistence/storage';
+import { DEFAULT_NEW_COMBATANT } from '../constants';
 
 type Props = {
   onOpen: (id: string) => void;
@@ -21,7 +22,7 @@ export default function CombatsPage({ onOpen }: Props) {
     if (!name.trim()) return;
     const emptyState: CombatState = {
       combatants: [], currentTurn: 0, round: 1, parkedGroups: [],
-      newCombatant: { groupName: '', initiativeGroups: [], hp: '', maxHp: '', ac: '', color: '#3b82f6', imageUrl: '' },
+      newCombatant: DEFAULT_NEW_COMBATANT,
     };
     
     const created = await dataStore.createCombat({ name: name.trim(), description: description.trim(), data: emptyState, createdAt: Date.now(), updatedAt: Date.now(), id: '' } as any);

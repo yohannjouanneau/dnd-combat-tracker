@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { CombatState, Combatant, NewCombatant, DeathSaves, GroupSummary, InitiativeGroup, SavedPlayer, SavedCombat } from './types';
 import { dataStore } from './persistence/storage';
+import { DEFAULT_NEW_COMBATANT } from './constants';
 
 export type CombatStateManager = {
   // State
@@ -58,15 +59,7 @@ const getInitialState = (): CombatState => ({
   currentTurn: 0,
   round: 1,
   parkedGroups: [],
-  newCombatant: {
-    groupName: '',
-    initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
-    hp: '',
-    maxHp: '',
-    ac: '',
-    color: '#3b82f6',
-    imageUrl: ''
-  }
+  newCombatant: DEFAULT_NEW_COMBATANT
 });
 
 export function useCombatState(): CombatStateManager {
@@ -128,15 +121,7 @@ export function useCombatState(): CombatStateManager {
       return {
         ...prev,
         parkedGroups: [...filteredGroups, groupToAdd],
-        newCombatant: {
-          groupName: '',
-          initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
-          hp: '',
-          maxHp: '',
-          ac: '',
-          color: '#3b82f6',
-          imageUrl: ''
-        }
+        newCombatant: DEFAULT_NEW_COMBATANT
       };
     });
   }, []);
@@ -242,15 +227,7 @@ export function useCombatState(): CombatStateManager {
     // Clear the form after saving player
     setState(prev => ({
       ...prev,
-      newCombatant: {
-        groupName: '',
-        initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
-        hp: '',
-        maxHp: '',
-        ac: '',
-        color: '#3b82f6',
-        imageUrl: ''
-      }
+      newCombatant: DEFAULT_NEW_COMBATANT
     }));
   }, [state.newCombatant, savedPlayers, loadPlayers]);
 
@@ -281,9 +258,6 @@ export function useCombatState(): CombatStateManager {
       if (!nc.groupName || !nc.hp) return prev;
       if (nc.initiativeGroups.length === 0) return prev;
       if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return prev;
-
-        console.log('DEBUG ==> NC image url ', nc.imageUrl);
-        
 
       // If maxHp is empty, use hp as maxHp
       const effectiveMaxHp = nc.maxHp || nc.hp;
@@ -335,16 +309,8 @@ export function useCombatState(): CombatStateManager {
       return {
         ...prev,
         combatants: updated,
-        newCombatant: {
-          groupName: '',
-          initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
-          hp: '',
-          maxHp: '',
-          ac: '',
-          color: '#3b82f6',
-          imageUrl: ''
-        }
-      };
+        newCombatant: DEFAULT_NEW_COMBATANT
+    }
     });
   }, []);
 

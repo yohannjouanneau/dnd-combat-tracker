@@ -1,4 +1,4 @@
-import { useState, type RefObject } from 'react';
+import { type RefObject } from 'react';
 import type { NewCombatant, InitiativeGroup } from '../../types';
 import LabeledTextInput from '../common/LabeledTextInput';
 import LabeledNumberInput from '../common/LabeledNumberInput';
@@ -6,11 +6,9 @@ import ColorPicker from '../common/ColorPicker';
 import InitiativeGroupInput from './InitiativeGroupInput';
 import { Plus, ChevronDown, Save } from 'lucide-react';
 
-type ColorPreset = { name: string; value: string };
 
 type Props = {
 	formRef: RefObject<HTMLDivElement | null>;
-	colorPresets: ColorPreset[];
 	value: NewCombatant;
 	fromParkedName?: string | null;
 	totalCount: number;
@@ -27,7 +25,6 @@ type Props = {
 
 export default function AddCombatantForm({ 
 	formRef, 
-	colorPresets, 
 	value, 
 	fromParkedName, 
 	totalCount,
@@ -41,6 +38,9 @@ export default function AddCombatantForm({
 	onRemoveInitiativeGroup,
 	onUpdateInitiativeGroup
 }: Props) {
+
+	console.log('DEBUG ==> init group', value.initiativeGroups.length);
+	
 	const getLetterRange = () => {
 		if (totalCount <= 1) return '';
 		const lastLetter = String.fromCharCode(65 + totalCount - 1);
@@ -82,7 +82,6 @@ export default function AddCombatantForm({
 							onChange={(v) => onChange({ groupName: v })} 
 						/>
 						<ColorPicker 
-							presets={colorPresets} 
 							value={value.color} 
 							onChange={(v) => onChange({ color: v })} 
 							label="Color" 
