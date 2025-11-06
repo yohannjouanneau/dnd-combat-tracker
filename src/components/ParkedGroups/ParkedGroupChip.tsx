@@ -14,7 +14,7 @@ export default function ParkedGroupChip({ group, onInclude, onRemove }: Props) {
 		>
 			<div className="w-3 h-3 rounded-full" style={{ backgroundColor: group.color }} />
 			<span className="font-semibold">{group.groupName}</span>
-			<button onClick={() => onInclude(group)} className="text-blue-400 hover:text-blue-300 text-sm">Include</button>
+			<button onClick={() => onInclude(group)} className="text-blue-400 hover:text-blue-300 text-sm">Edit</button>
 			<button onClick={() => onRemove(group.groupName)} className="text-red-400 hover:text-red-300 text-sm">Remove</button>
 		</div>
 	);

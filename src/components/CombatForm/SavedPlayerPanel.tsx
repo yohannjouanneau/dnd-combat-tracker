@@ -1,4 +1,4 @@
-import { Users, Trash2, Plus } from 'lucide-react';
+import { Users, Trash2, Edit } from 'lucide-react';
 import type { SavedPlayer } from '../../types';
 import CombatantAvatar from '../common/CombatantAvatar';
 
@@ -57,13 +57,13 @@ export default function SavedPlayersPanel({ savedPlayers, onInclude, onRemove }:
                   className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1 transition"
                   title="Load into form"
                 >
-                  <Plus className="w-3 h-3" />
-                  Include
+                  <Edit className="w-3 h-3" />
+                  Edit
                 </button>
                 <button
                   onClick={() => onRemove(player.id)}
                   className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-sm transition"
-                  title="Delete player"
+                  title="Delete"
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>

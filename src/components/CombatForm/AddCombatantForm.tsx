@@ -38,8 +38,6 @@ export default function AddCombatantForm({
 	onRemoveInitiativeGroup,
 	onUpdateInitiativeGroup
 }: Props) {
-
-	console.log('DEBUG ==> init group', value.initiativeGroups.length);
 	
 	const getLetterRange = () => {
 		if (totalCount <= 1) return '';
@@ -53,7 +51,7 @@ export default function AddCombatantForm({
 				onClick={() => onToggleCollapse(!isCollapsed)}
 				className="w-full flex items-center justify-between p-6 hover:bg-slate-700 transition-colors"
 			>
-				<h2 className="text-xl font-semibold">Add Combatant</h2>
+				<h2 className="text-xl font-semibold">Combatant stats</h2>
 				<div className="transition-transform duration-300" style={{ transform: isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}>
 					<ChevronDown className="w-5 h-5 text-slate-400" />
 				</div>
@@ -130,14 +128,21 @@ export default function AddCombatantForm({
 							<label className="text-sm font-medium text-slate-300">
 								Initiative Groups
 								{totalCount > 0 && (
-									<span className="ml-2 text-blue-400">
-										Will create {totalCount} combatant{totalCount !== 1 ? 's' : ''}{getLetterRange()}
+									<span className="ml-2 text-blue-400 text-xs">
+										→ {totalCount} combatant{totalCount !== 1 ? 's' : ''}{getLetterRange()}
 									</span>
 								)}
 							</label>
+							<button
+								onClick={onAddInitiativeGroup}
+								className="bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded flex items-center gap-1 transition text-xs"
+							>
+								<Plus className="w-3 h-3" />
+								Add Group
+							</button>
 						</div>
 						
-						<div className="space-y-2">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							{value.initiativeGroups.map((group, index) => (
 								<InitiativeGroupInput
 									key={group.id}
@@ -149,14 +154,6 @@ export default function AddCombatantForm({
 								/>
 							))}
 						</div>
-
-						<button
-							onClick={onAddInitiativeGroup}
-							className="mt-2 bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded flex items-center gap-2 transition text-sm"
-						>
-							<Plus className="w-4 h-4" />
-							Add Initiative Group
-						</button>
 					</div>
 
 					<div className="flex gap-3 mt-4">
