@@ -1,15 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
-import type { CombatState, Combatant, NewCombatant, DeathSaves, GroupSummary, InitiativeGroup, SavedPlayer } from './types';
-import { playerStore } from './persistence/PlayerStore';
+import type { CombatState, Combatant, NewCombatant, DeathSaves, GroupSummary, InitiativeGroup, SavedPlayer, SavedCombat } from './types';
+import { dataStore } from './persistence/storage';
 
 export type CombatStateManager = {
   // State
   state: CombatState;
+
+  // Saved Combats
+  loadCombat:(combatId: string) => Promise<void>,
+  saveCombat: (patch: Partial<SavedCombat>) => Promise<void>
+  updateCombat: (name: string, description: string) => void
   
   // Saved Players
   savedPlayers: SavedPlayer[];
   loadPlayers: () => Promise<void>;
-  
+
   // Parked Groups
   addParkedGroup: () => void;
   removeParkedGroup: (name: string) => void;
@@ -63,7 +68,7 @@ const getInitialState = (): CombatState => ({
   }
 });
 
-export function useCombatState(initialState?: CombatState): CombatStateManager {
+export function useCombatState(): CombatStateManager {
   const [state, setState] = useState<CombatState>(getInitialState());
   const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
 
@@ -72,14 +77,35 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
     loadPlayers();
   }, []);
 
-  useEffect(() => {
-    setState(initialState || getInitialState())
-  }, [initialState]);
+  const loadCombat = async (combatId: string) => {
+    const savedCombat = await dataStore.getCombat(combatId)
+    
+    if (savedCombat?.data) {
+        setState({... savedCombat.data, combatId: savedCombat.id, combatName: savedCombat.name, combatDescription: savedCombat.description})
+    }
+  }
 
-  const loadPlayers = useCallback(async () => {
-    const players = await playerStore.list();
+  const saveCombat = async (patch: Partial<SavedCombat>) => {
+    if (state.combatId) {
+        const updatedCombat = await dataStore.updateCombat(state.combatId, patch)
+        setState(updatedCombat.data)
+    }
+  }
+
+  const updateCombat = (name: string, description: string) => {
+    setState(prev => {
+        return {
+            ...prev,
+            combatName: name, 
+            combatDescription: description
+        }
+    })
+  }
+
+  const loadPlayers = async () => {
+    const players = await dataStore.listPlayer();
     setSavedPlayers(players);
-  }, []);
+  }
 
   // Parked Groups Management
   const addParkedGroup = useCallback(() => {
@@ -182,7 +208,7 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
     if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return;
 
     // If maxHp is empty, copy hp to maxHp
-    await playerStore.create({
+    await dataStore.createPlayer({
       groupName: nc.groupName,
       initiativeGroups: nc.initiativeGroups,
       hp: nc.hp,
@@ -208,7 +234,7 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
   }, [state.newCombatant, loadPlayers]);
 
   const removePlayer = useCallback(async (id: string) => {
-    await playerStore.delete(id);
+    await dataStore.deletePlayer(id);
     await loadPlayers();
   }, [loadPlayers]);
 
@@ -432,6 +458,11 @@ export function useCombatState(initialState?: CombatState): CombatStateManager {
   return {
     // State
     state,
+
+    // Saved combats 
+    loadCombat,
+    saveCombat,
+    updateCombat,
     
     // Saved Players
     savedPlayers,

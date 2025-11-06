@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { SavedCombat, CombatState } from '../types';
 import LabeledTextInput from '../components/common/LabeledTextInput';
-import { combatStore } from '../persistence/CombatStore';
+import { dataStore } from '../persistence/storage';
 
 type Props = {
   onOpen: (id: string) => void;
@@ -14,7 +14,7 @@ export default function CombatsPage({ onOpen }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    combatStore.list().then((c) => { setCombats(c); setLoading(false); });
+    dataStore.listCombat().then((c) => { setCombats(c); setLoading(false); });
   }, []);
 
   const create = async () => {
@@ -24,21 +24,21 @@ export default function CombatsPage({ onOpen }: Props) {
       newCombatant: { groupName: '', initiativeGroups: [], hp: '', maxHp: '', ac: '', color: '#3b82f6' },
     };
     
-    const created = await combatStore.create({ name: name.trim(), description: description.trim(), data: emptyState, createdAt: Date.now(), updatedAt: Date.now(), id: '' } as any);
+    const created = await dataStore.createCombat({ name: name.trim(), description: description.trim(), data: emptyState, createdAt: Date.now(), updatedAt: Date.now(), id: '' } as any);
     setName(''); 
     setDescription('');
-    setCombats(await combatStore.list());
+    setCombats(await dataStore.listCombat());
     onOpen(created.id);
   };
 
   const del = async (id: string) => {
-    await combatStore.delete(id);
-    setCombats(await combatStore.list());
+    await dataStore.deleteCombat(id);
+    setCombats(await dataStore.listCombat());
   };
 
   const rename = async (id: string, newName: string) => {
-    await combatStore.update(id, { name: newName, updatedAt: Date.now() });
-    setCombats(await combatStore.list());
+    await dataStore.updateCombat(id, { name: newName, updatedAt: Date.now() });
+    setCombats(await dataStore.listCombat());
   };
 
   if (loading) return <div className="p-6 text-slate-300">Loading…</div>;

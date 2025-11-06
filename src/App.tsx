@@ -2,15 +2,12 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import SaveBar from './components/SaveBar'
 import CombatTrackerPage from './pages/CombatTrackerPage'
-import type { SavedCombat } from './types'
 import CombatsPage from './pages/CombatsPage'
-import { combatStore } from './persistence/CombatStore'
 import { useCombatState } from './state'
 
 function App() {
   const [route, setRoute] = useState<string>(location.hash || '#combats');
-  const [current, setCurrent] = useState<SavedCombat | undefined>(undefined);
-  const combatStateManager = useCombatState(current?.data)
+  const combatStateManager = useCombatState()
 
   useEffect(() => {
     const onHash = () => {
@@ -23,10 +20,8 @@ function App() {
   useEffect(() => {
     const combatIdMatch = route.match(/^#play\/([a-zA-Z0-9]+)$/);
     if (combatIdMatch) {
-      combatStore.get(combatIdMatch[1]).then(setCurrent as any);
-    } else {
-      setCurrent(undefined);
-    } 
+      combatStateManager.loadCombat(combatIdMatch[1])
+    }
   }, [route]);
 
   const open = (id: string) => { location.hash = `#play/${id}`; };
@@ -36,18 +31,18 @@ function App() {
     return <CombatsPage onOpen={open} />;
   }
 
-  if (!current) return <div className="p-6 text-white">Loading…</div>;
+  if (!combatStateManager.state) return <div className="p-6 text-white">Loading…</div>;
 
   return (
     <div>
       <SaveBar
-        name={current.name}
-        description={current.description}
-        onChange={(patch) => setCurrent({ ...current, ...patch })}
+        name={combatStateManager.state.combatName ?? ''}
+        description={combatStateManager.state.combatDescription ?? ''}
+        onChange={(patch) => combatStateManager.updateCombat(patch.name ?? '', patch.description ?? '')}
         onBack={back}
         onSave={async () => {
-          if (!current) return;
-          await combatStore.update(current.id, { name: current.name, description: current.description, data: combatStateManager.state, updatedAt: Date.now() });
+          if (!combatStateManager.state) return;
+          await combatStateManager.saveCombat({ name: combatStateManager.state.combatName, description: combatStateManager.state.combatDescription, data: combatStateManager.state, updatedAt: Date.now() });
         }}
       />
       <CombatTrackerPage

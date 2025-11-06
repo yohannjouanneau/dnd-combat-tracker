@@ -42,6 +42,9 @@ export type GroupSummary = {
 
 // Serializable snapshot of the tracker
 export type CombatState = {
+  combatId?: string,
+  combatName?: string,
+  combatDescription?: string,
   combatants: Combatant[];
   currentTurn: number;
   round: number;

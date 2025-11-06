@@ -48,13 +48,12 @@ export class CombatStorageProvider {
     const combatId = id?.trim() !== '' ? id : generatedId
     const item: SavedCombat = {
       id: combatId,
-      createdAt: (data as any).createdAt ?? now,
-      updatedAt: (data as any).updatedAt ?? now,
-      description: (data as any).description ?? '',
-      name: (data as any).name ?? '',
-      data: (data as any).data ?? {},
+      createdAt: data.createdAt ?? now,
+      updatedAt: data.updatedAt ?? now,
+      description: data.description ?? '',
+      name: data.name ?? '',
+      data: {...data.data, combatId: generatedId, combatName: data.name, combatDescription: data.description}
     };
-    console.log('DEBUG ==> item:', item);
     const items = this.readAll();
     items.push(item);
     this.writeAll(items);
