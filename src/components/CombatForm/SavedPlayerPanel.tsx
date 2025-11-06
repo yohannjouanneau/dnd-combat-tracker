@@ -1,5 +1,6 @@
 import { Users, Trash2, Plus } from 'lucide-react';
 import type { SavedPlayer } from '../../types';
+import CombatantAvatar from '../common/CombatantAvatar';
 
 type Props = {
   savedPlayers: SavedPlayer[];
@@ -36,10 +37,12 @@ export default function SavedPlayersPanel({ savedPlayers, onInclude, onRemove }:
               key={player.id} 
               className="flex items-center justify-between bg-slate-900 rounded p-3 border border-slate-700"
             >
-              <div className="flex items-center gap-3 flex-1">
-                <div 
-                  className="w-4 h-4 rounded-full flex-shrink-0" 
-                  style={{ backgroundColor: player.color }}
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <CombatantAvatar
+                  imageUrl={player.imageUrl}
+                  name={player.groupName}
+                  color={player.color}
+                  size="sm"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-white truncate">{player.groupName}</div>

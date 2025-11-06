@@ -17,6 +17,7 @@ export type Combatant = {
   groupName: string;
   color: string;
   groupIndex: number;
+  imageUrl: string;
 };
 
 export type InitiativeGroup = {
@@ -32,6 +33,7 @@ export type NewCombatant = {
   maxHp: string;
   ac: string;
   color: string;
+  imageUrl: string
 };
 
 export type GroupSummary = {
@@ -71,4 +73,5 @@ export type SavedPlayer = {
   color: string;
   createdAt: number;
   updatedAt: number;
+  imageUrl: string;
 };

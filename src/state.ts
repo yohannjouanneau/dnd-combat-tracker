@@ -64,7 +64,8 @@ const getInitialState = (): CombatState => ({
     hp: '',
     maxHp: '',
     ac: '',
-    color: '#3b82f6'
+    color: '#3b82f6',
+    imageUrl: ''
   }
 });
 
@@ -133,7 +134,8 @@ export function useCombatState(): CombatStateManager {
           hp: '',
           maxHp: '',
           ac: '',
-          color: '#3b82f6'
+          color: '#3b82f6',
+          imageUrl: ''
         }
       };
     });
@@ -230,7 +232,8 @@ export function useCombatState(): CombatStateManager {
         hp: nc.hp,
         maxHp: nc.maxHp || nc.hp,
         ac: nc.ac,
-        color: nc.color
+        color: nc.color,
+        imageUrl: nc.imageUrl
       });
     }
 
@@ -245,7 +248,8 @@ export function useCombatState(): CombatStateManager {
         hp: '',
         maxHp: '',
         ac: '',
-        color: '#3b82f6'
+        color: '#3b82f6',
+        imageUrl: ''
       }
     }));
   }, [state.newCombatant, savedPlayers, loadPlayers]);
@@ -264,7 +268,8 @@ export function useCombatState(): CombatStateManager {
         hp: player.hp,
         maxHp: player.maxHp,
         ac: player.ac,
-        color: player.color
+        color: player.color,
+        imageUrl: player.imageUrl
       }
     }));
   }, []);
@@ -276,6 +281,9 @@ export function useCombatState(): CombatStateManager {
       if (!nc.groupName || !nc.hp) return prev;
       if (nc.initiativeGroups.length === 0) return prev;
       if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return prev;
+
+        console.log('DEBUG ==> NC image url ', nc.imageUrl);
+        
 
       // If maxHp is empty, use hp as maxHp
       const effectiveMaxHp = nc.maxHp || nc.hp;
@@ -306,7 +314,8 @@ export function useCombatState(): CombatStateManager {
             deathSaves: { successes: 0, failures: 0 },
             groupName: nc.groupName,
             color: nc.color,
-            groupIndex: globalLetterIndex
+            groupIndex: globalLetterIndex,
+            imageUrl: nc.imageUrl
           });
           globalLetterIndex++;
         }
@@ -332,7 +341,8 @@ export function useCombatState(): CombatStateManager {
           hp: '',
           maxHp: '',
           ac: '',
-          color: '#3b82f6'
+          color: '#3b82f6',
+          imageUrl: ''
         }
       };
     });

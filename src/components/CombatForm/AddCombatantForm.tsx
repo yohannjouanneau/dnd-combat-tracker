@@ -89,6 +89,16 @@ export default function AddCombatantForm({
 						/>
 					</div>
 
+					<div className="mb-4">
+						<LabeledTextInput
+							id="combatImageUrl"
+							label="Image URL (optional)"
+							value={value.imageUrl || ''}
+							placeholder="https://example.com/character.jpg"
+							onChange={(v) => onChange({ imageUrl: v })}
+						/>
+					</div>
+
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 						<LabeledNumberInput 
 							id="combatHp" 

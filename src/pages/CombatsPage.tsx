@@ -21,7 +21,7 @@ export default function CombatsPage({ onOpen }: Props) {
     if (!name.trim()) return;
     const emptyState: CombatState = {
       combatants: [], currentTurn: 0, round: 1, parkedGroups: [],
-      newCombatant: { groupName: '', initiativeGroups: [], hp: '', maxHp: '', ac: '', color: '#3b82f6' },
+      newCombatant: { groupName: '', initiativeGroups: [], hp: '', maxHp: '', ac: '', color: '#3b82f6', imageUrl: '' },
     };
     
     const created = await dataStore.createCombat({ name: name.trim(), description: description.trim(), data: emptyState, createdAt: Date.now(), updatedAt: Date.now(), id: '' } as any);
