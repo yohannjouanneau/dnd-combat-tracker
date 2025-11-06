@@ -121,9 +121,12 @@ export function useCombatState(): CombatStateManager {
         maxHp: nc.maxHp || nc.hp
       };
       
+      // Remove existing group with same name (if any) and add new one
+      const filteredGroups = prev.parkedGroups.filter(g => g.groupName !== nc.groupName);
+      
       return {
         ...prev,
-        parkedGroups: [...prev.parkedGroups, groupToAdd],
+        parkedGroups: [...filteredGroups, groupToAdd],
         newCombatant: {
           groupName: '',
           initiativeGroups: [{ id: crypto.randomUUID(), initiative: '', count: '1' }],
@@ -207,15 +210,29 @@ export function useCombatState(): CombatStateManager {
     if (nc.initiativeGroups.length === 0) return;
     if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return;
 
-    // If maxHp is empty, copy hp to maxHp
-    await dataStore.createPlayer({
-      groupName: nc.groupName,
-      initiativeGroups: nc.initiativeGroups,
-      hp: nc.hp,
-      maxHp: nc.maxHp || nc.hp,
-      ac: nc.ac,
-      color: nc.color
-    });
+    // Check if player with same name already exists
+    const existingPlayer = savedPlayers.find(p => p.groupName === nc.groupName);
+    
+    if (existingPlayer) {
+      // Update existing player
+      await dataStore.updatePlayer(existingPlayer.id, {
+        initiativeGroups: nc.initiativeGroups,
+        hp: nc.hp,
+        maxHp: nc.maxHp || nc.hp,
+        ac: nc.ac,
+        color: nc.color
+      });
+    } else {
+      // Create new player
+      await dataStore.createPlayer({
+        groupName: nc.groupName,
+        initiativeGroups: nc.initiativeGroups,
+        hp: nc.hp,
+        maxHp: nc.maxHp || nc.hp,
+        ac: nc.ac,
+        color: nc.color
+      });
+    }
 
     await loadPlayers();
     
@@ -231,7 +248,7 @@ export function useCombatState(): CombatStateManager {
         color: '#3b82f6'
       }
     }));
-  }, [state.newCombatant, loadPlayers]);
+  }, [state.newCombatant, savedPlayers, loadPlayers]);
 
   const removePlayer = useCallback(async (id: string) => {
     await dataStore.deletePlayer(id);
