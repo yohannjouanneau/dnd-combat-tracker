@@ -10,7 +10,7 @@ import { Plus, ChevronDown, Save, Sword, CircleParking } from 'lucide-react';
 type Props = {
 	formRef: RefObject<HTMLDivElement | null>;
 	value: NewCombatant;
-	fromParkedName?: string | null;
+	stagedFrom?: string;
 	totalCount: number;
 	isCollapsed: boolean;
 	onToggleCollapse: (collapsed: boolean) => void;
@@ -26,7 +26,7 @@ type Props = {
 export default function AddCombatantForm({ 
 	formRef, 
 	value, 
-	fromParkedName, 
+	stagedFrom, 
 	totalCount,
 	isCollapsed,
 	onToggleCollapse,
@@ -65,9 +65,9 @@ export default function AddCombatantForm({
 				}}
 			>
 				<div className="px-6 pb-6">
-					{fromParkedName && (
+					{stagedFrom && (
 						<div className="mb-3 text-sm text-slate-300">
-							Staged from parked group <span className="font-semibold">{fromParkedName}</span>.
+							Staged from <span className="font-semibold">{stagedFrom}</span>.
 						</div>
 					)}
 					

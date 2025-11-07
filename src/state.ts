@@ -35,7 +35,7 @@ export type CombatStateManager = {
   includePlayer: (player: SavedPlayer) => void;
   
   // Combatants
-  addCombatant: () => void;
+  addCombatant: (combatant?: NewCombatant) => void;
   removeCombatant: (id: number) => void;
   removeGroup: (groupName: string) => void;
   updateHP: (id: number, change: number) => void;
@@ -252,9 +252,9 @@ export function useCombatState(): CombatStateManager {
   }, []);
 
   // Combatant Management
-  const addCombatant = useCallback(() => {
+  const addCombatant = useCallback((combatant?: NewCombatant) => {
     setState(prev => {
-      const nc = prev.newCombatant;
+      const nc = combatant ?? prev.newCombatant;
       if (!nc.groupName || !nc.hp) return prev;
       if (nc.initiativeGroups.length === 0) return prev;
       if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return prev;

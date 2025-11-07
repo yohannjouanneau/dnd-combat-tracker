@@ -1,7 +1,9 @@
+import type { RefObject } from 'react';
 import type { Combatant, DeathSaves } from '../../types';
 import CombatantCard from './CombatantCard';
 
 type Props = {
+  combatListRef: RefObject<HTMLDivElement | null>;
   combatants: Combatant[];
   currentTurn: number;
   onRemove: (id: number) => void;
@@ -11,9 +13,9 @@ type Props = {
   onToggleCondition: (id: number, condition: string) => void;
 };
 
-export default function CombatantsList({ combatants, currentTurn, onRemove, onDeltaHp, onDeathSaves, onToggleConcentration, onToggleCondition }: Props) {
+export default function CombatantsList({ combatListRef, combatants, currentTurn, onRemove, onDeltaHp, onDeathSaves, onToggleConcentration, onToggleCondition }: Props) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" ref={combatListRef}>
       {combatants.map((c, index) => (
         <CombatantCard
           key={c.id}

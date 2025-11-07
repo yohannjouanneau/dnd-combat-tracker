@@ -1,5 +1,6 @@
 import { Trash2, Dices } from 'lucide-react';
 import type { InitiativeGroup } from '../../types';
+import { useEffect } from 'react';
 
 type Props = {
   group: InitiativeGroup;
@@ -14,6 +15,10 @@ export default function InitiativeGroupInput({ group, index, canRemove, onChange
     const roll = Math.floor(Math.random() * 20) + 1;
     onChange(group.id, { initiative: String(roll) });
   };
+
+  useEffect(() => {
+    rollInitiative()
+  }, [])
 
   return (
     <div className="flex items-center gap-2 p-2 bg-slate-900 rounded border border-slate-600">
