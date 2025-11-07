@@ -1,4 +1,3 @@
-
 type Props = {
   active: boolean;
   onToggle: () => void;
@@ -16,5 +15,3 @@ export default function ConcentrationToggle({ active, onToggle }: Props) {
     </div>
   );
 }
-
-

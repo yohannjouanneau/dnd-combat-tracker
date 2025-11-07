@@ -47,7 +47,7 @@ export default function HpBar({ hp, maxHp, onDelta }: Props) {
           <button 
             onClick={handleApplyDamage}
             disabled={!inputValue}
-            className="bg-red-600 hover:bg-red-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-2 rounded transition flex items-center gap-1"
+            className="bg-red-600 hover:bg-red-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
             title="Apply damage"
           >
             <Minus className="w-4 h-4" />
@@ -63,7 +63,7 @@ export default function HpBar({ hp, maxHp, onDelta }: Props) {
           <button 
             onClick={handleApplyHealing}
             disabled={!inputValue}
-            className="bg-green-600 hover:bg-green-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-2 rounded transition flex items-center gap-1"
+            className="bg-green-600 hover:bg-green-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
             title="Apply healing"
           >
             <Plus className="w-4 h-4" />
