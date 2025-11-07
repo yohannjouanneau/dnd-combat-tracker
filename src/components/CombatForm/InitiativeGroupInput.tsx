@@ -1,24 +1,26 @@
 import { Trash2, Dices } from 'lucide-react';
 import type { InitiativeGroup } from '../../types';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 type Props = {
   group: InitiativeGroup;
   index: number;
   canRemove: boolean;
+  initBonus: string,
   onChange: (id: string, patch: Partial<InitiativeGroup>) => void;
   onRemove: (id: string) => void;
 };
 
-export default function InitiativeGroupInput({ group, index, canRemove, onChange, onRemove }: Props) {
-  const rollInitiative = () => {
+export default function InitiativeGroupInput({ group, index, canRemove, initBonus,onChange, onRemove }: Props) {
+  const rollInitiative = useCallback(() => {
+    const bonus = initBonus.length > 0 ? parseInt(initBonus) : 0
     const roll = Math.floor(Math.random() * 20) + 1;
-    onChange(group.id, { initiative: String(roll) });
-  };
+    onChange(group.id, { initiative: String(roll + bonus) });
+  }, [initBonus, group.id])
 
   useEffect(() => {
     rollInitiative()
-  }, [])
+  }, [rollInitiative])
 
   return (
     <div className="flex items-center gap-2 p-2 bg-slate-900 rounded border border-slate-600">

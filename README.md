@@ -223,10 +223,6 @@ Contributions are welcome! Here's how you can help:
 - No collaborative/multiplayer features
 - Limited to browser localStorage capacity (~5-10MB)
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 - **D&D 5e**: Wizards of the Coast for the amazing game system
@@ -236,7 +232,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-Project Link: [https://github.com/yourusername/dnd-combat-tracker](https://github.com/yourusername/dnd-combat-tracker)
+Project Link: [https://github.com/yohannjouanneau/dnd-combat-tracker](https://github.com/yohannjouanneau/dnd-combat-tracker)
 
 ---
 

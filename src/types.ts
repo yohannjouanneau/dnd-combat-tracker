@@ -34,6 +34,7 @@ export type NewCombatant = {
   ac: string;
   color: string;
   imageUrl: string
+  initBonus: string
 };
 
 export type GroupSummary = {
@@ -74,4 +75,5 @@ export type SavedPlayer = {
   createdAt: number;
   updatedAt: number;
   imageUrl: string;
+  initBonus: string;
 };

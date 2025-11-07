@@ -4,7 +4,7 @@ import LabeledTextInput from '../common/LabeledTextInput';
 import LabeledNumberInput from '../common/LabeledNumberInput';
 import ColorPicker from '../common/ColorPicker';
 import InitiativeGroupInput from './InitiativeGroupInput';
-import { Plus, ChevronDown, Save, Sword, CircleParking } from 'lucide-react';
+import {ChevronDown, Save, Sword, CircleParking, Dice3 } from 'lucide-react';
 
 
 type Props = {
@@ -121,6 +121,14 @@ export default function AddCombatantForm({
 							placeholder="AC" 
 							onChange={(v) => onChange({ ac: v })} 
 						/>
+
+						<LabeledNumberInput 
+							id="initBonus" 
+							label="Init bonus" 
+							value={value.initBonus} 
+							placeholder="Init bonus" 
+							onChange={(v) => onChange({ initBonus: v })} 
+						/>
 					</div>
 
 					<div className="mb-4">
@@ -133,13 +141,6 @@ export default function AddCombatantForm({
 									</span>
 								)}
 							</label>
-							<button
-								onClick={onAddInitiativeGroup}
-								className="bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded flex items-center gap-1 transition text-xs"
-							>
-								<Plus className="w-3 h-3" />
-								Add Group
-							</button>
 						</div>
 						
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -148,6 +149,7 @@ export default function AddCombatantForm({
 									key={group.id}
 									group={group}
 									index={index}
+									initBonus={value.initBonus}
 									canRemove={value.initiativeGroups.length > 1}
 									onChange={onUpdateInitiativeGroup}
 									onRemove={onRemoveInitiativeGroup}
@@ -178,6 +180,13 @@ export default function AddCombatantForm({
 						>
 							<Save className="w-4 h-4" />
 							Save player
+						</button>
+						<button
+							onClick={onAddInitiativeGroup}
+							className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded flex items-center gap-2 transition"
+						>
+							<Dice3 className="w-4 h-4" />
+								Add init group
 						</button>
 					</div>
 				</div>

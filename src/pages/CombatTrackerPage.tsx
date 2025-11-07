@@ -43,14 +43,15 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   };
 
   const includePlayerToFight = (player: SavedPlayer) => {
-    const playerCombattant = {
+    const playerCombattant: NewCombatant = {
       groupName: player.groupName,
       initiativeGroups: player.initiativeGroups,
       hp: player.hp,
       maxHp: player.maxHp,
       ac: player.ac,
       color: player.color,
-      imageUrl: player.imageUrl
+      imageUrl: player.imageUrl,
+      initBonus: player.initBonus
     }
     combatStateManager.addCombatant(playerCombattant);
     if (combatListRef.current) {

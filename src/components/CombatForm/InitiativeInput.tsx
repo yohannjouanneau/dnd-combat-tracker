@@ -1,3 +1,5 @@
+import { Dice1 } from "lucide-react";
+
 type Props = {
 	value: string;
 	onChange: (value: string) => void;
@@ -21,7 +23,7 @@ export default function InitiativeInput({ value, onChange }: Props) {
 					className="bg-slate-600 hover:bg-slate-500 px-3 py-2 rounded transition text-sm"
 					title="Roll d20"
 				>
-					🎲
+					<Dice1 className="w-4 h-4"/>
 				</button>
 			</div>
 		</div>

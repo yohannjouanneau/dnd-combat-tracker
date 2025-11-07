@@ -218,7 +218,8 @@ export function useCombatState(): CombatStateManager {
         maxHp: nc.maxHp || nc.hp,
         ac: nc.ac,
         color: nc.color,
-        imageUrl: nc.imageUrl
+        imageUrl: nc.imageUrl,
+        initBonus: nc.initBonus
       });
     }
 
@@ -246,7 +247,8 @@ export function useCombatState(): CombatStateManager {
         maxHp: player.maxHp,
         ac: player.ac,
         color: player.color,
-        imageUrl: player.imageUrl
+        imageUrl: player.imageUrl,
+        initBonus: player.initBonus
       }
     }));
   }, []);

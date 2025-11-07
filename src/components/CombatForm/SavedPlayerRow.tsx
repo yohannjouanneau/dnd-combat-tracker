@@ -44,7 +44,7 @@ export default function SavedPlayerRow({ player, onInclude, onFight, onRemove }:
           title="Load into form"
         >
           <Plus className="w-3 h-3" />
-          Include
+          Edit
         </button>
         <button
           onClick={() => onFight(player)}

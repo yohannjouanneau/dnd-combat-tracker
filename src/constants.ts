@@ -7,7 +7,8 @@ export const DEFAULT_NEW_COMBATANT: NewCombatant = {
     maxHp: '',
     ac: '',
     color: '#3b82f6',
-    imageUrl: ''
+    imageUrl: '',
+    initBonus: ''
   }
 
   export const DEFAULT_CONDITIONS = [

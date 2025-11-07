@@ -55,7 +55,8 @@ export class PlayerStorageProvider {
       color: data.color,
       createdAt: data.createdAt ?? now,
       updatedAt: data.updatedAt ?? now,
-      imageUrl: data.imageUrl
+      imageUrl: data.imageUrl,
+      initBonus: data.initBonus
     };
     
     const items = this.readAll();
