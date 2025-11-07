@@ -268,8 +268,14 @@ export function useCombatState(): CombatStateManager {
       const totalCount = nc.initiativeGroups.reduce((sum, g) => sum + (parseInt(g.count) || 0), 0);
       if (totalCount === 0) return prev;
 
+      // Find highest existing index for this group
+      const existingGroupMembers = prev.combatants.filter(c => c.groupName === nc.groupName);
+      const maxGroupIndex = existingGroupMembers.length > 0 
+      ? Math.max(...existingGroupMembers.map(c => c.groupIndex))
+      : -1;
+
       const baseId = Date.now();
-      let globalLetterIndex = 0;
+      let globalLetterIndex = maxGroupIndex + 1
       const newCombatants: Combatant[] = [];
 
       // Create combatants for each initiative group

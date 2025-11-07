@@ -125,7 +125,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
         {combatants.length === 0 && (
           <div className="text-center text-slate-400 py-12">
-            <Sword className="w-16 h-16 mx-auto mb-4 opacity-50" />
+            <Sword className="text-lime-400 w-16 h-16 mx-auto mb-4 opacity-50" />
             <p className="text-xl">No combatants yet. Add some to start the battle!</p>
           </div>
         )}
