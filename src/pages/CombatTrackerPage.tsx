@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Sword } from 'lucide-react';
 import ParkedGroupsPanel from '../components/ParkedGroups/ParkedGroupsPanel';
 import AddCombatantForm from '../components/CombatForm/AddCombatantForm';
@@ -16,8 +16,33 @@ type Props = {
 export default function CombatTrackerPage({ combatStateManager }: Props) {
   const formRef = useRef<HTMLDivElement>(null);
   const combatListRef = useRef<HTMLDivElement>(null);
-  const combatants = combatStateManager.state.combatants
+  const combatants = combatStateManager.state.combatants;
   const [formCollapsed, setFormCollapsed] = useState(false);
+
+  // Keyboard shortcuts for turn navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ignore if user is typing in an input field
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      // Only handle arrow keys if there are combatants
+      if (combatants.length === 0) return;
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        combatStateManager.nextTurn();
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        combatStateManager.prevTurn();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [combatants.length, combatStateManager]);
 
   const handleIncludeParked = (combatant: NewCombatant) => {
     combatStateManager.includeParkedGroup(combatant);

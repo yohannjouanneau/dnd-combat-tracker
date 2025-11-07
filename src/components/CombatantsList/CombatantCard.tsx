@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { Combatant, DeathSaves } from '../../types';
 import HpBar from './HpBar';
 import DeathSavesComp from './DeathSaves';
@@ -25,10 +26,22 @@ export default function CombatantCard({
   onToggleConcentration, 
   onToggleCondition 
 }: Props) {
+  const cardRef = useRef<HTMLDivElement>(null);
   const isDying = combatant.hp === 0;
+
+  // Scroll into view when this card becomes active
+  useEffect(() => {
+    if (isActive && cardRef.current) {
+      cardRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest'
+      });
+    }
+  }, [isActive]);
 
   return (
     <div
+      ref={cardRef}
       className={`bg-slate-800 rounded-lg p-6 border-2 transition ${
         isActive ? 'border-yellow-500 shadow-lg shadow-yellow-500/20' : 'border-slate-700'
       }`}
@@ -61,6 +74,12 @@ export default function CombatantCard({
                   <Shield className="w-4 h-4" />
                   AC {combatant.ac}
                 </div>
+                <div className="flex items-center gap-1">
+                <ConcentrationToggle 
+                  active={combatant.concentration} 
+                  onToggle={() => onToggleConcentration(combatant.id)} 
+                />
+                </div>
               </div>
             </div>
             <button 
@@ -80,10 +99,6 @@ export default function CombatantCard({
           onChange={(type, value) => onDeathSaves(combatant.id, type, value)} 
         />
       )}
-      <ConcentrationToggle 
-        active={combatant.concentration} 
-        onToggle={() => onToggleConcentration(combatant.id)} 
-      />
       <ConditionsList 
         activeConditions={combatant.conditions} 
         onToggle={(c) => onToggleCondition(combatant.id, c)} 

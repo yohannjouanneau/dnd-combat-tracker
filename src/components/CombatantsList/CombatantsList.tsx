@@ -15,7 +15,10 @@ type Props = {
 
 export default function CombatantsList({ combatListRef, combatants, currentTurn, onRemove, onDeltaHp, onDeathSaves, onToggleConcentration, onToggleCondition }: Props) {
   return (
-    <div className="space-y-4" ref={combatListRef}>
+    <div 
+      className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800" 
+      ref={combatListRef}
+    >
       {combatants.map((c, index) => (
         <CombatantCard
           key={c.id}
@@ -31,5 +34,3 @@ export default function CombatantsList({ combatListRef, combatants, currentTurn,
     </div>
   );
 }
-
-
