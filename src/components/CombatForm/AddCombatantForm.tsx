@@ -4,7 +4,7 @@ import LabeledTextInput from '../common/LabeledTextInput';
 import LabeledNumberInput from '../common/LabeledNumberInput';
 import ColorPicker from '../common/ColorPicker';
 import InitiativeGroupInput from './InitiativeGroupInput';
-import { Plus, ChevronDown, Save } from 'lucide-react';
+import { Plus, ChevronDown, Save, Sword, CircleParking } from 'lucide-react';
 
 
 type Props = {
@@ -159,17 +159,17 @@ export default function AddCombatantForm({
 					<div className="flex gap-3 mt-4">
 						<button 
 							onClick={onSubmit} 
-							className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center gap-2 transition"
+							className="bg-lime-600 hover:bg-lime-700 text-white px-4 py-2 rounded flex items-center gap-2 transition"
 						>
-							<Plus className="w-4 h-4" />
-							Add to Combat
+							<Sword className="w-4 h-4" />
+							Fight !
 						</button>
 						<button 
 							onClick={onAddGroup} 
-							className="bg-slate-600 hover:bg-slate-500 text-white px-4 py-2 rounded flex items-center gap-2 transition"
+							className="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded flex items-center gap-2 transition"
 						>
-							<Plus className="w-4 h-4" />
-							Add to Parked Groups
+							<CircleParking className="w-4 h-4" />
+							Park Group
 						</button>
 						<button 
 							onClick={onSaveAsPlayer} 
@@ -177,7 +177,7 @@ export default function AddCombatantForm({
 							title="Save as player for reuse across combats"
 						>
 							<Save className="w-4 h-4" />
-							Save as Player
+							Save player
 						</button>
 					</div>
 				</div>

@@ -1,4 +1,4 @@
-import { Users, Trash2, Edit } from 'lucide-react';
+import { Users, Trash2, Edit, Sword } from 'lucide-react';
 import type { SavedPlayer } from '../../types';
 import CombatantAvatar from '../common/CombatantAvatar';
 
@@ -21,7 +21,7 @@ export default function SavedPlayersPanel({ savedPlayers, onInclude, onRemove }:
   return (
     <div className="bg-slate-800 rounded-lg p-6 mb-6 border border-slate-700">
       <div className="flex items-center gap-2 mb-4">
-        <Users className="w-5 h-5 text-blue-400" />
+        <Users className="w-5 h-5 text-purple-400" />
         <h2 className="text-xl font-semibold">Saved Players</h2>
       </div>
       
@@ -54,15 +54,21 @@ export default function SavedPlayersPanel({ savedPlayers, onInclude, onRemove }:
               <div className="flex gap-2 flex-shrink-0">
                 <button
                   onClick={() => onInclude(player)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1 transition"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-3 rounded text-sm flex items-center gap-1 transition"
                   title="Load into form"
                 >
                   <Edit className="w-3 h-3" />
-                  Edit
+                </button>
+                <button
+                  onClick={() => {} }
+                  className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-3 rounded text-sm flex items-center gap-1 transition"
+                  title="Start the fight"
+                >
+                  <Sword className="w-3 h-3" />
                 </button>
                 <button
                   onClick={() => onRemove(player.id)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-sm transition"
+                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-3 rounded text-sm transition"
                   title="Delete"
                 >
                   <Trash2 className="w-3 h-3" />
