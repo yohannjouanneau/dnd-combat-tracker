@@ -77,3 +77,6 @@ export type SavedPlayer = {
   imageUrl: string;
   initBonus: string;
 };
+
+export type SavedCombatInput = Omit<SavedCombat, 'id' | 'createdAt' | 'updatedAt'>
+export type SavedPlayerInput = Omit<SavedPlayer, 'id' | 'createdAt' | 'updatedAt'>

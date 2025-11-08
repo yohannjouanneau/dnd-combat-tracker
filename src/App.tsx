@@ -7,10 +7,12 @@ import { useCombatState } from './state'
 
 function App() {
   const [route, setRoute] = useState<string>(location.hash || '#combats');
+  const [isLoading, setIsLoading] = useState(false);
   const combatStateManager = useCombatState()
 
   useEffect(() => {
     const onHash = () => {
+      console.log(`DEBUG ==> App ==> onHash`, location);
       setRoute(location.hash || '#combats');
     };
     window.addEventListener('hashchange', onHash);
@@ -20,9 +22,12 @@ function App() {
   useEffect(() => {
     const combatIdMatch = route.match(/^#play\/([a-zA-Z0-9]+)$/);
     if (combatIdMatch) {
-      combatStateManager.loadCombat(combatIdMatch[1])
+      setIsLoading(true);
+      combatStateManager.loadCombat(combatIdMatch[1]).finally(() => {
+        setIsLoading(false);
+      });
     }
-  }, [route, combatStateManager]);
+  }, [route]);
 
   const open = (id: string) => { location.hash = `#play/${id}`; };
   const back = () => { location.hash = '#combats'; };
@@ -31,7 +36,9 @@ function App() {
     return <CombatsPage onOpen={open} />;
   }
 
-  if (!combatStateManager.state) return <div className="p-6 text-white">Loading…</div>;
+  if (isLoading) {
+    return <div className="p-6 text-white">Loading combat…</div>;
+  }
 
   return (
     <div>

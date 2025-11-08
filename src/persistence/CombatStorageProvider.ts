@@ -1,4 +1,5 @@
-import type { SavedCombat } from "../types";
+import type { SavedCombat, SavedCombatInput } from "../types";
+import { generateId } from "../utils";
 
 
 function safeParse<T>(raw: string | null): T[] {
@@ -8,14 +9,6 @@ function safeParse<T>(raw: string | null): T[] {
 
 function safeStringify<T>(data: T[]): string {
   try { return JSON.stringify(data); } catch { return '[]'; }
-}
-
-function generateId(): string {
-  // Generate a random id: 16 characters, URL-safe
-  return ([1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(() =>
-    Math.random().toString(36).slice(2)
-  ).join('').slice(0, 16));
-  // Typical output: '9sjh38qw2kt1zuxf'
 }
 
 export class CombatStorageProvider {
@@ -41,15 +34,13 @@ export class CombatStorageProvider {
     return this.readAll().find(i => i.id === id);
   }
 
-  async create(data: Omit<SavedCombat, 'id' | 'createdAt' | 'updatedAt'> & Partial<Pick<SavedCombat, 'id' | 'createdAt' | 'updatedAt'>>): Promise<SavedCombat> {
+  async create(data: SavedCombatInput): Promise<SavedCombat> {
     const now = Date.now();
     const generatedId = generateId();
-    const id = data.id as string;
-    const combatId = id?.trim() !== '' ? id : generatedId
     const item: SavedCombat = {
-      id: combatId,
-      createdAt: data.createdAt ?? now,
-      updatedAt: data.updatedAt ?? now,
+      id: generatedId,
+      createdAt: now,
+      updatedAt: now,
       description: data.description ?? '',
       name: data.name ?? '',
       data: { ...data.data, combatId: generatedId, combatName: data.name, combatDescription: data.description }

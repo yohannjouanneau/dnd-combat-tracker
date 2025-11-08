@@ -1,4 +1,5 @@
-import type { SavedPlayer } from "../types";
+import type { SavedPlayer, SavedPlayerInput } from "../types";
+import { generateId } from "../utils";
 
 function safeParse<T>(raw: string | null): T[] {
   if (!raw) return [] as unknown as T[];
@@ -7,13 +8,6 @@ function safeParse<T>(raw: string | null): T[] {
 
 function safeStringify<T>(data: T[]): string {
   try { return JSON.stringify(data); } catch { return '[]'; }
-}
-
-function generateId(): string {
-  // Generate a random id: 16 characters, URL-safe
-  return ([1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(() =>
-    Math.random().toString(36).slice(2)
-  ).join('').slice(0, 16));
 }
 
 export class PlayerStorageProvider {
@@ -39,22 +33,20 @@ export class PlayerStorageProvider {
     return this.readAll().find(i => i.id === id);
   }
 
-  async create(data: Omit<SavedPlayer, 'id' | 'createdAt' | 'updatedAt'> & Partial<Pick<SavedPlayer, 'id' | 'createdAt' | 'updatedAt'>>): Promise<SavedPlayer> {
+  async create(data: SavedPlayerInput): Promise<SavedPlayer> {
     const now = Date.now();
     const generatedId = generateId();
-    const id = data.id as string;
-    const playerId = id?.trim() !== '' ? id : generatedId;
-
+    
     const item: SavedPlayer = {
-      id: playerId,
+      id: generatedId,
       groupName: data.groupName,
       initiativeGroups: data.initiativeGroups,
       hp: data.hp,
       maxHp: data.maxHp,
       ac: data.ac,
       color: data.color,
-      createdAt: data.createdAt ?? now,
-      updatedAt: data.updatedAt ?? now,
+      createdAt: now,
+      updatedAt: now,
       imageUrl: data.imageUrl,
       initBonus: data.initBonus
     };

@@ -1,4 +1,4 @@
-import type { SavedCombat, SavedPlayer } from '../types';
+import type { SavedCombat, SavedCombatInput, SavedPlayer, SavedPlayerInput } from '../types';
 import { CombatStorageProvider } from './CombatStorageProvider';
 import { PlayerStorageProvider } from './PlayerStorageProvider';
 
@@ -19,13 +19,13 @@ export class DataStore {
 
   listCombat() { return this.combatProvider.list(); }
   getCombat(id: string) { return this.combatProvider.get(id); }
-  createCombat(input: Omit<SavedCombat, 'id' | 'createdAt' | 'updatedAt'>) { return this.combatProvider.create(input); }
+  createCombat(input: SavedCombatInput) { return this.combatProvider.create(input); }
   updateCombat(id: string, patch: Partial<SavedCombat>) { return this.combatProvider.update(id, patch); }
   deleteCombat(id: string) { return this.combatProvider.delete(id); }
 
   listPlayer() { return this.playerProvider.list(); }
   getPlayer(id: string) { return this.playerProvider.get(id); }
-  createPlayer(input: Omit<SavedPlayer, 'id' | 'createdAt' | 'updatedAt'>) { return this.playerProvider.create(input); }
+  createPlayer(input: SavedPlayerInput) { return this.playerProvider.create(input); }
   updatePlayer(id: string, patch: Partial<SavedPlayer>) { return this.playerProvider.update(id, patch); }
   deletePlayer(id: string) { return this.playerProvider.delete(id); }
 }
