@@ -17,14 +17,14 @@ type Props = {
   onToggleCondition: (id: number, condition: string) => void;
 };
 
-export default function CombatantCard({ 
-  combatant, 
-  isActive,  
-  onRemove, 
-  onDeltaHp, 
-  onDeathSaves, 
-  onToggleConcentration, 
-  onToggleCondition 
+export default function CombatantCard({
+  combatant,
+  isActive,
+  onRemove,
+  onDeltaHp,
+  onDeathSaves,
+  onToggleConcentration,
+  onToggleCondition
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const isDying = combatant.hp === 0;
@@ -32,8 +32,8 @@ export default function CombatantCard({
   // Scroll into view when this card becomes active
   useEffect(() => {
     if (isActive && cardRef.current) {
-      cardRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
+      cardRef.current.scrollIntoView({
+        behavior: 'smooth',
         block: 'nearest'
       });
     }
@@ -42,9 +42,8 @@ export default function CombatantCard({
   return (
     <div
       ref={cardRef}
-      className={`bg-slate-800 rounded-lg p-6 border-2 transition ${
-        isActive ? 'border-yellow-500 shadow-lg shadow-yellow-500/20' : 'border-slate-700'
-      }`}
+      className={`bg-slate-800 rounded-lg p-6 border-2 transition ${isActive ? 'border-yellow-500 shadow-lg shadow-yellow-500/20' : 'border-slate-700'
+        }`}
       style={{ borderLeftWidth: '6px', borderLeftColor: combatant.color }}
     >
       <div className="flex items-start gap-4 mb-4">
@@ -54,7 +53,7 @@ export default function CombatantCard({
           color={combatant.color}
           size="md"
         />
-        
+
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -75,15 +74,15 @@ export default function CombatantCard({
                   AC {combatant.ac}
                 </div>
                 <div className="flex items-center gap-1">
-                <ConcentrationToggle 
-                  active={combatant.concentration} 
-                  onToggle={() => onToggleConcentration(combatant.id)} 
-                />
+                  <ConcentrationToggle
+                    active={combatant.concentration}
+                    onToggle={() => onToggleConcentration(combatant.id)}
+                  />
                 </div>
               </div>
             </div>
-            <button 
-              onClick={() => onRemove(combatant.id)} 
+            <button
+              onClick={() => onRemove(combatant.id)}
               className="text-red-500 hover:text-red-400 transition"
             >
               <Trash2 className="w-5 h-5" />
@@ -94,14 +93,14 @@ export default function CombatantCard({
 
       <HpBar hp={combatant.hp} maxHp={combatant.maxHp} onDelta={(d) => onDeltaHp(combatant.id, d)} />
       {isDying && (
-        <DeathSavesComp 
-          value={combatant.deathSaves} 
-          onChange={(type, value) => onDeathSaves(combatant.id, type, value)} 
+        <DeathSavesComp
+          value={combatant.deathSaves}
+          onChange={(type, value) => onDeathSaves(combatant.id, type, value)}
         />
       )}
-      <ConditionsList 
-        activeConditions={combatant.conditions} 
-        onToggle={(c) => onToggleCondition(combatant.id, c)} 
+      <ConditionsList
+        activeConditions={combatant.conditions}
+        onToggle={(c) => onToggleCondition(combatant.id, c)}
       />
     </div>
   );

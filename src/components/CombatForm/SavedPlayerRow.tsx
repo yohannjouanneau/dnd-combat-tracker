@@ -20,7 +20,7 @@ export default function SavedPlayerRow({ player, onInclude, onFight, onRemove }:
   };
 
   return (
-    <div 
+    <div
       className="flex items-center justify-between bg-slate-900 rounded p-3 border border-slate-700"
     >
       <div className="flex items-center gap-3 flex-1 min-w-0">

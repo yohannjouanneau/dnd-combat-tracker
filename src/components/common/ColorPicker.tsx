@@ -6,7 +6,7 @@ type Props = {
 	label?: string;
 };
 
-export default function ColorPicker({value, onChange, label }: Props) {
+export default function ColorPicker({ value, onChange, label }: Props) {
 	return (
 		<div className="flex flex-col gap-1">
 			{label && <label className="text-sm text-slate-300">{label}</label>}

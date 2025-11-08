@@ -24,9 +24,9 @@ export default function CombatsPage({ onOpen }: Props) {
       combatants: [], currentTurn: 0, round: 1, parkedGroups: [],
       newCombatant: DEFAULT_NEW_COMBATANT,
     };
-    
+
     const created = await dataStore.createCombat({ name: name.trim(), description: description.trim(), data: emptyState, createdAt: Date.now(), updatedAt: Date.now(), id: '' } as any);
-    setName(''); 
+    setName('');
     setDescription('');
     setCombats(await dataStore.listCombat());
     onOpen(created.id);

@@ -4,7 +4,7 @@ import LabeledTextInput from '../common/LabeledTextInput';
 import LabeledNumberInput from '../common/LabeledNumberInput';
 import ColorPicker from '../common/ColorPicker';
 import InitiativeGroupInput from './InitiativeGroupInput';
-import {ChevronDown, Save, Sword, CircleParking, Dice3 } from 'lucide-react';
+import { ChevronDown, Save, Sword, CircleParking, Dice3 } from 'lucide-react';
 
 
 type Props = {
@@ -23,22 +23,22 @@ type Props = {
 	onUpdateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
 };
 
-export default function AddCombatantForm({ 
-	formRef, 
-	value, 
-	stagedFrom, 
+export default function AddCombatantForm({
+	formRef,
+	value,
+	stagedFrom,
 	totalCount,
 	isCollapsed,
 	onToggleCollapse,
-	onChange, 
-	onSubmit, 
+	onChange,
+	onSubmit,
 	onAddGroup,
 	onSaveAsPlayer,
 	onAddInitiativeGroup,
 	onRemoveInitiativeGroup,
 	onUpdateInitiativeGroup
 }: Props) {
-	
+
 	const getLetterRange = () => {
 		if (totalCount <= 1) return '';
 		const lastLetter = String.fromCharCode(65 + totalCount - 1);
@@ -57,7 +57,7 @@ export default function AddCombatantForm({
 				</div>
 			</button>
 
-			<div 
+			<div
 				className="transition-all duration-300 ease-in-out overflow-hidden"
 				style={{
 					maxHeight: isCollapsed ? '0px' : '2000px',
@@ -70,19 +70,19 @@ export default function AddCombatantForm({
 							Staged from <span className="font-semibold">{stagedFrom}</span>.
 						</div>
 					)}
-					
+
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-						<LabeledTextInput 
-							id="combatGroupName" 
-							label="Group Name" 
-							value={value.groupName} 
-							placeholder="Group Name" 
-							onChange={(v) => onChange({ groupName: v })} 
+						<LabeledTextInput
+							id="combatGroupName"
+							label="Group Name"
+							value={value.groupName}
+							placeholder="Group Name"
+							onChange={(v) => onChange({ groupName: v })}
 						/>
-						<ColorPicker 
-							value={value.color} 
-							onChange={(v) => onChange({ color: v })} 
-							label="Color" 
+						<ColorPicker
+							value={value.color}
+							onChange={(v) => onChange({ color: v })}
+							label="Color"
 						/>
 					</div>
 
@@ -97,37 +97,37 @@ export default function AddCombatantForm({
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-						<LabeledNumberInput 
-							id="combatHp" 
-							label="Current HP" 
-							value={value.hp} 
-							placeholder="Current HP" 
-							onChange={(v) => onChange({ hp: v })} 
+						<LabeledNumberInput
+							id="combatHp"
+							label="Current HP"
+							value={value.hp}
+							placeholder="Current HP"
+							onChange={(v) => onChange({ hp: v })}
 						/>
-						<LabeledNumberInput 
-							id="combatMaxHp" 
-							label="Max HP" 
-							value={value.maxHp} 
-							placeholder="Max HP" 
-							onChange={(v) => onChange({ maxHp: v })} 
+						<LabeledNumberInput
+							id="combatMaxHp"
+							label="Max HP"
+							value={value.maxHp}
+							placeholder="Max HP"
+							onChange={(v) => onChange({ maxHp: v })}
 						/>
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-						<LabeledNumberInput 
-							id="combatAc" 
-							label="AC" 
-							value={value.ac} 
-							placeholder="AC" 
-							onChange={(v) => onChange({ ac: v })} 
+						<LabeledNumberInput
+							id="combatAc"
+							label="AC"
+							value={value.ac}
+							placeholder="AC"
+							onChange={(v) => onChange({ ac: v })}
 						/>
 
-						<LabeledNumberInput 
-							id="initBonus" 
-							label="Init bonus" 
-							value={value.initBonus} 
-							placeholder="Init bonus" 
-							onChange={(v) => onChange({ initBonus: v })} 
+						<LabeledNumberInput
+							id="initBonus"
+							label="Init bonus"
+							value={value.initBonus}
+							placeholder="Init bonus"
+							onChange={(v) => onChange({ initBonus: v })}
 						/>
 					</div>
 
@@ -142,7 +142,7 @@ export default function AddCombatantForm({
 								)}
 							</label>
 						</div>
-						
+
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							{value.initiativeGroups.map((group, index) => (
 								<InitiativeGroupInput
@@ -159,22 +159,22 @@ export default function AddCombatantForm({
 					</div>
 
 					<div className="flex gap-3 mt-4">
-						<button 
-							onClick={onSubmit} 
+						<button
+							onClick={onSubmit}
 							className="bg-lime-600 hover:bg-lime-700 text-white px-4 py-2 rounded flex items-center gap-2 transition"
 						>
 							<Sword className="w-4 h-4" />
 							Fight !
 						</button>
-						<button 
-							onClick={onAddGroup} 
+						<button
+							onClick={onAddGroup}
 							className="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded flex items-center gap-2 transition"
 						>
 							<CircleParking className="w-4 h-4" />
 							Park Group
 						</button>
-						<button 
-							onClick={onSaveAsPlayer} 
+						<button
+							onClick={onSaveAsPlayer}
 							className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded flex items-center gap-2 transition"
 							title="Save as player for reuse across combats"
 						>
@@ -186,7 +186,7 @@ export default function AddCombatantForm({
 							className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded flex items-center gap-2 transition"
 						>
 							<Dice3 className="w-4 h-4" />
-								Add init group
+							Add init group
 						</button>
 					</div>
 				</div>

@@ -12,9 +12,9 @@ function safeStringify<T>(data: T[]): string {
 
 function generateId(): string {
   // Generate a random id: 16 characters, URL-safe
-  return ([1,2,3,4,5,6,7,8,9,0].map(() =>
+  return ([1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(() =>
     Math.random().toString(36).slice(2)
-  ).join('').slice(0,16));
+  ).join('').slice(0, 16));
   // Typical output: '9sjh38qw2kt1zuxf'
 }
 
@@ -52,7 +52,7 @@ export class CombatStorageProvider {
       updatedAt: data.updatedAt ?? now,
       description: data.description ?? '',
       name: data.name ?? '',
-      data: {...data.data, combatId: generatedId, combatName: data.name, combatDescription: data.description}
+      data: { ...data.data, combatId: generatedId, combatName: data.name, combatDescription: data.description }
     };
     const items = this.readAll();
     items.push(item);

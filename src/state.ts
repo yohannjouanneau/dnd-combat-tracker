@@ -8,10 +8,10 @@ export type CombatStateManager = {
   state: CombatState;
 
   // Saved Combats
-  loadCombat:(combatId: string) => Promise<void>,
+  loadCombat: (combatId: string) => Promise<void>,
   saveCombat: (patch: Partial<SavedCombat>) => Promise<void>
   updateCombat: (name: string, description: string) => void
-  
+
   // Saved Players
   savedPlayers: SavedPlayer[];
   loadPlayers: () => Promise<void>;
@@ -20,20 +20,20 @@ export type CombatStateManager = {
   addParkedGroup: () => void;
   removeParkedGroup: (name: string) => void;
   includeParkedGroup: (combatant: NewCombatant) => void;
-  
+
   // New Combatant Form
   updateNewCombatant: (patch: Partial<NewCombatant>) => void;
-  
+
   // Initiative Groups
   addInitiativeGroup: () => void;
   removeInitiativeGroup: (id: string) => void;
   updateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
-  
+
   // Player Management
   addPlayerFromForm: () => Promise<void>;
   removePlayer: (id: string) => Promise<void>;
   includePlayer: (player: SavedPlayer) => void;
-  
+
   // Combatants
   addCombatant: (combatant?: NewCombatant) => void;
   removeCombatant: (id: number) => void;
@@ -42,11 +42,11 @@ export type CombatStateManager = {
   toggleCondition: (id: number, condition: string) => void;
   toggleConcentration: (id: number) => void;
   updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
-  
+
   // Turn Management
   nextTurn: () => void;
   prevTurn: () => void;
-  
+
   // Utility
   getUniqueGroups: () => GroupSummary[];
   getTotalCombatantCount: () => number;
@@ -73,26 +73,26 @@ export function useCombatState(): CombatStateManager {
 
   const loadCombat = async (combatId: string) => {
     const savedCombat = await dataStore.getCombat(combatId)
-    
+
     if (savedCombat?.data) {
-        setState({... savedCombat.data, combatId: savedCombat.id, combatName: savedCombat.name, combatDescription: savedCombat.description})
+      setState({ ...savedCombat.data, combatId: savedCombat.id, combatName: savedCombat.name, combatDescription: savedCombat.description })
     }
   }
 
   const saveCombat = async (patch: Partial<SavedCombat>) => {
     if (state.combatId) {
-        const updatedCombat = await dataStore.updateCombat(state.combatId, patch)
-        setState(updatedCombat.data)
+      const updatedCombat = await dataStore.updateCombat(state.combatId, patch)
+      setState(updatedCombat.data)
     }
   }
 
   const updateCombat = (name: string, description: string) => {
     setState(prev => {
-        return {
-            ...prev,
-            combatName: name, 
-            combatDescription: description
-        }
+      return {
+        ...prev,
+        combatName: name,
+        combatDescription: description
+      }
     })
   }
 
@@ -108,16 +108,16 @@ export function useCombatState(): CombatStateManager {
       if (!nc.groupName || !nc.hp) return prev;
       if (nc.initiativeGroups.length === 0) return prev;
       if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return prev;
-      
+
       // If maxHp is empty, copy hp to maxHp
       const groupToAdd = {
         ...nc,
         maxHp: nc.maxHp || nc.hp
       };
-      
+
       // Remove existing group with same name (if any) and add new one
       const filteredGroups = prev.parkedGroups.filter(g => g.groupName !== nc.groupName);
-      
+
       return {
         ...prev,
         parkedGroups: [...filteredGroups, groupToAdd],
@@ -167,7 +167,7 @@ export function useCombatState(): CombatStateManager {
       const filtered = prev.newCombatant.initiativeGroups.filter(g => g.id !== id);
       // Keep at least one group
       if (filtered.length === 0) return prev;
-      
+
       return {
         ...prev,
         newCombatant: {
@@ -199,7 +199,7 @@ export function useCombatState(): CombatStateManager {
 
     // Check if player with same name already exists
     const existingPlayer = savedPlayers.find(p => p.groupName === nc.groupName);
-    
+
     if (existingPlayer) {
       // Update existing player
       await dataStore.updatePlayer(existingPlayer.id, {
@@ -224,7 +224,7 @@ export function useCombatState(): CombatStateManager {
     }
 
     await loadPlayers();
-    
+
     // Clear the form after saving player
     setState(prev => ({
       ...prev,
@@ -270,9 +270,9 @@ export function useCombatState(): CombatStateManager {
 
       // Find highest existing index for this group
       const existingGroupMembers = prev.combatants.filter(c => c.groupName === nc.groupName);
-      const maxGroupIndex = existingGroupMembers.length > 0 
-      ? Math.max(...existingGroupMembers.map(c => c.groupIndex))
-      : -1;
+      const maxGroupIndex = existingGroupMembers.length > 0
+        ? Math.max(...existingGroupMembers.map(c => c.groupIndex))
+        : -1;
 
       const baseId = Date.now();
       let globalLetterIndex = maxGroupIndex + 1
@@ -318,7 +318,7 @@ export function useCombatState(): CombatStateManager {
         ...prev,
         combatants: updated,
         newCombatant: DEFAULT_NEW_COMBATANT
-    }
+      }
     });
   }, []);
 
@@ -464,29 +464,29 @@ export function useCombatState(): CombatStateManager {
     loadCombat,
     saveCombat,
     updateCombat,
-    
+
     // Saved Players
     savedPlayers,
     loadPlayers,
-    
+
     // Parked Groups
     addParkedGroup,
     removeParkedGroup,
     includeParkedGroup,
-    
+
     // New Combatant Form
     updateNewCombatant,
-    
+
     // Initiative Groups
     addInitiativeGroup,
     removeInitiativeGroup,
     updateInitiativeGroup,
-    
+
     // Player Management
     addPlayerFromForm,
     removePlayer,
     includePlayer,
-    
+
     // Combatants
     addCombatant,
     removeCombatant,
@@ -495,11 +495,11 @@ export function useCombatState(): CombatStateManager {
     toggleCondition,
     toggleConcentration,
     updateDeathSave,
-    
+
     // Turn Management
     nextTurn,
     prevTurn,
-    
+
     // Utility
     getUniqueGroups,
     getTotalCombatantCount,

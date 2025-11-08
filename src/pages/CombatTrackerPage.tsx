@@ -120,7 +120,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           isCollapsed={formCollapsed}
           onToggleCollapse={setFormCollapsed}
           onChange={combatStateManager.updateNewCombatant}
-          onSubmit={() => { combatStateManager.addCombatant()}}
+          onSubmit={() => { combatStateManager.addCombatant() }}
           onAddGroup={combatStateManager.addParkedGroup}
           onSaveAsPlayer={combatStateManager.addPlayerFromForm}
           onAddInitiativeGroup={combatStateManager.addInitiativeGroup}

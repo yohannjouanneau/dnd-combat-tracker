@@ -24,7 +24,7 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
             <X className="w-4 h-4" />
           </button>
         ))}
-        
+
         {/* Add Condition Button */}
         <button
           onClick={() => setShowAll(!showAll)}
@@ -49,11 +49,10 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
                     setShowAll(false);
                   }
                 }}
-                className={`px-3 py-1 rounded text-sm transition ${
-                  activeConditions.includes(condition)
-                    ? 'bg-orange-600 hover:bg-orange-700' 
+                className={`px-3 py-1 rounded text-sm transition ${activeConditions.includes(condition)
+                    ? 'bg-orange-600 hover:bg-orange-700'
                     : 'bg-slate-700 hover:bg-slate-600'
-                }`}
+                  }`}
               >
                 {condition}
               </button>

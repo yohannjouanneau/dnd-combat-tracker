@@ -35,7 +35,7 @@ export default function CombatantAvatar({ imageUrl, name, color, size = 'md' }: 
   // Show image if URL exists and hasn't errored
   if (imageUrl && !imageError) {
     return (
-      <div 
+      <div
         className={`${sizeClasses[size]} rounded-lg flex-shrink-0 overflow-hidden border-2`}
         style={{ borderColor: color }}
       >
@@ -51,9 +51,9 @@ export default function CombatantAvatar({ imageUrl, name, color, size = 'md' }: 
 
   // Fallback to initials or icon
   return (
-    <div 
+    <div
       className={`${sizeClasses[size]} rounded-lg flex-shrink-0 flex items-center justify-center font-bold border-2`}
-      style={{ 
+      style={{
         backgroundColor: `${color}20`,
         borderColor: color,
         color: color

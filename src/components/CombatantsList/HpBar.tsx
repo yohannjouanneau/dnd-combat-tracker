@@ -43,14 +43,14 @@ export default function HpBar({ hp, maxHp, onDelta }: Props) {
         <div className="flex items-center gap-2">
           <span className="font-semibold text-white">{hp} / {maxHp} HP</span>
         </div>
-          <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden p-2 m-4">
+        <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden p-2 m-4">
           <div
             className={`h-full transition-all ${pct > 50 ? 'bg-green-500' : pct > 25 ? 'bg-yellow-500' : 'bg-red-500'}`}
             style={{ width: `${pct}%` }}
           />
         </div>
         <div className="flex gap-2 items-center">
-          <button 
+          <button
             onClick={handleApplyDamage}
             disabled={!inputValue}
             className="bg-red-600 hover:bg-red-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
@@ -66,7 +66,7 @@ export default function HpBar({ hp, maxHp, onDelta }: Props) {
             placeholder="0"
             className="bg-slate-700 text-white rounded px-3 py-2 border border-slate-600 focus:border-blue-500 focus:outline-none w-20 text-center"
           />
-          <button 
+          <button
             onClick={handleApplyHealing}
             disabled={!inputValue}
             className="bg-green-600 hover:bg-green-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
