@@ -25,7 +25,7 @@ export default function CombatsPage({ onOpen }: Props) {
       newCombatant: DEFAULT_NEW_COMBATANT,
     };
 
-    const created = await dataStore.createCombat({ name: name.trim(), description: description.trim(), data: emptyState, createdAt: Date.now(), updatedAt: Date.now(), id: '' } as any);
+    const created = await dataStore.createCombat({ name: name.trim(), description: description.trim(), data: emptyState });
     setName('');
     setDescription('');
     setCombats(await dataStore.listCombat());

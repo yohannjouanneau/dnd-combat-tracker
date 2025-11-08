@@ -16,7 +16,7 @@ export default function InitiativeGroupInput({ group, index, canRemove, initBonu
     const bonus = initBonus.length > 0 ? parseInt(initBonus) : 0
     const roll = Math.floor(Math.random() * 20) + 1;
     onChange(group.id, { initiative: String(roll + bonus) });
-  }, [initBonus, group.id])
+  }, [initBonus, group.id, onChange])
 
   useEffect(() => {
     rollInitiative()

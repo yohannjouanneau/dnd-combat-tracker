@@ -66,10 +66,15 @@ export function useCombatState(): CombatStateManager {
   const [state, setState] = useState<CombatState>(getInitialState());
   const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
 
+  const loadPlayers = useCallback(async () => {
+    const players = await dataStore.listPlayer();
+    setSavedPlayers(players);
+  }, [])
+
   // Load players on mount
   useEffect(() => {
     loadPlayers();
-  }, []);
+  }, [loadPlayers]);
 
   const loadCombat = async (combatId: string) => {
     const savedCombat = await dataStore.getCombat(combatId)
@@ -94,11 +99,6 @@ export function useCombatState(): CombatStateManager {
         combatDescription: description
       }
     })
-  }
-
-  const loadPlayers = async () => {
-    const players = await dataStore.listPlayer();
-    setSavedPlayers(players);
   }
 
   // Parked Groups Management

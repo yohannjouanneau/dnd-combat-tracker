@@ -22,7 +22,7 @@ function App() {
     if (combatIdMatch) {
       combatStateManager.loadCombat(combatIdMatch[1])
     }
-  }, [route]);
+  }, [route, combatStateManager]);
 
   const open = (id: string) => { location.hash = `#play/${id}`; };
   const back = () => { location.hash = '#combats'; };
