@@ -17,6 +17,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - 🎨 Visual feedback with color-coded groups and HP bars
 - 📱 Responsive design works on desktop and mobile
 - 🔒 All data stored locally - no account required
+- ⌨️ Keyboard shortcuts for quick turn navigation
 
 ## ✨ Features
 
@@ -24,6 +25,8 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **Initiative Tracking**: Support for multiple initiative groups per combatant
 - **HP Management**: Visual HP bars with quick damage/healing controls
 - **Turn Tracking**: Automatic turn progression with round counter
+- **Keyboard Navigation**: Use Arrow Left/Right to navigate turns quickly
+- **Auto-scroll**: Active combatant automatically scrolls into view
 - **Group Management**: Organize combatants by groups with color coding
 
 ### Character Management
@@ -103,34 +106,46 @@ The production-ready files will be in the `dist/` directory.
    - Group Name (e.g., "Goblin", "Orc Warrior")
    - Current HP and Max HP
    - AC (Armor Class)
+   - Initiative Bonus (optional)
    - Select a color for the group
+   - Add an image URL (optional)
 
 2. **Set up initiative groups:**
    - Each group can have a different initiative value
+   - Initiative automatically rolls d20 + bonus when created
    - Set count for how many combatants share that initiative
    - Example: 3 goblins with initiative 15, 2 goblins with initiative 12
-   - Click "Add Group" to add more initiative tiers
+   - Click "Add init group" to add more initiative tiers
 
 3. **Choose an action:**
-   - **Add to Combat**: Immediately add combatants to the current fight
-   - **Add to Parked Groups**: Save for later use in this encounter
-   - **Save as Player**: Reuse this character in future encounters
+   - **Fight !**: Immediately add combatants to the current fight
+   - **Park Group**: Save for later use in this encounter
+   - **Save player**: Reuse this character in future encounters
 
 ### Managing Combat
 
 - **Next/Previous Turn**: Navigate through the initiative order
-- **Apply Damage**: Enter amount and click the minus button
-- **Apply Healing**: Enter amount and click the plus button
+  - Use buttons or **Arrow Left/Right** keyboard shortcuts
+  - Active combatant automatically scrolls into view
+- **Apply Damage**: Enter amount and click the minus button (or press Enter)
+- **Apply Healing**: Enter amount and click the plus button (or press Enter)
 - **Toggle Conditions**: Click condition buttons to apply/remove effects
-- **Concentration**: Toggle concentration status for spell tracking
+- **Concentration**: Toggle concentration status directly in the combatant header
 - **Death Saves**: Click success/failure boxes for dying characters
+
+### Keyboard Shortcuts
+
+- **Arrow Right (→)**: Next turn
+- **Arrow Left (←)**: Previous turn
+
+> **Note**: Keyboard shortcuts are disabled when typing in input fields
 
 ### Using Saved Players
 
 1. Saved players appear in the "Saved Players" panel
-2. Click "Include" to load their stats into the form
-3. Adjust initiative and HP as needed for this encounter
-4. Add to combat
+2. Click "Edit" to load their stats into the form
+3. Click "Fight !" to add them directly to combat
+4. Adjust initiative and HP as needed for this encounter
 
 ## 📁 Project Structure
 
