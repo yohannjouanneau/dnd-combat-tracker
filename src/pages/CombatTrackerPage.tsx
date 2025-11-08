@@ -35,8 +35,12 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         event.preventDefault();
         combatStateManager.nextTurn();
       } else if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        combatStateManager.prevTurn();
+        // Block previous turn if on first combatant of round 1
+        const isAtStart = combatStateManager.state.round === 1 && combatStateManager.state.currentTurn === 0;
+        if (!isAtStart) {
+          event.preventDefault();
+          combatStateManager.prevTurn();
+        }
       }
     };
 
@@ -134,7 +138,12 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         )}
 
         {combatants.length > 0 && (
-          <TurnControls round={combatStateManager.state.round} onPrev={combatStateManager.prevTurn} onNext={combatStateManager.nextTurn} />
+          <TurnControls
+            round={combatStateManager.state.round}
+            currentTurn={combatStateManager.state.currentTurn}
+            onPrev={combatStateManager.prevTurn}
+            onNext={combatStateManager.nextTurn}
+          />
         )}
 
         <CombatantsList
