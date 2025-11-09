@@ -93,6 +93,8 @@ export function useCombatState(): CombatStateManager {
 
   const updateCombat = (name: string, description: string) => {
     setState(prev => {
+      console.log(`DEBUG ==> updateCombat ${name} ${description}`);
+
       return {
         ...prev,
         combatName: name,

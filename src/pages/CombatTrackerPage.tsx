@@ -8,6 +8,8 @@ import CombatantsList from '../components/CombatantsList/CombatantsList';
 import type { GroupSummary, NewCombatant, SavedPlayer } from '../types';
 import type { CombatStateManager } from '../state';
 import SavedPlayersPanel from '../components/CombatForm/SavedPlayerPanel';
+import logo from '../assets/logo.png';
+import SaveBar from '../components/SaveBar';
 
 type Props = {
   combatStateManager: CombatStateManager;
@@ -91,13 +93,29 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const stagedFromParkedGroups = combatStateManager.state.parkedGroups.find(group => group.groupName === combatStateManager.state.newCombatant.groupName)?.groupName
   const stagedPlayer = combatStateManager.savedPlayers.find(group => group.groupName === combatStateManager.state.newCombatant.groupName)?.groupName
   const stagedFrom = stagedFromParkedGroups ?? stagedPlayer
+  const back = () => { location.hash = '#combats'; };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
-          <Sword className="w-10 h-10 text-red-500" />
-          <h1 className="text-4xl font-bold">Combat Tracker</h1>
+          <div className="flex justify-center md:justify-start">
+            <img
+              src={logo}
+              alt="D&D Combat Tracker Logo"
+              className="w-20 h-20 object-contain"
+            />
+          </div>
+          <SaveBar
+            name={combatStateManager.state.combatName ?? ''}
+            description={combatStateManager.state.combatDescription ?? ''}
+            onChange={(patch) => combatStateManager.updateCombat(patch.name ?? '', patch.description ?? '')}
+            onBack={back}
+            onSave={async () => {
+              if (!combatStateManager.state) return;
+              await combatStateManager.saveCombat({ name: combatStateManager.state.combatName, description: combatStateManager.state.combatDescription, data: combatStateManager.state, updatedAt: Date.now() });
+            }}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

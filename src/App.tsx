@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import SaveBar from './components/SaveBar'
 import CombatTrackerPage from './pages/CombatTrackerPage'
 import CombatsPage from './pages/CombatsPage'
 import { useCombatState } from './state'
@@ -30,7 +29,6 @@ function App() {
   }, [route]);
 
   const open = (id: string) => { location.hash = `#play/${id}`; };
-  const back = () => { location.hash = '#combats'; };
 
   if (!route.startsWith('#play')) {
     return <CombatsPage onOpen={open} />;
@@ -42,16 +40,6 @@ function App() {
 
   return (
     <div>
-      <SaveBar
-        name={combatStateManager.state.combatName ?? ''}
-        description={combatStateManager.state.combatDescription ?? ''}
-        onChange={(patch) => combatStateManager.updateCombat(patch.name ?? '', patch.description ?? '')}
-        onBack={back}
-        onSave={async () => {
-          if (!combatStateManager.state) return;
-          await combatStateManager.saveCombat({ name: combatStateManager.state.combatName, description: combatStateManager.state.combatDescription, data: combatStateManager.state, updatedAt: Date.now() });
-        }}
-      />
       <CombatTrackerPage
         combatStateManager={combatStateManager}
       />
