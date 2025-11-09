@@ -7,6 +7,8 @@
 ![Combat Tracker Demo 1](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_1.png)
 ![Combat Tracker Demo 2](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_2.png)
 
+[Test it!](https://yohannjouanneau.github.io/dnd-combat-tracker/)
+
 ## 🎯 Overview
 
 D&D Combat Tracker is a web-based application designed to streamline combat encounters in Dungeons & Dragons 5e. Built for Dungeon Masters who want to focus on storytelling rather than bookkeeping, this tool handles initiative tracking, HP management, conditions, and more.
