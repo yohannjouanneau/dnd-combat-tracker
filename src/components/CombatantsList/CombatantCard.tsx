@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Combatant, DeathSaves } from '../../types';
 import HpBar from './HpBar';
 import DeathSavesComp from './DeathSaves';
@@ -15,6 +15,7 @@ type Props = {
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
   onToggleConcentration: (id: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
+  onUpdateInitiative: (id: number, newInitiative: number) => void;
 };
 
 export default function CombatantCard({
@@ -24,9 +25,13 @@ export default function CombatantCard({
   onDeltaHp,
   onDeathSaves,
   onToggleConcentration,
-  onToggleCondition
+  onToggleCondition,
+  onUpdateInitiative
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isEditingInit, setIsEditingInit] = useState(false);
+  const [initValue, setInitValue] = useState(combatant.initiative.toString());
   const isDying = combatant.hp === 0;
 
   // Scroll into view when this card becomes active
@@ -38,6 +43,42 @@ export default function CombatantCard({
       });
     }
   }, [isActive]);
+
+  // Auto-select text when entering edit mode
+  useEffect(() => {
+    if (isEditingInit && inputRef.current) {
+      inputRef.current.select();
+    }
+  }, [isEditingInit]);
+
+  // Update local state when combatant initiative changes
+  useEffect(() => {
+    setInitValue(combatant.initiative.toString());
+  }, [combatant.initiative]);
+
+  const handleStartEdit = () => {
+    setIsEditingInit(true);
+  };
+
+  const handleSave = () => {
+    const newInit = parseFloat(initValue);
+    if (!isNaN(newInit) && newInit !== combatant.initiative) {
+      onUpdateInitiative(combatant.id, newInit);
+    } else {
+      // Revert to original if invalid or unchanged
+      setInitValue(combatant.initiative.toString());
+    }
+    setIsEditingInit(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setInitValue(combatant.initiative.toString());
+      setIsEditingInit(false);
+    }
+  };
 
   return (
     <div
@@ -58,7 +99,28 @@ export default function CombatantCard({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
-                <div className="text-3xl font-bold text-blue-400">{combatant.initiative}</div>
+                {/* Editable Initiative */}
+                {isEditingInit ? (
+                  <input
+                    ref={inputRef}
+                    type="number"
+                    value={initValue}
+                    onChange={(e) => setInitValue(e.target.value)}
+                    onBlur={handleSave}
+                    onKeyDown={handleKeyDown}
+                    className="text-3xl font-bold text-blue-400 bg-slate-700 border-2 border-blue-500 rounded px-2 w-20 focus:outline-none"
+                    autoFocus
+                  />
+                ) : (
+                  <div
+                    onClick={handleStartEdit}
+                    className="text-3xl font-bold text-blue-400 cursor-pointer hover:text-blue-300 hover:bg-blue-900/20 rounded px-2 transition-colors select-none"
+                    title="Click to edit initiative"
+                  >
+                    {combatant.initiative}
+                  </div>
+                )}
+
                 <h3 className="text-2xl font-bold flex items-center gap-2">
                   {combatant.displayName}
                   {isActive && <span className="text-yellow-500 text-sm">(Active)</span>}

@@ -39,6 +39,7 @@ export type CombatStateManager = {
   removeCombatant: (id: number) => void;
   removeGroup: (groupName: string) => void;
   updateHP: (id: number, change: number) => void;
+  updateInitiative: (id: number, newInitiative: number) => void;
   toggleCondition: (id: number, condition: string) => void;
   toggleConcentration: (id: number) => void;
   updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
@@ -360,6 +361,37 @@ export function useCombatState(): CombatStateManager {
     }));
   }, []);
 
+  // Add this function after updateHP
+const updateInitiative = (id: number, newInitiative: number) => {
+  setState(prev => {
+    // Update the combatant's initiative
+    const updatedCombatants = prev.combatants.map(c =>
+      c.id === id ? { ...c, initiative: newInitiative } : c
+    );
+
+    // Re-sort the combatants by initiative (descending), then by group name, then by index
+    const sortedCombatants = updatedCombatants.sort((a, b) => {
+      if (b.initiative !== a.initiative) {
+        return b.initiative - a.initiative;
+      }
+      if (a.groupName !== b.groupName) {
+        return a.groupName.localeCompare(b.groupName);
+      }
+      return a.groupIndex - b.groupIndex;
+    });
+
+    // Find the new index of the currently active combatant
+    const activeCombatant = prev.combatants[prev.currentTurn];
+    const newCurrentTurn = sortedCombatants.findIndex(c => c.id === activeCombatant?.id);
+
+    return {
+      ...prev,
+      combatants: sortedCombatants,
+      currentTurn: newCurrentTurn >= 0 ? newCurrentTurn : prev.currentTurn
+    };
+  });
+};
+
   const toggleCondition = useCallback((id: number, condition: string) => {
     setState(prev => ({
       ...prev,
@@ -494,6 +526,7 @@ export function useCombatState(): CombatStateManager {
     removeCombatant,
     removeGroup,
     updateHP,
+    updateInitiative,
     toggleCondition,
     toggleConcentration,
     updateDeathSave,

@@ -173,6 +173,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onDeathSaves={combatStateManager.updateDeathSave}
           onToggleConcentration={combatStateManager.toggleConcentration}
           onToggleCondition={combatStateManager.toggleCondition}
+          onUpdateInitiative={combatStateManager.updateInitiative}
         />
 
         {combatants.length === 0 && (

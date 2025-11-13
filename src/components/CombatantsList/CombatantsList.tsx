@@ -11,9 +11,10 @@ type Props = {
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
   onToggleConcentration: (id: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
+  onUpdateInitiative: (id: number, newInitiative: number) => void;
 };
 
-export default function CombatantsList({ combatListRef, combatants, currentTurn, onRemove, onDeltaHp, onDeathSaves, onToggleConcentration, onToggleCondition }: Props) {
+export default function CombatantsList({ combatListRef, combatants, currentTurn, onRemove, onDeltaHp, onDeathSaves, onToggleConcentration, onToggleCondition, onUpdateInitiative }: Props) {
   return (
     <div
       className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800"
@@ -29,6 +30,7 @@ export default function CombatantsList({ combatListRef, combatants, currentTurn,
           onDeathSaves={onDeathSaves}
           onToggleConcentration={onToggleConcentration}
           onToggleCondition={onToggleCondition}
+          onUpdateInitiative={onUpdateInitiative}
         />
       ))}
     </div>
