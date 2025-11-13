@@ -27,3 +27,5 @@ export const DEFAULT_COLOR_PRESET = [
   { name: 'Yellow', value: '#eab308' },
   { name: 'Cyan', value: '#06b6d4' }
 ];
+
+export const HP_BAR_ID_PREFIX = 'hpbar-input-'

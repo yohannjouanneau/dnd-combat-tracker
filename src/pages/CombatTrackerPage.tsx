@@ -10,6 +10,7 @@ import type { CombatStateManager } from '../state';
 import SavedPlayersPanel from '../components/CombatForm/SavedPlayerPanel';
 import logo from '../assets/logo.png';
 import SaveBar from '../components/SaveBar';
+import { HP_BAR_ID_PREFIX } from '../constants';
 
 type Props = {
   combatStateManager: CombatStateManager;
@@ -26,7 +27,9 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Ignore if user is typing in an input field
       const target = event.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      const isHpBarInput = target.id.startsWith(HP_BAR_ID_PREFIX)
+      if (!isHpBarInput && (target.tagName &&  target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        
         return;
       }
 

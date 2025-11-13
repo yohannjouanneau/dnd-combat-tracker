@@ -1,25 +1,27 @@
-import { useState } from 'react';
-import { Plus, Minus } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Check } from 'lucide-react';
 
 type Props = {
+  inputId: string;
   hp: number;
   maxHp: number;
+  isActive?: boolean;
   onDelta: (delta: number) => void;
 };
 
-export default function HpBar({ hp, maxHp, onDelta }: Props) {
+export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
   const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const pct = (hp / maxHp) * 100;
 
-  const handleApplyDamage = () => {
-    const value = parseInt(inputValue);
-    if (!isNaN(value) && value !== 0) {
-      onDelta(-value);
-      setInputValue('');
+  // Auto-focus input when combatant becomes active
+  useEffect(() => {
+    if (isActive && inputRef.current) {
+      inputRef.current.focus();
     }
-  };
+  }, [isActive]);
 
-  const handleApplyHealing = () => {
+  const handleApply = () => {
     const value = parseInt(inputValue);
     if (!isNaN(value) && value !== 0) {
       onDelta(value);
@@ -29,8 +31,7 @@ export default function HpBar({ hp, maxHp, onDelta }: Props) {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      // Default to damage if no specific action is indicated
-      handleApplyDamage();
+      handleApply();
     }
   };
 
@@ -41,29 +42,23 @@ export default function HpBar({ hp, maxHp, onDelta }: Props) {
           <span className="font-semibold text-white">{hp} / {maxHp} HP</span>
         </div>
         <div className="flex gap-2 items-center">
-          <button
-            onClick={handleApplyDamage}
-            disabled={!inputValue}
-            className="bg-red-600 hover:bg-red-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
-            title="Apply damage"
-          >
-            <Minus className="w-4 h-4" />
-          </button>
           <input
+            id={inputId}
+            ref={inputRef}
             type="number"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder="0"
-            className="bg-slate-700 text-white rounded px-3 py-2 border border-slate-600 focus:border-blue-500 focus:outline-none w-20 text-center"
+            placeholder="±0"
+            className="bg-slate-700 text-white rounded px-3 py-2 border border-slate-600 focus:border-blue-500 focus:outline-none w-24 text-center"
           />
-          <button
-            onClick={handleApplyHealing}
+          <button 
+            onClick={handleApply}
             disabled={!inputValue}
-            className="bg-green-600 hover:bg-green-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
-            title="Apply healing"
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
+            title="Apply HP change"
           >
-            <Plus className="w-4 h-4" />
+            <Check className="w-4 h-4" />
           </button>
         </div>
       </div>

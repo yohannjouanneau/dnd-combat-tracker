@@ -52,7 +52,7 @@ export default function CombatsPage({ onOpen }: Props) {
   if (loading) return <div className="p-6 text-slate-300">Loading…</div>;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto text-white">
+    <div className="mx-auto text-white">
       <div className="bg-slate-800 rounded-lg border border-slate-700">
         {/* Header Section with Logo and Inputs */}
         <div className="p-6">

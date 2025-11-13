@@ -6,6 +6,7 @@ import ConcentrationToggle from './ConcentrationToggle';
 import ConditionsList from './ConditionsList';
 import { Shield, Trash2 } from 'lucide-react';
 import CombatantAvatar from '../common/CombatantAvatar';
+import { HP_BAR_ID_PREFIX } from '../../constants';
 
 type Props = {
   combatant: Combatant;
@@ -153,7 +154,13 @@ export default function CombatantCard({
         </div>
       </div>
 
-      <HpBar hp={combatant.hp} maxHp={combatant.maxHp} onDelta={(d) => onDeltaHp(combatant.id, d)} />
+      <HpBar
+        inputId={`${HP_BAR_ID_PREFIX}${combatant.id}`} 
+        hp={combatant.hp} 
+        maxHp={combatant.maxHp} 
+        isActive={isActive}
+        onDelta={(d) => onDeltaHp(combatant.id, d)} 
+      />
       {isDying && (
         <DeathSavesComp
           value={combatant.deathSaves}
