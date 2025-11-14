@@ -1,11 +1,15 @@
+import FocusModeToggle from "./FocusModeToggle";
+
 type Props = {
   round: number;
   currentTurn: number;
+  isFocusMode: boolean;
   onPrev: () => void;
   onNext: () => void;
+  onToggleFocus: () => void 
 };
 
-export default function TurnControls({ round, currentTurn, onPrev, onNext }: Props) {
+export default function TurnControls({ round, currentTurn, isFocusMode, onPrev, onNext, onToggleFocus }: Props) {
   const isAtStart = round === 1 && currentTurn === 0;
 
   return (
@@ -28,6 +32,7 @@ export default function TurnControls({ round, currentTurn, onPrev, onNext }: Pro
         >
           Next Turn
         </button>
+        <FocusModeToggle isFocusMode={isFocusMode} onToggle={onToggleFocus}/>
       </div>
     </div>
   );

@@ -21,15 +21,15 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const combatListRef = useRef<HTMLDivElement>(null);
   const combatants = combatStateManager.state.combatants;
   const [formCollapsed, setFormCollapsed] = useState(false);
+  const [isFocusMode, setIsFocusMode] = useState(false);
 
-  // Keyboard shortcuts for turn navigation
+  // Keyboard shortcuts for turn navigation and focus mode
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Ignore if user is typing in an input field
       const target = event.target as HTMLElement;
       const isHpBarInput = target.id.startsWith(HP_BAR_ID_PREFIX)
       if (!isHpBarInput && (target.tagName &&  target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
-        
         return;
       }
 
@@ -46,6 +46,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           event.preventDefault();
           combatStateManager.prevTurn();
         }
+      } else if (event.key === 'f' || event.key === 'F') {
+        // Toggle focus mode with F key
+        event.preventDefault();
+        setIsFocusMode(prev => !prev);
       }
     };
 
@@ -99,72 +103,87 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const back = () => { location.hash = '#combats'; };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
+    <div className="rounded-lg min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="flex justify-center md:justify-start">
-            <img
-              src={logo}
-              alt="D&D Combat Tracker Logo"
-              className="w-20 h-20 object-contain"
+        {/* Wrapper with transition for hidden elements */}
+        <div
+          className={`transition-all duration-500 ease-in-out ${
+            isFocusMode 
+              ? 'max-h-0 opacity-0 overflow-hidden pointer-events-none' 
+              : 'max-h-[5000px] opacity-100'
+          }`}
+        >
+          <div className="flex items-center gap-3 mb-8">
+            <div className="flex justify-center md:justify-start">
+              <img
+                src={logo}
+                alt="D&D Combat Tracker Logo"
+                className="w-20 h-20 object-contain"
+              />
+            </div>
+            <SaveBar
+              name={combatStateManager.state.combatName ?? ''}
+              description={combatStateManager.state.combatDescription ?? ''}
+              onChange={(patch) => combatStateManager.updateCombat(patch.name ?? '', patch.description ?? '')}
+              onBack={back}
+              onSave={async () => {
+                if (!combatStateManager.state) return;
+                await combatStateManager.saveCombat({ name: combatStateManager.state.combatName, description: combatStateManager.state.combatDescription, data: combatStateManager.state, updatedAt: Date.now() });
+              }}
             />
           </div>
-          <SaveBar
-            name={combatStateManager.state.combatName ?? ''}
-            description={combatStateManager.state.combatDescription ?? ''}
-            onChange={(patch) => combatStateManager.updateCombat(patch.name ?? '', patch.description ?? '')}
-            onBack={back}
-            onSave={async () => {
-              if (!combatStateManager.state) return;
-              await combatStateManager.saveCombat({ name: combatStateManager.state.combatName, description: combatStateManager.state.combatDescription, data: combatStateManager.state, updatedAt: Date.now() });
-            }}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SavedPlayersPanel
+              savedPlayers={combatStateManager.savedPlayers}
+              onInclude={includePlayerToForm}
+              onFight={includePlayerToFight}
+              onRemove={combatStateManager.removePlayer}
+            />
+
+            <ParkedGroupsPanel
+              parkedGroups={combatStateManager.state.parkedGroups}
+              onInclude={handleIncludeParked}
+              onFight={includeToFight}
+              onRemove={combatStateManager.removeParkedGroup}
+            />
+          </div>
+
+          <AddCombatantForm
+            formRef={formRef}
+            value={combatStateManager.state.newCombatant}
+            stagedFrom={stagedFrom}
+            totalCount={combatStateManager.getTotalCombatantCount()}
+            isCollapsed={formCollapsed}
+            onToggleCollapse={setFormCollapsed}
+            onChange={combatStateManager.updateNewCombatant}
+            onSubmit={() => { combatStateManager.addCombatant() }}
+            onAddGroup={combatStateManager.addParkedGroup}
+            onSaveAsPlayer={combatStateManager.addPlayerFromForm}
+            onAddInitiativeGroup={combatStateManager.addInitiativeGroup}
+            onRemoveInitiativeGroup={combatStateManager.removeInitiativeGroup}
+            onUpdateInitiativeGroup={combatStateManager.updateInitiativeGroup}
           />
+
+          {combatants.length > 0 && (
+            <GroupsOverview groups={combatStateManager.getUniqueGroups() as GroupSummary[]} onRemoveGroup={combatStateManager.removeGroup} />
+          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SavedPlayersPanel
-            savedPlayers={combatStateManager.savedPlayers}
-            onInclude={includePlayerToForm}
-            onFight={includePlayerToFight}
-            onRemove={combatStateManager.removePlayer}
-          />
-
-          <ParkedGroupsPanel
-            parkedGroups={combatStateManager.state.parkedGroups}
-            onInclude={handleIncludeParked}
-            onFight={includeToFight}
-            onRemove={combatStateManager.removeParkedGroup}
-          />
-        </div>
-
-        <AddCombatantForm
-          formRef={formRef}
-          value={combatStateManager.state.newCombatant}
-          stagedFrom={stagedFrom}
-          totalCount={combatStateManager.getTotalCombatantCount()}
-          isCollapsed={formCollapsed}
-          onToggleCollapse={setFormCollapsed}
-          onChange={combatStateManager.updateNewCombatant}
-          onSubmit={() => { combatStateManager.addCombatant() }}
-          onAddGroup={combatStateManager.addParkedGroup}
-          onSaveAsPlayer={combatStateManager.addPlayerFromForm}
-          onAddInitiativeGroup={combatStateManager.addInitiativeGroup}
-          onRemoveInitiativeGroup={combatStateManager.removeInitiativeGroup}
-          onUpdateInitiativeGroup={combatStateManager.updateInitiativeGroup}
-        />
-
-
         {combatants.length > 0 && (
-          <GroupsOverview groups={combatStateManager.getUniqueGroups() as GroupSummary[]} onRemoveGroup={combatStateManager.removeGroup} />
-        )}
-
-        {combatants.length > 0 && (
-          <TurnControls
-            round={combatStateManager.state.round}
-            currentTurn={combatStateManager.state.currentTurn}
-            onPrev={combatStateManager.prevTurn}
-            onNext={combatStateManager.nextTurn}
-          />
+          <div className={`flex gap-2 mb-6 ${isFocusMode ? 'sticky top-0 z-10 pt-6' : ''}`}>
+            <div className="flex-1">
+            <TurnControls
+                round={combatStateManager.state.round}
+                currentTurn={combatStateManager.state.currentTurn}
+                isFocusMode={isFocusMode}
+                onPrev={combatStateManager.prevTurn}
+                onNext={combatStateManager.nextTurn}
+                onToggleFocus={() => setIsFocusMode(prev => !prev)}
+              />
+            </div>
+            
+          </div>
         )}
 
         <CombatantsList
@@ -177,6 +196,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onToggleConcentration={combatStateManager.toggleConcentration}
           onToggleCondition={combatStateManager.toggleCondition}
           onUpdateInitiative={combatStateManager.updateInitiative}
+          isFocusMode={isFocusMode}
         />
 
         {combatants.length === 0 && (

@@ -12,12 +12,28 @@ type Props = {
   onToggleConcentration: (id: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
+  isFocusMode?: boolean;
 };
 
-export default function CombatantsList({ combatListRef, combatants, currentTurn, onRemove, onDeltaHp, onDeathSaves, onToggleConcentration, onToggleCondition, onUpdateInitiative }: Props) {
+export default function CombatantsList({ 
+  combatListRef, 
+  combatants, 
+  currentTurn, 
+  onRemove, 
+  onDeltaHp, 
+  onDeathSaves, 
+  onToggleConcentration, 
+  onToggleCondition, 
+  onUpdateInitiative,
+  isFocusMode = false
+}: Props) {
   return (
     <div
-      className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800"
+      className={`space-y-4 pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 ${
+        isFocusMode 
+          ? 'max-h-[calc(100vh-180px)] overflow-y-auto' 
+          : ''
+      }`}
       ref={combatListRef}
     >
       {combatants.map((c, index) => (
