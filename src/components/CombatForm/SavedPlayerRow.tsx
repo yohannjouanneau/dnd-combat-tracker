@@ -1,4 +1,4 @@
-import { Plus, Sword, Trash2 } from 'lucide-react';
+import { Edit, Sword, Trash2 } from 'lucide-react';
 import type { SavedPlayer } from '../../types';
 import CombatantAvatar from '../common/CombatantAvatar';
 
@@ -43,7 +43,7 @@ export default function SavedPlayerRow({ player, onInclude, onFight, onRemove }:
           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1 transition"
           title="Load into form"
         >
-          <Plus className="w-3 h-3" />
+          <Edit className="w-3 h-3" />
           Edit
         </button>
         <button

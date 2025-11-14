@@ -94,12 +94,11 @@ export function useCombatState(): CombatStateManager {
 
   const updateCombat = (name: string, description: string) => {
     setState(prev => {
-      console.log(`DEBUG ==> updateCombat ${name} ${description}`);
 
       return {
         ...prev,
-        combatName: name,
-        combatDescription: description
+        combatName: name.length === 0 ? prev.combatName : name,
+        combatDescription: description.length === 0 ? prev.combatDescription : description,
       }
     })
   }
