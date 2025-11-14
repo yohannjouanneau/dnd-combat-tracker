@@ -22,19 +22,17 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const combatants = combatStateManager.state.combatants;
   const [formCollapsed, setFormCollapsed] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
+  const [isFightModifierEnabled, setEnableFightModifier] = useState(false);
 
-  // Keyboard shortcuts for turn navigation and focus mode
+  // Keyboard shortcuts for turn navigation, focus mode and fight mode
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Ignore if user is typing in an input field
       const target = event.target as HTMLElement;
       const isHpBarInput = target.id.startsWith(HP_BAR_ID_PREFIX)
-      if (!isHpBarInput && (target.tagName &&  target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+      if (!event.altKey && !isHpBarInput && (target.tagName &&  target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || combatants.length === 0)) {
         return;
       }
-
-      // Only handle arrow keys if there are combatants
-      if (combatants.length === 0) return;
 
       if (event.key === 'ArrowRight') {
         event.preventDefault();
@@ -50,12 +48,38 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         // Toggle focus mode with F key
         event.preventDefault();
         setIsFocusMode(prev => !prev);
+      } else if (event.altKey) {
+        // Park / Save player and Fight button switch on Alt 
+        event.preventDefault();
+        setEnableFightModifier(true)
       }
     };
-
+  
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
   }, [combatants.length, combatStateManager]);
+
+  useEffect(() => {
+        const handleKeyUp = (event: KeyboardEvent) => {
+      
+      if (!event.altKey) {
+        // Park / Save player and Fight button switch on Alt 
+        event.preventDefault();
+        setEnableFightModifier(false)
+      }
+    };
+    
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [combatants.length, combatStateManager]);
+
+
 
   const handleIncludeParked = (combatant: NewCombatant) => {
     combatStateManager.includeParkedGroup(combatant);
@@ -155,11 +179,12 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             stagedFrom={stagedFrom}
             totalCount={combatStateManager.getTotalCombatantCount()}
             isCollapsed={formCollapsed}
+            isFightModeEnabled={isFightModifierEnabled}
             onToggleCollapse={setFormCollapsed}
             onChange={combatStateManager.updateNewCombatant}
             onSubmit={() => { combatStateManager.addCombatant() }}
-            onAddGroup={combatStateManager.addParkedGroup}
-            onSaveAsPlayer={combatStateManager.addPlayerFromForm}
+            onAddGroup={() => combatStateManager.addParkedGroup(isFightModifierEnabled)}
+            onSaveAsPlayer={() => combatStateManager.addPlayerFromForm(isFightModifierEnabled)}
             onAddInitiativeGroup={combatStateManager.addInitiativeGroup}
             onRemoveInitiativeGroup={combatStateManager.removeInitiativeGroup}
             onUpdateInitiativeGroup={combatStateManager.updateInitiativeGroup}

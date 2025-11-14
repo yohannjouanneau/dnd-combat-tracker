@@ -13,6 +13,7 @@ type Props = {
 	stagedFrom?: string;
 	totalCount: number;
 	isCollapsed: boolean;
+	isFightModeEnabled: boolean;
 	onToggleCollapse: (collapsed: boolean) => void;
 	onChange: (patch: Partial<NewCombatant>) => void;
 	onSubmit: () => void;
@@ -29,6 +30,7 @@ export default function AddCombatantForm({
 	stagedFrom,
 	totalCount,
 	isCollapsed,
+	isFightModeEnabled,
 	onToggleCollapse,
 	onChange,
 	onSubmit,
@@ -44,6 +46,9 @@ export default function AddCombatantForm({
 		const lastLetter = String.fromCharCode(65 + totalCount - 1);
 		return ` (A-${lastLetter})`;
 	};
+
+	const parkGroupButtonText = isFightModeEnabled ? "Park group and Fight" : "Park group"
+	const savePlayerButtonText = isFightModeEnabled ? "Save player and Fight" : "Save player"
 
 	return (
 		<div ref={formRef} className="bg-slate-800 rounded-lg border border-slate-700 mb-6 overflow-hidden">
@@ -171,7 +176,7 @@ export default function AddCombatantForm({
 							className="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded flex items-center gap-2 transition"
 						>
 							<CircleParking className="w-4 h-4" />
-							Park Group
+							{parkGroupButtonText}
 						</button>
 						<button
 							onClick={onSaveAsPlayer}
@@ -179,7 +184,7 @@ export default function AddCombatantForm({
 							title="Save as player for reuse across combats"
 						>
 							<Save className="w-4 h-4" />
-							Save player
+							{savePlayerButtonText}
 						</button>
 						<button
 							onClick={onAddInitiativeGroup}

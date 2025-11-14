@@ -17,7 +17,7 @@ export type CombatStateManager = {
   loadPlayers: () => Promise<void>;
 
   // Parked Groups
-  addParkedGroup: () => void;
+  addParkedGroup: (isFightModeEnabled: boolean) => void;
   removeParkedGroup: (name: string) => void;
   includeParkedGroup: (combatant: NewCombatant) => void;
 
@@ -30,7 +30,7 @@ export type CombatStateManager = {
   updateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
 
   // Player Management
-  addPlayerFromForm: () => Promise<void>;
+  addPlayerFromForm: (isFightModeEnabled: boolean) => Promise<void>;
   removePlayer: (id: string) => Promise<void>;
   includePlayer: (player: SavedPlayer) => void;
 
@@ -104,7 +104,7 @@ export function useCombatState(): CombatStateManager {
   }
 
   // Parked Groups Management
-  const addParkedGroup = useCallback(() => {
+  const addParkedGroup = useCallback((isFightModeEnabled: boolean) => {
     setState(prev => {
       const nc = prev.newCombatant;
       if (!nc.groupName || !nc.hp) return prev;
@@ -120,10 +120,13 @@ export function useCombatState(): CombatStateManager {
       // Remove existing group with same name (if any) and add new one
       const filteredGroups = prev.parkedGroups.filter(g => g.groupName !== nc.groupName);
 
+      const combatants = isFightModeEnabled ? prepareCombatantList(prev, groupToAdd) : []
+
       return {
         ...prev,
         parkedGroups: [...filteredGroups, groupToAdd],
-        newCombatant: DEFAULT_NEW_COMBATANT
+        newCombatant: DEFAULT_NEW_COMBATANT,
+        combatants
       };
     });
   }, []);
@@ -193,7 +196,7 @@ export function useCombatState(): CombatStateManager {
   }, []);
 
   // Player Management
-  const addPlayerFromForm = useCallback(async () => {
+  const addPlayerFromForm = useCallback(async (isFightModeEnabled: boolean) => {
     const nc = state.newCombatant;
     if (!nc.groupName || !nc.hp) return;
     if (nc.initiativeGroups.length === 0) return;
@@ -228,10 +231,14 @@ export function useCombatState(): CombatStateManager {
     await loadPlayers();
 
     // Clear the form after saving player
-    setState(prev => ({
-      ...prev,
-      newCombatant: DEFAULT_NEW_COMBATANT
-    }));
+    setState(prev => {
+      const combatants = isFightModeEnabled ? prepareCombatantList(prev, nc) : []
+      return {
+        ...prev,
+        newCombatant: DEFAULT_NEW_COMBATANT,
+        combatants
+      }
+    });
   }, [state.newCombatant, savedPlayers, loadPlayers]);
 
   const removePlayer = useCallback(async (id: string) => {
@@ -256,19 +263,18 @@ export function useCombatState(): CombatStateManager {
   }, []);
 
   // Combatant Management
-  const addCombatant = useCallback((combatant?: NewCombatant) => {
-    setState(prev => {
-      const nc = combatant ?? prev.newCombatant;
-      if (!nc.groupName || !nc.hp) return prev;
-      if (nc.initiativeGroups.length === 0) return prev;
-      if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return prev;
+  const prepareCombatantList = useCallback((prev: CombatState, combatant?: NewCombatant) => {
+    const nc = combatant ?? prev.newCombatant;
+      if (!nc.groupName || !nc.hp) return prev.combatants;
+      if (nc.initiativeGroups.length === 0) return prev.combatants;
+      if (nc.initiativeGroups.some(g => !g.initiative || !g.count)) return prev.combatants;
 
       // If maxHp is empty, use hp as maxHp
       const effectiveMaxHp = nc.maxHp || nc.hp;
 
       // Calculate total count across all initiative groups
       const totalCount = nc.initiativeGroups.reduce((sum, g) => sum + (parseInt(g.count) || 0), 0);
-      if (totalCount === 0) return prev;
+      if (totalCount === 0) return prev.combatants;
 
       // Find highest existing index for this group
       const existingGroupMembers = prev.combatants.filter(c => c.groupName === nc.groupName);
@@ -316,13 +322,20 @@ export function useCombatState(): CombatStateManager {
         return a.groupIndex - b.groupIndex;
       });
 
+      return updated
+  }, []);
+
+  const addCombatant = useCallback((combatant?: NewCombatant) => {
+    setState(prev => {
+
+      const updated = prepareCombatantList(prev, combatant)
       return {
         ...prev,
         combatants: updated,
         newCombatant: DEFAULT_NEW_COMBATANT
       }
     });
-  }, []);
+  }, [prepareCombatantList]);
 
   const removeCombatant = useCallback((id: number) => {
     setState(prev => {
