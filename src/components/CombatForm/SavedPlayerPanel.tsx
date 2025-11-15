@@ -20,7 +20,7 @@ export default function SavedPlayersPanel({ savedPlayers, onInclude, onFight, on
       {savedPlayers.length === 0 ? (
         <div className="text-center text-slate-200 py-3">
           <Users className="w-8 h-8 mx-auto mb-4 opacity-50" />
-          <p className="text-m">No saved players yet!</p>
+          <p className="text-m">Save playes to use across combats</p>
         </div>
       ) : (
         <div className="space-y-2">

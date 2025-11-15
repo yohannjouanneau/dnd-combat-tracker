@@ -56,7 +56,7 @@ export default function AddCombatantForm({
 				onClick={() => onToggleCollapse(!isCollapsed)}
 				className="w-full flex items-center justify-between p-6 hover:bg-slate-700 transition-colors"
 			>
-				<h2 className="text-xl font-semibold">Combatant stats</h2>
+				<h2 className="text-xl font-semibold">Combatant</h2>
 				<div className="transition-transform duration-300" style={{ transform: isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}>
 					<ChevronDown className="w-5 h-5 text-slate-400" />
 				</div>
@@ -79,15 +79,14 @@ export default function AddCombatantForm({
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 						<LabeledTextInput
 							id="combatGroupName"
-							label="Group Name"
+							label="Name"
 							value={value.groupName}
-							placeholder="Group Name"
+							placeholder="Name"
 							onChange={(v) => onChange({ groupName: v })}
 						/>
 						<ColorPicker
 							value={value.color}
 							onChange={(v) => onChange({ color: v })}
-							label="Color"
 						/>
 					</div>
 
@@ -111,7 +110,7 @@ export default function AddCombatantForm({
 						/>
 						<LabeledNumberInput
 							id="combatMaxHp"
-							label="Max HP"
+							label="Max HP (Optional)"
 							value={value.maxHp}
 							placeholder="Max HP"
 							onChange={(v) => onChange({ maxHp: v })}
@@ -129,7 +128,7 @@ export default function AddCombatantForm({
 
 						<LabeledNumberInput
 							id="initBonus"
-							label="Init bonus"
+							label="Init bonus (Optional)"
 							value={value.initBonus}
 							placeholder="Init bonus"
 							onChange={(v) => onChange({ initBonus: v })}

@@ -11,7 +11,7 @@ type Props = {
 export default function LabeledTextInput({ id, label, value, placeholder, onChange, onKeyDown, className }: Props) {
 	return (
 		<div className="flex flex-col gap-1">
-			<label htmlFor={id} className="text-sm text-slate-300">{label}</label>
+			<label htmlFor={id} className="text-sm text-slate-300 text-start">{label}</label>
 			<input
 				id={id}
 				type="text"

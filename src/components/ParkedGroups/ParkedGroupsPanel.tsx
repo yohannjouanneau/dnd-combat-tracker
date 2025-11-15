@@ -26,7 +26,7 @@ export default function ParkedGroupsPanel({ parkedGroups, onInclude, onFight, on
 			{parkedGroups.length === 0 && (
 				<div className="text-center text-slate-200 py-3">
 					<CircleParking className="w-8 h-8 mx-auto mb-4 opacity-50" />
-					<p className="text-m">No parked group yet !</p>
+					<p className="text-m">Park combattant to use them later in this combat</p>
 				</div>
 			)}
 		</div>
