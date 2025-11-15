@@ -163,35 +163,38 @@ export default function AddCombatantForm({
 						</div>
 					</div>
 
-					<div className="flex gap-3 mt-4">
+					<div className="grid grid-cols-2 md:flex gap-2 md:gap-3 mt-4">
 						<button
 							onClick={onSubmit}
-							className="bg-lime-600 hover:bg-lime-700 text-white px-4 py-2 rounded flex items-center gap-2 transition"
+							className="bg-lime-600 hover:bg-lime-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+							title="Fight!"
 						>
-							<Sword className="w-4 h-4" />
-							Fight !
+							<Sword className="w-5 h-5" />
+							<span className="hidden md:inline">Fight !</span>
 						</button>
 						<button
 							onClick={onAddGroup}
-							className="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded flex items-center gap-2 transition"
+							className="bg-sky-600 hover:bg-sky-500 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+							title={parkGroupButtonText}
 						>
-							<CircleParking className="w-4 h-4" />
-							{parkGroupButtonText}
+							<CircleParking className="w-5 h-5" />
+							<span className="hidden md:inline">{parkGroupButtonText}</span>
 						</button>
 						<button
 							onClick={onSaveAsPlayer}
-							className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded flex items-center gap-2 transition"
+							className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
 							title="Save as player for reuse across combats"
 						>
-							<Save className="w-4 h-4" />
-							{savePlayerButtonText}
+							<Save className="w-5 h-5" />
+							<span className="hidden md:inline">{savePlayerButtonText}</span>
 						</button>
 						<button
 							onClick={onAddInitiativeGroup}
-							className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded flex items-center gap-2 transition"
+							className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+							title="Add initiative group"
 						>
-							<Dice3 className="w-4 h-4" />
-							Add init group
+							<Dice3 className="w-5 h-5" />
+							<span className="hidden md:inline">Add init group</span>
 						</button>
 					</div>
 				</div>

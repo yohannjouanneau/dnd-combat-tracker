@@ -20,9 +20,8 @@ export default function SavedPlayerRow({ player, onInclude, onFight, onRemove }:
   };
 
   return (
-    <div
-      className="flex items-center justify-between bg-slate-900 rounded p-3 border border-slate-700"
-    >
+    <div className="flex flex-col md:flex-row md:items-center gap-3 bg-slate-900 rounded p-3 border border-slate-700">
+      {/* Avatar and Info Section */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <CombatantAvatar
           imageUrl={player.imageUrl}
@@ -31,35 +30,43 @@ export default function SavedPlayerRow({ player, onInclude, onFight, onRemove }:
           size="sm"
         />
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-white truncate">{player.groupName}</div>
-          <div className="text-xs text-slate-400">
-            {getInitiativeSummary()} • HP: {player.hp}/{player.maxHp || player.hp} • AC: {player.ac || 10}
+          <div className="font-semibold text-white truncate text-base md:text-lg">
+            {player.groupName}
+          </div>
+          <div className="text-xs text-slate-400 space-y-0.5">
+            <div className="truncate">{getInitiativeSummary()}</div>
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+              <span>HP: {player.hp}/{player.maxHp || player.hp}</span>
+              <span>AC: {player.ac || 10}</span>
+            </div>
           </div>
         </div>
       </div>
-      <div className="flex gap-2 flex-shrink-0">
+
+      {/* Action Buttons */}
+      <div className="flex gap-2 flex-shrink-0 justify-end md:justify-start">
         <button
           onClick={() => onInclude(player)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1 transition"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
           title="Load into form"
         >
-          <Edit className="w-3 h-3" />
-          Edit
+          <Edit className="w-4 h-4" />
+          <span className="hidden md:inline">Edit</span>
         </button>
         <button
           onClick={() => onFight(player)}
-          className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1 transition"
+          className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
           title="Add to combat"
         >
-          <Sword className="w-3 h-3" />
-          Fight !
+          <Sword className="w-4 h-4" />
+          <span className="hidden md:inline">Fight !</span>
         </button>
         <button
           onClick={() => onRemove(player.id)}
-          className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-sm transition"
+          className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition min-w-[44px] flex items-center justify-center"
           title="Delete player"
         >
-          <Trash2 className="w-3 h-3" />
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
     </div>

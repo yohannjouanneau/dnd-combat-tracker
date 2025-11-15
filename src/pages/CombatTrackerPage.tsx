@@ -137,8 +137,18 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               : 'max-h-[5000px] opacity-100'
           }`}
         >
+          {/* Logo - Mobile only, centered at top */}
+          <div className="flex justify-center mb-4 md:hidden">
+            <img
+              src={logo}
+              alt="D&D Combat Tracker Logo"
+              className="w-16 h-16 object-contain"
+            />
+          </div>
+
           <div className="flex items-center gap-3 mb-8">
-            <div className="flex justify-center md:justify-start">
+            {/* Logo - Desktop only */}
+            <div className="hidden md:flex justify-center md:justify-start">
               <img
                 src={logo}
                 alt="D&D Combat Tracker Logo"
