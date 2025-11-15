@@ -148,11 +148,11 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
           <div className="flex items-center gap-3 mb-8">
             {/* Logo - Desktop only */}
-            <div className="hidden md:flex justify-center md:justify-start">
+            <div className="hidden md:flex md:mb-6">
               <img
                 src={logo}
                 alt="D&D Combat Tracker Logo"
-                className="w-20 h-20 object-contain"
+                className="w-24 h-24 object-contain"
               />
             </div>
             <SaveBar

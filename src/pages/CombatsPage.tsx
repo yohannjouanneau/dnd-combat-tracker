@@ -1,23 +1,24 @@
 import { useEffect, useState } from 'react';
 import type { SavedCombat, CombatState } from '../types';
 import LabeledTextInput from '../components/common/LabeledTextInput';
-import { dataStore } from '../persistence/storage';
 import { DEFAULT_NEW_COMBATANT } from '../constants';
 import logo from '../assets/logo.png';
-import { Plus, FolderOpen, Edit, Trash2 } from 'lucide-react';
+import { Plus, FolderOpen, Trash2 } from 'lucide-react';
+import type { CombatStateManager } from '../state';
 
 type Props = {
   onOpen: (id: string) => void;
+  combatStateManager: CombatStateManager;
 };
 
-export default function CombatsPage({ onOpen }: Props) {
+export default function CombatsPage({ onOpen, combatStateManager }: Props) {
   const [combats, setCombats] = useState<SavedCombat[]>([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    dataStore.listCombat().then((c) => { setCombats(c); setLoading(false); });
+    combatStateManager.listCombat().then((c) => { setCombats(c); setLoading(false); });
   }, []);
 
   const create = async () => {
@@ -27,21 +28,16 @@ export default function CombatsPage({ onOpen }: Props) {
       newCombatant: DEFAULT_NEW_COMBATANT,
     };
 
-    const created = await dataStore.createCombat({ name: name.trim(), description: description.trim(), data: emptyState });
+    const created = await combatStateManager.createCombat({ name: name.trim(), description: description.trim(), data: emptyState });
     setName('');
     setDescription('');
-    setCombats(await dataStore.listCombat());
+    setCombats(await combatStateManager.listCombat());
     onOpen(created.id);
   };
 
   const del = async (id: string) => {
-    await dataStore.deleteCombat(id);
-    setCombats(await dataStore.listCombat());
-  };
-
-  const rename = async (id: string, newName: string) => {
-    await dataStore.updateCombat(id, { name: newName, updatedAt: Date.now() });
-    setCombats(await dataStore.listCombat());
+    await combatStateManager.deleteCombat(id);
+    setCombats(await combatStateManager.listCombat());
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -59,11 +55,11 @@ export default function CombatsPage({ onOpen }: Props) {
         <div className="p-4 md:p-6">
           <div className="flex flex-col gap-4">
             {/* Logo - centered on mobile */}
-            <div className="flex justify-center md:justify-start">
+            <div className="flex justify-center">
               <img
                 src={logo}
                 alt="D&D Combat Tracker Logo"
-                className="w-16 h-16 md:w-20 md:h-20 object-contain"
+                className="w-16 h-16 md:w-40 md:h-40 object-contain"
               />
             </div>
 
@@ -126,20 +122,13 @@ export default function CombatsPage({ onOpen }: Props) {
                       <div className="text-xs md:text-sm text-slate-400 mt-1 line-clamp-2">{c.description}</div>
                     )}
                   </div>
-                  <div className="grid grid-cols-3 md:flex gap-2 flex-shrink-0">
+                  <div className="grid grid-cols-2 md:flex gap-2 flex-shrink-0">
                     <button
                       onClick={() => onOpen(c.id)}
                       className="bg-green-600 hover:bg-green-700 px-3 md:px-4 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1"
                     >
                       <FolderOpen className="w-4 h-4" />
                       <span className="hidden sm:inline">Open</span>
-                    </button>
-                    <button
-                      onClick={() => rename(c.id, prompt('Rename combat', c.name) || c.name)}
-                      className="bg-slate-700 hover:bg-slate-600 px-3 md:px-4 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1"
-                    >
-                      <Edit className="w-4 h-4" />
-                      <span className="hidden sm:inline">Rename</span>
                     </button>
                     <button
                       onClick={() => del(c.id)}

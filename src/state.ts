@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import type { CombatState, Combatant, NewCombatant, DeathSaves, GroupSummary, InitiativeGroup, SavedPlayer, SavedCombat } from './types';
+import type { CombatState, Combatant, NewCombatant, DeathSaves, GroupSummary, InitiativeGroup, SavedPlayer, SavedCombat, SavedCombatInput } from './types';
 import { dataStore } from './persistence/storage';
 import { DEFAULT_NEW_COMBATANT } from './constants';
 
@@ -43,6 +43,11 @@ export type CombatStateManager = {
   toggleCondition: (id: number, condition: string) => void;
   toggleConcentration: (id: number) => void;
   updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
+
+  // Combat List 
+  listCombat: () => Promise<SavedCombat[]>;
+  createCombat: (input: SavedCombatInput) => Promise<SavedCombat>;
+  deleteCombat: (id: string) => Promise<void>
 
   // Turn Management
   nextTurn: () => void;
@@ -446,6 +451,19 @@ const updateInitiative = (id: number, newInitiative: number) => {
     }));
   }, []);
 
+  // Combat list 
+  const listCombat = async () => {
+    return dataStore.listCombat()
+  }
+  
+  const createCombat = async (input: SavedCombatInput) => {
+    return dataStore.createCombat(input)
+  }
+
+  const deleteCombat =(id: string) => {
+    return dataStore.deleteCombat(id)
+  }
+
   // Turn Management
   const nextTurn = useCallback(() => {
     setState(prev => {
@@ -542,6 +560,11 @@ const updateInitiative = (id: number, newInitiative: number) => {
     toggleCondition,
     toggleConcentration,
     updateDeathSave,
+
+    //Combat List 
+    listCombat,
+    createCombat,
+    deleteCombat,
 
     // Turn Management
     nextTurn,

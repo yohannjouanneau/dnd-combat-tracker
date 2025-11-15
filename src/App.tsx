@@ -11,7 +11,6 @@ function App() {
 
   useEffect(() => {
     const onHash = () => {
-      console.log(`DEBUG ==> App ==> onHash`, location);
       setRoute(location.hash || '#combats');
     };
     window.addEventListener('hashchange', onHash);
@@ -31,7 +30,7 @@ function App() {
   const open = (id: string) => { location.hash = `#play/${id}`; };
 
   if (!route.startsWith('#play')) {
-    return <CombatsPage onOpen={open} />;
+    return <CombatsPage onOpen={open} combatStateManager={combatStateManager} />;
   }
 
   if (isLoading) {
