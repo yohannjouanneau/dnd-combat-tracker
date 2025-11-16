@@ -169,14 +169,14 @@ export class DnD5eGraphQLClient {
   async searchMonsters(nameQuery: string): Promise<Monster[]> {
     const query = `
         ${MonsterFragments.MonsterBasic}
-        query GetMonsters {
-          monsters(name: "${nameQuery}") {
+        query GetMonsters($name: String!) {
+          monsters(name: $name) {
             ...MonsterBasic
           }
         }
       `;
 
-    const response = await this.query<MonstersQueryResponse>(query);
+    const response = await this.query<MonstersQueryResponse>(query, { name: nameQuery });
     return response.monsters;
   }
 
