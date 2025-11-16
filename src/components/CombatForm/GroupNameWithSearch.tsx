@@ -1,5 +1,5 @@
 import { Search, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { Monster } from "../../api/types";
 
 type Props = {
@@ -25,21 +25,29 @@ export default function GroupNameWithSearch({
   const [monsterResults, setMonsterResults] = useState<Monster[]>([]);
   const [isSearching, setSearching] = useState(false);
 
-  const handleSearchClick = async () => {
-    if (onSearch && value.trim()) {
+  const search = useCallback(async () => {
+    if (!isSearching && onSearch && value.trim()) {
       setSearching(true);
-      const monsters = await onSearch(value.trim());
-      setMonsterResults(monsters);
-      setShowResults(true);
-      setSearching(false);
+      try {
+        const monsters = await onSearch(value.trim());
+        setMonsterResults(monsters);
+        setShowResults(true);
+      } catch (error) {
+        console.error("Search failed:", error);
+      } finally {
+        setSearching(false);
+      }
     }
+  }, [value]);
+
+  const handleSearchClick = async () => {
+    search();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && onSearch && value.trim()) {
       e.preventDefault();
-      onSearch(value.trim());
-      setShowResults(true);
+      search();
     }
   };
 

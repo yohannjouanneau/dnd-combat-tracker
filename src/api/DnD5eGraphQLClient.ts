@@ -181,49 +181,6 @@ export class DnD5eGraphQLClient {
   }
 
   // ============================================================================
-  // Custom Query Builder
-  // ============================================================================
-
-  /**
-   * Execute a custom query with full control
-   */
-  async customQuery<T>(
-    queryName: string,
-    queryBody: string,
-    variables?: Record<string, any>
-  ): Promise<T> {
-    const query = `
-        query ${queryName} ${
-      variables ? this.buildVariableDefinitions(variables) : ""
-    } {
-          ${queryBody}
-        }
-      `;
-
-    return this.query<T>(query, variables);
-  }
-
-  /**
-   * Helper to build variable definitions from an object
-   */
-  private buildVariableDefinitions(variables: Record<string, any>): string {
-    const defs = Object.keys(variables).map((key) => {
-      const value = variables[key];
-      const type =
-        typeof value === "string"
-          ? "String"
-          : typeof value === "number"
-          ? "Int"
-          : typeof value === "boolean"
-          ? "Boolean"
-          : "String";
-      return `$${key}: ${type}`;
-    });
-
-    return `(${defs.join(", ")})`;
-  }
-
-  // ============================================================================
   // Utility Methods
   // ============================================================================
 
