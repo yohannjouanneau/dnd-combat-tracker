@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import type {
   CombatState,
   Combatant,
@@ -85,7 +85,7 @@ const getInitialState = (): CombatState => ({
 });
 
 export function useCombatState(): CombatStateManager {
-  const apiClient = createGraphQLClient();
+  const apiClient = useMemo(() => createGraphQLClient(), []);
   const [state, setState] = useState<CombatState>(getInitialState());
   const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
 
@@ -571,7 +571,9 @@ export function useCombatState(): CombatStateManager {
         groupName: monster.name,
         hp: monster.hit_points?.toString() ?? "",
         maxHp: monster.hit_points?.toString() ?? "",
-        initBonus: monster.dexterity?.toString() ?? "",
+        initBonus: monster.dexterity
+          ? Math.floor((monster.dexterity - 10) / 2).toString()
+          : "",
         ac: monster.armor_class?.at(0)?.value?.toString() ?? "",
         imageUrl: `${DND_API_HOST}${monster.image}`,
       },
