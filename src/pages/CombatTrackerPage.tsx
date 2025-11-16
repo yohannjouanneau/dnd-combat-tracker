@@ -1,16 +1,16 @@
-import { useRef, useState, useEffect } from 'react';
-import { Sword } from 'lucide-react';
-import ParkedGroupsPanel from '../components/ParkedGroups/ParkedGroupsPanel';
-import AddCombatantForm from '../components/CombatForm/AddCombatantForm';
-import GroupsOverview from '../components/GroupsOverview/GroupsOverview';
-import TurnControls from '../components/TurnControls/TurnControls';
-import CombatantsList from '../components/CombatantsList/CombatantsList';
-import type { GroupSummary, NewCombatant, SavedPlayer } from '../types';
-import type { CombatStateManager } from '../state';
-import SavedPlayersPanel from '../components/CombatForm/SavedPlayerPanel';
-import logo from '../assets/logo.png';
-import SaveBar from '../components/SaveBar';
-import { HP_BAR_ID_PREFIX } from '../constants';
+import { useRef, useState, useEffect } from "react";
+import { Sword } from "lucide-react";
+import ParkedGroupsPanel from "../components/ParkedGroups/ParkedGroupsPanel";
+import AddCombatantForm from "../components/CombatForm/AddCombatantForm";
+import GroupsOverview from "../components/GroupsOverview/GroupsOverview";
+import TurnControls from "../components/TurnControls/TurnControls";
+import CombatantsList from "../components/CombatantsList/CombatantsList";
+import type { GroupSummary, NewCombatant, SavedPlayer } from "../types";
+import type { CombatStateManager } from "../state";
+import SavedPlayersPanel from "../components/CombatForm/SavedPlayerPanel";
+import logo from "../assets/logo.png";
+import SaveBar from "../components/SaveBar";
+import { HP_BAR_ID_PREFIX } from "../constants";
 
 type Props = {
   combatStateManager: CombatStateManager;
@@ -29,70 +29,78 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Ignore if user is typing in an input field
       const target = event.target as HTMLElement;
-      const isHpBarInput = target.id.startsWith(HP_BAR_ID_PREFIX)
-      if (!event.altKey && !isHpBarInput && (target.tagName &&  target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || combatants.length === 0)) {
+      const isHpBarInput = target.id.startsWith(HP_BAR_ID_PREFIX);
+      if (
+        !event.altKey &&
+        !isHpBarInput &&
+        ((target.tagName && target.tagName === "INPUT") ||
+          target.tagName === "TEXTAREA" ||
+          combatants.length === 0)
+      ) {
         return;
       }
 
-      if (event.key === 'ArrowRight') {
+      if (event.key === "ArrowRight") {
         event.preventDefault();
         combatStateManager.nextTurn();
-      } else if (event.key === 'ArrowLeft') {
+      } else if (event.key === "ArrowLeft") {
         // Block previous turn if on first combatant of round 1
-        const isAtStart = combatStateManager.state.round === 1 && combatStateManager.state.currentTurn === 0;
+        const isAtStart =
+          combatStateManager.state.round === 1 &&
+          combatStateManager.state.currentTurn === 0;
         if (!isAtStart) {
           event.preventDefault();
           combatStateManager.prevTurn();
         }
-      } else if (event.key === 'f' || event.key === 'F') {
+      } else if (event.key === "f" || event.key === "F") {
         // Toggle focus mode with F key
         event.preventDefault();
-        setIsFocusMode(prev => !prev);
+        setIsFocusMode((prev) => !prev);
       } else if (event.altKey) {
-        // Park / Save player and Fight button switch on Alt 
+        // Park / Save player and Fight button switch on Alt
         event.preventDefault();
-        setEnableFightModifier(true)
+        setEnableFightModifier(true);
       }
     };
-  
-    window.addEventListener('keydown', handleKeyDown);
+
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [combatants.length, combatStateManager]);
 
   useEffect(() => {
-        const handleKeyUp = (event: KeyboardEvent) => {
-      
+    const handleKeyUp = (event: KeyboardEvent) => {
       if (!event.altKey) {
-        // Park / Save player and Fight button switch on Alt 
+        // Park / Save player and Fight button switch on Alt
         event.preventDefault();
-        setEnableFightModifier(false)
+        setEnableFightModifier(false);
       }
     };
-    
-    window.addEventListener('keyup', handleKeyUp);
+
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      window.removeEventListener('keyup', handleKeyUp)
-    }
+      window.removeEventListener("keyup", handleKeyUp);
+    };
   }, [combatants.length, combatStateManager]);
-
-
 
   const handleIncludeParked = (combatant: NewCombatant) => {
     combatStateManager.includeParkedGroup(combatant);
     if (formRef.current) {
       setFormCollapsed(false); // Auto-expand
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
   const includeToFight = (combatant: NewCombatant) => {
     combatStateManager.addCombatant(combatant);
     if (combatListRef.current) {
-      combatListRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      combatListRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   };
 
@@ -100,7 +108,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     combatStateManager.includePlayer(player);
     if (formRef.current) {
       setFormCollapsed(false); // Auto-expand
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -113,18 +121,29 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
       ac: player.ac,
       color: player.color,
       imageUrl: player.imageUrl,
-      initBonus: player.initBonus
-    }
+      initBonus: player.initBonus,
+    };
     combatStateManager.addCombatant(playerCombattant);
     if (combatListRef.current) {
-      combatListRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      combatListRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   };
 
-  const stagedFromParkedGroups = combatStateManager.state.parkedGroups.find(group => group.groupName === combatStateManager.state.newCombatant.groupName)?.groupName
-  const stagedPlayer = combatStateManager.savedPlayers.find(group => group.groupName === combatStateManager.state.newCombatant.groupName)?.groupName
-  const stagedFrom = stagedFromParkedGroups ?? stagedPlayer
-  const back = () => { location.hash = '#combats'; };
+  const stagedFromParkedGroups = combatStateManager.state.parkedGroups.find(
+    (group) =>
+      group.groupName === combatStateManager.state.newCombatant.groupName
+  )?.groupName;
+  const stagedPlayer = combatStateManager.savedPlayers.find(
+    (group) =>
+      group.groupName === combatStateManager.state.newCombatant.groupName
+  )?.groupName;
+  const stagedFrom = stagedFromParkedGroups ?? stagedPlayer;
+  const back = () => {
+    location.hash = "#combats";
+  };
 
   return (
     <div className="rounded-lg min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
@@ -132,9 +151,9 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         {/* Wrapper with transition for hidden elements */}
         <div
           className={`transition-all duration-500 ease-in-out ${
-            isFocusMode 
-              ? 'max-h-0 opacity-0 overflow-hidden pointer-events-none' 
-              : 'max-h-[5000px] opacity-100'
+            isFocusMode
+              ? "max-h-0 opacity-0 overflow-hidden pointer-events-none"
+              : "max-h-[5000px] opacity-100"
           }`}
         >
           {/* Logo - Mobile only, centered at top */}
@@ -156,13 +175,23 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               />
             </div>
             <SaveBar
-              name={combatStateManager.state.combatName ?? ''}
-              description={combatStateManager.state.combatDescription ?? ''}
-              onChange={(patch) => combatStateManager.updateCombat(patch.name ?? '', patch.description ?? '')}
+              name={combatStateManager.state.combatName ?? ""}
+              description={combatStateManager.state.combatDescription ?? ""}
+              onChange={(patch) =>
+                combatStateManager.updateCombat(
+                  patch.name ?? "",
+                  patch.description ?? ""
+                )
+              }
               onBack={back}
               onSave={async () => {
                 if (!combatStateManager.state) return;
-                await combatStateManager.saveCombat({ name: combatStateManager.state.combatName, description: combatStateManager.state.combatDescription, data: combatStateManager.state, updatedAt: Date.now() });
+                await combatStateManager.saveCombat({
+                  name: combatStateManager.state.combatName,
+                  description: combatStateManager.state.combatDescription,
+                  data: combatStateManager.state,
+                  updatedAt: Date.now(),
+                });
               }}
             />
           </div>
@@ -192,32 +221,46 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             isFightModeEnabled={isFightModifierEnabled}
             onToggleCollapse={setFormCollapsed}
             onChange={combatStateManager.updateNewCombatant}
-            onSubmit={() => { combatStateManager.addCombatant() }}
-            onAddGroup={() => combatStateManager.addParkedGroup(isFightModifierEnabled)}
-            onSaveAsPlayer={() => combatStateManager.addPlayerFromForm(isFightModifierEnabled)}
+            onSubmit={() => {
+              combatStateManager.addCombatant();
+            }}
+            onAddGroup={() =>
+              combatStateManager.addParkedGroup(isFightModifierEnabled)
+            }
+            onSaveAsPlayer={() =>
+              combatStateManager.addPlayerFromForm(isFightModifierEnabled)
+            }
             onAddInitiativeGroup={combatStateManager.addInitiativeGroup}
             onRemoveInitiativeGroup={combatStateManager.removeInitiativeGroup}
             onUpdateInitiativeGroup={combatStateManager.updateInitiativeGroup}
+            onSearchMonsters={combatStateManager.searchMonsters}
+            onSelectMonster={combatStateManager.fillFormWithMonsterData}
           />
 
           {combatants.length > 0 && (
-            <GroupsOverview groups={combatStateManager.getUniqueGroups() as GroupSummary[]} onRemoveGroup={combatStateManager.removeGroup} />
+            <GroupsOverview
+              groups={combatStateManager.getUniqueGroups() as GroupSummary[]}
+              onRemoveGroup={combatStateManager.removeGroup}
+            />
           )}
         </div>
 
         {combatants.length > 0 && (
-          <div className={`flex gap-2 mb-6 ${isFocusMode ? 'sticky top-0 z-10 pt-6' : ''}`}>
+          <div
+            className={`flex gap-2 mb-6 ${
+              isFocusMode ? "sticky top-0 z-10 pt-6" : ""
+            }`}
+          >
             <div className="flex-1">
-            <TurnControls
+              <TurnControls
                 round={combatStateManager.state.round}
                 currentTurn={combatStateManager.state.currentTurn}
                 isFocusMode={isFocusMode}
                 onPrev={combatStateManager.prevTurn}
                 onNext={combatStateManager.nextTurn}
-                onToggleFocus={() => setIsFocusMode(prev => !prev)}
+                onToggleFocus={() => setIsFocusMode((prev) => !prev)}
               />
             </div>
-            
           </div>
         )}
 
@@ -237,10 +280,11 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         {combatants.length === 0 && (
           <div className="text-center text-slate-400 py-12">
             <Sword className="text-lime-400 w-16 h-16 mx-auto mb-4 opacity-50" />
-            <p className="text-xl">No combatants yet. Add some to start the battle!</p>
+            <p className="text-xl">
+              No combatants yet. Add some to start the battle!
+            </p>
           </div>
         )}
-
       </div>
     </div>
   );
