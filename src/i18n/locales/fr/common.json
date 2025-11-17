@@ -1,0 +1,26 @@
+{
+  "appName": "Gestionnaire de Combat D&D",
+  "actions": {
+    "save": "Sauvegarder",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "add": "Ajouter",
+    "remove": "Retirer",
+    "open": "Ouvrir",
+    "create": "Créer",
+    "search": "Rechercher",
+    "apply": "Appliquer",
+    "close": "Fermer",
+    "hide": "Masquer"
+  },
+  "navigation": {
+    "combatList": "Liste des combats",
+    "newCombat": "Nouveau combat"
+  },
+  "loading": "Chargement…",
+  "noData": "Aucune donnée disponible",
+  "error": "Une erreur s'est produite"
+}

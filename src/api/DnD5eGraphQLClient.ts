@@ -176,7 +176,9 @@ export class DnD5eGraphQLClient {
         }
       `;
 
-    const response = await this.query<MonstersQueryResponse>(query, { name: nameQuery });
+    const response = await this.query<MonstersQueryResponse>(query, {
+      name: nameQuery,
+    });
     return response.monsters;
   }
 

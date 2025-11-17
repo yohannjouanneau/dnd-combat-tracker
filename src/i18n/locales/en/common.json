@@ -1,0 +1,26 @@
+{
+  "appName": "D&D Combat Tracker",
+  "actions": {
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back to List",
+    "add": "Add",
+    "remove": "Remove",
+    "open": "Open",
+    "create": "Create",
+    "search": "Search",
+    "apply": "Apply",
+    "close": "Close",
+    "hide": "Hide"
+  },
+  "navigation": {
+    "combatList": "Combat List",
+    "newCombat": "New Combat"
+  },
+  "loading": "Loading…",
+  "noData": "No data available",
+  "error": "An error occurred"
+}

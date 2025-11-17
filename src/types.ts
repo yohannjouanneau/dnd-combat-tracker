@@ -33,8 +33,8 @@ export type NewCombatant = {
   maxHp: string;
   ac: string;
   color: string;
-  imageUrl: string
-  initBonus: string
+  imageUrl: string;
+  initBonus: string;
 };
 
 export type GroupSummary = {
@@ -45,9 +45,9 @@ export type GroupSummary = {
 
 // Serializable snapshot of the tracker
 export type CombatState = {
-  combatId?: string,
-  combatName?: string,
-  combatDescription?: string,
+  combatId?: string;
+  combatName?: string;
+  combatDescription?: string;
   combatants: Combatant[];
   currentTurn: number;
   round: number;
@@ -78,5 +78,11 @@ export type SavedPlayer = {
   initBonus: string;
 };
 
-export type SavedCombatInput = Omit<SavedCombat, 'id' | 'createdAt' | 'updatedAt'>
-export type SavedPlayerInput = Omit<SavedPlayer, 'id' | 'createdAt' | 'updatedAt'>
+export type SavedCombatInput = Omit<
+  SavedCombat,
+  "id" | "createdAt" | "updatedAt"
+>;
+export type SavedPlayerInput = Omit<
+  SavedPlayer,
+  "id" | "createdAt" | "updatedAt"
+>;

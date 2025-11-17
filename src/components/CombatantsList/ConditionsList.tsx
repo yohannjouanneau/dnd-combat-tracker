@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Plus, X } from 'lucide-react';
-import { DEFAULT_CONDITIONS } from "../../constants";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Plus, X } from "lucide-react";
+import { DEFAULT_CONDITIONS_KEYS } from "../../constants";
 
 type Props = {
   activeConditions: string[];
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export default function ConditionsList({ activeConditions, onToggle }: Props) {
+  const { t } = useTranslation("conditions");
   const [showAll, setShowAll] = useState(false);
 
   return (
@@ -20,7 +22,7 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
             onClick={() => onToggle(condition)}
             className="px-3 py-1 rounded text-sm bg-orange-600 hover:bg-orange-700 transition flex items-center gap-1"
           >
-            {condition}
+            {t(`conditions:${condition}`)}
             <X className="w-4 h-4" />
           </button>
         ))}
@@ -31,16 +33,20 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
           className="px-3 py-1 rounded text-sm bg-slate-700 hover:bg-slate-600 transition flex items-center gap-1"
         >
           <Plus className="w-4 h-4" />
-          {showAll ? 'Hide' : 'Add Condition'}
+          {showAll
+            ? t("conditions:hideConditions")
+            : t("conditions:addCondition")}
         </button>
       </div>
 
       {/* All Conditions Dropdown */}
       {showAll && (
         <div className="mt-2 p-3 bg-slate-900 rounded border border-slate-700">
-          <div className="text-sm font-semibold mb-2 text-slate-400">Available Conditions</div>
+          <div className="text-sm font-semibold mb-2 text-slate-400">
+            {t("conditions:availableConditions")}
+          </div>
           <div className="flex flex-wrap gap-2">
-            {DEFAULT_CONDITIONS.map((condition) => (
+            {DEFAULT_CONDITIONS_KEYS.map((condition) => (
               <button
                 key={condition}
                 onClick={() => {
@@ -49,12 +55,13 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
                     setShowAll(false);
                   }
                 }}
-                className={`px-3 py-1 rounded text-sm transition ${activeConditions.includes(condition)
-                    ? 'bg-orange-600 hover:bg-orange-700'
-                    : 'bg-slate-700 hover:bg-slate-600'
-                  }`}
+                className={`px-3 py-1 rounded text-sm transition ${
+                  activeConditions.includes(condition)
+                    ? "bg-orange-600 hover:bg-orange-700"
+                    : "bg-slate-700 hover:bg-slate-600"
+                }`}
               >
-                {condition}
+                {t(`conditions:${condition}`)}
               </button>
             ))}
           </div>
