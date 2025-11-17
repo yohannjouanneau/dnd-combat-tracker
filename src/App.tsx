@@ -1,20 +1,20 @@
-import { useEffect, useState } from 'react'
-import './App.css'
-import CombatTrackerPage from './pages/CombatTrackerPage'
-import CombatsPage from './pages/CombatsPage'
-import { useCombatState } from './state'
+import { useEffect, useState } from "react";
+import "./App.css";
+import CombatTrackerPage from "./pages/CombatTrackerPage";
+import CombatsPage from "./pages/CombatsPage";
+import { useCombatState } from "./state";
 
 function App() {
-  const [route, setRoute] = useState<string>(location.hash || '#combats');
+  const [route, setRoute] = useState<string>(location.hash || "#combats");
   const [isLoading, setIsLoading] = useState(false);
-  const combatStateManager = useCombatState()
+  const combatStateManager = useCombatState();
 
   useEffect(() => {
     const onHash = () => {
-      setRoute(location.hash || '#combats');
+      setRoute(location.hash || "#combats");
     };
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
   useEffect(() => {
@@ -27,10 +27,14 @@ function App() {
     }
   }, [route]);
 
-  const open = (id: string) => { location.hash = `#play/${id}`; };
+  const open = (id: string) => {
+    location.hash = `#play/${id}`;
+  };
 
-  if (!route.startsWith('#play')) {
-    return <CombatsPage onOpen={open} combatStateManager={combatStateManager} />;
+  if (!route.startsWith("#play")) {
+    return (
+      <CombatsPage onOpen={open} combatStateManager={combatStateManager} />
+    );
   }
 
   if (isLoading) {
@@ -39,11 +43,9 @@ function App() {
 
   return (
     <div>
-      <CombatTrackerPage
-        combatStateManager={combatStateManager}
-      />
+      <CombatTrackerPage combatStateManager={combatStateManager} />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

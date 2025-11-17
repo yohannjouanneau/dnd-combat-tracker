@@ -1,4 +1,5 @@
-import { Eye, EyeOff } from 'lucide-react';
+import { useTranslation } from "react-i18next";
+import { Eye, EyeOff } from "lucide-react";
 
 type Props = {
   isFocusMode: boolean;
@@ -6,15 +7,25 @@ type Props = {
 };
 
 export default function FocusModeToggle({ isFocusMode, onToggle }: Props) {
+  const { t } = useTranslation("combat");
+
+  const title = isFocusMode
+    ? `${t("combat:focusMode.exit")} ${t("combat:focusMode.keyHint")}`
+    : `${t("combat:focusMode.enter")} ${t("combat:focusMode.keyHint")}`;
+
   return (
     <button
       onClick={onToggle}
       className={`bg-slate-800 rounded-lg px-4 py-4 border border-slate-700 flex items-center justify-center transition hover:bg-slate-700 ${
-        isFocusMode ? 'text-amber-400' : 'text-purple-400'
+        isFocusMode ? "text-amber-400" : "text-purple-400"
       }`}
-      title={`${isFocusMode ? 'Exit' : 'Enter'} Focus Mode (F key)`}
+      title={title}
     >
-      {isFocusMode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+      {isFocusMode ? (
+        <EyeOff className="w-5 h-5" />
+      ) : (
+        <Eye className="w-5 h-5" />
+      )}
     </button>
   );
 }

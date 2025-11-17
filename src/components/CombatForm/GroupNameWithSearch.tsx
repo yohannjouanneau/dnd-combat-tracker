@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Search, Loader2 } from "lucide-react";
 import { useCallback, useState } from "react";
 import type { Monster } from "../../api/types";
@@ -21,6 +22,7 @@ export default function GroupNameWithSearch({
   onSearch,
   onSelectMonster,
 }: Props) {
+  const { t } = useTranslation("forms");
   const [showResults, setShowResults] = useState(false);
   const [monsterResults, setMonsterResults] = useState<Monster[]>([]);
   const [isSearching, setSearching] = useState(false);
@@ -74,8 +76,8 @@ export default function GroupNameWithSearch({
           className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-blue-400 disabled:text-slate-600 disabled:cursor-not-allowed transition p-1"
           title={
             value.trim()
-              ? "Search API for this creature"
-              : "Enter a name to search"
+              ? t("forms:combatant.searchMonster")
+              : t("forms:combatant.enterNameToSearch")
           }
         >
           {isSearching ? (
@@ -89,8 +91,9 @@ export default function GroupNameWithSearch({
       {showResults && !isSearching && monsterResults.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 rounded border border-slate-600 shadow-lg z-10 max-h-64 overflow-y-auto">
           <div className="text-xs text-slate-400 px-3 py-2 border-b border-slate-600">
-            {monsterResults.length} result
-            {monsterResults.length !== 1 ? "s" : ""} found
+            {t("forms:combatant.searchResults", {
+              count: monsterResults.length,
+            })}
           </div>
           {monsterResults.map((monster, index) => (
             <button
@@ -112,7 +115,7 @@ export default function GroupNameWithSearch({
       {showResults && !isSearching && monsterResults.length === 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 rounded border border-slate-600 shadow-lg z-10">
           <div className="p-3 text-center text-slate-400 text-sm">
-            No monsters found for "{value}"
+            {t("forms:combatant.noResults", { query: value })}
           </div>
         </div>
       )}

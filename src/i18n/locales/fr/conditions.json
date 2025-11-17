@@ -1,0 +1,21 @@
+{
+  "blinded": "Aveuglé",
+  "charmed": "Charmé",
+  "deafened": "Assourdi",
+  "frightened": "Effrayé",
+  "grappled": "Empoigné",
+  "incapacitated": "Neutralisé",
+  "invisible": "Invisible",
+  "paralyzed": "Paralysé",
+  "petrified": "Pétrifié",
+  "poisoned": "Empoisonné",
+  "prone": "À terre",
+  "restrained": "Entravé",
+  "stunned": "Étourdi",
+  "unconscious": "Inconscient",
+  "concentration": "Concentration",
+  "concentrating": "✓ Se concentre",
+  "addCondition": "Ajouter une condition",
+  "hideConditions": "Masquer",
+  "availableConditions": "Conditions disponibles"
+}

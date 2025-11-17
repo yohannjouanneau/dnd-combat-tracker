@@ -1,4 +1,5 @@
 import { type RefObject } from "react";
+import { useTranslation } from "react-i18next";
 import type { NewCombatant, InitiativeGroup } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import LabeledNumberInput from "../common/LabeledNumberInput";
@@ -48,6 +49,8 @@ export default function AddCombatantForm({
   onSearchMonsters,
   onSelectMonster,
 }: Props) {
+  const { t } = useTranslation("forms");
+
   const getLetterRange = () => {
     if (totalCount <= 1) return "";
     const lastLetter = String.fromCharCode(65 + totalCount - 1);
@@ -55,11 +58,12 @@ export default function AddCombatantForm({
   };
 
   const parkGroupButtonText = isFightModeEnabled
-    ? "Park group and Fight"
-    : "Park group";
+    ? t("forms:combatant.actions.parkAndFight")
+    : t("forms:combatant.actions.park");
+
   const savePlayerButtonText = isFightModeEnabled
-    ? "Save player and Fight"
-    : "Save player";
+    ? t("forms:combatant.actions.savePlayerAndFight")
+    : t("forms:combatant.actions.savePlayer");
 
   return (
     <div
@@ -70,7 +74,7 @@ export default function AddCombatantForm({
         onClick={() => onToggleCollapse(!isCollapsed)}
         className="w-full flex items-center justify-between p-6 hover:bg-slate-700 transition-colors"
       >
-        <h2 className="text-xl font-semibold">Combatant</h2>
+        <h2 className="text-xl font-semibold">{t("forms:combatant.title")}</h2>
         <div
           className="transition-transform duration-300"
           style={{ transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)" }}
@@ -89,16 +93,17 @@ export default function AddCombatantForm({
         <div className="px-6 pb-6">
           {stagedFrom && (
             <div className="mb-3 text-sm text-slate-300">
-              Staged from <span className="font-semibold">{stagedFrom}</span>.
+              {t("forms:combatant.stagedFrom")}{" "}
+              <span className="font-semibold">{stagedFrom}</span>.
             </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <GroupNameWithSearch
               id="combatGroupName"
-              label="Name"
+              label={t("forms:combatant.groupName")}
               value={value.groupName}
-              placeholder="Name"
+              placeholder={t("forms:combatant.groupNamePlaceholder")}
               onChange={(v) => onChange({ groupName: v })}
               onSearch={onSearchMonsters}
               onSelectMonster={onSelectMonster}
@@ -112,9 +117,9 @@ export default function AddCombatantForm({
           <div className="mb-4">
             <LabeledTextInput
               id="combatImageUrl"
-              label="Image URL (optional)"
+              label={t("forms:combatant.imageUrl")}
               value={value.imageUrl || ""}
-              placeholder="https://example.com/character.jpg"
+              placeholder={t("forms:combatant.imageUrlPlaceholder")}
               onChange={(v) => onChange({ imageUrl: v })}
             />
           </div>
@@ -122,16 +127,16 @@ export default function AddCombatantForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <LabeledNumberInput
               id="combatHp"
-              label="Current HP"
+              label={t("forms:combatant.currentHp")}
               value={value.hp}
-              placeholder="Current HP"
+              placeholder={t("forms:combatant.currentHpPlaceholder")}
               onChange={(v) => onChange({ hp: v })}
             />
             <LabeledNumberInput
               id="combatMaxHp"
-              label="Max HP (Optional)"
+              label={t("forms:combatant.maxHp")}
               value={value.maxHp}
-              placeholder="Max HP"
+              placeholder={t("forms:combatant.maxHpPlaceholder")}
               onChange={(v) => onChange({ maxHp: v })}
             />
           </div>
@@ -139,17 +144,17 @@ export default function AddCombatantForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <LabeledNumberInput
               id="combatAc"
-              label="AC"
+              label={t("forms:combatant.ac")}
               value={value.ac}
-              placeholder="AC"
+              placeholder={t("forms:combatant.acPlaceholder")}
               onChange={(v) => onChange({ ac: v })}
             />
 
             <LabeledNumberInput
               id="initBonus"
-              label="Init bonus (Optional)"
+              label={t("forms:combatant.initBonus")}
               value={value.initBonus}
-              placeholder="Init bonus"
+              placeholder={t("forms:combatant.initBonusPlaceholder")}
               onChange={(v) => onChange({ initBonus: v })}
             />
           </div>
@@ -157,11 +162,13 @@ export default function AddCombatantForm({
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-slate-300">
-                Initiative Groups
+                {t("forms:combatant.initiative")}
                 {totalCount > 0 && (
                   <span className="ml-2 text-blue-400 text-xs">
-                    → {totalCount} combatant{totalCount !== 1 ? "s" : ""}
-                    {getLetterRange()}
+                    {t("forms:combatant.initiativeHint", {
+                      count: totalCount,
+                      range: getLetterRange(),
+                    })}
                   </span>
                 )}
               </label>
@@ -186,10 +193,12 @@ export default function AddCombatantForm({
             <button
               onClick={onSubmit}
               className="bg-lime-600 hover:bg-lime-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-              title="Fight!"
+              title={t("forms:combatant.actions.fight")}
             >
               <Sword className="w-5 h-5" />
-              <span className="hidden md:inline">Fight !</span>
+              <span className="hidden md:inline">
+                {t("forms:combatant.actions.fight")}
+              </span>
             </button>
             <button
               onClick={onAddGroup}
@@ -202,7 +211,7 @@ export default function AddCombatantForm({
             <button
               onClick={onSaveAsPlayer}
               className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-              title="Save as player for reuse across combats"
+              title={savePlayerButtonText}
             >
               <Save className="w-5 h-5" />
               <span className="hidden md:inline">{savePlayerButtonText}</span>
@@ -210,10 +219,12 @@ export default function AddCombatantForm({
             <button
               onClick={onAddInitiativeGroup}
               className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-              title="Add initiative group"
+              title={t("forms:combatant.actions.addInitGroup")}
             >
               <Dice3 className="w-5 h-5" />
-              <span className="hidden md:inline">Add init group</span>
+              <span className="hidden md:inline">
+                {t("forms:combatant.actions.addInitGroup")}
+              </span>
             </button>
           </div>
         </div>

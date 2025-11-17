@@ -1,0 +1,47 @@
+{
+  "title": "Gestionnaire de Combat",
+  "round": "Tour {{number}}",
+  "turn": {
+    "current": "Tour actuel",
+    "next": "Tour suivant",
+    "previous": "Tour précédent",
+    "previousShort": "Précédent",
+    "nextShort": "Suivant"
+  },
+  "combatant": {
+    "name": "Nom",
+    "initiative": "Initiative",
+    "hp": "PV",
+    "currentHp": "PV actuels",
+    "maxHp": "PV max",
+    "ac": "CA",
+    "active": "Actif",
+    "remove": "Retirer le combattant",
+    "noCombatants": "Aucun combattant pour le moment. Ajoutez-en pour commencer la bataille !",
+    "editInitiative": "Cliquer pour modifier l'initiative"
+  },
+  "groups": {
+    "title": "Groupes",
+    "removeAll": "Tout retirer",
+    "count": "{{count}} combattant",
+    "count_plural": "{{count}} combattants"
+  },
+  "focusMode": {
+    "title": "Mode Focus",
+    "enter": "Activer le mode Focus",
+    "exit": "Désactiver le mode Focus",
+    "keyHint": "(touche F)"
+  },
+  "hpBar": {
+    "placeholder": "±0",
+    "apply": "Appliquer le changement de PV",
+    "quick": "Rapide",
+    "damage": "Dégâts",
+    "heal": "Soins"
+  },
+  "deathSaves": {
+    "title": "Jets de mort",
+    "successes": "Réussites",
+    "failures": "Échecs"
+  }
+}
