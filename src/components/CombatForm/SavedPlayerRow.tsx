@@ -1,6 +1,7 @@
-import { Edit, Sword, Trash2 } from 'lucide-react';
-import type { SavedPlayer } from '../../types';
-import CombatantAvatar from '../common/CombatantAvatar';
+import { Edit, Sword, Trash2 } from "lucide-react";
+import type { SavedPlayer } from "../../types";
+import CombatantAvatar from "../common/CombatantAvatar";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   player: SavedPlayer;
@@ -9,12 +10,21 @@ type Props = {
   onRemove: (id: string) => void;
 };
 
-export default function SavedPlayerRow({ player, onInclude, onFight, onRemove }: Props) {
+export default function SavedPlayerRow({
+  player,
+  onInclude,
+  onFight,
+  onRemove,
+}: Props) {
+  const { t } = useTranslation("forms");
   const getInitiativeSummary = () => {
-    const totalCount = player.initiativeGroups.reduce((sum, g) => sum + (parseInt(g.count) || 0), 0);
+    const totalCount = player.initiativeGroups.reduce(
+      (sum, g) => sum + (parseInt(g.count) || 0),
+      0
+    );
     const groupCount = player.initiativeGroups.length;
     if (groupCount === 1) {
-      return `${totalCount} combatant${totalCount !== 1 ? 's' : ''}`;
+      return `${totalCount} combatant${totalCount !== 1 ? "s" : ""}`;
     }
     return `${groupCount} groups, ${totalCount} total`;
   };
@@ -36,7 +46,9 @@ export default function SavedPlayerRow({ player, onInclude, onFight, onRemove }:
           <div className="text-xs text-slate-400 space-y-0.5">
             <div className="truncate">{getInitiativeSummary()}</div>
             <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-              <span>HP: {player.hp}/{player.maxHp || player.hp}</span>
+              <span>
+                HP: {player.hp}/{player.maxHp || player.hp}
+              </span>
               <span>AC: {player.ac || 10}</span>
             </div>
           </div>
@@ -48,23 +60,27 @@ export default function SavedPlayerRow({ player, onInclude, onFight, onRemove }:
         <button
           onClick={() => onInclude(player)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
-          title="Load into form"
+          title={t("forms:savedPlayers:editTooltip")}
         >
           <Edit className="w-4 h-4" />
-          <span className="hidden md:inline">Edit</span>
+          <span className="hidden md:inline">
+            {t("forms:savedPlayers:edit")}
+          </span>
         </button>
         <button
           onClick={() => onFight(player)}
           className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
-          title="Add to combat"
+          title={t("forms:savedPlayers:fightTooltip")}
         >
           <Sword className="w-4 h-4" />
-          <span className="hidden md:inline">Fight !</span>
+          <span className="hidden md:inline">
+            {t("forms:savedPlayers:fight")}
+          </span>
         </button>
         <button
           onClick={() => onRemove(player.id)}
           className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition min-w-[44px] flex items-center justify-center"
-          title="Delete player"
+          title={t("forms:savedPlayers:deleteTooltip")}
         >
           <Trash2 className="w-4 h-4" />
         </button>

@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Sword } from "lucide-react";
 import ParkedGroupsPanel from "../components/ParkedGroups/ParkedGroupsPanel";
 import AddCombatantForm from "../components/CombatForm/AddCombatantForm";
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export default function CombatTrackerPage({ combatStateManager }: Props) {
+  const { t } = useTranslation("combat");
   const formRef = useRef<HTMLDivElement>(null);
   const combatListRef = useRef<HTMLDivElement>(null);
   const combatants = combatStateManager.state.combatants;
@@ -280,9 +282,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         {combatants.length === 0 && (
           <div className="text-center text-slate-400 py-12">
             <Sword className="text-lime-400 w-16 h-16 mx-auto mb-4 opacity-50" />
-            <p className="text-xl">
-              No combatants yet. Add some to start the battle!
-            </p>
+            <p className="text-xl">{t("combat:combatant.noCombatants")}</p>
           </div>
         )}
       </div>

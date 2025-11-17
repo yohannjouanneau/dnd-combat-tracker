@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 
 type Props = {
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
+  const { t } = useTranslation('combat');
   const [inputValue, setInputValue] = useState('');
   const [showQuickButtons, setShowQuickButtons] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -52,7 +54,9 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-semibold text-white">{hp} / {maxHp} HP</span>
+        <span className="font-semibold text-white">
+          {hp} / {maxHp} {t('combat:combatant.hp')}
+        </span>
         
         {/* Quick buttons toggle - visible on mobile/tablet */}
         <button
@@ -60,7 +64,7 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
           className="md:hidden text-purple-400 hover:text-purple-300 transition flex items-center gap-1 text-sm px-2 py-1 rounded hover:bg-slate-700"
         >
           {showQuickButtons ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          Quick
+          {t('combat:hpBar.quick')}
         </button>
       </div>
 
@@ -106,14 +110,14 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyPress}
-          placeholder="±0"
+          placeholder={t('combat:hpBar.placeholder')}
           className="bg-slate-700 text-white rounded px-3 py-2 border border-slate-600 focus:border-blue-500 focus:outline-none w-24 text-center"
         />
         <button 
           onClick={handleApply}
           disabled={!inputValue}
           className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
-          title="Apply HP change"
+          title={t('combat:hpBar.apply')}
         >
           <Check className="w-4 h-4" />
         </button>

@@ -1,0 +1,47 @@
+{
+  "title": "Combat Tracker",
+  "round": "Round {{number}}",
+  "turn": {
+    "current": "Current Turn",
+    "next": "Next Turn",
+    "previous": "Previous Turn",
+    "previousShort": "Previous",
+    "nextShort": "Next"
+  },
+  "combatant": {
+    "name": "Name",
+    "initiative": "Initiative",
+    "hp": "HP",
+    "currentHp": "Current HP",
+    "maxHp": "Max HP",
+    "ac": "AC",
+    "active": "Active",
+    "remove": "Remove combatant",
+    "noCombatants": "No combatants yet. Add some to start the battle!",
+    "editInitiative": "Click to edit initiative"
+  },
+  "groups": {
+    "title": "Groups",
+    "removeAll": "Remove All",
+    "count": "{{count}} combatant",
+    "count_plural": "{{count}} combatants"
+  },
+  "focusMode": {
+    "title": "Focus Mode",
+    "enter": "Enter Focus Mode",
+    "exit": "Exit Focus Mode",
+    "keyHint": "(F key)"
+  },
+  "hpBar": {
+    "placeholder": "±0",
+    "apply": "Apply HP change",
+    "quick": "Quick",
+    "damage": "Damage",
+    "heal": "Heal"
+  },
+  "deathSaves": {
+    "title": "Death Saves",
+    "successes": "Successes",
+    "failures": "Failures"
+  }
+}
