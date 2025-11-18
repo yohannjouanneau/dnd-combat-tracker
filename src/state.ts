@@ -135,6 +135,79 @@ export function useCombatState(): CombatStateManager {
     });
   };
 
+  const prepareCombatantList = useCallback(
+    (prev: CombatState, combatant?: NewCombatant) => {
+      const nc = combatant ?? prev.newCombatant;
+      if (!nc.groupName || !nc.hp) return prev.combatants;
+      if (nc.initiativeGroups.length === 0) return prev.combatants;
+      if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
+        return prev.combatants;
+
+      // If maxHp is empty, use hp as maxHp
+      const effectiveMaxHp = nc.maxHp || nc.hp;
+
+      // Calculate total count across all initiative groups
+      const totalCount = nc.initiativeGroups.reduce(
+        (sum, g) => sum + (parseInt(g.count) || 0),
+        0
+      );
+      if (totalCount === 0) return prev.combatants;
+
+      // Find highest existing index for this group
+      const existingGroupMembers = prev.combatants.filter(
+        (c) => c.groupName === nc.groupName
+      );
+      const maxGroupIndex =
+        existingGroupMembers.length > 0
+          ? Math.max(...existingGroupMembers.map((c) => c.groupIndex))
+          : -1;
+
+      const baseId = Date.now();
+      let globalLetterIndex = maxGroupIndex + 1;
+      const newCombatants: Combatant[] = [];
+
+      // Create combatants for each initiative group
+      nc.initiativeGroups.forEach((group) => {
+        const count = parseInt(group.count) || 0;
+        for (let i = 0; i < count; i++) {
+          const letter = String.fromCharCode(65 + globalLetterIndex);
+          newCombatants.push({
+            id: baseId + globalLetterIndex,
+            name: nc.groupName,
+            displayName:
+              totalCount > 1 ? `${nc.groupName} ${letter}` : nc.groupName,
+            initiative: parseFloat(group.initiative),
+            hp: parseInt(nc.hp),
+            maxHp: parseInt(effectiveMaxHp),
+            ac: nc.ac ? parseInt(nc.ac) : 10,
+            conditions: [],
+            concentration: false,
+            deathSaves: { successes: 0, failures: 0 },
+            groupName: nc.groupName,
+            color: nc.color,
+            groupIndex: globalLetterIndex,
+            imageUrl: nc.imageUrl,
+          });
+          globalLetterIndex++;
+        }
+      });
+
+      // Merge and sort all combatants
+      const updated = [...prev.combatants, ...newCombatants].sort((a, b) => {
+        if (b.initiative !== a.initiative) {
+          return b.initiative - a.initiative;
+        }
+        if (a.groupName !== b.groupName) {
+          return a.groupName.localeCompare(b.groupName);
+        }
+        return a.groupIndex - b.groupIndex;
+      });
+
+      return updated;
+    },
+    []
+  );
+
   // Parked Groups Management
   const addParkedGroup = useCallback((isFightModeEnabled: boolean) => {
     setState((prev) => {
@@ -166,7 +239,7 @@ export function useCombatState(): CombatStateManager {
         combatants,
       };
     });
-  }, []);
+  }, [prepareCombatantList]);
 
   const removeParkedGroup = useCallback((name: string) => {
     setState((prev) => ({
@@ -287,7 +360,7 @@ export function useCombatState(): CombatStateManager {
         };
       });
     },
-    [state.newCombatant, savedPlayers, loadPlayers]
+    [state.newCombatant, savedPlayers, loadPlayers, prepareCombatantList]
   );
 
   const removePlayer = useCallback(
@@ -315,78 +388,7 @@ export function useCombatState(): CombatStateManager {
   }, []);
 
   // Combatant Management
-  const prepareCombatantList = useCallback(
-    (prev: CombatState, combatant?: NewCombatant) => {
-      const nc = combatant ?? prev.newCombatant;
-      if (!nc.groupName || !nc.hp) return prev.combatants;
-      if (nc.initiativeGroups.length === 0) return prev.combatants;
-      if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
-        return prev.combatants;
-
-      // If maxHp is empty, use hp as maxHp
-      const effectiveMaxHp = nc.maxHp || nc.hp;
-
-      // Calculate total count across all initiative groups
-      const totalCount = nc.initiativeGroups.reduce(
-        (sum, g) => sum + (parseInt(g.count) || 0),
-        0
-      );
-      if (totalCount === 0) return prev.combatants;
-
-      // Find highest existing index for this group
-      const existingGroupMembers = prev.combatants.filter(
-        (c) => c.groupName === nc.groupName
-      );
-      const maxGroupIndex =
-        existingGroupMembers.length > 0
-          ? Math.max(...existingGroupMembers.map((c) => c.groupIndex))
-          : -1;
-
-      const baseId = Date.now();
-      let globalLetterIndex = maxGroupIndex + 1;
-      const newCombatants: Combatant[] = [];
-
-      // Create combatants for each initiative group
-      nc.initiativeGroups.forEach((group) => {
-        const count = parseInt(group.count) || 0;
-        for (let i = 0; i < count; i++) {
-          const letter = String.fromCharCode(65 + globalLetterIndex);
-          newCombatants.push({
-            id: baseId + globalLetterIndex,
-            name: nc.groupName,
-            displayName:
-              totalCount > 1 ? `${nc.groupName} ${letter}` : nc.groupName,
-            initiative: parseFloat(group.initiative),
-            hp: parseInt(nc.hp),
-            maxHp: parseInt(effectiveMaxHp),
-            ac: nc.ac ? parseInt(nc.ac) : 10,
-            conditions: [],
-            concentration: false,
-            deathSaves: { successes: 0, failures: 0 },
-            groupName: nc.groupName,
-            color: nc.color,
-            groupIndex: globalLetterIndex,
-            imageUrl: nc.imageUrl,
-          });
-          globalLetterIndex++;
-        }
-      });
-
-      // Merge and sort all combatants
-      const updated = [...prev.combatants, ...newCombatants].sort((a, b) => {
-        if (b.initiative !== a.initiative) {
-          return b.initiative - a.initiative;
-        }
-        if (a.groupName !== b.groupName) {
-          return a.groupName.localeCompare(b.groupName);
-        }
-        return a.groupIndex - b.groupIndex;
-      });
-
-      return updated;
-    },
-    []
-  );
+  
 
   const addCombatant = useCallback(
     (combatant?: NewCombatant) => {
@@ -618,8 +620,10 @@ export function useCombatState(): CombatStateManager {
 
   // Dirty State managment
   function takeSnapshot(state: CombatState) {
-    const { lastSavedSnapshot, ...stateToSave } = state;
-    return JSON.stringify(stateToSave);
+    return JSON.stringify(state, (key, value) => {
+      if (key === 'lastSavedSnapshot') return undefined;
+      return value;
+    });
   }
 
   const hasChanges = useMemo(() => {
