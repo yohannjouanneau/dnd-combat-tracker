@@ -74,6 +74,9 @@ export type CombatStateManager = {
   getTotalCombatantCount: () => number;
   loadState: (newState: CombatState) => void;
   resetState: () => void;
+
+  // Dirty state managment
+  hasChanges: boolean;
 };
 
 const getInitialState = (): CombatState => ({
@@ -108,6 +111,7 @@ export function useCombatState(): CombatStateManager {
         combatId: savedCombat.id,
         combatName: savedCombat.name,
         combatDescription: savedCombat.description,
+        lastSavedSnapshot: takeSnapshot(savedCombat.data),
       });
     }
   };
@@ -116,6 +120,7 @@ export function useCombatState(): CombatStateManager {
     if (state.combatId) {
       const updatedCombat = await dataStore.updateCombat(state.combatId, patch);
       setState(updatedCombat.data);
+      markAsSaved();
     }
   };
 
@@ -611,6 +616,26 @@ export function useCombatState(): CombatStateManager {
     setState(getInitialState());
   }, []);
 
+  // Dirty State managment
+  function takeSnapshot(state: CombatState) {
+    const { lastSavedSnapshot, ...stateToSave } = state;
+    return JSON.stringify(stateToSave);
+  }
+
+  const hasChanges = useMemo(() => {
+    if (!state.lastSavedSnapshot) return true; // Never saved
+
+    const currentSnapshot = takeSnapshot(state);
+    return currentSnapshot !== state.lastSavedSnapshot;
+  }, [state]);
+
+  const markAsSaved = () => {
+    setState((prev) => ({
+      ...prev,
+      lastSavedSnapshot: takeSnapshot(prev),
+    }));
+  };
+
   return {
     // State
     state,
@@ -670,5 +695,8 @@ export function useCombatState(): CombatStateManager {
     getTotalCombatantCount,
     loadState,
     resetState,
+
+    // Dirty state managment
+    hasChanges,
   };
 }

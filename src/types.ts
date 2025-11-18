@@ -53,6 +53,7 @@ export type CombatState = {
   round: number;
   parkedGroups: NewCombatant[];
   newCombatant: NewCombatant;
+  lastSavedSnapshot?: string;
 };
 
 export type SavedCombat = {
