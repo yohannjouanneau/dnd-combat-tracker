@@ -75,7 +75,7 @@ export type CombatStateManager = {
   loadState: (newState: CombatState) => void;
   resetState: () => void;
 
-  // Dirty state managment
+  // Dirty state management
   hasChanges: boolean;
 };
 
@@ -101,7 +101,14 @@ export function useCombatState(): CombatStateManager {
   useEffect(() => {
     loadPlayers();
   }, [loadPlayers]);
-
+  
+  function takeSnapshot(state: CombatState) {
+    return JSON.stringify(state, (key, value) => {
+      if (key === 'lastSavedSnapshot') return undefined;
+      return value;
+    });
+  }
+  
   const loadCombat = async (combatId: string) => {
     const savedCombat = await dataStore.getCombat(combatId);
 
@@ -116,10 +123,22 @@ export function useCombatState(): CombatStateManager {
     }
   };
 
+  const markAsSaved = () => {
+    setState((prev) => ({
+      ...prev,
+      lastSavedSnapshot: takeSnapshot(prev),
+    }));
+  };
+
   const saveCombat = async (patch: Partial<SavedCombat>) => {
     if (state.combatId) {
       const updatedCombat = await dataStore.updateCombat(state.combatId, patch);
-      setState(updatedCombat.data);
+      setState((prev) => ({
+        ...updatedCombat.data,
+        combatId: prev.combatId,
+        combatName: prev.combatName,
+        combatDescription: prev.combatDescription,
+      }));
       markAsSaved();
     }
   };
@@ -618,27 +637,13 @@ export function useCombatState(): CombatStateManager {
     setState(getInitialState());
   }, []);
 
-  // Dirty State managment
-  function takeSnapshot(state: CombatState) {
-    return JSON.stringify(state, (key, value) => {
-      if (key === 'lastSavedSnapshot') return undefined;
-      return value;
-    });
-  }
-
+  // Dirty State management
   const hasChanges = useMemo(() => {
     if (!state.lastSavedSnapshot) return true; // Never saved
 
     const currentSnapshot = takeSnapshot(state);
     return currentSnapshot !== state.lastSavedSnapshot;
   }, [state]);
-
-  const markAsSaved = () => {
-    setState((prev) => ({
-      ...prev,
-      lastSavedSnapshot: takeSnapshot(prev),
-    }));
-  };
 
   return {
     // State
@@ -700,7 +705,7 @@ export function useCombatState(): CombatStateManager {
     loadState,
     resetState,
 
-    // Dirty state managment
+    // Dirty state management
     hasChanges,
   };
 }
