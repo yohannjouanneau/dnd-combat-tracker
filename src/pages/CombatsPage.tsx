@@ -24,7 +24,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
       setCombats(c);
       setLoading(false);
     });
-  }, []);
+  }, [combatStateManager]);
 
   const create = async () => {
     if (!name.trim()) return;

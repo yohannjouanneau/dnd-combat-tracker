@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import LabeledTextInput from "./common/LabeledTextInput";
 import LanguageSwitcher from "./common/LanguageSwitcher";
+import { useEffect } from "react";
 
 type Props = {
   name: string;
@@ -8,6 +9,7 @@ type Props = {
   onChange: (patch: { name?: string; description?: string }) => void;
   onBack: () => void;
   onSave: () => void;
+  hasChanges: boolean;
 };
 
 export default function SaveBar({
@@ -16,7 +18,27 @@ export default function SaveBar({
   onChange,
   onBack,
   onSave,
+  hasChanges,
 }: Props) {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ignore if there are no changes
+      if (!hasChanges) {
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key === "s") {
+        event.preventDefault();
+        onSave();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onSave]);
   const { t } = useTranslation(["forms", "common"]);
 
   return (
@@ -50,7 +72,8 @@ export default function SaveBar({
           </button>
           <button
             onClick={onSave}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition font-medium"
+            className="disabled:opacity-50 disabled:pointer-events-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition font-medium"
+            disabled={!hasChanges}
           >
             {t("common:actions.save")}
           </button>

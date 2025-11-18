@@ -19,13 +19,13 @@ function App() {
 
   useEffect(() => {
     const combatIdMatch = route.match(/^#play\/([a-zA-Z0-9]+)$/);
-    if (combatIdMatch) {
+    if (combatIdMatch && !combatStateManager.state.combatId) {
       setIsLoading(true);
       combatStateManager.loadCombat(combatIdMatch[1]).finally(() => {
         setIsLoading(false);
       });
     }
-  }, [route]);
+  }, [combatStateManager, route]);
 
   const open = (id: string) => {
     location.hash = `#play/${id}`;

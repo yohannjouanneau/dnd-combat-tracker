@@ -40,7 +40,7 @@ export default function GroupNameWithSearch({
         setSearching(false);
       }
     }
-  }, [value]);
+  }, [isSearching, onSearch, value]);
 
   const handleSearchClick = async () => {
     search();

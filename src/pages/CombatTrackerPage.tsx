@@ -195,6 +195,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
                   updatedAt: Date.now(),
                 });
               }}
+              hasChanges={combatStateManager.hasChanges}
             />
           </div>
 
