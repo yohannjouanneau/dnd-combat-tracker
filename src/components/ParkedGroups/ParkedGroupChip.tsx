@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { NewCombatant } from "../../types";
+import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 
 type Props = {
   group: NewCombatant;
@@ -14,7 +15,21 @@ export default function ParkedGroupChip({
   onFight,
   onRemove,
 }: Props) {
-  const { t } = useTranslation("forms");
+  const { t } = useTranslation(["combat", "common"]);
+
+  const confirmDialog = useConfirmationDialog();
+  const confirmRemove = async () => {
+    const isConfirmed = await confirmDialog({
+      title: t("common:confirmation.removeParkedGroup.title"),
+      message: t("common:confirmation.removeParkedGroup.message", {
+        name: group.groupName,
+      }),
+    });
+    if (isConfirmed) {
+      onRemove(group.groupName);
+    }
+  };
+  
   return (
     <div
       className="flex items-center gap-2 px-3 py-2 rounded border-2"
@@ -38,7 +53,7 @@ export default function ParkedGroupChip({
         {t("forms:parkedGroups:fight")}
       </button>
       <button
-        onClick={() => onRemove(group.groupName)}
+        onClick={() => confirmRemove()}
         className="text-red-400 hover:text-red-300 text-sm"
       >
         {t("forms:parkedGroups:remove")}

@@ -8,6 +8,7 @@ import ConditionsList from "./ConditionsList";
 import { Shield, Trash2 } from "lucide-react";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { HP_BAR_ID_PREFIX } from "../../constants";
+import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 
 type Props = {
   combatant: Combatant;
@@ -30,7 +31,21 @@ export default function CombatantCard({
   onToggleCondition,
   onUpdateInitiative,
 }: Props) {
-  const { t } = useTranslation("combat");
+  const { t } = useTranslation(["combat", "common"]);
+
+  const confirmDialog = useConfirmationDialog();
+  const confirmRemove = async () => {
+    const isConfirmed = await confirmDialog({
+      title: t("common:confirmation.removeCombatant.title"),
+      message: t("common:confirmation.removeCombatant.message", {
+        name: combatant.displayName,
+      }),
+    });
+    if (isConfirmed) {
+      onRemove(combatant.id);
+    }
+  };
+
   const cardRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isEditingInit, setIsEditingInit] = useState(false);
@@ -157,7 +172,7 @@ export default function CombatantCard({
               </div>
             </div>
             <button
-              onClick={() => onRemove(combatant.id)}
+              onClick={() => confirmRemove()}
               className="text-red-500 hover:text-red-400 transition flex-shrink-0 p-1"
               title={t("combat:combatant.remove")}
             >

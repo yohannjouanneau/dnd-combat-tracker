@@ -22,5 +22,31 @@
   },
   "loading": "Loading…",
   "noData": "No data available",
-  "error": "An error occurred"
+  "error": "An error occurred",
+  "confirmation": {
+    "title": "Confirm Action",
+    "removeCombatant": {
+      "title": "Remove Combatant",
+      "message": "Are you sure you want to remove {{name}} from combat?"
+    },
+    "removeGroup": {
+      "title": "Remove Group",
+      "message": "Are you sure you want to remove the combatant {{name}}?",
+      "message_other": "Are you sure you want to remove all {{count}} combatants from the {{name}} group?"
+    },
+    "removeParkedGroup": {
+      "title": "Remove Parked Group",
+      "message": "Are you sure you want to remove {{name}} from parked groups?"
+    },
+    "removePlayer": {
+      "title": "Delete Player",
+      "message": "Are you sure you want to delete {{name}} from saved players?"
+    },
+    "deleteCombat": {
+      "title": "Delete Combat",
+      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    },
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  }
 }

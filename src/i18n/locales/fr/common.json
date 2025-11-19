@@ -22,5 +22,31 @@
   },
   "loading": "Chargement…",
   "noData": "Aucune donnée disponible",
-  "error": "Une erreur s'est produite"
+  "error": "Une erreur s'est produite",
+  "confirmation": {
+    "title": "Confirmer l’action",
+    "removeCombatant": {
+      "title": "Retirer le combattant",
+      "message": "Êtes-vous sûr de vouloir retirer {{name}} du combat ?"
+    },
+    "removeGroup": {
+      "title": "Retirer le groupe",
+      "message": "Êtes-vous sûr de vouloir retirer le combattant {{name}}?",
+      "message_other": "Êtes-vous sûr de vouloir retirer les {{count}} combattants du groupe {{name}} ?"
+    },
+    "removeParkedGroup": {
+      "title": "Retirer le groupe mis en attente",
+      "message": "Êtes-vous sûr de vouloir retirer {{name}} des groupes en attente ?"
+    },
+    "removePlayer": {
+      "title": "Supprimer le joueur",
+      "message": "Êtes-vous sûr de vouloir supprimer {{name}} des joueurs enregistrés ?"
+    },
+    "deleteCombat": {
+      "title": "Supprimer le combat",
+      "message": "Êtes-vous sûr de vouloir supprimer « {{name}} » ? Cette action est irréversible."
+    },
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
+  }
 }

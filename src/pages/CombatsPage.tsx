@@ -4,8 +4,9 @@ import type { SavedCombat, CombatState } from "../types";
 import LabeledTextInput from "../components/common/LabeledTextInput";
 import { DEFAULT_NEW_COMBATANT } from "../constants";
 import logo from "../assets/logo.png";
-import { Plus, FolderOpen, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { CombatStateManager } from "../state";
+import CombatList from "../components/CombatsList/CombatList";
 
 type Props = {
   onOpen: (id: string) => void;
@@ -118,59 +119,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
         <div className="border-t border-slate-700"></div>
 
         {/* Combat List Section */}
-        <div className="p-4 md:p-6">
-          {combats.length === 0 ? (
-            <div className="text-center text-slate-400 py-8">
-              <FolderOpen className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 opacity-50" />
-              <p className="text-base md:text-lg">
-                {t("forms:combat.noCombats")}
-              </p>
-              <p className="text-xs md:text-sm mt-2">
-                {t("forms:combat.noCombatsHint")}
-              </p>
-            </div>
-          ) : (
-            <ul className="space-y-3">
-              {combats.map((c) => (
-                <li
-                  key={c.id}
-                  className="flex flex-col md:flex-row md:items-center justify-between bg-slate-900 rounded p-3 md:p-4 border border-slate-700 hover:border-slate-600 transition gap-3"
-                >
-                  <div className="flex-1 min-w-0 md:mr-4">
-                    <div className="font-semibold text-base md:text-lg text-white truncate">
-                      {c.name}
-                    </div>
-                    {c.description && (
-                      <div className="text-xs md:text-sm text-slate-400 mt-1 line-clamp-2">
-                        {c.description}
-                      </div>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 md:flex gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => onOpen(c.id)}
-                      className="bg-green-600 hover:bg-green-700 px-3 md:px-4 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1"
-                    >
-                      <FolderOpen className="w-4 h-4" />
-                      <span className="hidden sm:inline">
-                        {t("common:actions.open")}
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => del(c.id)}
-                      className="bg-red-600 hover:bg-red-700 px-3 md:px-4 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      <span className="hidden sm:inline">
-                        {t("common:actions.delete")}
-                      </span>
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        <CombatList combats={combats} onOpen={onOpen} onDelete={del} />
       </div>
     </div>
   );

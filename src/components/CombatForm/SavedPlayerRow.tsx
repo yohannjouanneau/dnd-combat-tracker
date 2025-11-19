@@ -2,6 +2,7 @@ import { Edit, Sword, Trash2 } from "lucide-react";
 import type { SavedPlayer } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { useTranslation } from "react-i18next";
+import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 
 type Props = {
   player: SavedPlayer;
@@ -16,7 +17,20 @@ export default function SavedPlayerRow({
   onFight,
   onRemove,
 }: Props) {
-  const { t } = useTranslation("forms");
+  const { t } = useTranslation(["forms", "common"]);
+  
+  const confirmDialog = useConfirmationDialog();
+  const confirmRemove = async () => {
+    const isConfirmed = await confirmDialog({
+      title: t("common:confirmation.removePlayer.title"),
+      message: t("common:confirmation.removePlayer.message", {
+        name: player.groupName,
+      }),
+    });
+    if (isConfirmed) {
+      onRemove(player.id)
+    }
+  };
   const getInitiativeSummary = () => {
     const totalCount = player.initiativeGroups.reduce(
       (sum, g) => sum + (parseInt(g.count) || 0),
@@ -83,7 +97,7 @@ export default function SavedPlayerRow({
               <span className="hidden md:inline">{t("forms:savedPlayers:fight")}</span>
             </button>
             <button
-              onClick={() => onRemove(player.id)}
+              onClick={() => confirmRemove()}
               className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition min-w-[44px] flex items-center justify-center"
               title={t("forms:savedPlayers:deleteTooltip")}
             >

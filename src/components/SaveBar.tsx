@@ -38,7 +38,7 @@ export default function SaveBar({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onSave]);
+  }, [hasChanges, onSave]);
   const { t } = useTranslation(["forms", "common"]);
 
   return (
