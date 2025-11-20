@@ -9,6 +9,7 @@ export const DEFAULT_NEW_COMBATANT: NewCombatant = {
   color: "#3b82f6",
   imageUrl: "",
   initBonus: "",
+  externalResourceUrl: ""
 };
 
 // Condition keys for translation - use these with t('conditions:key')

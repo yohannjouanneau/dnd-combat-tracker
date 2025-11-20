@@ -13,6 +13,8 @@
     "initBonusPlaceholder": "Bonus d'init",
     "imageUrl": "URL d'image (optionnel)",
     "imageUrlPlaceholder": "https://exemple.com/personnage.jpg",
+    "externalResourceUrl": "URL de resource externe (optionnel)",
+    "externalResourceUrlPlacehoder": "https://monsitedndfavoris.co",
     "initiative": "Groupes d'initiative",
     "initiativeHint": "→ {{count}} combattant{{range}}",
     "initiativeHint_plural": "→ {{count}} combattants{{range}}",

@@ -124,6 +124,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
       color: player.color,
       imageUrl: player.imageUrl,
       initBonus: player.initBonus,
+      externalResourceUrl: player.externalResourceUrl
     };
     combatStateManager.addCombatant(playerCombattant);
     if (combatListRef.current) {

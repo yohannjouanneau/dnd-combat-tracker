@@ -57,6 +57,7 @@ export class PlayerStorageProvider {
       updatedAt: now,
       imageUrl: data.imageUrl,
       initBonus: data.initBonus,
+      externalResourceUrl: data.externalResourceUrl
     };
 
     const items = this.readAll();

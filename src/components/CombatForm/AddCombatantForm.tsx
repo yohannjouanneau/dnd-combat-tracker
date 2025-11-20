@@ -114,7 +114,7 @@ export default function AddCombatantForm({
             />
           </div>
 
-          <div className="mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <LabeledTextInput
               id="combatImageUrl"
               label={t("forms:combatant.imageUrl")}
@@ -122,9 +122,13 @@ export default function AddCombatantForm({
               placeholder={t("forms:combatant.imageUrlPlaceholder")}
               onChange={(v) => onChange({ imageUrl: v })}
             />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <LabeledTextInput
+              id="externalResourceUrl"
+              label={t("forms:combatant.externalResourceUrl")}
+              value={value.externalResourceUrl || ""}
+              placeholder={t("forms:combatant.externalResourceUrlPlacehoder")}
+              onChange={(v) => onChange({ externalResourceUrl: v })}
+            />
             <LabeledNumberInput
               id="combatHp"
               label={t("forms:combatant.currentHp")}
@@ -139,9 +143,6 @@ export default function AddCombatantForm({
               placeholder={t("forms:combatant.maxHpPlaceholder")}
               onChange={(v) => onChange({ maxHp: v })}
             />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <LabeledNumberInput
               id="combatAc"
               label={t("forms:combatant.ac")}
@@ -174,7 +175,7 @@ export default function AddCombatantForm({
               </label>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {value.initiativeGroups.map((group, index) => (
                 <InitiativeGroupInput
                   key={group.id}

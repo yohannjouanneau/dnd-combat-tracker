@@ -18,6 +18,7 @@ export type Combatant = {
   color: string;
   groupIndex: number;
   imageUrl: string;
+  externalResourceUrl: string
 };
 
 export type InitiativeGroup = {
@@ -35,6 +36,7 @@ export type NewCombatant = {
   color: string;
   imageUrl: string;
   initBonus: string;
+  externalResourceUrl: string
 };
 
 export type GroupSummary = {
@@ -77,6 +79,7 @@ export type SavedPlayer = {
   updatedAt: number;
   imageUrl: string;
   initBonus: string;
+  externalResourceUrl: string
 };
 
 export type SavedCombatInput = Omit<

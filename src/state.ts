@@ -185,6 +185,9 @@ export function useCombatState(): CombatStateManager {
       let globalLetterIndex = maxGroupIndex + 1;
       const newCombatants: Combatant[] = [];
 
+      console.log(`DEBUG ==> `, nc.externalResourceUrl);
+      
+
       // Create combatants for each initiative group
       nc.initiativeGroups.forEach((group) => {
         const count = parseInt(group.count) || 0;
@@ -206,6 +209,7 @@ export function useCombatState(): CombatStateManager {
             color: nc.color,
             groupIndex: globalLetterIndex,
             imageUrl: nc.imageUrl,
+            externalResourceUrl: nc.externalResourceUrl
           });
           globalLetterIndex++;
         }
@@ -362,6 +366,7 @@ export function useCombatState(): CombatStateManager {
           color: nc.color,
           imageUrl: nc.imageUrl,
           initBonus: nc.initBonus,
+          externalResourceUrl: nc.externalResourceUrl
         });
       }
 
@@ -402,6 +407,7 @@ export function useCombatState(): CombatStateManager {
         color: player.color,
         imageUrl: player.imageUrl,
         initBonus: player.initBonus,
+        externalResourceUrl: player.externalResourceUrl
       },
     }));
   }, []);

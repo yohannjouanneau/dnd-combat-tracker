@@ -5,7 +5,7 @@ import HpBar from "./HpBar";
 import DeathSavesComp from "./DeathSaves";
 import ConcentrationToggle from "./ConcentrationToggle";
 import ConditionsList from "./ConditionsList";
-import { Shield, Trash2 } from "lucide-react";
+import { Shield, Trash2, ExternalLink } from "lucide-react";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { HP_BAR_ID_PREFIX } from "../../constants";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
@@ -163,6 +163,17 @@ export default function CombatantCard({
                   <Shield className="w-3 h-3 md:w-4 md:h-4" />
                   {t("combat:combatant.ac")} {combatant.ac}
                 </div>
+                {combatant.externalResourceUrl && (
+                  <a
+                    href={combatant.externalResourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition flex-shrink-0"
+                    title="Open external resource"
+                  >
+                    <ExternalLink className="w-3 h-3 md:w-4 md:h-4" />
+                  </a>
+                )}
                 <div className="flex items-center gap-1">
                   <ConcentrationToggle
                     active={combatant.concentration}

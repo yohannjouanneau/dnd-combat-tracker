@@ -13,6 +13,8 @@
     "initBonusPlaceholder": "Init bonus",
     "imageUrl": "Image URL (optional)",
     "imageUrlPlaceholder": "https://example.com/character.jpg",
+    "externalResourceUrl": "External resource url (optional)",
+    "externalResourceUrlPlacehoder": "https://mydndfavoritewebsite.co",
     "initiative": "Initiative Groups",
     "initiativeHint": "→ {{count}} combatant{{range}}",
     "initiativeHint_plural": "→ {{count}} combatants{{range}}",
