@@ -32,19 +32,19 @@ interface CacheEntry<T> {
 }
 
 class GraphQLCache {
-  private cache = new Map<string, CacheEntry<any>>();
+  private cache = new Map<string, CacheEntry<unknown>>();
   private ttl: number;
 
   constructor(ttlMinutes: number = 60) {
     this.ttl = ttlMinutes * 60 * 1000;
   }
 
-  private generateKey(query: string, variables?: Record<string, any>): string {
+  private generateKey(query: string, variables?: Record<string, unknown>): string {
     const varString = variables ? JSON.stringify(variables) : "";
     return `${query}:${varString}`;
   }
 
-  get<T>(query: string, variables?: Record<string, any>): T | null {
+  get<T>(query: string, variables?: Record<string, unknown>): T | null {
     const key = this.generateKey(query, variables);
     const entry = this.cache.get(key);
 
@@ -60,7 +60,7 @@ class GraphQLCache {
     return entry.data as T;
   }
 
-  set<T>(query: string, data: T, variables?: Record<string, any>): void {
+  set<T>(query: string, data: T, variables?: Record<string, unknown>): void {
     const key = this.generateKey(query, variables);
     this.cache.set(key, {
       data,
@@ -107,7 +107,7 @@ export class DnD5eGraphQLClient {
   /**
    * Execute a raw GraphQL query
    */
-  async query<T>(query: string, variables?: Record<string, any>): Promise<T> {
+  async query<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
     // Check cache first
     if (this.cache) {
       const cached = this.cache.get<T>(query, variables);

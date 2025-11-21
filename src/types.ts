@@ -1,3 +1,5 @@
+import type { Monster } from "./api/types";
+
 export type DeathSaves = {
   successes: number;
   failures: number;
@@ -18,13 +20,40 @@ export type Combatant = {
   color: string;
   groupIndex: number;
   imageUrl: string;
-  externalResourceUrl: string
+  externalResourceUrl: string;
 };
 
 export type InitiativeGroup = {
   id: string;
   initiative: string;
   count: string;
+};
+
+export type MonsterData = {
+  id: string;
+  name: string;
+  hp: string;
+  ac: string;
+  imageUrl: string;
+  str: string; // Strength
+  dex: string; // Dexterity
+  con: string; // Constitution
+  int: string; // Intelligence
+  wis: string; // Wisdom
+  cha: string; // Charisma
+  createdAt: number;
+  updatedAt: number;
+};
+
+export type MonsterDataInput = Omit<
+  MonsterData,
+  "id" | "createdAt" | "updatedAt"
+>;
+
+// Add this to your existing search result types
+export type SearchResult = {
+  source: "api" | "library";
+  monster: Monster | MonsterData;
 };
 
 export type NewCombatant = {
@@ -36,7 +65,13 @@ export type NewCombatant = {
   color: string;
   imageUrl: string;
   initBonus: string;
-  externalResourceUrl: string
+  externalResourceUrl: string;
+  str?: string;
+  dex?: string;
+  con?: string;
+  int?: string;
+  wis?: string;
+  cha?: string;
 };
 
 export type GroupSummary = {
@@ -79,7 +114,7 @@ export type SavedPlayer = {
   updatedAt: number;
   imageUrl: string;
   initBonus: string;
-  externalResourceUrl: string
+  externalResourceUrl: string;
 };
 
 export type SavedCombatInput = Omit<

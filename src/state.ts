@@ -9,6 +9,9 @@ import type {
   SavedPlayer,
   SavedCombat,
   SavedCombatInput,
+  MonsterData,
+  SearchResult,
+  MonsterDataInput,
 } from "./types";
 import { dataStore } from "./persistence/storage";
 import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "./constants";
@@ -65,9 +68,15 @@ export type CombatStateManager = {
   nextTurn: () => void;
   prevTurn: () => void;
 
-  // API
-  searchMonsters: (nameQuery: string) => Promise<Monster[]>;
-  fillFormWithMonsterData: (monster: Monster) => void;
+  // Monster Library
+  monsters: MonsterData[];
+  loadMonsters: () => Promise<void>;
+  createMonster: (monster: MonsterDataInput) => Promise<void>;
+  removeMonster: (id: string) => Promise<void>;
+  updateMonster: (id: string, monster: MonsterData) => Promise<void>;
+  loadMonsterToForm: (searchTerm: SearchResult) => void;
+  searchWithLibrary: (query: string) => Promise<SearchResult[]>;
+  addCombatantToLibrary: () => Promise<void>;
 
   // Utility
   getUniqueGroups: () => GroupSummary[];
@@ -91,24 +100,40 @@ export function useCombatState(): CombatStateManager {
   const apiClient = useMemo(() => createGraphQLClient(), []);
   const [state, setState] = useState<CombatState>(getInitialState());
   const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
+  const [monsters, setMonsters] = useState<MonsterData[]>([]);
 
   const loadPlayers = useCallback(async () => {
     const players = await dataStore.listPlayer();
     setSavedPlayers(players);
   }, []);
 
+  const loadMonsters = useCallback(async () => {
+    const monsterList = await dataStore.listMonster();
+    setMonsters(monsterList);
+  }, []);
+
+  const createMonster = useCallback(async (monster: MonsterDataInput) => {
+    await dataStore.createMonster(monster);
+    await loadMonsters()
+  }, [loadMonsters]);
+
+  // Load monsters on mount
+  useEffect(() => {
+    loadMonsters();
+  }, [loadMonsters]);
+
   // Load players on mount
   useEffect(() => {
     loadPlayers();
   }, [loadPlayers]);
-  
+
   function takeSnapshot(state: CombatState) {
     return JSON.stringify(state, (key, value) => {
-      if (key === 'lastSavedSnapshot') return undefined;
+      if (key === "lastSavedSnapshot") return undefined;
       return value;
     });
   }
-  
+
   const loadCombat = async (combatId: string) => {
     const savedCombat = await dataStore.getCombat(combatId);
 
@@ -185,9 +210,6 @@ export function useCombatState(): CombatStateManager {
       let globalLetterIndex = maxGroupIndex + 1;
       const newCombatants: Combatant[] = [];
 
-      console.log(`DEBUG ==> `, nc.externalResourceUrl);
-      
-
       // Create combatants for each initiative group
       nc.initiativeGroups.forEach((group) => {
         const count = parseInt(group.count) || 0;
@@ -209,7 +231,7 @@ export function useCombatState(): CombatStateManager {
             color: nc.color,
             groupIndex: globalLetterIndex,
             imageUrl: nc.imageUrl,
-            externalResourceUrl: nc.externalResourceUrl
+            externalResourceUrl: nc.externalResourceUrl,
           });
           globalLetterIndex++;
         }
@@ -232,37 +254,40 @@ export function useCombatState(): CombatStateManager {
   );
 
   // Parked Groups Management
-  const addParkedGroup = useCallback((isFightModeEnabled: boolean) => {
-    setState((prev) => {
-      const nc = prev.newCombatant;
-      if (!nc.groupName || !nc.hp) return prev;
-      if (nc.initiativeGroups.length === 0) return prev;
-      if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
-        return prev;
+  const addParkedGroup = useCallback(
+    (isFightModeEnabled: boolean) => {
+      setState((prev) => {
+        const nc = prev.newCombatant;
+        if (!nc.groupName || !nc.hp) return prev;
+        if (nc.initiativeGroups.length === 0) return prev;
+        if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
+          return prev;
 
-      // If maxHp is empty, copy hp to maxHp
-      const groupToAdd = {
-        ...nc,
-        maxHp: nc.maxHp || nc.hp,
-      };
+        // If maxHp is empty, copy hp to maxHp
+        const groupToAdd = {
+          ...nc,
+          maxHp: nc.maxHp || nc.hp,
+        };
 
-      // Remove existing group with same name (if any) and add new one
-      const filteredGroups = prev.parkedGroups.filter(
-        (g) => g.groupName !== nc.groupName
-      );
+        // Remove existing group with same name (if any) and add new one
+        const filteredGroups = prev.parkedGroups.filter(
+          (g) => g.groupName !== nc.groupName
+        );
 
-      const combatants = isFightModeEnabled
-        ? prepareCombatantList(prev, groupToAdd)
-        : [];
+        const combatants = isFightModeEnabled
+          ? prepareCombatantList(prev, groupToAdd)
+          : [];
 
-      return {
-        ...prev,
-        parkedGroups: [...filteredGroups, groupToAdd],
-        newCombatant: DEFAULT_NEW_COMBATANT,
-        combatants,
-      };
-    });
-  }, [prepareCombatantList]);
+        return {
+          ...prev,
+          parkedGroups: [...filteredGroups, groupToAdd],
+          newCombatant: DEFAULT_NEW_COMBATANT,
+          combatants,
+        };
+      });
+    },
+    [prepareCombatantList]
+  );
 
   const removeParkedGroup = useCallback((name: string) => {
     setState((prev) => ({
@@ -366,7 +391,7 @@ export function useCombatState(): CombatStateManager {
           color: nc.color,
           imageUrl: nc.imageUrl,
           initBonus: nc.initBonus,
-          externalResourceUrl: nc.externalResourceUrl
+          externalResourceUrl: nc.externalResourceUrl,
         });
       }
 
@@ -407,14 +432,125 @@ export function useCombatState(): CombatStateManager {
         color: player.color,
         imageUrl: player.imageUrl,
         initBonus: player.initBonus,
-        externalResourceUrl: player.externalResourceUrl
+        externalResourceUrl: player.externalResourceUrl,
       },
     }));
   }, []);
 
-  // Combatant Management
-  
+  // Library Management
 
+  const removeMonster = useCallback(
+    async (id: string) => {
+      await dataStore.deleteMonster(id);
+      await loadMonsters();
+    },
+    [loadMonsters]
+  );
+
+  const updateMonster = useCallback(async (id: string, monster: MonsterData) => {
+      await dataStore.updateMonster(id, monster)
+      await loadMonsters();
+  }, [loadMonsters])
+
+  const fillFormWithMonsterRemoteData = (monster: Monster) => {
+    setState((prev) => ({
+      ...prev,
+      newCombatant: {
+        ...prev.newCombatant,
+        groupName: monster.name,
+        hp: monster.hit_points?.toString() ?? "",
+        maxHp: monster.hit_points?.toString() ?? "",
+        initBonus: monster.dexterity
+          ? Math.floor((monster.dexterity - 10) / 2).toString()
+          : "",
+        ac: monster.armor_class?.at(0)?.value?.toString() ?? "",
+        imageUrl: `${DND_API_HOST}${monster.image}`,
+      },
+    }));
+  };
+
+  const fillFormWithMonsterLibraryData = (monster: MonsterData) => {
+    const dexMod = Math.floor((parseInt(monster.dex) - 10) / 2);
+      setState((prev) => ({
+        ...prev,
+        newCombatant: {
+          ...prev.newCombatant,
+          groupName: monster.name,
+          hp: monster.hp,
+          maxHp: monster.hp,
+          ac: monster.ac,
+          imageUrl: monster.imageUrl,
+          initBonus: String(dexMod),
+          str: monster.str,
+          dex: monster.dex,
+          con: monster.con,
+          int: monster.int,
+          wis: monster.wis,
+          cha: monster.cha,
+        },
+      }));
+  };
+
+  const loadMonsterToForm = useCallback((searchResult: SearchResult) => {
+    if (searchResult.source ===  "api") {
+      fillFormWithMonsterRemoteData(searchResult.monster as Monster)
+    } else {
+      fillFormWithMonsterLibraryData(searchResult.monster as MonsterData) 
+    }
+  }, []);
+
+  const searchWithLibrary = useCallback(
+    async (query: string) => {
+      const results: SearchResult[] = [];
+
+      // Search API
+      try {
+        const apiMonsters = await apiClient.searchMonsters(query);
+        results.push(
+          ...apiMonsters.map((m) => ({
+            source: "api" as const,
+            monster: m,
+          }))
+        );
+      } catch (error) {
+        console.error("API search failed:", error);
+      }
+
+      // Search local library
+      try {
+        const libraryMonsters = await dataStore.searchMonster(query);
+        results.push(
+          ...libraryMonsters.map((m) => ({
+            source: "library" as const,
+            monster: m,
+          }))
+        );
+      } catch (error) {
+        console.error("Library search failed:", error);
+      }
+
+      return results;
+    },
+    [apiClient]
+  );
+
+  const addCombatantToLibrary = useCallback(async () => {
+      await createMonster({
+        name: state.newCombatant.groupName,
+        ac: state.newCombatant.ac,
+        hp: state.newCombatant.hp,
+        imageUrl: state.newCombatant.imageUrl,
+        cha: state.newCombatant.cha ?? '',
+        dex: state.newCombatant.dex ?? '',
+        con: state.newCombatant.con ?? '',
+        int: state.newCombatant.int ?? '',
+        str: state.newCombatant.str ?? '',
+        wis: state.newCombatant.wis ?? ''
+      })
+      await dataStore.listMonster()
+  }, [state.newCombatant, createMonster])
+
+  // Combatant Management
   const addCombatant = useCallback(
     (combatant?: NewCombatant) => {
       setState((prev) => {
@@ -590,28 +726,6 @@ export function useCombatState(): CombatStateManager {
     });
   }, []);
 
-  // Api
-  const searchMonsters = async (nameQuery: string) => {
-    return apiClient.searchMonsters(nameQuery);
-  };
-
-  const fillFormWithMonsterData = (monster: Monster) => {
-    setState((prev) => ({
-      ...prev,
-      newCombatant: {
-        ...prev.newCombatant,
-        groupName: monster.name,
-        hp: monster.hit_points?.toString() ?? "",
-        maxHp: monster.hit_points?.toString() ?? "",
-        initBonus: monster.dexterity
-          ? Math.floor((monster.dexterity - 10) / 2).toString()
-          : "",
-        ac: monster.armor_class?.at(0)?.value?.toString() ?? "",
-        imageUrl: `${DND_API_HOST}${monster.image}`,
-      },
-    }));
-  };
-
   // Utility
   const getUniqueGroups = useCallback(() => {
     const groups = new Map();
@@ -682,6 +796,16 @@ export function useCombatState(): CombatStateManager {
     removePlayer,
     includePlayer,
 
+    // Monster Library
+    monsters,
+    loadMonsters,
+    createMonster,
+    removeMonster,
+    updateMonster,
+    loadMonsterToForm,
+    searchWithLibrary,
+    addCombatantToLibrary,
+
     // Combatants
     addCombatant,
     removeCombatant,
@@ -700,10 +824,6 @@ export function useCombatState(): CombatStateManager {
     // Turn Management
     nextTurn,
     prevTurn,
-
-    // Api
-    searchMonsters,
-    fillFormWithMonsterData,
 
     // Utility
     getUniqueGroups,

@@ -1,18 +1,23 @@
 import type {
+  MonsterData,
+  MonsterDataInput,
   SavedCombat,
   SavedCombatInput,
   SavedPlayer,
   SavedPlayerInput,
 } from "../types";
 import { CombatStorageProvider } from "./CombatStorageProvider";
+import { MonsterStorageProvider } from "./MonsterStorageProvider";
 import { PlayerStorageProvider } from "./PlayerStorageProvider";
 
 const COMBAT_STORAGE_KEY = "dnd-ct:combats:v1";
 const PLAYER_STORAGE_KEY = "dnd-ct:players:v1";
+const MONSTER_STORAGE_KEY = "dnd-ct:monsters:v1";
 
 export class DataStore {
   private combatProvider: CombatStorageProvider;
   private playerProvider: PlayerStorageProvider;
+  private monsterProvider: MonsterStorageProvider;
 
   constructor(
     combatProvider: CombatStorageProvider = new CombatStorageProvider(
@@ -20,10 +25,14 @@ export class DataStore {
     ),
     playerProvider: PlayerStorageProvider = new PlayerStorageProvider(
       PLAYER_STORAGE_KEY
+    ),
+    monsterProvider: MonsterStorageProvider = new MonsterStorageProvider(
+      MONSTER_STORAGE_KEY
     )
   ) {
     this.combatProvider = combatProvider;
     this.playerProvider = playerProvider;
+    this.monsterProvider = monsterProvider
   }
 
   listCombat() {
@@ -56,6 +65,25 @@ export class DataStore {
   }
   deletePlayer(id: string) {
     return this.playerProvider.delete(id);
+  }
+
+  listMonster() {
+    return this.monsterProvider.list();
+  }
+  getMonster(id: string) {
+    return this.monsterProvider.get(id);
+  }
+  searchMonster(query: string) {
+    return this.monsterProvider.search(query);
+  }
+  createMonster(input: MonsterDataInput) {
+    return this.monsterProvider.create(input);
+  }
+  updateMonster(id: string, patch: Partial<MonsterData>) {
+    return this.monsterProvider.update(id, patch);
+  }
+  deleteMonster(id: string) {
+    return this.monsterProvider.delete(id);
   }
 }
 

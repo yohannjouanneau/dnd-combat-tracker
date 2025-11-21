@@ -1,13 +1,12 @@
 import { type RefObject } from "react";
 import { useTranslation } from "react-i18next";
-import type { NewCombatant, InitiativeGroup } from "../../types";
+import type { NewCombatant, InitiativeGroup, SearchResult } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import LabeledNumberInput from "../common/LabeledNumberInput";
 import ColorPicker from "../common/ColorPicker";
 import InitiativeGroupInput from "./InitiativeGroupInput";
-import { ChevronDown, Save, Sword, CircleParking, Dice3 } from "lucide-react";
+import { ChevronDown, Save, Sword, CircleParking, Dice3, BookOpen } from "lucide-react";
 import GroupNameWithSearch from "./GroupNameWithSearch";
-import type { Monster } from "../../api/types";
 
 type Props = {
   formRef: RefObject<HTMLDivElement | null>;
@@ -27,8 +26,9 @@ type Props = {
     id: string,
     patch: Partial<InitiativeGroup>
   ) => void;
-  onSearchMonsters: (searchName: string) => Promise<Monster[]>;
-  onSelectMonster: (monster: Monster) => void;
+  onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
+  onSelectSearchResult: (searchResult: SearchResult) => void;
+  onAddToLibrary: () => void
 };
 
 export default function AddCombatantForm({
@@ -47,7 +47,8 @@ export default function AddCombatantForm({
   onRemoveInitiativeGroup,
   onUpdateInitiativeGroup,
   onSearchMonsters,
-  onSelectMonster,
+  onSelectSearchResult,
+  onAddToLibrary
 }: Props) {
   const { t } = useTranslation("forms");
 
@@ -106,7 +107,7 @@ export default function AddCombatantForm({
               placeholder={t("forms:combatant.groupNamePlaceholder")}
               onChange={(v) => onChange({ groupName: v })}
               onSearch={onSearchMonsters}
-              onSelectMonster={onSelectMonster}
+              onSelectResult={onSelectSearchResult}
             />
             <ColorPicker
               value={value.color}
@@ -216,6 +217,14 @@ export default function AddCombatantForm({
             >
               <Save className="w-5 h-5" />
               <span className="hidden md:inline">{savePlayerButtonText}</span>
+            </button>
+            <button
+              onClick={onAddToLibrary}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+              title="Add to Library"
+            >
+              <BookOpen className="w-5 h-5" />
+              <span className="hidden md:inline">Add to Library</span>
             </button>
             <button
               onClick={onAddInitiativeGroup}

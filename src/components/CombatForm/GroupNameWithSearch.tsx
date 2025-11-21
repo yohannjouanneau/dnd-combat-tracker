@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Globe, BookOpen } from "lucide-react";
 import { useCallback, useState } from "react";
-import type { Monster } from "../../api/types";
+import type { SearchResult } from "../../types";
 
 type Props = {
   id: string;
@@ -9,8 +9,8 @@ type Props = {
   value: string;
   placeholder?: string;
   onChange: (value: string) => void;
-  onSearch?: (query: string) => Promise<Monster[]>;
-  onSelectMonster: (monster: Monster) => void;
+  onSearch?: (query: string) => Promise<SearchResult[]>;
+  onSelectResult: (result: SearchResult) => void;
 };
 
 export default function GroupNameWithSearch({
@@ -20,19 +20,19 @@ export default function GroupNameWithSearch({
   placeholder,
   onChange,
   onSearch,
-  onSelectMonster,
+  onSelectResult,
 }: Props) {
   const { t } = useTranslation("forms");
   const [showResults, setShowResults] = useState(false);
-  const [monsterResults, setMonsterResults] = useState<Monster[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setSearching] = useState(false);
 
   const search = useCallback(async () => {
     if (!isSearching && onSearch && value.trim()) {
       setSearching(true);
       try {
-        const monsters = await onSearch(value.trim());
-        setMonsterResults(monsters);
+        const results = await onSearch(value.trim());
+        setSearchResults(results);
         setShowResults(true);
       } catch (error) {
         console.error("Search failed:", error);
@@ -52,6 +52,13 @@ export default function GroupNameWithSearch({
       search();
     }
   };
+
+  const getResultName = (result: SearchResult): string => {
+    return result.monster.name;
+  };
+
+  const apiResults = searchResults.filter((r) => r.source === "api");
+  const libraryResults = searchResults.filter((r) => r.source === "library");
 
   return (
     <div className="flex flex-col gap-1 relative">
@@ -88,31 +95,68 @@ export default function GroupNameWithSearch({
         </button>
       </div>
 
-      {showResults && !isSearching && monsterResults.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 rounded border border-slate-600 shadow-lg z-10 max-h-64 overflow-y-auto">
-          <div className="text-xs text-slate-400 px-3 py-2 border-b border-slate-600">
-            {t("forms:combatant.searchResults", {
-              count: monsterResults.length,
-            })}
-          </div>
-          {monsterResults.map((monster, index) => (
-            <button
-              key={`${monster.name}-${index}`}
-              type="button"
-              onClick={() => {
-                onSelectMonster(monster);
-                setShowResults(false);
-              }}
-              className="w-full text-left px-3 py-2 hover:bg-slate-600 transition text-white border-b border-slate-600 last:border-b-0"
-            >
-              {monster.name}
-            </button>
-          ))}
+      {showResults && !isSearching && searchResults.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 rounded border border-slate-600 shadow-lg z-10 max-h-96 overflow-y-auto">
+          {/* Library Results */}
+          {libraryResults.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 text-xs text-amber-400 px-3 py-2 bg-slate-800 border-b border-slate-600 sticky top-0">
+                <BookOpen className="w-4 h-4" />
+                <span className="font-semibold">
+                  Your Library ({libraryResults.length})
+                </span>
+              </div>
+              {libraryResults.map((result, index) => (
+                <button
+                  key={`library-${index}`}
+                  type="button"
+                  onClick={() => {
+                    onSelectResult(result);
+                    setShowResults(false);
+                  }}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-600 transition text-white border-b border-slate-600 last:border-b-0"
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <span>{getResultName(result)}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* API Results */}
+          {apiResults.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 text-xs text-blue-400 px-3 py-2 bg-slate-800 border-b border-slate-600 sticky top-0">
+                <Globe className="w-4 h-4" />
+                <span className="font-semibold">
+                  D&D API ({apiResults.length})
+                </span>
+              </div>
+              {apiResults.map((result, index) => (
+                <button
+                  key={`api-${index}`}
+                  type="button"
+                  onClick={() => {
+                    onSelectResult(result);
+                    setShowResults(false);
+                  }}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-600 transition text-white border-b border-slate-600 last:border-b-0"
+                >
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                    <span>{getResultName(result)}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {/* No Results Message */}
-      {showResults && !isSearching && monsterResults.length === 0 && (
+      {showResults && !isSearching && searchResults.length === 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 rounded border border-slate-600 shadow-lg z-10">
           <div className="p-3 text-center text-slate-400 text-sm">
             {t("forms:combatant.noResults", { query: value })}
