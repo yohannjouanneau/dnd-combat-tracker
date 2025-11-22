@@ -1,4 +1,5 @@
 import { Sword, Trash2, Edit } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { SavedMonster } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 
@@ -17,6 +18,8 @@ export default function MonsterListItem({
   onEdit,
   onDelete,
 }: Props) {
+  const { t } = useTranslation("forms");
+
   const getAbilityModifier = (score: number) => {
     const num = score || 10;
     const mod = Math.floor((num - 10) / 2);
@@ -42,16 +45,20 @@ export default function MonsterListItem({
         </div>
 
         {/* HP & AC */}
-        <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-slate-500">HP</span>
-            <span className="font-semibold text-white text-sm">
+        <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-slate-500 leading-none">
+              {t("library.listItem.stats.hp")}
+            </span>
+            <span className="font-semibold text-white text-base leading-none mt-1">
               {monster.hp}
             </span>
           </div>
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-slate-500">AC</span>
-            <span className="font-semibold text-white text-sm">
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-slate-500 leading-none">
+              {t("library.listItem.stats.ac")}
+            </span>
+            <span className="font-semibold text-white text-base leading-none mt-1">
               {monster.ac}
             </span>
           </div>
@@ -60,12 +67,12 @@ export default function MonsterListItem({
         {/* Ability Scores */}
         <div className="hidden md:flex items-center gap-2 flex-shrink-0">
           {[
-            { label: "STR", value: monster.str ?? 0 },
-            { label: "DEX", value: monster.dex ?? 0},
-            { label: "CON", value: monster.con ?? 0},
-            { label: "INT", value: monster.int ?? 0},
-            { label: "WIS", value: monster.wis ?? 0},
-            { label: "CHA", value: monster.cha ?? 0},
+            { label: t("library.listItem.abilities.str"), value: monster.str ?? 0 },
+            { label: t("library.listItem.abilities.dex"), value: monster.dex ?? 0},
+            { label: t("library.listItem.abilities.con"), value: monster.con ?? 0},
+            { label: t("library.listItem.abilities.int"), value: monster.int ?? 0},
+            { label: t("library.listItem.abilities.wis"), value: monster.wis ?? 0},
+            { label: t("library.listItem.abilities.cha"), value: monster.cha ?? 0},
           ].map(({ label, value }) => (
             <div
               key={label}
@@ -89,10 +96,9 @@ export default function MonsterListItem({
             <button
               onClick={() => onEdit(monster)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
-              title="Edit Monster"
+              title={t("library.listItem.actions.edit")}
             >
               <Edit className="w-4 h-4" />
-              <span className="hidden lg:inline">Edit</span>
             </button>
           )}
 
@@ -101,10 +107,9 @@ export default function MonsterListItem({
             <button
               onClick={() => onLoadToForm(monster)}
               className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
-              title="Load to Form"
+              title={t("library.listItem.actions.load")}
             >
               <Sword className="w-4 h-4" />
-              <span className="hidden lg:inline">Load</span>
             </button>
           )}
 
@@ -112,10 +117,9 @@ export default function MonsterListItem({
           <button
             onClick={() => onDelete(monster.id)}
             className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
-            title="Delete"
+            title={t("library.listItem.actions.delete")}
           >
             <Trash2 className="w-4 h-4" />
-            <span className="hidden lg:inline">Delete</span>
           </button>
         </div>
       </div>

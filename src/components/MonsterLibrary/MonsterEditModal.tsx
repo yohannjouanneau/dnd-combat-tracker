@@ -18,21 +18,21 @@ export default function MonsterEditModal({
   onSave,
   onCancel,
 }: Props) {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["common", "forms"]);
   const [formData, setFormData] = useState(monster);
 
   const handleSave = () => {
     // Validation: ensure required fields are filled
     if (!formData.name.trim()) {
-      alert("Monster name is required");
+      alert(t("forms:library.edit.validation.nameRequired"));
       return;
     }
     onSave(formData);
   };
 
   const title = isCreating
-    ? "Create New Monster"
-    : `Edit Monster: ${monster.name}`;
+    ? t("forms:library.edit.title.create")
+    : t("forms:library.edit.title.edit", { name: monster.name });
 
   return (
     <>
@@ -62,17 +62,17 @@ export default function MonsterEditModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <LabeledTextInput
                 id="edit-name"
-                label="Name *"
+                label={t("forms:library.edit.fields.name")}
                 value={formData.name}
                 onChange={(v) => setFormData({ ...formData, name: v })}
-                placeholder="Monster Name"
+                placeholder={t("forms:library.edit.placeholders.name")}
               />
               <LabeledTextInput
                 id="edit-imageUrl"
-                label="Image URL"
+                label={t("forms:library.edit.fields.imageUrl")}
                 value={formData.imageUrl}
                 onChange={(v) => setFormData({ ...formData, imageUrl: v })}
-                placeholder="https://example.com/image.png"
+                placeholder={t("forms:library.edit.placeholders.imageUrl")}
               />
             </div>
 
@@ -80,14 +80,14 @@ export default function MonsterEditModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <LabeledTextInput
                 id="edit-hp"
-                label="Hit Points (HP)"
+                label={t("forms:library.edit.fields.hp")}
                 value={formData.hp.toString()}
                 onChange={(v) => setFormData({ ...formData, hp: parseInt(v)})}
                 placeholder="50"
               />
               <LabeledTextInput
                 id="edit-ac"
-                label="Armor Class (AC)"
+                label={t("forms:library.edit.fields.ac")}
                 value={formData.ac?.toString() ?? ''}
                 onChange={(v) => setFormData({ ...formData, ac: parseInt(v) })}
                 placeholder="15"
@@ -96,53 +96,49 @@ export default function MonsterEditModal({
 
             {/* Ability Scores Label */}
             <div className="text-sm font-semibold text-slate-300 pt-2">
-              Ability Scores
+              {t("forms:library.edit.sections.abilityScores")}
             </div>
 
             {/* Ability Scores Row 1 */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <LabeledTextInput
                 id="edit-str"
-                label="Strength (STR)"
+                label={t("forms:library.edit.fields.str")}
                 value={formData.str?.toString() ?? ''}
                 onChange={(v) => setFormData({ ...formData, str: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-dex"
-                label="Dexterity (DEX)"
+                label={t("forms:library.edit.fields.dex")}
                 value={formData.dex?.toString() ?? ''}
                 onChange={(v) => setFormData({ ...formData, dex: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-con"
-                label="Constitution (CON)"
+                label={t("forms:library.edit.fields.con")}
                 value={formData.con?.toString() ?? ''}
                 onChange={(v) => setFormData({ ...formData, con: parseInt(v) })}
                 placeholder="10"
               />
-            </div>
-
-            {/* Ability Scores Row 2 */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <LabeledTextInput
                 id="edit-int"
-                label="Intelligence (INT)"
+                label={t("forms:library.edit.fields.int")}
                 value={formData.int?.toString() ?? ''}
                 onChange={(v) => setFormData({ ...formData, int: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-wis"
-                label="Wisdom (WIS)"
+                label={t("forms:library.edit.fields.wis")}
                 value={formData.wis?.toString() ?? ''}
                 onChange={(v) => setFormData({ ...formData, wis: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-cha"
-                label="Charisma (CHA)"
+                label={t("forms:library.edit.fields.cha")}
                 value={formData.cha?.toString() ?? ''}
                 onChange={(v) => setFormData({ ...formData, cha: parseInt(v) })}
                 placeholder="10"

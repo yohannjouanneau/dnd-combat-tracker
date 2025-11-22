@@ -72,5 +72,54 @@
     "newDescriptionPlaceholder": "Note courte",
     "noCombats": "Aucun combat pour le moment.",
     "noCombatsHint": "Créez votre première rencontre de combat ci-dessus !"
+  },
+  "library": {
+    "title": "Bibliothèque de monstres",
+    "emptyListTitle": "Aucun monstre dans votre bibliothèque pour le moment.",
+    "emptyListMessage": "Sauvegardez des monstres depuis le formulaire de combat pour créer votre collection !",
+    "new": "Nouveau",
+    "newHint": "Ajouter un monste",
+    "edit": {
+      "title": {
+        "create": "Créer un nouveau monstre",
+        "edit": "Modifier le monstre : {{name}}"
+      },
+      "sections": {
+        "abilityScores": "Caractéristiques"
+      },
+      "fields": {
+        "name": "Nom *",
+        "imageUrl": "URL de l'image",
+        "hp": "Points de vie (PV)",
+        "ac": "Classe d'armure (CA)",
+        "str": "Force (FOR)",
+        "dex": "Dextérité (DEX)",
+        "con": "Constitution (CON)",
+        "int": "Intelligence (INT)",
+        "wis": "Sagesse (SAG)",
+        "cha": "Charisme (CHA)"
+      },
+      "placeholders": {
+        "name": "Nom du monstre",
+        "imageUrl": "https://exemple.com/image.png"
+      },
+      "validation": {
+        "nameRequired": "Le nom du monstre est obligatoire"
+      }
+    },
+    "listItem": {
+      "stats": {
+        "hp": "PV",
+        "ac": "CA"
+      },
+      "abilities": {
+        "str": "FOR",
+        "dex": "DEX",
+        "con": "CON",
+        "int": "INT",
+        "wis": "SAG",
+        "cha": "CHA"
+      }
+    }
   }
 }

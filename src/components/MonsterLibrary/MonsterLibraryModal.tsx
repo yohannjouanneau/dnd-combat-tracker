@@ -31,8 +31,8 @@ export default function MonsterLibraryModal({
   const { t } = useTranslation(["common", "forms"]);
 
   const newMonsterTemplate: SavedMonster = {
-    type: 'monster',
-    id: "", 
+    type: "monster",
+    id: "",
     name: "",
     hp: 20,
     maxHp: 20,
@@ -40,16 +40,15 @@ export default function MonsterLibraryModal({
     imageUrl: "",
     createdAt: 0,
     updatedAt: 0,
-    color: 'red',
-    externalResourceUrl: '',
-    initBonus: '',
+    color: "red",
+    externalResourceUrl: "",
+    initBonus: "",
     initiativeGroups: [],
-
   };
 
-  const [editingMonster, setEditingMonster] = useState<SavedMonster | undefined>(
-    undefined
-  );
+  const [editingMonster, setEditingMonster] = useState<
+    SavedMonster | undefined
+  >(undefined);
   const [isCreating, setIsCreating] = useState(false);
 
   if (!isOpen) return null;
@@ -79,7 +78,7 @@ export default function MonsterLibraryModal({
         monster={monster ?? newMonsterTemplate}
         onSave={onSave}
         onCancel={onCancel}
-        isCreating = {isCreating}
+        isCreating={isCreating}
       />
     ) : undefined;
 
@@ -99,17 +98,19 @@ export default function MonsterLibraryModal({
             <div className="flex items-center gap-3">
               <BookOpen className="w-6 h-6 text-purple-400" />
               <h2 className="text-xl md:text-2xl font-bold text-white">
-                Monster Library
+                {t("forms:library.title")}
               </h2>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsCreating(true)}
                 className="bg-green-600 hover:bg-green-700 text-white px-3 md:px-4 py-2 rounded transition font-medium flex items-center gap-2"
-                title="Create New Monster"
+                title={t("forms:library.newHint")}
               >
                 <Plus className="w-5 h-5" />
-                <span className="hidden sm:inline">New Monster</span>
+                <span className="hidden sm:inline">
+                {t("forms:library.new")}
+                </span>
               </button>
               <button
                 onClick={onClose}
@@ -125,9 +126,11 @@ export default function MonsterLibraryModal({
             {monsters.length === 0 ? (
               <div className="text-center text-slate-400 py-12">
                 <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p className="text-lg">No monsters in your library yet.</p>
+                <p className="text-lg">
+                    {t("forms:library.emptyListTitle")}
+                </p>
                 <p className="text-sm mt-2">
-                  Save monsters from the combat form to build your collection!
+                  {t("forms:library.emptyListMessage")}
                 </p>
               </div>
             ) : (
