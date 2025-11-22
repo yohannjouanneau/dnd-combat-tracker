@@ -2,13 +2,13 @@
 import { X, Save } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { MonsterData } from "../../types";
+import type { SavedMonster } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 
 type Props = {
-  monster: MonsterData;
+  monster: SavedMonster;
   isCreating: boolean
-  onSave: (updated: MonsterData) => void;
+  onSave: (updated: SavedMonster) => void;
   onCancel: () => void;
 };
 

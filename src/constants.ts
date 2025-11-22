@@ -1,7 +1,7 @@
-import type { NewCombatant } from "./types";
+import type { CombatantTemplate } from "./types";
 
-export const DEFAULT_NEW_COMBATANT: NewCombatant = {
-  groupName: "",
+export const DEFAULT_NEW_COMBATANT: CombatantTemplate = {
+  name: "",
   initiativeGroups: [{ id: crypto.randomUUID(), initiative: "", count: "1" }],
   hp: "",
   maxHp: "",

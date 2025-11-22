@@ -6,7 +6,7 @@ import AddCombatantForm from "../components/CombatForm/AddCombatantForm";
 import GroupsOverview from "../components/GroupsOverview/GroupsOverview";
 import TurnControls from "../components/TurnControls/TurnControls";
 import CombatantsList from "../components/CombatantsList/CombatantsList";
-import type { GroupSummary, NewCombatant, SavedPlayer } from "../types";
+import type { GroupSummary, SavedPlayer, NewCombatant, PlayerCombatant } from "../types";
 import type { CombatStateManager } from "../state";
 import SavedPlayersPanel from "../components/CombatForm/SavedPlayerPanel";
 import logo from "../assets/logo.png";
@@ -117,8 +117,9 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   };
 
   const includePlayerToFight = (player: SavedPlayer) => {
-    const playerCombattant: NewCombatant = {
-      groupName: player.groupName,
+    const playerCombattant: PlayerCombatant = {
+      type: 'player',
+      name: player.name,
       initiativeGroups: player.initiativeGroups,
       hp: player.hp,
       maxHp: player.maxHp,
@@ -139,12 +140,12 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
   const stagedFromParkedGroups = combatStateManager.state.parkedGroups.find(
     (group) =>
-      group.groupName === combatStateManager.state.newCombatant.groupName
-  )?.groupName;
+      group.name === combatStateManager.state.newCombatant.name
+  )?.name;
   const stagedPlayer = combatStateManager.savedPlayers.find(
     (group) =>
-      group.groupName === combatStateManager.state.newCombatant.groupName
-  )?.groupName;
+      group.name === combatStateManager.state.newCombatant.name
+  )?.name;
   const stagedFrom = stagedFromParkedGroups ?? stagedPlayer;
   const back = () => {
     location.hash = "#combats";

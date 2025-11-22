@@ -1,7 +1,7 @@
 {
   "combatant": {
     "title": "Combatant",
-    "groupName": "Name",
+    "name": "Name",
     "groupNamePlaceholder": "Name",
     "currentHp": "Current HP",
     "currentHpPlaceholder": "Current HP",

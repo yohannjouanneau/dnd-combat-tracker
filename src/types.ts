@@ -1,4 +1,35 @@
-import type { Monster } from "./api/types";
+import type { ApiMonster } from "./api/types";
+
+// Base types for common metadata
+export type TimestampedEntity = {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+};
+
+// Base ability scores (used in multiple places)
+export type AbilityScores = {
+  str: number; // Strength
+  dex: number; // Dexterity
+  con: number; // Constitution
+  int: number; // Intelligence
+  wis: number; // Wisdom
+  cha: number; // Charisma
+};
+
+// Combat stats used across all types
+export type CombatStats = {
+  hp: number;
+  maxHp: number;
+  ac: number;
+};
+
+// Visual and reference data
+export type Presentation = {
+  color: string;
+  imageUrl: string;
+  externalResourceUrl: string;
+};
 
 export type DeathSaves = {
   successes: number;
@@ -10,18 +41,12 @@ export type Combatant = {
   name: string;
   displayName: string;
   initiative: number;
-  hp: number;
-  maxHp: number;
-  ac: number;
   conditions: string[];
   concentration: boolean;
   deathSaves: DeathSaves;
-  groupName: string;
-  color: string;
   groupIndex: number;
-  imageUrl: string;
-  externalResourceUrl: string;
-};
+} & Presentation &
+  CombatStats;
 
 export type InitiativeGroup = {
   id: string;
@@ -29,49 +54,36 @@ export type InitiativeGroup = {
   count: string;
 };
 
-export type MonsterData = {
-  id: string;
-  name: string;
-  hp: string;
-  ac: string;
-  imageUrl: string;
-  str: string; // Strength
-  dex: string; // Dexterity
-  con: string; // Constitution
-  int: string; // Intelligence
-  wis: string; // Wisdom
-  cha: string; // Charisma
-  createdAt: number;
-  updatedAt: number;
+// Initiative data (shared between CombatantTemplate and SavedPlayer)
+export type InitiativeData = {
+  initiativeGroups: InitiativeGroup[];
+  initBonus: string;
 };
 
-export type MonsterDataInput = Omit<
-  MonsterData,
-  "id" | "createdAt" | "updatedAt"
->;
+export type CombatantTemplateType = "player" | "monster";
 
-// Add this to your existing search result types
+// Base entity for any combatant template (monsters, players, NPCs)
+export type CombatantTemplate<T extends CombatantTemplateType> = {
+  name: string;
+  type: T;
+} & CombatStats &
+  Presentation &
+  Partial<AbilityScores> &
+  InitiativeData;
+
+export type SavedCombatantTemplate<T extends CombatantTemplateType> =
+   CombatantTemplate<T> & TimestampedEntity;
+
+export type SavedPlayer = SavedCombatantTemplate<"player">;
+export type SavedMonster = SavedCombatantTemplate<"monster">;
+
+export type NewCombatant = CombatantTemplate<'player'| 'monster'>
+export type MonsterCombatant = CombatantTemplate<'monster'>
+export type PlayerCombatant = CombatantTemplate<'player'>
+
 export type SearchResult = {
   source: "api" | "library";
-  monster: Monster | MonsterData;
-};
-
-export type NewCombatant = {
-  groupName: string;
-  initiativeGroups: InitiativeGroup[];
-  hp: string;
-  maxHp: string;
-  ac: string;
-  color: string;
-  imageUrl: string;
-  initBonus: string;
-  externalResourceUrl: string;
-  str?: string;
-  dex?: string;
-  con?: string;
-  int?: string;
-  wis?: string;
-  cha?: string;
+  monster: ApiMonster | SavedMonster;
 };
 
 export type GroupSummary = {
@@ -80,7 +92,6 @@ export type GroupSummary = {
   count: number;
 };
 
-// Serializable snapshot of the tracker
 export type CombatState = {
   combatId?: string;
   combatName?: string;
@@ -93,35 +104,11 @@ export type CombatState = {
   lastSavedSnapshot?: string;
 };
 
-export type SavedCombat = {
-  id: string;
+export type SavedCombat = TimestampedEntity & {
   name: string;
   description: string;
-  createdAt: number;
-  updatedAt: number;
   data: CombatState;
 };
 
-export type SavedPlayer = {
-  id: string;
-  groupName: string;
-  initiativeGroups: InitiativeGroup[];
-  hp: string;
-  maxHp: string;
-  ac: string;
-  color: string;
-  createdAt: number;
-  updatedAt: number;
-  imageUrl: string;
-  initBonus: string;
-  externalResourceUrl: string;
-};
 
-export type SavedCombatInput = Omit<
-  SavedCombat,
-  "id" | "createdAt" | "updatedAt"
->;
-export type SavedPlayerInput = Omit<
-  SavedPlayer,
-  "id" | "createdAt" | "updatedAt"
->;
+export type SavedCombatInput = Omit<SavedCombat, keyof TimestampedEntity>;

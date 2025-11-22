@@ -5,3 +5,20 @@ export function generateId(): string {
     .join("")
     .slice(0, 16);
 }
+
+export function safeParse<T>(raw: string | null): T[] {
+  if (!raw) return [] as unknown as T[];
+  try {
+    return JSON.parse(raw) as T[];
+  } catch {
+    return [] as unknown as T[];
+  }
+}
+
+export function safeStringify<T>(data: T[]): string {
+  try {
+    return JSON.stringify(data);
+  } catch {
+    return "[]";
+  }
+}

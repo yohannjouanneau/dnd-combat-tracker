@@ -157,7 +157,7 @@ export default function CombatantCard({
                     className="w-3 h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: combatant.color }}
                   />
-                  <span className="truncate">{combatant.groupName}</span>
+                  <span className="truncate">{combatant.name}</span>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <Shield className="w-3 h-3 md:w-4 md:h-4" />

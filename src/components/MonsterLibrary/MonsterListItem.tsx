@@ -1,12 +1,12 @@
 import { Sword, Trash2, Edit } from "lucide-react";
-import type { MonsterData } from "../../types";
+import type { SavedMonster } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 
 type Props = {
-  monster: MonsterData;
+  monster: SavedMonster;
   canLoadToForm?: boolean;
-  onLoadToForm?: (monster: MonsterData) => void;
-  onEdit?: (monster: MonsterData) => void;
+  onLoadToForm?: (monster: SavedMonster) => void;
+  onEdit?: (monster: SavedMonster) => void;
   onDelete: (id: string) => void;
 };
 
@@ -17,8 +17,8 @@ export default function MonsterListItem({
   onEdit,
   onDelete,
 }: Props) {
-  const getAbilityModifier = (score: string) => {
-    const num = parseInt(score) || 10;
+  const getAbilityModifier = (score: number) => {
+    const num = score || 10;
     const mod = Math.floor((num - 10) / 2);
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };

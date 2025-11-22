@@ -1,6 +1,6 @@
 import { type RefObject } from "react";
 import { useTranslation } from "react-i18next";
-import type { NewCombatant, InitiativeGroup, SearchResult } from "../../types";
+import type { InitiativeGroup, NewCombatant, SearchResult } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import LabeledNumberInput from "../common/LabeledNumberInput";
 import ColorPicker from "../common/ColorPicker";
@@ -102,10 +102,10 @@ export default function AddCombatantForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <GroupNameWithSearch
               id="combatGroupName"
-              label={t("forms:combatant.groupName")}
-              value={value.groupName}
+              label={t("forms:combatant.name")}
+              value={value.name}
               placeholder={t("forms:combatant.groupNamePlaceholder")}
-              onChange={(v) => onChange({ groupName: v })}
+              onChange={(v) => onChange({ name: v })}
               onSearch={onSearchMonsters}
               onSelectResult={onSelectSearchResult}
             />
