@@ -2,13 +2,13 @@
 import { X, Save } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { MonsterData } from "../../types";
+import type { SavedMonster } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 
 type Props = {
-  monster: MonsterData;
+  monster: SavedMonster;
   isCreating: boolean
-  onSave: (updated: MonsterData) => void;
+  onSave: (updated: SavedMonster) => void;
   onCancel: () => void;
 };
 
@@ -81,15 +81,15 @@ export default function MonsterEditModal({
               <LabeledTextInput
                 id="edit-hp"
                 label="Hit Points (HP)"
-                value={formData.hp}
-                onChange={(v) => setFormData({ ...formData, hp: v })}
+                value={formData.hp.toString()}
+                onChange={(v) => setFormData({ ...formData, hp: parseInt(v)})}
                 placeholder="50"
               />
               <LabeledTextInput
                 id="edit-ac"
                 label="Armor Class (AC)"
-                value={formData.ac}
-                onChange={(v) => setFormData({ ...formData, ac: v })}
+                value={formData.ac?.toString() ?? ''}
+                onChange={(v) => setFormData({ ...formData, ac: parseInt(v) })}
                 placeholder="15"
               />
             </div>
@@ -104,22 +104,22 @@ export default function MonsterEditModal({
               <LabeledTextInput
                 id="edit-str"
                 label="Strength (STR)"
-                value={formData.str}
-                onChange={(v) => setFormData({ ...formData, str: v })}
+                value={formData.str?.toString() ?? ''}
+                onChange={(v) => setFormData({ ...formData, str: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-dex"
                 label="Dexterity (DEX)"
-                value={formData.dex}
-                onChange={(v) => setFormData({ ...formData, dex: v })}
+                value={formData.dex?.toString() ?? ''}
+                onChange={(v) => setFormData({ ...formData, dex: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-con"
                 label="Constitution (CON)"
-                value={formData.con}
-                onChange={(v) => setFormData({ ...formData, con: v })}
+                value={formData.con?.toString() ?? ''}
+                onChange={(v) => setFormData({ ...formData, con: parseInt(v) })}
                 placeholder="10"
               />
             </div>
@@ -129,22 +129,22 @@ export default function MonsterEditModal({
               <LabeledTextInput
                 id="edit-int"
                 label="Intelligence (INT)"
-                value={formData.int}
-                onChange={(v) => setFormData({ ...formData, int: v })}
+                value={formData.int?.toString() ?? ''}
+                onChange={(v) => setFormData({ ...formData, int: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-wis"
                 label="Wisdom (WIS)"
-                value={formData.wis}
-                onChange={(v) => setFormData({ ...formData, wis: v })}
+                value={formData.wis?.toString() ?? ''}
+                onChange={(v) => setFormData({ ...formData, wis: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-cha"
                 label="Charisma (CHA)"
-                value={formData.cha}
-                onChange={(v) => setFormData({ ...formData, cha: v })}
+                value={formData.cha?.toString() ?? ''}
+                onChange={(v) => setFormData({ ...formData, cha: parseInt(v) })}
                 placeholder="10"
               />
             </div>

@@ -1,6 +1,6 @@
 import { type RefObject } from "react";
 import { useTranslation } from "react-i18next";
-import type { NewCombatant, InitiativeGroup, SearchResult } from "../../types";
+import type { InitiativeGroup, NewCombatant, SearchResult } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import LabeledNumberInput from "../common/LabeledNumberInput";
 import ColorPicker from "../common/ColorPicker";
@@ -102,10 +102,10 @@ export default function AddCombatantForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <GroupNameWithSearch
               id="combatGroupName"
-              label={t("forms:combatant.groupName")}
-              value={value.groupName}
+              label={t("forms:combatant.name")}
+              value={value.name}
               placeholder={t("forms:combatant.groupNamePlaceholder")}
-              onChange={(v) => onChange({ groupName: v })}
+              onChange={(v) => onChange({ name: v })}
               onSearch={onSearchMonsters}
               onSelectResult={onSelectSearchResult}
             />
@@ -135,21 +135,21 @@ export default function AddCombatantForm({
               label={t("forms:combatant.currentHp")}
               value={value.hp}
               placeholder={t("forms:combatant.currentHpPlaceholder")}
-              onChange={(v) => onChange({ hp: v })}
+              onChange={(v) => onChange({ hp: parseInt(v) })}
             />
             <LabeledNumberInput
               id="combatMaxHp"
               label={t("forms:combatant.maxHp")}
               value={value.maxHp}
               placeholder={t("forms:combatant.maxHpPlaceholder")}
-              onChange={(v) => onChange({ maxHp: v })}
+              onChange={(v) => onChange({ maxHp: parseInt(v) })}
             />
             <LabeledNumberInput
               id="combatAc"
               label={t("forms:combatant.ac")}
               value={value.ac}
               placeholder={t("forms:combatant.acPlaceholder")}
-              onChange={(v) => onChange({ ac: v })}
+              onChange={(v) => onChange({ ac: parseInt(v) })}
             />
 
             <LabeledNumberInput

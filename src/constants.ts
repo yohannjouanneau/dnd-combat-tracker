@@ -1,11 +1,12 @@
 import type { NewCombatant } from "./types";
 
 export const DEFAULT_NEW_COMBATANT: NewCombatant = {
-  groupName: "",
+  type: 'monster',
+  name: "",
   initiativeGroups: [{ id: crypto.randomUUID(), initiative: "", count: "1" }],
-  hp: "",
-  maxHp: "",
-  ac: "",
+  hp: 0,
+  maxHp: 0,
+  ac: 0,
   color: "#3b82f6",
   imageUrl: "",
   initBonus: "",

@@ -2,7 +2,7 @@
 
 import { DND_API_HOST } from "../constants";
 import { MonsterFragments } from "./fragments";
-import type { Monster } from "./types";
+import type { ApiMonster } from "./types";
 
 /**
  * D&D 5e SRD GraphQL API TypeScript Client
@@ -19,7 +19,7 @@ interface GraphQLResponse<T> {
 }
 
 interface MonstersQueryResponse {
-  monsters: Monster[];
+  monsters: ApiMonster[];
 }
 
 // ============================================================================
@@ -166,7 +166,7 @@ export class DnD5eGraphQLClient {
   /**
    * Search monsters by name (client-side filtering)
    */
-  async searchMonsters(nameQuery: string): Promise<Monster[]> {
+  async searchMonsters(nameQuery: string): Promise<ApiMonster[]> {
     const query = `
         ${MonsterFragments.MonsterBasic}
         query GetMonsters($name: String!) {

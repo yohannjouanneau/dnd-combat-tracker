@@ -1,12 +1,12 @@
 import { Sword, Trash2, Edit } from "lucide-react";
-import type { MonsterData } from "../../types";
+import type { SavedMonster } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 
 type Props = {
-  monster: MonsterData;
+  monster: SavedMonster;
   canLoadToForm?: boolean;
-  onLoadToForm?: (monster: MonsterData) => void;
-  onEdit?: (monster: MonsterData) => void;
+  onLoadToForm?: (monster: SavedMonster) => void;
+  onEdit?: (monster: SavedMonster) => void;
   onDelete: (id: string) => void;
 };
 
@@ -17,8 +17,8 @@ export default function MonsterListItem({
   onEdit,
   onDelete,
 }: Props) {
-  const getAbilityModifier = (score: string) => {
-    const num = parseInt(score) || 10;
+  const getAbilityModifier = (score: number) => {
+    const num = score || 10;
     const mod = Math.floor((num - 10) / 2);
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
@@ -60,12 +60,12 @@ export default function MonsterListItem({
         {/* Ability Scores */}
         <div className="hidden md:flex items-center gap-2 flex-shrink-0">
           {[
-            { label: "STR", value: monster.str },
-            { label: "DEX", value: monster.dex },
-            { label: "CON", value: monster.con },
-            { label: "INT", value: monster.int },
-            { label: "WIS", value: monster.wis },
-            { label: "CHA", value: monster.cha },
+            { label: "STR", value: monster.str ?? 0 },
+            { label: "DEX", value: monster.dex ?? 0},
+            { label: "CON", value: monster.con ?? 0},
+            { label: "INT", value: monster.int ?? 0},
+            { label: "WIS", value: monster.wis ?? 0},
+            { label: "CHA", value: monster.cha ?? 0},
           ].map(({ label, value }) => (
             <div
               key={label}

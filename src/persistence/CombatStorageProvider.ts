@@ -1,22 +1,5 @@
 import type { SavedCombat, SavedCombatInput } from "../types";
-import { generateId } from "../utils";
-
-function safeParse<T>(raw: string | null): T[] {
-  if (!raw) return [] as unknown as T[];
-  try {
-    return JSON.parse(raw) as T[];
-  } catch {
-    return [] as unknown as T[];
-  }
-}
-
-function safeStringify<T>(data: T[]): string {
-  try {
-    return JSON.stringify(data);
-  } catch {
-    return "[]";
-  }
-}
+import { generateId, safeParse, safeStringify } from "../utils";
 
 export class CombatStorageProvider {
   private key: string;
