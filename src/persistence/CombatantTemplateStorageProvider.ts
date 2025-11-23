@@ -60,7 +60,7 @@ export class CombatantTemplateStorageProvider<T extends CombatantTemplateType> {
   ): Promise<SavedCombatantTemplate<T>> {
     const items = this.readAll();
     const idx = items.findIndex((i) => i.id === id);
-    if (idx < 0) throw new Error("Player not found");
+    if (idx < 0) throw new Error("CombatantTemplate not found");
     const merged = {
       ...items[idx],
       ...patch,

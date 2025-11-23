@@ -7,6 +7,7 @@ import ColorPicker from "../common/ColorPicker";
 import InitiativeGroupInput from "./InitiativeGroupInput";
 import { ChevronDown, Save, Sword, CircleParking, Dice3, BookOpen } from "lucide-react";
 import CombatantNameWithSearch from "./CombatantNameWithSearch";
+import { safeParseInt } from "../../utils";
 
 type Props = {
   formRef: RefObject<HTMLDivElement | null>;
@@ -135,21 +136,21 @@ export default function AddCombatantForm({
               label={t("forms:combatant.currentHp")}
               value={value.hp}
               placeholder={t("forms:combatant.currentHpPlaceholder")}
-              onChange={(v) => onChange({ hp: parseInt(v) })}
+              onChange={(v) => onChange({ hp: safeParseInt(v) })}
             />
             <LabeledNumberInput
               id="combatMaxHp"
               label={t("forms:combatant.maxHp")}
               value={value.maxHp}
               placeholder={t("forms:combatant.maxHpPlaceholder")}
-              onChange={(v) => onChange({ maxHp: parseInt(v) })}
+              onChange={(v) => onChange({ maxHp: safeParseInt(v) })}
             />
             <LabeledNumberInput
               id="combatAc"
               label={t("forms:combatant.ac")}
               value={value.ac}
               placeholder={t("forms:combatant.acPlaceholder")}
-              onChange={(v) => onChange({ ac: parseInt(v) })}
+              onChange={(v) => onChange({ ac: safeParseInt(v) })}
             />
 
             <LabeledNumberInput

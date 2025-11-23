@@ -19,6 +19,8 @@ import { DEFAULT_NEW_COMBATANT } from "./constants";
 import type { ApiMonster } from "./api/types";
 import { createGraphQLClient } from "./api/DnD5eGraphQLClient";
 import { getStatModifier, getApiImageUrl } from "./utils";
+import { useToast } from "./components/common/Toast/useToast";
+import { useTranslation } from "react-i18next";
 
 export type CombatStateManager = {
   // State
@@ -107,6 +109,9 @@ export function useCombatState(): CombatStateManager {
   const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
   const [monsters, setMonsters] = useState<SavedMonster[]>([]);
 
+  const { t } = useTranslation(["common"]);
+  const toastApi = useToast();
+
   const loadPlayers = useCallback(async () => {
     const players = await dataStore.listPlayer();
     setSavedPlayers(players);
@@ -173,6 +178,7 @@ export function useCombatState(): CombatStateManager {
         combatDescription: prev.combatDescription,
       }));
       markAsSaved();
+      toastApi.success(t("common:confirmation.saveCombat.success"));
     }
   };
 
@@ -549,14 +555,25 @@ export function useCombatState(): CombatStateManager {
   );
 
   const addCombatantToLibrary = useCallback(async () => {
-    if (state.newCombatant.name) {
-      await createMonster({
-        ...state.newCombatant,
-        type: "monster",
-      });
-      await dataStore.listMonster();
+    const someInitAreIncomplete = state.newCombatant.initiativeGroups.some(
+      (g) => !g.initiative || !g.count
+    );
+    if (
+      !state.newCombatant.name ||
+      !state.newCombatant.hp ||
+      state.newCombatant.initiativeGroups.length === 0 ||
+      someInitAreIncomplete
+    ) {
+      return;
     }
-  }, [state.newCombatant, createMonster]);
+
+    await createMonster({
+      ...state.newCombatant,
+      maxHp: state.newCombatant.maxHp || state.newCombatant.hp,
+      type: "monster",
+    });
+    toastApi.success(t("common:confirmation.addToLibrary.success"));
+  }, [state.newCombatant, createMonster, toastApi, t]);
 
   // Combatant Management
   const addCombatant = useCallback(

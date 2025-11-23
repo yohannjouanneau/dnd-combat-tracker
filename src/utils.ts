@@ -10,11 +10,11 @@ export function generateId(): string {
 }
 
 export function safeParse<T>(raw: string | null): T[] {
-  if (!raw) return [] as unknown as T[];
+  if (!raw) return [] as T[];
   try {
     return JSON.parse(raw) as T[];
   } catch {
-    return [] as unknown as T[];
+    return [] as T[];
   }
 }
 
@@ -32,4 +32,8 @@ export function getStatModifier(stat: number) {
 
 export function getApiImageUrl(monster: ApiMonster) {
   return `${DND_API_HOST}${monster.image}`
+}
+
+export function safeParseInt(strNumber: string) {
+  return parseInt(strNumber) || 0
 }

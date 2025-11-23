@@ -5,7 +5,7 @@ import type { SavedMonster, SearchResult } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
-import { getStatModifier, getApiImageUrl } from "../../utils";
+import { getStatModifier, getApiImageUrl, safeParseInt } from "../../utils";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
 
 type Props = {
@@ -39,7 +39,7 @@ export default function MonsterEditModal({
     if (searchResult.source === "api") {
       const apiMonster = searchResult.monster as ApiMonster;
       const libraryMonster: SavedMonster = {
-        id: "",
+        id: formData.id,
         createdAt: Date.now(),
         updatedAt: Date.now(),
         type: "monster",
@@ -109,14 +109,14 @@ export default function MonsterEditModal({
                 id="edit-hp"
                 label={t("forms:library.edit.fields.hp")}
                 value={formData.hp.toString()}
-                onChange={(v) => setFormData({ ...formData, hp: parseInt(v) })}
+                onChange={(v) => setFormData({ ...formData, hp: safeParseInt(v) })}
                 placeholder="50"
               />
               <LabeledTextInput
                 id="edit-ac"
                 label={t("forms:library.edit.fields.ac")}
                 value={formData.ac?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, ac: parseInt(v) })}
+                onChange={(v) => setFormData({ ...formData, ac: safeParseInt(v) })}
                 placeholder="15"
               />
               <LabeledTextInput
@@ -146,42 +146,42 @@ export default function MonsterEditModal({
                 id="edit-str"
                 label={t("forms:library.edit.fields.str")}
                 value={formData.str?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, str: parseInt(v) })}
+                onChange={(v) => setFormData({ ...formData, str: safeParseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-dex"
                 label={t("forms:library.edit.fields.dex")}
                 value={formData.dex?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, dex: parseInt(v) })}
+                onChange={(v) => setFormData({ ...formData, dex: safeParseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-con"
                 label={t("forms:library.edit.fields.con")}
                 value={formData.con?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, con: parseInt(v) })}
+                onChange={(v) => setFormData({ ...formData, con: safeParseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-int"
                 label={t("forms:library.edit.fields.int")}
                 value={formData.int?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, int: parseInt(v) })}
+                onChange={(v) => setFormData({ ...formData, int: safeParseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-wis"
                 label={t("forms:library.edit.fields.wis")}
                 value={formData.wis?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, wis: parseInt(v) })}
+                onChange={(v) => setFormData({ ...formData, wis: safeParseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-cha"
                 label={t("forms:library.edit.fields.cha")}
                 value={formData.cha?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, cha: parseInt(v) })}
+                onChange={(v) => setFormData({ ...formData, cha: safeParseInt(v) })}
                 placeholder="10"
               />
             </div>

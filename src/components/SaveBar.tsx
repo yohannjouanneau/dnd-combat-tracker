@@ -44,7 +44,6 @@ export default function SaveBar({
   return (
     <div className="w-full bg-slate-800 rounded-lg p-4 mb-6 border border-slate-700">
       <div className="flex flex-col md:flex-row justify-between items-end gap-3">
-        {/* Left side - Input fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1 w-full md:w-auto">
           <LabeledTextInput
             id="combatName"
@@ -62,7 +61,6 @@ export default function SaveBar({
           />
         </div>
 
-        {/* Right side - Action buttons and language switcher */}
         <div className="flex gap-2 flex-shrink-0 w-full md:w-auto justify-end items-center">
           <button
             onClick={onBack}

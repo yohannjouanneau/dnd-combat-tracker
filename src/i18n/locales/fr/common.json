@@ -50,6 +50,12 @@
       "title": "Supprimer le monstre",
       "message": "Êtes-vous sûr de vouloir supprimer « {{name}} » ? Cette action est irréversible."
     },
+    "addToLibrary": {
+      "success": "Ajouté a la bibliothèque"
+    }, 
+    "saveCombat": {
+      "success": "Combat sauvegardé"
+    },
     "confirm": "Confirmer",
     "cancel": "Annuler"
   }
