@@ -46,6 +46,16 @@
       "title": "Delete Combat",
       "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
     },
+    "deleteFromLibrary": {
+      "title": "Delete Monster",
+      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    },
+    "addToLibrary": {
+      "success": "Added to the library"
+    }, 
+    "saveCombat": {
+      "success": "Combat saved"
+    },
     "confirm": "Confirm",
     "cancel": "Cancel"
   }

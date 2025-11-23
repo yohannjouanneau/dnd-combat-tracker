@@ -2,18 +2,25 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import type {
   CombatState,
   Combatant,
-  NewCombatant,
   DeathSaves,
   GroupSummary,
   InitiativeGroup,
   SavedPlayer,
   SavedCombat,
   SavedCombatInput,
+  SavedMonster,
+  SearchResult,
+  NewCombatant,
+  MonsterCombatant,
+  SearchSource,
 } from "./types";
 import { dataStore } from "./persistence/storage";
-import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "./constants";
-import type { Monster } from "./api/types";
+import { DEFAULT_NEW_COMBATANT } from "./constants";
+import type { ApiMonster } from "./api/types";
 import { createGraphQLClient } from "./api/DnD5eGraphQLClient";
+import { getStatModifier, getApiImageUrl } from "./utils";
+import { useToast } from "./components/common/Toast/useToast";
+import { useTranslation } from "react-i18next";
 
 export type CombatStateManager = {
   // State
@@ -49,7 +56,7 @@ export type CombatStateManager = {
   // Combatants
   addCombatant: (combatant?: NewCombatant) => void;
   removeCombatant: (id: number) => void;
-  removeGroup: (groupName: string) => void;
+  removeGroup: (name: string) => void;
   updateHP: (id: number, change: number) => void;
   updateInitiative: (id: number, newInitiative: number) => void;
   toggleCondition: (id: number, condition: string) => void;
@@ -65,9 +72,18 @@ export type CombatStateManager = {
   nextTurn: () => void;
   prevTurn: () => void;
 
-  // API
-  searchMonsters: (nameQuery: string) => Promise<Monster[]>;
-  fillFormWithMonsterData: (monster: Monster) => void;
+  // Monster Library
+  monsters: SavedMonster[];
+  loadMonsters: () => Promise<void>;
+  createMonster: (monster: MonsterCombatant) => Promise<void>;
+  removeMonster: (id: string) => Promise<void>;
+  updateMonster: (id: string, monster: SavedMonster) => Promise<void>;
+  loadMonsterToForm: (searchTerm: SearchResult) => void;
+  searchWithLibrary: (
+    query: string,
+    source?: SearchSource
+  ) => Promise<SearchResult[]>;
+  addCombatantToLibrary: () => Promise<void>;
 
   // Utility
   getUniqueGroups: () => GroupSummary[];
@@ -91,24 +107,46 @@ export function useCombatState(): CombatStateManager {
   const apiClient = useMemo(() => createGraphQLClient(), []);
   const [state, setState] = useState<CombatState>(getInitialState());
   const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
+  const [monsters, setMonsters] = useState<SavedMonster[]>([]);
+
+  const { t } = useTranslation(["common"]);
+  const toastApi = useToast();
 
   const loadPlayers = useCallback(async () => {
     const players = await dataStore.listPlayer();
     setSavedPlayers(players);
   }, []);
 
+  const loadMonsters = useCallback(async () => {
+    const monsterList = await dataStore.listMonster();
+    setMonsters(monsterList);
+  }, []);
+
+  const createMonster = useCallback(
+    async (monster: MonsterCombatant) => {
+      await dataStore.createMonster(monster);
+      await loadMonsters();
+    },
+    [loadMonsters]
+  );
+
+  // Load monsters on mount
+  useEffect(() => {
+    loadMonsters();
+  }, [loadMonsters]);
+
   // Load players on mount
   useEffect(() => {
     loadPlayers();
   }, [loadPlayers]);
-  
+
   function takeSnapshot(state: CombatState) {
     return JSON.stringify(state, (key, value) => {
-      if (key === 'lastSavedSnapshot') return undefined;
+      if (key === "lastSavedSnapshot") return undefined;
       return value;
     });
   }
-  
+
   const loadCombat = async (combatId: string) => {
     const savedCombat = await dataStore.getCombat(combatId);
 
@@ -140,6 +178,7 @@ export function useCombatState(): CombatStateManager {
         combatDescription: prev.combatDescription,
       }));
       markAsSaved();
+      toastApi.success(t("common:confirmation.saveCombat.success"));
     }
   };
 
@@ -157,7 +196,7 @@ export function useCombatState(): CombatStateManager {
   const prepareCombatantList = useCallback(
     (prev: CombatState, combatant?: NewCombatant) => {
       const nc = combatant ?? prev.newCombatant;
-      if (!nc.groupName || !nc.hp) return prev.combatants;
+      if (!nc.name || !nc.hp) return prev.combatants;
       if (nc.initiativeGroups.length === 0) return prev.combatants;
       if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
         return prev.combatants;
@@ -174,7 +213,7 @@ export function useCombatState(): CombatStateManager {
 
       // Find highest existing index for this group
       const existingGroupMembers = prev.combatants.filter(
-        (c) => c.groupName === nc.groupName
+        (c) => c.name === nc.name
       );
       const maxGroupIndex =
         existingGroupMembers.length > 0
@@ -185,9 +224,6 @@ export function useCombatState(): CombatStateManager {
       let globalLetterIndex = maxGroupIndex + 1;
       const newCombatants: Combatant[] = [];
 
-      console.log(`DEBUG ==> `, nc.externalResourceUrl);
-      
-
       // Create combatants for each initiative group
       nc.initiativeGroups.forEach((group) => {
         const count = parseInt(group.count) || 0;
@@ -195,21 +231,19 @@ export function useCombatState(): CombatStateManager {
           const letter = String.fromCharCode(65 + globalLetterIndex);
           newCombatants.push({
             id: baseId + globalLetterIndex,
-            name: nc.groupName,
-            displayName:
-              totalCount > 1 ? `${nc.groupName} ${letter}` : nc.groupName,
+            name: nc.name,
+            displayName: totalCount > 1 ? `${nc.name} ${letter}` : nc.name,
             initiative: parseFloat(group.initiative),
-            hp: parseInt(nc.hp),
-            maxHp: parseInt(effectiveMaxHp),
-            ac: nc.ac ? parseInt(nc.ac) : 10,
+            hp: nc.hp,
+            maxHp: effectiveMaxHp,
+            ac: nc.ac ? nc.ac : 10,
             conditions: [],
             concentration: false,
             deathSaves: { successes: 0, failures: 0 },
-            groupName: nc.groupName,
             color: nc.color,
             groupIndex: globalLetterIndex,
             imageUrl: nc.imageUrl,
-            externalResourceUrl: nc.externalResourceUrl
+            externalResourceUrl: nc.externalResourceUrl,
           });
           globalLetterIndex++;
         }
@@ -220,8 +254,8 @@ export function useCombatState(): CombatStateManager {
         if (b.initiative !== a.initiative) {
           return b.initiative - a.initiative;
         }
-        if (a.groupName !== b.groupName) {
-          return a.groupName.localeCompare(b.groupName);
+        if (a.name !== b.name) {
+          return a.name.localeCompare(b.name);
         }
         return a.groupIndex - b.groupIndex;
       });
@@ -232,42 +266,45 @@ export function useCombatState(): CombatStateManager {
   );
 
   // Parked Groups Management
-  const addParkedGroup = useCallback((isFightModeEnabled: boolean) => {
-    setState((prev) => {
-      const nc = prev.newCombatant;
-      if (!nc.groupName || !nc.hp) return prev;
-      if (nc.initiativeGroups.length === 0) return prev;
-      if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
-        return prev;
+  const addParkedGroup = useCallback(
+    (isFightModeEnabled: boolean) => {
+      setState((prev) => {
+        const nc = prev.newCombatant;
+        if (!nc.name || !nc.hp) return prev;
+        if (nc.initiativeGroups.length === 0) return prev;
+        if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
+          return prev;
 
-      // If maxHp is empty, copy hp to maxHp
-      const groupToAdd = {
-        ...nc,
-        maxHp: nc.maxHp || nc.hp,
-      };
+        // If maxHp is empty, copy hp to maxHp
+        const groupToAdd = {
+          ...nc,
+          maxHp: nc.maxHp || nc.hp,
+        };
 
-      // Remove existing group with same name (if any) and add new one
-      const filteredGroups = prev.parkedGroups.filter(
-        (g) => g.groupName !== nc.groupName
-      );
+        // Remove existing group with same name (if any) and add new one
+        const filteredGroups = prev.parkedGroups.filter(
+          (g) => g.name !== nc.name
+        );
 
-      const combatants = isFightModeEnabled
-        ? prepareCombatantList(prev, groupToAdd)
-        : [];
+        const combatants = isFightModeEnabled
+          ? prepareCombatantList(prev, groupToAdd)
+          : [];
 
-      return {
-        ...prev,
-        parkedGroups: [...filteredGroups, groupToAdd],
-        newCombatant: DEFAULT_NEW_COMBATANT,
-        combatants,
-      };
-    });
-  }, [prepareCombatantList]);
+        return {
+          ...prev,
+          parkedGroups: [...filteredGroups, groupToAdd],
+          newCombatant: DEFAULT_NEW_COMBATANT,
+          combatants,
+        };
+      });
+    },
+    [prepareCombatantList]
+  );
 
   const removeParkedGroup = useCallback((name: string) => {
     setState((prev) => ({
       ...prev,
-      parkedGroups: prev.parkedGroups.filter((g) => g.groupName !== name),
+      parkedGroups: prev.parkedGroups.filter((g) => g.name !== name),
     }));
   }, []);
 
@@ -337,14 +374,12 @@ export function useCombatState(): CombatStateManager {
   const addPlayerFromForm = useCallback(
     async (isFightModeEnabled: boolean) => {
       const nc = state.newCombatant;
-      if (!nc.groupName || !nc.hp) return;
+      if (!nc.name || !nc.hp) return;
       if (nc.initiativeGroups.length === 0) return;
       if (nc.initiativeGroups.some((g) => !g.initiative || !g.count)) return;
 
       // Check if player with same name already exists
-      const existingPlayer = savedPlayers.find(
-        (p) => p.groupName === nc.groupName
-      );
+      const existingPlayer = savedPlayers.find((p) => p.name === nc.name);
 
       if (existingPlayer) {
         // Update existing player
@@ -358,7 +393,8 @@ export function useCombatState(): CombatStateManager {
       } else {
         // Create new player
         await dataStore.createPlayer({
-          groupName: nc.groupName,
+          type: "player",
+          name: nc.name,
           initiativeGroups: nc.initiativeGroups,
           hp: nc.hp,
           maxHp: nc.maxHp || nc.hp,
@@ -366,7 +402,7 @@ export function useCombatState(): CombatStateManager {
           color: nc.color,
           imageUrl: nc.imageUrl,
           initBonus: nc.initBonus,
-          externalResourceUrl: nc.externalResourceUrl
+          externalResourceUrl: nc.externalResourceUrl,
         });
       }
 
@@ -399,7 +435,8 @@ export function useCombatState(): CombatStateManager {
     setState((prev) => ({
       ...prev,
       newCombatant: {
-        groupName: player.groupName,
+        type: "player",
+        name: player.name,
         initiativeGroups: player.initiativeGroups,
         hp: player.hp,
         maxHp: player.maxHp,
@@ -407,14 +444,138 @@ export function useCombatState(): CombatStateManager {
         color: player.color,
         imageUrl: player.imageUrl,
         initBonus: player.initBonus,
-        externalResourceUrl: player.externalResourceUrl
+        externalResourceUrl: player.externalResourceUrl,
       },
     }));
   }, []);
 
-  // Combatant Management
-  
+  // Library Management
 
+  const removeMonster = useCallback(
+    async (id: string) => {
+      await dataStore.deleteMonster(id);
+      await loadMonsters();
+    },
+    [loadMonsters]
+  );
+
+  const updateMonster = useCallback(
+    async (id: string, monster: SavedMonster) => {
+      await dataStore.updateMonster(id, monster);
+      await loadMonsters();
+    },
+    [loadMonsters]
+  );
+
+  const fillFormWithMonsterRemoteData = (monster: ApiMonster) => {
+    setState((prev) => ({
+      ...prev,
+      newCombatant: {
+        ...prev.newCombatant,
+        name: monster.name,
+        hp: monster.hit_points ?? 0,
+        maxHp: monster.hit_points ?? 0,
+        initBonus: monster.dexterity
+          ? getStatModifier(monster.dexterity).toString()
+          : "",
+        ac: monster.armor_class?.at(0)?.value ?? 0,
+        imageUrl: getApiImageUrl(monster),
+      },
+    }));
+  };
+
+  const fillFormWithMonsterLibraryData = (monster: SavedMonster) => {
+    const dexMod = monster.dex ? getStatModifier(monster.dex) : "";
+    setState((prev) => ({
+      ...prev,
+      newCombatant: {
+        ...prev.newCombatant,
+        name: monster.name,
+        hp: monster.hp,
+        maxHp: monster.hp,
+        ac: monster.ac,
+        imageUrl: monster.imageUrl,
+        externalResourceUrl: monster.externalResourceUrl,
+        initBonus: String(dexMod),
+        str: monster.str,
+        dex: monster.dex,
+        con: monster.con,
+        int: monster.int,
+        wis: monster.wis,
+        cha: monster.cha,
+      },
+    }));
+  };
+
+  const loadMonsterToForm = useCallback((searchResult: SearchResult) => {
+    if (searchResult.source === "api") {
+      fillFormWithMonsterRemoteData(searchResult.monster as ApiMonster);
+    } else {
+      fillFormWithMonsterLibraryData(searchResult.monster as SavedMonster);
+    }
+  }, []);
+
+  const searchWithLibrary = useCallback(
+    async (query: string, source?: SearchSource) => {
+      const results: SearchResult[] = [];
+
+      if (source === "api" || !source) {
+        // Search API
+        try {
+          const apiMonsters = await apiClient.searchMonsters(query);
+          results.push(
+            ...apiMonsters.map((m) => ({
+              source: "api" as const,
+              monster: m,
+            }))
+          );
+        } catch (error) {
+          console.error("API search failed:", error);
+        }
+      }
+
+      if (source === "library" || !source) {
+        // Search local library
+        try {
+          const libraryMonsters = await dataStore.searchMonster(query);
+          results.push(
+            ...libraryMonsters.map((m) => ({
+              source: "library" as const,
+              monster: m,
+            }))
+          );
+        } catch (error) {
+          console.error("Library search failed:", error);
+        }
+      }
+
+      return results;
+    },
+    [apiClient]
+  );
+
+  const addCombatantToLibrary = useCallback(async () => {
+    const someInitAreIncomplete = state.newCombatant.initiativeGroups.some(
+      (g) => !g.initiative || !g.count
+    );
+    if (
+      !state.newCombatant.name ||
+      !state.newCombatant.hp ||
+      state.newCombatant.initiativeGroups.length === 0 ||
+      someInitAreIncomplete
+    ) {
+      return;
+    }
+
+    await createMonster({
+      ...state.newCombatant,
+      maxHp: state.newCombatant.maxHp || state.newCombatant.hp,
+      type: "monster",
+    });
+    toastApi.success(t("common:confirmation.addToLibrary.success"));
+  }, [state.newCombatant, createMonster, toastApi, t]);
+
+  // Combatant Management
   const addCombatant = useCallback(
     (combatant?: NewCombatant) => {
       setState((prev) => {
@@ -444,10 +605,10 @@ export function useCombatState(): CombatStateManager {
     });
   }, []);
 
-  const removeGroup = useCallback((groupName: string) => {
+  const removeGroup = useCallback((name: string) => {
     setState((prev) => ({
       ...prev,
-      combatants: prev.combatants.filter((c) => c.groupName !== groupName),
+      combatants: prev.combatants.filter((c) => c.name !== name),
       currentTurn: 0,
     }));
   }, []);
@@ -478,8 +639,8 @@ export function useCombatState(): CombatStateManager {
         if (b.initiative !== a.initiative) {
           return b.initiative - a.initiative;
         }
-        if (a.groupName !== b.groupName) {
-          return a.groupName.localeCompare(b.groupName);
+        if (a.name !== b.name) {
+          return a.name.localeCompare(b.name);
         }
         return a.groupIndex - b.groupIndex;
       });
@@ -590,40 +751,18 @@ export function useCombatState(): CombatStateManager {
     });
   }, []);
 
-  // Api
-  const searchMonsters = async (nameQuery: string) => {
-    return apiClient.searchMonsters(nameQuery);
-  };
-
-  const fillFormWithMonsterData = (monster: Monster) => {
-    setState((prev) => ({
-      ...prev,
-      newCombatant: {
-        ...prev.newCombatant,
-        groupName: monster.name,
-        hp: monster.hit_points?.toString() ?? "",
-        maxHp: monster.hit_points?.toString() ?? "",
-        initBonus: monster.dexterity
-          ? Math.floor((monster.dexterity - 10) / 2).toString()
-          : "",
-        ac: monster.armor_class?.at(0)?.value?.toString() ?? "",
-        imageUrl: `${DND_API_HOST}${monster.image}`,
-      },
-    }));
-  };
-
   // Utility
   const getUniqueGroups = useCallback(() => {
     const groups = new Map();
     state.combatants.forEach((c) => {
-      if (!groups.has(c.groupName)) {
-        groups.set(c.groupName, {
-          name: c.groupName,
+      if (!groups.has(c.name)) {
+        groups.set(c.name, {
+          name: c.name,
           color: c.color,
           count: 1,
         });
       } else {
-        groups.get(c.groupName).count++;
+        groups.get(c.name).count++;
       }
     });
     return Array.from(groups.values());
@@ -682,6 +821,16 @@ export function useCombatState(): CombatStateManager {
     removePlayer,
     includePlayer,
 
+    // Monster Library
+    monsters,
+    loadMonsters,
+    createMonster,
+    removeMonster,
+    updateMonster,
+    loadMonsterToForm,
+    searchWithLibrary,
+    addCombatantToLibrary,
+
     // Combatants
     addCombatant,
     removeCombatant,
@@ -700,10 +849,6 @@ export function useCombatState(): CombatStateManager {
     // Turn Management
     nextTurn,
     prevTurn,
-
-    // Api
-    searchMonsters,
-    fillFormWithMonsterData,
 
     // Utility
     getUniqueGroups,

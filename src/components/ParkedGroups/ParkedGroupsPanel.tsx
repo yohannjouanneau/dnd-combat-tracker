@@ -30,7 +30,7 @@ export default function ParkedGroupsPanel({
         <div className="flex flex-wrap gap-2">
           {parkedGroups.map((group) => (
             <ParkedGroupChip
-              key={group.groupName}
+              key={group.name}
               group={group}
               onInclude={onInclude}
               onFight={onFight}

@@ -1,7 +1,7 @@
 {
   "combatant": {
     "title": "Combatant",
-    "groupName": "Name",
+    "name": "Name",
     "groupNamePlaceholder": "Name",
     "currentHp": "Current HP",
     "currentHpPlaceholder": "Current HP",
@@ -29,11 +29,12 @@
     "colorPicker": "Color",
     "stagedFrom": "Staged from",
     "actions": {
-      "fight": "Fight !",
+      "fight": "Fight",
       "park": "Park group",
-      "parkAndFight": "Park group and Fight",
+      "parkAndFight": "Park group + Fight",
       "savePlayer": "Save player",
-      "savePlayerAndFight": "Save player and Fight",
+      "savePlayerAndFight": "Save player + Fight",
+      "addToLibrary": "Add to library",
       "addInitGroup": "Add init group"
     },
     "searchMonster": "Search API for this creature",
@@ -72,5 +73,56 @@
     "newDescriptionPlaceholder": "Short note",
     "noCombats": "No combats yet.",
     "noCombatsHint": "Create your first combat encounter above!"
+  },
+  "library": {
+    "title": "Monster Library",
+    "emptyListTitle": "No monsters in your library yet.",
+    "emptyListMessage": "Save monsters from the combat form to build your collection!",
+    "new": "New",
+    "newHint": "Add a monster",
+    "edit": {
+      "title": {
+        "create": "Create New Monster",
+        "edit": "Edit Monster: {{name}}"
+      },
+      "sections": {
+        "abilityScores": "Ability Scores"
+      },
+      "fields": {
+        "name": "Name *",
+        "imageUrl": "Image URL",
+        "externalResourceUrl": "External resource url (optional)",
+        "hp": "Hit Points (HP)",
+        "ac": "Armor Class (AC)",
+        "str": "Strength (STR)",
+        "dex": "Dexterity (DEX)",
+        "con": "Constitution (CON)",
+        "int": "Intelligence (INT)",
+        "wis": "Wisdom (WIS)",
+        "cha": "Charisma (CHA)"
+      },
+      "placeholders": {
+        "name": "Monster Name",
+        "imageUrl": "https://example.com/image.png",
+        "externalResourceUrl": "https://mydndfavoritewebsite.co"
+      },
+      "validation": {
+        "nameRequired": "Monster name is required"
+      }
+    },
+    "listItem": {
+      "stats": {
+        "hp": "HP",
+        "ac": "AC"
+      },
+      "abilities": {
+        "str": "STR",
+        "dex": "DEX",
+        "con": "CON",
+        "int": "INT",
+        "wis": "WIS",
+        "cha": "CHA"
+      }
+    }
   }
 }

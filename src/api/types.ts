@@ -61,7 +61,7 @@ export interface Senses {
   truesight?: string;
 }
 
-export interface Monster {
+export interface ApiMonster {
   index: string;
   name: string;
   image: string;

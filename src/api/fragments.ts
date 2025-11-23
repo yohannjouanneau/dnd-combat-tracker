@@ -2,7 +2,12 @@ export const MonsterFragments = {
   MonsterBasic: `
       fragment MonsterBasic on Monster {
         name
+        strength
         dexterity
+        constitution
+        intelligence
+        wisdom
+        charisma
         hit_points
         image
         armor_class {

@@ -1,13 +1,13 @@
 import { type RefObject } from "react";
 import { useTranslation } from "react-i18next";
-import type { NewCombatant, InitiativeGroup } from "../../types";
+import type { InitiativeGroup, NewCombatant, SearchResult } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import LabeledNumberInput from "../common/LabeledNumberInput";
 import ColorPicker from "../common/ColorPicker";
 import InitiativeGroupInput from "./InitiativeGroupInput";
-import { ChevronDown, Save, Sword, CircleParking, Dice3 } from "lucide-react";
-import GroupNameWithSearch from "./GroupNameWithSearch";
-import type { Monster } from "../../api/types";
+import { ChevronDown, Save, Sword, CircleParking, Dice3, BookOpen } from "lucide-react";
+import CombatantNameWithSearch from "./CombatantNameWithSearch";
+import { safeParseInt } from "../../utils";
 
 type Props = {
   formRef: RefObject<HTMLDivElement | null>;
@@ -27,8 +27,9 @@ type Props = {
     id: string,
     patch: Partial<InitiativeGroup>
   ) => void;
-  onSearchMonsters: (searchName: string) => Promise<Monster[]>;
-  onSelectMonster: (monster: Monster) => void;
+  onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
+  onSelectSearchResult: (searchResult: SearchResult) => void;
+  onAddToLibrary: () => void
 };
 
 export default function AddCombatantForm({
@@ -47,7 +48,8 @@ export default function AddCombatantForm({
   onRemoveInitiativeGroup,
   onUpdateInitiativeGroup,
   onSearchMonsters,
-  onSelectMonster,
+  onSelectSearchResult,
+  onAddToLibrary
 }: Props) {
   const { t } = useTranslation("forms");
 
@@ -99,14 +101,14 @@ export default function AddCombatantForm({
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <GroupNameWithSearch
-              id="combatGroupName"
-              label={t("forms:combatant.groupName")}
-              value={value.groupName}
+            <CombatantNameWithSearch
+              id="combatantName"
+              label={t("forms:combatant.name")}
+              value={value.name}
               placeholder={t("forms:combatant.groupNamePlaceholder")}
-              onChange={(v) => onChange({ groupName: v })}
+              onChange={(v) => onChange({ name: v })}
               onSearch={onSearchMonsters}
-              onSelectMonster={onSelectMonster}
+              onSelectResult={onSelectSearchResult}
             />
             <ColorPicker
               value={value.color}
@@ -134,21 +136,21 @@ export default function AddCombatantForm({
               label={t("forms:combatant.currentHp")}
               value={value.hp}
               placeholder={t("forms:combatant.currentHpPlaceholder")}
-              onChange={(v) => onChange({ hp: v })}
+              onChange={(v) => onChange({ hp: safeParseInt(v) })}
             />
             <LabeledNumberInput
               id="combatMaxHp"
               label={t("forms:combatant.maxHp")}
               value={value.maxHp}
               placeholder={t("forms:combatant.maxHpPlaceholder")}
-              onChange={(v) => onChange({ maxHp: v })}
+              onChange={(v) => onChange({ maxHp: safeParseInt(v) })}
             />
             <LabeledNumberInput
               id="combatAc"
               label={t("forms:combatant.ac")}
               value={value.ac}
               placeholder={t("forms:combatant.acPlaceholder")}
-              onChange={(v) => onChange({ ac: v })}
+              onChange={(v) => onChange({ ac: safeParseInt(v) })}
             />
 
             <LabeledNumberInput
@@ -216,6 +218,14 @@ export default function AddCombatantForm({
             >
               <Save className="w-5 h-5" />
               <span className="hidden md:inline">{savePlayerButtonText}</span>
+            </button>
+            <button
+              onClick={onAddToLibrary}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+              title={t("forms:combatant.actions.addToLibrary")}
+            >
+              <BookOpen className="w-5 h-5" />
+              <span className="hidden md:inline">{t("forms:combatant.actions.addToLibrary")}</span>
             </button>
             <button
               onClick={onAddInitiativeGroup}

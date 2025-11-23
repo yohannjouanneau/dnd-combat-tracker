@@ -15,7 +15,6 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
   return (
     <div>
       <div className="flex flex-wrap gap-2 items-center">
-        {/* Show active conditions */}
         {activeConditions.map((condition) => (
           <button
             key={condition}
@@ -27,7 +26,6 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
           </button>
         ))}
 
-        {/* Add Condition Button */}
         <button
           onClick={() => setShowAll(!showAll)}
           className="px-3 py-1 rounded text-sm bg-slate-700 hover:bg-slate-600 transition flex items-center gap-1"
@@ -39,7 +37,6 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
         </button>
       </div>
 
-      {/* All Conditions Dropdown */}
       {showAll && (
         <div className="mt-2 p-3 bg-slate-900 rounded border border-slate-700">
           <div className="text-sm font-semibold mb-2 text-slate-400">

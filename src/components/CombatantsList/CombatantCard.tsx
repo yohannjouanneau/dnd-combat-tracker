@@ -120,7 +120,6 @@ export default function CombatantCard({
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 md:gap-3 mb-1 flex-wrap">
-                {/* Editable Initiative */}
                 {isEditingInit ? (
                   <input
                     ref={inputRef}
@@ -157,7 +156,7 @@ export default function CombatantCard({
                     className="w-3 h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: combatant.color }}
                   />
-                  <span className="truncate">{combatant.groupName}</span>
+                  <span className="truncate">{combatant.name}</span>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <Shield className="w-3 h-3 md:w-4 md:h-4" />

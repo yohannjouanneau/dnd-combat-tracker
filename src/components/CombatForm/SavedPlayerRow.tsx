@@ -24,7 +24,7 @@ export default function SavedPlayerRow({
     const isConfirmed = await confirmDialog({
       title: t("common:confirmation.removePlayer.title"),
       message: t("common:confirmation.removePlayer.message", {
-        name: player.groupName,
+        name: player.name,
       }),
     });
     if (isConfirmed) {
@@ -49,7 +49,7 @@ export default function SavedPlayerRow({
         {/* Avatar */}
         <CombatantAvatar
           imageUrl={player.imageUrl}
-          name={player.groupName}
+          name={player.name}
           color={player.color}
           size="sm"
         />
@@ -57,7 +57,7 @@ export default function SavedPlayerRow({
         {/* Info Section - Grows to fill space */}
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-white truncate text-base">
-            {player.groupName}
+            {player.name}
           </h3>
           <div className="text-xs text-slate-400 mt-0.5">
             {getInitiativeSummary()}

@@ -22,11 +22,11 @@ export default function ParkedGroupChip({
     const isConfirmed = await confirmDialog({
       title: t("common:confirmation.removeParkedGroup.title"),
       message: t("common:confirmation.removeParkedGroup.message", {
-        name: group.groupName,
+        name: group.name,
       }),
     });
     if (isConfirmed) {
-      onRemove(group.groupName);
+      onRemove(group.name);
     }
   };
   
@@ -39,7 +39,7 @@ export default function ParkedGroupChip({
         className="w-3 h-3 rounded-full"
         style={{ backgroundColor: group.color }}
       />
-      <span className="font-semibold">{group.groupName}</span>
+      <span className="font-semibold">{group.name}</span>
       <button
         onClick={() => onInclude(group)}
         className="text-blue-400 hover:text-blue-300 text-sm"

@@ -1,11 +1,12 @@
 import type { NewCombatant } from "./types";
 
 export const DEFAULT_NEW_COMBATANT: NewCombatant = {
-  groupName: "",
+  type: 'monster',
+  name: "",
   initiativeGroups: [{ id: crypto.randomUUID(), initiative: "", count: "1" }],
-  hp: "",
-  maxHp: "",
-  ac: "",
+  hp: 0,
+  maxHp: 0,
+  ac: 0,
   color: "#3b82f6",
   imageUrl: "",
   initBonus: "",
@@ -52,7 +53,7 @@ export const DEFAULT_COLOR_PRESET = [
   { key: "pink", value: "#ec4899" },
   { key: "yellow", value: "#eab308" },
   { key: "cyan", value: "#06b6d4" },
-];
+] as const;
 
 export const HP_BAR_ID_PREFIX = "hpbar-input-";
 
