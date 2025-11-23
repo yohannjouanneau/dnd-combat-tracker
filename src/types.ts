@@ -81,8 +81,9 @@ export type NewCombatant = CombatantTemplate<'player'| 'monster'>
 export type MonsterCombatant = CombatantTemplate<'monster'>
 export type PlayerCombatant = CombatantTemplate<'player'>
 
+export type SearchSource = "api" | "library"
 export type SearchResult = {
-  source: "api" | "library";
+  source: SearchSource;
   monster: ApiMonster | SavedMonster;
 };
 

@@ -53,7 +53,7 @@ export const DEFAULT_COLOR_PRESET = [
   { key: "pink", value: "#ec4899" },
   { key: "yellow", value: "#eab308" },
   { key: "cyan", value: "#06b6d4" },
-];
+] as const;
 
 export const HP_BAR_ID_PREFIX = "hpbar-input-";
 

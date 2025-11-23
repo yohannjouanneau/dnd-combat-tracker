@@ -6,7 +6,7 @@ import LabeledNumberInput from "../common/LabeledNumberInput";
 import ColorPicker from "../common/ColorPicker";
 import InitiativeGroupInput from "./InitiativeGroupInput";
 import { ChevronDown, Save, Sword, CircleParking, Dice3, BookOpen } from "lucide-react";
-import GroupNameWithSearch from "./GroupNameWithSearch";
+import CombatantNameWithSearch from "./CombatantNameWithSearch";
 
 type Props = {
   formRef: RefObject<HTMLDivElement | null>;
@@ -100,8 +100,8 @@ export default function AddCombatantForm({
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <GroupNameWithSearch
-              id="combatGroupName"
+            <CombatantNameWithSearch
+              id="combatantName"
               label={t("forms:combatant.name")}
               value={value.name}
               placeholder={t("forms:combatant.groupNamePlaceholder")}
@@ -221,10 +221,10 @@ export default function AddCombatantForm({
             <button
               onClick={onAddToLibrary}
               className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-              title="Add to Library"
+              title={t("forms:combatant.actions.addToLibrary")}
             >
               <BookOpen className="w-5 h-5" />
-              <span className="hidden md:inline">Add to Library</span>
+              <span className="hidden md:inline">{t("forms:combatant.actions.addToLibrary")}</span>
             </button>
             <button
               onClick={onAddInitiativeGroup}

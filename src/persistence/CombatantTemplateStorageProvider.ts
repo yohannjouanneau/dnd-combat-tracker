@@ -55,6 +55,12 @@ export class CombatantTemplateStorageProvider<T extends CombatantTemplateType> {
       imageUrl: data.imageUrl,
       initBonus: data.initBonus,
       externalResourceUrl: data.externalResourceUrl,
+      str: data.str,
+      cha: data.cha,
+      con: data.con,
+      dex: data.dex,
+      int: data.int,
+      wis: data.wis
     };
 
     const items = this.readAll();

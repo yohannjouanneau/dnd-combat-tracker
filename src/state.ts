@@ -12,11 +12,13 @@ import type {
   SearchResult,
   NewCombatant,
   MonsterCombatant,
+  SearchSource,
 } from "./types";
 import { dataStore } from "./persistence/storage";
-import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "./constants";
+import { DEFAULT_NEW_COMBATANT } from "./constants";
 import type { ApiMonster } from "./api/types";
 import { createGraphQLClient } from "./api/DnD5eGraphQLClient";
+import { getStatModifier, getApiImageUrl } from "./utils";
 
 export type CombatStateManager = {
   // State
@@ -75,7 +77,10 @@ export type CombatStateManager = {
   removeMonster: (id: string) => Promise<void>;
   updateMonster: (id: string, monster: SavedMonster) => Promise<void>;
   loadMonsterToForm: (searchTerm: SearchResult) => void;
-  searchWithLibrary: (query: string) => Promise<SearchResult[]>;
+  searchWithLibrary: (
+    query: string,
+    source?: SearchSource
+  ) => Promise<SearchResult[]>;
   addCombatantToLibrary: () => Promise<void>;
 
   // Utility
@@ -305,15 +310,12 @@ export function useCombatState(): CombatStateManager {
   }, []);
 
   // New Combatant Form Management
-  const updateNewCombatant = useCallback(
-    (patch: Partial<NewCombatant>) => {
-      setState((prev) => ({
-        ...prev,
-        newCombatant: { ...prev.newCombatant, ...patch },
-      }));
-    },
-    []
-  );
+  const updateNewCombatant = useCallback((patch: Partial<NewCombatant>) => {
+    setState((prev) => ({
+      ...prev,
+      newCombatant: { ...prev.newCombatant, ...patch },
+    }));
+  }, []);
 
   // Initiative Groups Management
   const addInitiativeGroup = useCallback(() => {
@@ -371,9 +373,7 @@ export function useCombatState(): CombatStateManager {
       if (nc.initiativeGroups.some((g) => !g.initiative || !g.count)) return;
 
       // Check if player with same name already exists
-      const existingPlayer = savedPlayers.find(
-        (p) => p.name === nc.name
-      );
+      const existingPlayer = savedPlayers.find((p) => p.name === nc.name);
 
       if (existingPlayer) {
         // Update existing player
@@ -387,7 +387,7 @@ export function useCombatState(): CombatStateManager {
       } else {
         // Create new player
         await dataStore.createPlayer({
-          type: 'player',
+          type: "player",
           name: nc.name,
           initiativeGroups: nc.initiativeGroups,
           hp: nc.hp,
@@ -429,7 +429,7 @@ export function useCombatState(): CombatStateManager {
     setState((prev) => ({
       ...prev,
       newCombatant: {
-        type: 'player',
+        type: "player",
         name: player.name,
         initiativeGroups: player.initiativeGroups,
         hp: player.hp,
@@ -470,16 +470,16 @@ export function useCombatState(): CombatStateManager {
         hp: monster.hit_points ?? 0,
         maxHp: monster.hit_points ?? 0,
         initBonus: monster.dexterity
-          ? Math.floor((monster.dexterity - 10) / 2).toString()
+          ? getStatModifier(monster.dexterity).toString()
           : "",
         ac: monster.armor_class?.at(0)?.value ?? 0,
-        imageUrl: `${DND_API_HOST}${monster.image}`,
+        imageUrl: getApiImageUrl(monster),
       },
     }));
   };
 
   const fillFormWithMonsterLibraryData = (monster: SavedMonster) => {
-    const dexMod = monster.dex ?  Math.floor((monster.dex - 10) / 2) : '';
+    const dexMod = monster.dex ? getStatModifier(monster.dex) : "";
     setState((prev) => ({
       ...prev,
       newCombatant: {
@@ -489,6 +489,7 @@ export function useCombatState(): CombatStateManager {
         maxHp: monster.hp,
         ac: monster.ac,
         imageUrl: monster.imageUrl,
+        externalResourceUrl: monster.externalResourceUrl,
         initBonus: String(dexMod),
         str: monster.str,
         dex: monster.dex,
@@ -509,33 +510,37 @@ export function useCombatState(): CombatStateManager {
   }, []);
 
   const searchWithLibrary = useCallback(
-    async (query: string) => {
+    async (query: string, source?: SearchSource) => {
       const results: SearchResult[] = [];
 
-      // Search API
-      try {
-        const apiMonsters = await apiClient.searchMonsters(query);
-        results.push(
-          ...apiMonsters.map((m) => ({
-            source: "api" as const,
-            monster: m,
-          }))
-        );
-      } catch (error) {
-        console.error("API search failed:", error);
+      if (source === "api" || !source) {
+        // Search API
+        try {
+          const apiMonsters = await apiClient.searchMonsters(query);
+          results.push(
+            ...apiMonsters.map((m) => ({
+              source: "api" as const,
+              monster: m,
+            }))
+          );
+        } catch (error) {
+          console.error("API search failed:", error);
+        }
       }
 
-      // Search local library
-      try {
-        const libraryMonsters = await dataStore.searchMonster(query);
-        results.push(
-          ...libraryMonsters.map((m) => ({
-            source: "library" as const,
-            monster: m,
-          }))
-        );
-      } catch (error) {
-        console.error("Library search failed:", error);
+      if (source === "library" || !source) {
+        // Search local library
+        try {
+          const libraryMonsters = await dataStore.searchMonster(query);
+          results.push(
+            ...libraryMonsters.map((m) => ({
+              source: "library" as const,
+              monster: m,
+            }))
+          );
+        } catch (error) {
+          console.error("Library search failed:", error);
+        }
       }
 
       return results;
@@ -544,11 +549,13 @@ export function useCombatState(): CombatStateManager {
   );
 
   const addCombatantToLibrary = useCallback(async () => {
-    await createMonster({
-      ...state.newCombatant,
-      type: 'monster'
-    });
-    await dataStore.listMonster();
+    if (state.newCombatant.name) {
+      await createMonster({
+        ...state.newCombatant,
+        type: "monster",
+      });
+      await dataStore.listMonster();
+    }
   }, [state.newCombatant, createMonster]);
 
   // Combatant Management

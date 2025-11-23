@@ -2,13 +2,18 @@
 import { X, Save } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { SavedMonster } from "../../types";
+import type { SavedMonster, SearchResult } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
+import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
+import type { ApiMonster } from "../../api/types";
+import { getStatModifier, getApiImageUrl } from "../../utils";
+import { DEFAULT_COLOR_PRESET } from "../../constants";
 
 type Props = {
   monster: SavedMonster;
-  isCreating: boolean
+  isCreating: boolean;
   onSave: (updated: SavedMonster) => void;
+  onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
   onCancel: () => void;
 };
 
@@ -17,6 +22,7 @@ export default function MonsterEditModal({
   isCreating,
   onSave,
   onCancel,
+  onSearchMonsters,
 }: Props) {
   const { t } = useTranslation(["common", "forms"]);
   const [formData, setFormData] = useState(monster);
@@ -28,6 +34,37 @@ export default function MonsterEditModal({
       return;
     }
     onSave(formData);
+  };
+
+  const handleSearchResult = (searchResult: SearchResult) => {
+    if (searchResult.source === "api") {
+      const apiMonster = searchResult.monster as ApiMonster;
+      const libraryMonster: SavedMonster = {
+        id: "",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        type: "monster",
+        name: apiMonster.name,
+        hp: apiMonster.hit_points ?? 0,
+        maxHp: apiMonster.hit_points ?? 0,
+        ac: apiMonster.armor_class?.at(0)?.value ?? 0,
+        initBonus: apiMonster.dexterity
+          ? getStatModifier(apiMonster.dexterity).toString()
+          : "",
+        externalResourceUrl: "",
+        imageUrl: getApiImageUrl(apiMonster),
+        color: DEFAULT_COLOR_PRESET[0].value,
+        initiativeGroups: [],
+        str: apiMonster.strength,
+        dex: apiMonster.dexterity,
+        con: apiMonster.constitution,
+        int: apiMonster.intelligence,
+        wis: apiMonster.wisdom,
+        cha: apiMonster.charisma,
+
+      };
+      setFormData(libraryMonster);
+    }
   };
 
   const title = isCreating
@@ -60,12 +97,28 @@ export default function MonsterEditModal({
           <div className="p-4 md:p-6 space-y-4">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <LabeledTextInput
-                id="edit-name"
-                label={t("forms:library.edit.fields.name")}
+              <CombatantNameWithSearch
+                id="combatantName"
+                label={t("forms:combatant.name")}
                 value={formData.name}
-                onChange={(v) => setFormData({ ...formData, name: v })}
                 placeholder={t("forms:library.edit.placeholders.name")}
+                onChange={(v) => setFormData({ ...formData, name: v })}
+                onSearch={onSearchMonsters}
+                onSelectResult={handleSearchResult}
+              />
+              <LabeledTextInput
+                id="edit-hp"
+                label={t("forms:library.edit.fields.hp")}
+                value={formData.hp.toString()}
+                onChange={(v) => setFormData({ ...formData, hp: parseInt(v) })}
+                placeholder="50"
+              />
+              <LabeledTextInput
+                id="edit-ac"
+                label={t("forms:library.edit.fields.ac")}
+                value={formData.ac?.toString() ?? ""}
+                onChange={(v) => setFormData({ ...formData, ac: parseInt(v) })}
+                placeholder="15"
               />
               <LabeledTextInput
                 id="edit-imageUrl"
@@ -74,23 +127,12 @@ export default function MonsterEditModal({
                 onChange={(v) => setFormData({ ...formData, imageUrl: v })}
                 placeholder={t("forms:library.edit.placeholders.imageUrl")}
               />
-            </div>
-
-            {/* HP & AC */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <LabeledTextInput
-                id="edit-hp"
-                label={t("forms:library.edit.fields.hp")}
-                value={formData.hp.toString()}
-                onChange={(v) => setFormData({ ...formData, hp: parseInt(v)})}
-                placeholder="50"
-              />
-              <LabeledTextInput
-                id="edit-ac"
-                label={t("forms:library.edit.fields.ac")}
-                value={formData.ac?.toString() ?? ''}
-                onChange={(v) => setFormData({ ...formData, ac: parseInt(v) })}
-                placeholder="15"
+                id="edit-resouceUrl"
+                label={t("forms:library.edit.fields.externalResourceUrl")}
+                value={formData.externalResourceUrl}
+                onChange={(v) => setFormData({ ...formData, externalResourceUrl: v })}
+                placeholder={t("forms:library.edit.placeholders.externalResourceUrl")}
               />
             </div>
 
@@ -104,42 +146,42 @@ export default function MonsterEditModal({
               <LabeledTextInput
                 id="edit-str"
                 label={t("forms:library.edit.fields.str")}
-                value={formData.str?.toString() ?? ''}
+                value={formData.str?.toString() ?? ""}
                 onChange={(v) => setFormData({ ...formData, str: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-dex"
                 label={t("forms:library.edit.fields.dex")}
-                value={formData.dex?.toString() ?? ''}
+                value={formData.dex?.toString() ?? ""}
                 onChange={(v) => setFormData({ ...formData, dex: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-con"
                 label={t("forms:library.edit.fields.con")}
-                value={formData.con?.toString() ?? ''}
+                value={formData.con?.toString() ?? ""}
                 onChange={(v) => setFormData({ ...formData, con: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-int"
                 label={t("forms:library.edit.fields.int")}
-                value={formData.int?.toString() ?? ''}
+                value={formData.int?.toString() ?? ""}
                 onChange={(v) => setFormData({ ...formData, int: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-wis"
                 label={t("forms:library.edit.fields.wis")}
-                value={formData.wis?.toString() ?? ''}
+                value={formData.wis?.toString() ?? ""}
                 onChange={(v) => setFormData({ ...formData, wis: parseInt(v) })}
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-cha"
                 label={t("forms:library.edit.fields.cha")}
-                value={formData.cha?.toString() ?? ''}
+                value={formData.cha?.toString() ?? ""}
                 onChange={(v) => setFormData({ ...formData, cha: parseInt(v) })}
                 placeholder="10"
               />

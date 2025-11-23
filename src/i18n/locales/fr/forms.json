@@ -30,10 +30,11 @@
     "stagedFrom": "Chargé depuis",
     "actions": {
       "fight": "Combat !",
-      "park": "Mettre en attente",
-      "parkAndFight": "Mettre en attente et Combat",
-      "savePlayer": "Sauvegarder le joueur",
-      "savePlayerAndFight": "Sauvegarder le joueur et Combat",
+      "park": "Mettre de coté",
+      "parkAndFight": "Mettre de coté + Combat",
+      "savePlayer": "Enreg. joueur",
+      "savePlayerAndFight": "Enreg. joueur + Combat",
+      "addToLibrary": "Dans la bibliothèque",
       "addInitGroup": "Ajouter un groupe d'init"
     },
     "searchMonster": "Rechercher cette créature dans l'API",
@@ -90,6 +91,7 @@
       "fields": {
         "name": "Nom *",
         "imageUrl": "URL de l'image",
+        "externalResourceUrl": "URL de resource externe (optionnel)",
         "hp": "Points de vie (PV)",
         "ac": "Classe d'armure (CA)",
         "str": "Force (FOR)",
@@ -101,7 +103,8 @@
       },
       "placeholders": {
         "name": "Nom du monstre",
-        "imageUrl": "https://exemple.com/image.png"
+        "imageUrl": "https://exemple.com/image.png",
+        "externalResourceUrl": "https://monsitedndfavoris.co"
       },
       "validation": {
         "nameRequired": "Le nom du monstre est obligatoire"

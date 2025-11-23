@@ -140,6 +140,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
         onCreate={combatStateManager.createMonster}
         onDelete={combatStateManager.removeMonster}
         onUpdate={combatStateManager.updateMonster}
+        onSearchMonsters={combatStateManager.searchWithLibrary}
       />
     </div>
   );

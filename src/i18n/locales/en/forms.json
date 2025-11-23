@@ -29,11 +29,12 @@
     "colorPicker": "Color",
     "stagedFrom": "Staged from",
     "actions": {
-      "fight": "Fight !",
+      "fight": "Fight",
       "park": "Park group",
-      "parkAndFight": "Park group and Fight",
+      "parkAndFight": "Park group + Fight",
       "savePlayer": "Save player",
-      "savePlayerAndFight": "Save player and Fight",
+      "savePlayerAndFight": "Save player + Fight",
+      "addToLibrary": "Add to library",
       "addInitGroup": "Add init group"
     },
     "searchMonster": "Search API for this creature",
@@ -90,6 +91,7 @@
       "fields": {
         "name": "Name *",
         "imageUrl": "Image URL",
+        "externalResourceUrl": "External resource url (optional)",
         "hp": "Hit Points (HP)",
         "ac": "Armor Class (AC)",
         "str": "Strength (STR)",
@@ -101,7 +103,8 @@
       },
       "placeholders": {
         "name": "Monster Name",
-        "imageUrl": "https://example.com/image.png"
+        "imageUrl": "https://example.com/image.png",
+        "externalResourceUrl": "https://mydndfavoritewebsite.co"
       },
       "validation": {
         "nameRequired": "Monster name is required"

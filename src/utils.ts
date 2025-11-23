@@ -1,3 +1,6 @@
+import type { ApiMonster } from "./api/types";
+import { DND_API_HOST } from "./constants";
+
 export function generateId(): string {
   // Generate a random id: 16 characters, URL-safe
   return [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
@@ -21,4 +24,12 @@ export function safeStringify<T>(data: T[]): string {
   } catch {
     return "[]";
   }
+}
+
+export function getStatModifier(stat: number) {
+  return Math.floor((stat - 10) / 2)
+}
+
+export function getApiImageUrl(monster: ApiMonster) {
+  return `${DND_API_HOST}${monster.image}`
 }

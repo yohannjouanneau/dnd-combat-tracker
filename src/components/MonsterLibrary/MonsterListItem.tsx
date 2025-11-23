@@ -2,6 +2,7 @@ import { Sword, Trash2, Edit } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
+import { getStatModifier } from "../../utils";
 
 type Props = {
   monster: SavedMonster;
@@ -22,7 +23,7 @@ export default function MonsterListItem({
 
   const getAbilityModifier = (score: number) => {
     const num = score || 10;
-    const mod = Math.floor((num - 10) / 2);
+    const mod = getStatModifier(num);
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
 
@@ -33,7 +34,7 @@ export default function MonsterListItem({
         <CombatantAvatar
           imageUrl={monster.imageUrl}
           name={monster.name}
-          color="#a855f7"
+          color={monster.color}
           size="sm"
         />
 

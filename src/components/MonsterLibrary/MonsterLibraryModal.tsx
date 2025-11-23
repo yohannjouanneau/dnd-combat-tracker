@@ -1,7 +1,7 @@
 import { X, BookOpen, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import type { SavedMonster } from "../../types";
+import type { MonsterCombatant, SavedMonster, SearchResult } from "../../types";
 import MonsterListItem from "./MonsterListItem";
 import MonsterEditModal from "./MonsterEditModal";
 
@@ -13,9 +13,11 @@ type Props = {
   onLoadToForm?: (monster: SavedMonster) => void;
   onUpdate: (id: string, updated: SavedMonster) => void;
   onCreate: (
-    monster: Omit<SavedMonster, "id" | "createdAt" | "updatedAt">
+    monster: MonsterCombatant
   ) => void;
   onDelete: (id: string) => void;
+  onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
+  
 };
 
 export default function MonsterLibraryModal({
@@ -27,6 +29,7 @@ export default function MonsterLibraryModal({
   onUpdate,
   onCreate,
   onDelete,
+  onSearchMonsters,
 }: Props) {
   const { t } = useTranslation(["common", "forms"]);
 
@@ -79,6 +82,7 @@ export default function MonsterLibraryModal({
         onSave={onSave}
         onCancel={onCancel}
         isCreating={isCreating}
+        onSearchMonsters={onSearchMonsters}
       />
     ) : undefined;
 

@@ -321,6 +321,9 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onCreate={combatStateManager.createMonster}
           onDelete={combatStateManager.removeMonster}
           onUpdate={combatStateManager.updateMonster}
+          onSearchMonsters={(query: string) => {
+            return combatStateManager.searchWithLibrary(query, 'api')
+          }}
         />
       </div>
     </div>

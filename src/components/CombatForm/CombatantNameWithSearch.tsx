@@ -13,7 +13,7 @@ type Props = {
   onSelectResult: (result: SearchResult) => void;
 };
 
-export default function GroupNameWithSearch({
+export default function CombatantNameWithSearch({
   id,
   label,
   value,
