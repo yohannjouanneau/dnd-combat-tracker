@@ -46,6 +46,10 @@
       "title": "Supprimer le combat",
       "message": "Êtes-vous sûr de vouloir supprimer « {{name}} » ? Cette action est irréversible."
     },
+    "deleteFromLibrary": {
+      "title": "Supprimer le monstre",
+      "message": "Êtes-vous sûr de vouloir supprimer « {{name}} » ? Cette action est irréversible."
+    },
     "confirm": "Confirmer",
     "cancel": "Annuler"
   }

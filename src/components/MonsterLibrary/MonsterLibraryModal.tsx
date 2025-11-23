@@ -90,12 +90,12 @@ export default function MonsterLibraryModal({
     <>
       {/* Backdrop */}
       <div
-        className="!mt-0 fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        className="!mt-0 fixed inset-0 bg-black/50 backdrop-blur-sm z-20"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-20 flex items-center justify-center p-4">
         <div className="bg-slate-800 rounded-lg border border-slate-700 max-w-4xl w-full max-h-[90vh] shadow-xl flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-700">

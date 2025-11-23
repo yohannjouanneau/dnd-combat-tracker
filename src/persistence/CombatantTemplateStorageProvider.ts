@@ -43,24 +43,9 @@ export class CombatantTemplateStorageProvider<T extends CombatantTemplateType> {
 
     const item: SavedCombatantTemplate<T> = {
       id: generatedId,
-      type: data.type,
-      name: data.name,
-      initiativeGroups: data.initiativeGroups,
-      hp: data.hp,
-      maxHp: data.maxHp,
-      ac: data.ac,
-      color: data.color,
       createdAt: now,
       updatedAt: now,
-      imageUrl: data.imageUrl,
-      initBonus: data.initBonus,
-      externalResourceUrl: data.externalResourceUrl,
-      str: data.str,
-      cha: data.cha,
-      con: data.con,
-      dex: data.dex,
-      int: data.int,
-      wis: data.wis
+      ...data
     };
 
     const items = this.readAll();

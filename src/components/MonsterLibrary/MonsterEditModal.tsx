@@ -1,4 +1,3 @@
-// src/components/MonsterLibrary/MonsterEditModal.tsx
 import { X, Save } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -75,12 +74,12 @@ export default function MonsterEditModal({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[30]"
         onClick={onCancel}
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[30] flex items-center justify-center p-4">
         <div className="bg-slate-800 rounded-lg border border-slate-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-700 sticky top-0 bg-slate-800 z-10">

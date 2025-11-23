@@ -6,7 +6,12 @@ import AddCombatantForm from "../components/CombatForm/AddCombatantForm";
 import GroupsOverview from "../components/GroupsOverview/GroupsOverview";
 import TurnControls from "../components/TurnControls/TurnControls";
 import CombatantsList from "../components/CombatantsList/CombatantsList";
-import type { GroupSummary, SavedPlayer, NewCombatant, PlayerCombatant } from "../types";
+import type {
+  GroupSummary,
+  SavedPlayer,
+  NewCombatant,
+  PlayerCombatant,
+} from "../types";
 import type { CombatStateManager } from "../state";
 import SavedPlayersPanel from "../components/CombatForm/SavedPlayerPanel";
 import logo from "../assets/logo.png";
@@ -118,7 +123,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
   const includePlayerToFight = (player: SavedPlayer) => {
     const playerCombattant: PlayerCombatant = {
-      type: 'player',
+      type: "player",
       name: player.name,
       initiativeGroups: player.initiativeGroups,
       hp: player.hp,
@@ -139,12 +144,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   };
 
   const stagedFromParkedGroups = combatStateManager.state.parkedGroups.find(
-    (group) =>
-      group.name === combatStateManager.state.newCombatant.name
+    (group) => group.name === combatStateManager.state.newCombatant.name
   )?.name;
   const stagedPlayer = combatStateManager.savedPlayers.find(
-    (group) =>
-      group.name === combatStateManager.state.newCombatant.name
+    (group) => group.name === combatStateManager.state.newCombatant.name
   )?.name;
   const stagedFrom = stagedFromParkedGroups ?? stagedPlayer;
   const back = () => {
@@ -180,7 +183,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
                 className="w-24 h-24 object-contain"
               />
             </div>
-            {/* Modified SaveBar section */}
             <div className="flex-1">
               <SaveBar
                 name={combatStateManager.state.combatName ?? ""}
@@ -204,7 +206,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
                 hasChanges={combatStateManager.hasChanges}
               />
             </div>
-            
+
             {/* Library Button */}
             <button
               onClick={() => setShowLibrary(true)}
@@ -311,18 +313,24 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           canLoadToForm={true}
           onClose={() => setShowLibrary(false)}
           onLoadToForm={(monster) => {
-            combatStateManager.loadMonsterToForm({source: 'library', monster: monster});
+            combatStateManager.loadMonsterToForm({
+              source: "library",
+              monster: monster,
+            });
             setShowLibrary(false);
             if (formRef.current) {
               setFormCollapsed(false);
-              formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+              formRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
             }
           }}
           onCreate={combatStateManager.createMonster}
           onDelete={combatStateManager.removeMonster}
           onUpdate={combatStateManager.updateMonster}
           onSearchMonsters={(query: string) => {
-            return combatStateManager.searchWithLibrary(query, 'api')
+            return combatStateManager.searchWithLibrary(query, "api");
           }}
         />
       </div>

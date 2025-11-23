@@ -58,7 +58,6 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
           {hp} / {maxHp} {t('combat:combatant.hp')}
         </span>
         
-        {/* Quick buttons toggle - visible on mobile/tablet */}
         <button
           onClick={() => setShowQuickButtons(!showQuickButtons)}
           className="md:hidden text-purple-400 hover:text-purple-300 transition flex items-center gap-1 text-sm px-2 py-1 rounded hover:bg-slate-700"

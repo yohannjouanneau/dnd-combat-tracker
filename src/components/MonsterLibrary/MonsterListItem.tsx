@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { SavedMonster } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { getStatModifier } from "../../utils";
+import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 
 type Props = {
   monster: SavedMonster;
@@ -19,7 +20,20 @@ export default function MonsterListItem({
   onEdit,
   onDelete,
 }: Props) {
-  const { t } = useTranslation("forms");
+  const { t } = useTranslation(["forms", "common"]);
+
+  const confirmDialog = useConfirmationDialog();
+  const confirmRemove = async () => {
+    const isConfirmed = await confirmDialog({
+      title: t("common:confirmation.deleteFromLibrary.title"),
+      message: t("common:confirmation.deleteFromLibrary.message", {
+        name: monster.name
+      }),
+    });
+    if (isConfirmed) {
+        onDelete(monster.id)
+    }
+  };
 
   const getAbilityModifier = (score: number) => {
     const num = score || 10;
@@ -116,7 +130,7 @@ export default function MonsterListItem({
 
           {/* Delete Button */}
           <button
-            onClick={() => onDelete(monster.id)}
+            onClick={() => confirmRemove()}
             className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
             title={t("library.listItem.actions.delete")}
           >
