@@ -1,7 +1,8 @@
 {
   "title": "Combat Tracker",
-  "round": "Round {{number}}",
   "turn": {
+    "round": "Round {{number}}",
+    "notStarted":"No combat started",
     "current": "Current Turn",
     "next": "Next Turn",
     "previous": "Previous Turn",

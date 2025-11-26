@@ -267,24 +267,23 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           )}
         </div>
 
-        {combatants.length > 0 && (
-          <div
-            className={`flex gap-2 mb-6 ${
-              isFocusMode ? "sticky top-0 z-10 pt-6" : ""
-            }`}
-          >
-            <div className="flex-1">
-              <TurnControls
-                round={combatStateManager.state.round}
-                currentTurn={combatStateManager.state.currentTurn}
-                isFocusMode={isFocusMode}
-                onPrev={combatStateManager.prevTurn}
-                onNext={combatStateManager.nextTurn}
-                onToggleFocus={() => setIsFocusMode((prev) => !prev)}
-              />
-            </div>
+        <div
+          className={`flex gap-2 mb-6 ${
+            isFocusMode ? "sticky top-0 z-10 pt-6" : ""
+          }`}
+        >
+          <div className="flex-1">
+            <TurnControls
+              round={combatStateManager.state.round}
+              currentTurn={combatStateManager.state.currentTurn}
+              isFocusMode={isFocusMode}
+              combatantCount={combatants.length}
+              onPrev={combatStateManager.prevTurn}
+              onNext={combatStateManager.nextTurn}
+              onToggleFocus={() => setIsFocusMode((prev) => !prev)}
+            />
           </div>
-        )}
+        </div>
 
         <CombatantsList
           combatListRef={combatListRef}

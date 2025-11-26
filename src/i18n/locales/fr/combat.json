@@ -1,7 +1,8 @@
 {
   "title": "Gestionnaire de Combat",
-  "round": "Tour {{number}}",
   "turn": {
+    "round": "Tour {{number}}",
+    "notStarted":"Pas de combat en cours",
     "current": "Tour actuel",
     "next": "Tour suivant",
     "previous": "Tour précédent",
