@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedCombat, CombatState } from "../types";
 import LabeledTextInput from "../components/common/LabeledTextInput";
-import { DEFAULT_NEW_COMBATANT } from "../constants";
+import {
+  DEFAULT_NEW_COMBATANT,
+  GOOGLE_DRIVE_APP_CLIENT_ID,
+} from "../constants";
 import logo from "../assets/logo.png";
 import { BookOpen, Plus, Settings } from "lucide-react";
 import type { CombatStateManager } from "../state";
 import CombatList from "../components/CombatsList/CombatList";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
+import SettingsModal from "../components/Settings/SettingsModal";
 
 type Props = {
   onOpen: (id: string) => void;
@@ -21,6 +25,8 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(true);
   const [showLibrary, setShowLibrary] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [isGoogleConnected, setIsGoogleConnected] = useState(false);
 
   useEffect(() => {
     combatStateManager.listCombat().then((c) => {
@@ -61,9 +67,23 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
     }
   };
 
-  const handleRemoteSync = async () => {
-    combatStateManager.authorizeSync('64850603976-3ol3crrcvuo3om44jp7r4bmmf7mtlunt.apps.googleusercontent.com')
-  }
+  // Google Drive handlers (to be implemented)
+  const handleConnectGoogle = async () => {
+    const isAuthenticated = await combatStateManager.authorizeSync(
+      GOOGLE_DRIVE_APP_CLIENT_ID
+    );
+    setIsGoogleConnected(isAuthenticated);
+  };
+
+  const handleSyncWithDrive = async () => {
+    await combatStateManager.sync()
+  };
+
+  const handleLogout = () => {
+    console.log("Logout from Google Drive - To be implemented");
+    // TODO: Implement logout
+    setIsGoogleConnected(false);
+  };
 
   if (loading)
     return <div className="p-6 text-slate-300">{t("common:loading")}</div>;
@@ -71,16 +91,6 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
   return (
     <div className="mx-auto text-white">
       <div className="bg-slate-800 rounded-lg border border-slate-700">
-        {/* Settings Button - Top Right */}
-        <div className="flex justify-end p-2">
-          <button
-            onClick={handleRemoteSync}
-            className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded transition"
-            aria-label="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
-        </div>
         {/* Header Section with Logo and Inputs */}
         <div className="p-4 md:p-6">
           <div className="flex flex-col gap-4">
@@ -117,21 +127,29 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
                 />
               </div>
 
-              {/* Create Button */}
+              {/* Action Buttons */}
               <div className="flex gap-2 md:items-end">
                 <button
                   onClick={create}
-                  className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
+                  className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
                 >
                   <Plus className="w-5 h-5" />
                   <span>{t("common:actions.create")}</span>
                 </button>
                 <button
                   onClick={() => setShowLibrary(true)}
-                  className="w-full md:w-auto bg-amber-600 hover:bg-amber-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
+                  className="flex-1 md:flex-none bg-amber-600 hover:bg-amber-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
+                  title={t("common:actions.library")}
                 >
                   <BookOpen className="w-5 h-5" />
-                  <span>Library</span>
+                  <span className="hidden sm:inline">Library</span>
+                </button>
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className="bg-slate-700 hover:bg-slate-600 px-4 py-3 md:py-2 rounded transition font-semibold h-[42px] flex items-center justify-center"
+                  title={t("settings:title")}
+                >
+                  <Settings className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -155,6 +173,16 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
         onDelete={combatStateManager.removeMonster}
         onUpdate={combatStateManager.updateMonster}
         onSearchMonsters={combatStateManager.searchWithLibrary}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettings}
+        isConnected={isGoogleConnected}
+        onClose={() => setShowSettings(false)}
+        onConnectGoogle={handleConnectGoogle}
+        onSyncWithDrive={handleSyncWithDrive}
+        onLogout={handleLogout}
       />
     </div>
   );

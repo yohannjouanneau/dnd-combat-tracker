@@ -58,3 +58,5 @@ export const DEFAULT_COLOR_PRESET = [
 export const HP_BAR_ID_PREFIX = "hpbar-input-";
 
 export const DND_API_HOST = "https://www.dnd5eapi.co";
+
+export const GOOGLE_DRIVE_APP_CLIENT_ID = "64850603976-3ol3crrcvuo3om44jp7r4bmmf7mtlunt.apps.googleusercontent.com"

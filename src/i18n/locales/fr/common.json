@@ -52,11 +52,21 @@
     },
     "addToLibrary": {
       "success": "Ajouté a la bibliothèque"
-    }, 
+    },
     "saveCombat": {
       "success": "Combat sauvegardé"
     },
     "confirm": "Confirmer",
     "cancel": "Annuler"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "googleDrive": {
+      "title": "Synchronisation Google Drive",
+      "connect": "Connectez vous avec Google",
+      "sync": "Synchroniser avec Google Drive",
+      "logout": "Se déconnecter",
+      "connected": "Connecté à Google Drive"
+    }
   }
 }
