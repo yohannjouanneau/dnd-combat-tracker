@@ -26,6 +26,9 @@ export type CombatStateManager = {
   // State
   state: CombatState;
 
+  // Sync 
+  authorizeSync: (clientId: string) => void
+
   // Saved Combats
   loadCombat: (combatId: string) => Promise<void>;
   saveCombat: (patch: Partial<SavedCombat>) => Promise<void>;
@@ -111,6 +114,27 @@ export function useCombatState(): CombatStateManager {
 
   const { t } = useTranslation(["common"]);
   const toastApi = useToast();
+
+  const authorizeSync = (clientId: string) => {
+    console.log(`DEBUG ==> authorizeSync`);
+
+    if (!dataStore.isSyncAuthorized()) {
+      dataStore.initSync(clientId)
+    dataStore.authorizeSync().then(
+      () => {
+        toastApi.success('Connected to Google Drive')
+        dataStore.syncToCloud()
+      },
+      (error) => {
+        toastApi.error(`Error while connecting to Google Drive ${error}`)
+      }
+    )
+    } else {
+      dataStore.syncToCloud()
+    }
+    
+    
+  }
 
   const loadPlayers = useCallback(async () => {
     const players = await dataStore.listPlayer();
@@ -793,6 +817,9 @@ export function useCombatState(): CombatStateManager {
   return {
     // State
     state,
+
+    // Sync 
+    authorizeSync,
 
     // Saved combats
     loadCombat,

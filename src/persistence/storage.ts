@@ -1,3 +1,4 @@
+import { GoogleDriveSyncProvider } from "../api/sync/gdrive/GoogleDriveSyncProvider";
 import type {
   MonsterCombatant,
   PlayerCombatant,
@@ -13,17 +14,18 @@ const MONSTER_STORAGE_KEY = "dnd-ct:monsters:v1";
 
 export class DataStore {
   private combatProvider: CombatStorageProvider;
-  private playerProvider: CombatantTemplateStorageProvider<'player'>;
-  private monsterProvider: CombatantTemplateStorageProvider<'monster'>;
+  private playerProvider: CombatantTemplateStorageProvider<"player">;
+  private monsterProvider: CombatantTemplateStorageProvider<"monster">;
+  private syncProvider?: GoogleDriveSyncProvider;
 
   constructor(
     combatProvider: CombatStorageProvider = new CombatStorageProvider(
       COMBAT_STORAGE_KEY
     ),
-    playerProvider = new CombatantTemplateStorageProvider<'player'>(
+    playerProvider = new CombatantTemplateStorageProvider<"player">(
       PLAYER_STORAGE_KEY
     ),
-    monsterProvider = new CombatantTemplateStorageProvider<'monster'>(
+    monsterProvider = new CombatantTemplateStorageProvider<"monster">(
       MONSTER_STORAGE_KEY
     )
   ) {
@@ -32,6 +34,51 @@ export class DataStore {
     this.monsterProvider = monsterProvider;
   }
 
+  // Initialize Google Drive sync
+  initSync(clientId: string) {
+    if (!this.syncProvider) {
+      this.syncProvider = new GoogleDriveSyncProvider(clientId);
+    }
+  }
+
+  // Sync methods
+  async authorizeSync() {
+    if (!this.syncProvider) {
+      throw new Error("Sync not initialized. Call initSync() first.");
+    }
+    await this.syncProvider.authorize();
+  }
+
+  async syncToCloud() {
+    if (!this.syncProvider) {
+      throw new Error("Sync not initialized. Call initSync() first.");
+    }
+    await this.syncProvider.sync();
+  }
+
+  async uploadToCloud() {
+    if (!this.syncProvider) {
+      throw new Error("Sync not initialized. Call initSync() first.");
+    }
+    await this.syncProvider.upload();
+  }
+
+  async downloadFromCloud() {
+    if (!this.syncProvider) {
+      throw new Error("Sync not initialized. Call initSync() first.");
+    }
+    await this.syncProvider.download();
+  }
+
+  isSyncAuthorized(): boolean {
+    return this.syncProvider?.isAuthorized() ?? false;
+  }
+
+  getLastSyncTime(): number | null {
+    return this.syncProvider?.getLastSyncTime() ?? null;
+  }
+
+  // Combat methods
   listCombat() {
     return this.combatProvider.list();
   }
@@ -48,6 +95,7 @@ export class DataStore {
     return this.combatProvider.delete(id);
   }
 
+  // Player methods
   listPlayer() {
     return this.playerProvider.list();
   }
@@ -64,6 +112,7 @@ export class DataStore {
     return this.playerProvider.delete(id);
   }
 
+  // Monster methods
   listMonster() {
     return this.monsterProvider.list();
   }

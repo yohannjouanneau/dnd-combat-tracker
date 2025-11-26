@@ -4,7 +4,7 @@ import type { SavedCombat, CombatState } from "../types";
 import LabeledTextInput from "../components/common/LabeledTextInput";
 import { DEFAULT_NEW_COMBATANT } from "../constants";
 import logo from "../assets/logo.png";
-import { BookOpen, Plus } from "lucide-react";
+import { BookOpen, Plus, Settings } from "lucide-react";
 import type { CombatStateManager } from "../state";
 import CombatList from "../components/CombatsList/CombatList";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
@@ -61,12 +61,26 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
     }
   };
 
+  const handleRemoteSync = async () => {
+    combatStateManager.authorizeSync('64850603976-3ol3crrcvuo3om44jp7r4bmmf7mtlunt.apps.googleusercontent.com')
+  }
+
   if (loading)
     return <div className="p-6 text-slate-300">{t("common:loading")}</div>;
 
   return (
     <div className="mx-auto text-white">
       <div className="bg-slate-800 rounded-lg border border-slate-700">
+        {/* Settings Button - Top Right */}
+        <div className="flex justify-end p-2">
+          <button
+            onClick={handleRemoteSync}
+            className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded transition"
+            aria-label="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
         {/* Header Section with Logo and Inputs */}
         <div className="p-4 md:p-6">
           <div className="flex flex-col gap-4">
