@@ -66,7 +66,7 @@
       "connect": "Sign in with Google",
       "sync": "Sync with Google Drive",
       "logout": "Sign out",
-      "connected": "Connected to Google Drive"
+      "connected": "Ready to sync"
     }
   }
 }

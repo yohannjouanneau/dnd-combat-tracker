@@ -29,6 +29,8 @@ export type CombatStateManager = {
   // Sync
   authorizeSync: (clientId: string) => Promise<boolean>;
   sync: () => Promise<boolean>;
+  logout: () => Promise<boolean>;
+  
 
   // Saved Combats
   loadCombat: (combatId: string) => Promise<void>;
@@ -141,6 +143,19 @@ export function useCombatState(): CombatStateManager {
       return false;
     }
   };
+
+  const logout = async () => {
+    try {
+      await dataStore.logout();
+      toastApi.success(`Logout successful`)
+      return true;
+    } catch (error) {
+      toastApi.error(`Error while logging out ${error}`);
+      return false;
+    }
+  };
+
+
 
   const loadPlayers = useCallback(async () => {
     const players = await dataStore.listPlayer();
@@ -827,6 +842,7 @@ export function useCombatState(): CombatStateManager {
     // Sync
     authorizeSync,
     sync,
+    logout,
 
     // Saved combats
     loadCombat,

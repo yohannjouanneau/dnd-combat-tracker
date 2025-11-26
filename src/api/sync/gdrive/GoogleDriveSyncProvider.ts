@@ -23,6 +23,10 @@ export class GoogleDriveSyncProvider {
     await this.client.authorize();
   }
 
+  async revoke(): Promise<void> {
+    await this.client.revoke();
+  }
+
   /**
    * Check if authorized
    */

@@ -79,10 +79,9 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
     await combatStateManager.sync()
   };
 
-  const handleLogout = () => {
-    console.log("Logout from Google Drive - To be implemented");
-    // TODO: Implement logout
-    setIsGoogleConnected(false);
+  const handleLogout = async() => {
+    const isLoggedOut = await combatStateManager.logout()
+    setIsGoogleConnected(!isLoggedOut);
   };
 
   if (loading)

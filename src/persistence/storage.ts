@@ -49,6 +49,10 @@ export class DataStore {
     await this.syncProvider.authorize();
   }
 
+  async logout() {
+    await this.syncProvider?.revoke()
+  }
+
   async syncToCloud() {
     if (!this.syncProvider) {
       throw new Error("Sync not initialized. Call initSync() first.");

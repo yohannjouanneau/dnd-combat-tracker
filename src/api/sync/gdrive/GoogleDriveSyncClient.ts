@@ -85,6 +85,23 @@ export class GoogleDriveSyncClient {
     });
   }
 
+  async revoke(): Promise<void> {
+    
+    return new Promise((resolve, reject) => {
+      if (!window.google?.accounts?.oauth2) {
+        reject(new Error('Google Identity Services not loaded. Add <script src="https://accounts.google.com/gsi/client"></script> to your HTML'));
+        return;
+      }
+
+      if (this.accessToken) {
+        google.accounts.oauth2.revoke(this.accessToken, () => {
+          resolve()
+        })
+      }
+    });
+  }
+ 
+
   /**
    * Save JSON data to Google Drive appDataFolder
    */
