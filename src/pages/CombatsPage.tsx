@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedCombat, CombatState } from "../types";
 import LabeledTextInput from "../components/common/LabeledTextInput";
 import {
   DEFAULT_NEW_COMBATANT,
-  GOOGLE_DRIVE_APP_CLIENT_ID,
 } from "../constants";
 import logo from "../assets/logo.png";
 import { BookOpen, Plus, Settings } from "lucide-react";
@@ -26,8 +25,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
   const [loading, setLoading] = useState(true);
   const [showLibrary, setShowLibrary] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [isGoogleConnected, setIsGoogleConnected] = useState(false);
-
+  
   useEffect(() => {
     combatStateManager.listCombat().then((c) => {
       setCombats(c);
@@ -35,7 +33,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
     });
   }, [combatStateManager]);
 
-  const create = async () => {
+  const create = useCallback(async () => {
     if (!name.trim()) return;
     const emptyState: CombatState = {
       combatants: [],
@@ -54,35 +52,18 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
     setDescription("");
     setCombats(await combatStateManager.listCombat());
     onOpen(created.id);
-  };
+  },[combatStateManager, description, name, onOpen])
 
-  const del = async (id: string) => {
+  const del = useCallback(async (id: string) => {
     await combatStateManager.deleteCombat(id);
     setCombats(await combatStateManager.listCombat());
-  };
+  },[combatStateManager])
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       create();
     }
-  };
-
-  // Google Drive handlers (to be implemented)
-  const handleConnectGoogle = async () => {
-    const isAuthenticated = await combatStateManager.authorizeSync(
-      GOOGLE_DRIVE_APP_CLIENT_ID
-    );
-    setIsGoogleConnected(isAuthenticated);
-  };
-
-  const handleSyncWithDrive = async () => {
-    await combatStateManager.sync()
-  };
-
-  const handleLogout = async() => {
-    const isLoggedOut = await combatStateManager.logout()
-    setIsGoogleConnected(!isLoggedOut);
-  };
+  },[create])
 
   if (loading)
     return <div className="p-6 text-slate-300">{t("common:loading")}</div>;
@@ -177,11 +158,8 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
       {/* Settings Modal */}
       <SettingsModal
         isOpen={showSettings}
-        isConnected={isGoogleConnected}
+        syncApi={combatStateManager.syncApi}
         onClose={() => setShowSettings(false)}
-        onConnectGoogle={handleConnectGoogle}
-        onSyncWithDrive={handleSyncWithDrive}
-        onLogout={handleLogout}
       />
     </div>
   );

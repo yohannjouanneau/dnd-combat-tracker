@@ -113,3 +113,11 @@ export type SavedCombat = TimestampedEntity & {
 
 
 export type SavedCombatInput = Omit<SavedCombat, keyof TimestampedEntity>;
+
+
+export interface SyncApi {
+  authorizeSync: () => Promise<boolean>;
+  synchronise: () => Promise<boolean>;
+  getLastSyncTime: () => number | undefined
+  logout: () => Promise<boolean>;
+}

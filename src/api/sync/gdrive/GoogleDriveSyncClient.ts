@@ -14,6 +14,7 @@
  * await client.authorize();
  * await client.save({ your: 'data' });
  * const data = await client.load();
+ * await revoke() // on logout
  */
 
 export class GoogleDriveSyncClient {

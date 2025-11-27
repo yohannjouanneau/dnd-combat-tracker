@@ -13,6 +13,7 @@ import type {
   NewCombatant,
   MonsterCombatant,
   SearchSource,
+  SyncApi,
 } from "./types";
 import { dataStore } from "./persistence/storage";
 import { DEFAULT_NEW_COMBATANT } from "./constants";
@@ -27,10 +28,7 @@ export type CombatStateManager = {
   state: CombatState;
 
   // Sync
-  authorizeSync: (clientId: string) => Promise<boolean>;
-  sync: () => Promise<boolean>;
-  logout: () => Promise<boolean>;
-  
+  syncApi: SyncApi;
 
   // Saved Combats
   loadCombat: (combatId: string) => Promise<void>;
@@ -118,9 +116,8 @@ export function useCombatState(): CombatStateManager {
   const { t } = useTranslation(["common"]);
   const toastApi = useToast();
 
-  const authorizeSync = async (clientId: string) => {
+  const authorizeSync = async () => {
     if (!dataStore.isSyncAuthorized()) {
-      dataStore.initSync(clientId);
       try {
         await dataStore.authorizeSync();
         toastApi.success("Connected to Google Drive");
@@ -133,21 +130,21 @@ export function useCombatState(): CombatStateManager {
     return true;
   };
 
-  const sync = async () => {
+  const synchronise = async () => {
     try {
       await dataStore.syncToCloud();
-      toastApi.success(`Sync successful`)
+      toastApi.success(`Sync successful`);
       return true;
     } catch (error) {
       toastApi.error(`Error while sincing data ${error}`);
-      return false;
     }
+    return false
   };
 
   const logout = async () => {
     try {
       await dataStore.logout();
-      toastApi.success(`Logout successful`)
+      toastApi.success(`Logout successful`);
       return true;
     } catch (error) {
       toastApi.error(`Error while logging out ${error}`);
@@ -155,7 +152,9 @@ export function useCombatState(): CombatStateManager {
     }
   };
 
-
+  const getLastSyncTime = () => {
+    return dataStore.getLastSyncTime()
+  };
 
   const loadPlayers = useCallback(async () => {
     const players = await dataStore.listPlayer();
@@ -840,9 +839,12 @@ export function useCombatState(): CombatStateManager {
     state,
 
     // Sync
-    authorizeSync,
-    sync,
-    logout,
+    syncApi: {
+      authorizeSync,
+      synchronise,
+      getLastSyncTime,
+      logout,
+    },
 
     // Saved combats
     loadCombat,

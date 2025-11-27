@@ -1,14 +1,11 @@
 // src/persistence/GoogleDriveSyncProvider.ts
+import type { SyncProvider } from '../SyncProvider';
+import type { SyncData } from '../types';
 import { GoogleDriveSyncClient } from './GoogleDriveSyncClient';
 
-interface SyncData {
-  combats: string | null;
-  players: string | null;
-  monsters: string | null;
-  lastSynced: number;
-}
 
-export class GoogleDriveSyncProvider {
+
+export class GoogleDriveSyncProvider implements SyncProvider {
   private client: GoogleDriveSyncClient;
   private syncInProgress = false;
 
@@ -94,7 +91,6 @@ export class GoogleDriveSyncProvider {
   }
 
   /**
-   * Smart sync: merge local and remote data
    * Uses "last write wins" strategy based on timestamps
    */
   async sync(): Promise<void> {
@@ -133,8 +129,8 @@ export class GoogleDriveSyncProvider {
   /**
    * Get last sync timestamp
    */
-  getLastSyncTime(): number | null {
+  getLastSyncTime(): number | undefined {
     const time = localStorage.getItem('dnd-ct:lastSynced');
-    return time ? parseInt(time) : null;
+    return time ? parseInt(time) : undefined;
   }
 }

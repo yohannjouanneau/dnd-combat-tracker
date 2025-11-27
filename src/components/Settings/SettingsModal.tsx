@@ -1,28 +1,50 @@
 import { X, LogOut, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import gdriveSignIn from "../../assets/web_neutral_sq_na@2x.png";
+import gdriveSignIn from "../../assets/web_neutral_rd_SI@2x.png";
+import type { SyncApi } from "../../types";
+import { useCallback, useMemo, useState } from "react";
+import { getReadableTimestamp } from "../../utils";
 
 type Props = {
   isOpen: boolean;
-  isConnected: boolean;
+  syncApi: SyncApi;
   onClose: () => void;
-  onConnectGoogle: () => void;
-  onSyncWithDrive: () => void;
-  onLogout: () => void;
 };
 
 export default function SettingsModal({
   isOpen,
-  isConnected,
+  syncApi,
   onClose,
-  onConnectGoogle,
-  onSyncWithDrive,
-  onLogout,
 }: Props) {
   const { t } = useTranslation(["common"]);
+  const [isReadyToSync, setIsReadyToSync] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState(syncApi.getLastSyncTime());
+
+  const handleConnectGoogle = useCallback(async () => {
+    const isAuthenticated = await syncApi.authorizeSync();
+    setIsReadyToSync(isAuthenticated);
+  }, [syncApi])
+
+  const handleSyncWithDrive = useCallback( async () => {
+    setIsSyncing(true)
+    await syncApi.synchronise()
+    setLastSyncTime(syncApi.getLastSyncTime())
+    setIsSyncing(false)
+  },[syncApi])
+
+  const handleLogout = useCallback(async () => {
+    const isLoggedOut = await syncApi.logout()
+    setIsReadyToSync(!isLoggedOut);
+  },[syncApi])
+
+  const lastSyncText = useMemo(() => {
+    return lastSyncTime ? getReadableTimestamp(lastSyncTime): '-'
+  }, [lastSyncTime])  
 
   if (!isOpen) return null;
 
+  
   return (
     <>
       {/* Backdrop */}
@@ -55,11 +77,15 @@ export default function SettingsModal({
                 {t("common:settings.googleDrive.title")}
               </h3>
 
-              {!isConnected ? (
-                // Continue with Google Button - Per Google guidelines
+              <p className="text-lg font-light text-slate-300">
+                {t("common:settings.googleDrive.syncExlpaination")}
+              </p>
+
+              {!isReadyToSync ? (
+                // Sign in button
                 <button
-                  onClick={onConnectGoogle}
-                  className=""
+                  onClick={handleConnectGoogle}
+                  className="w-1/2"
                 >
                   <img
                     src={gdriveSignIn}
@@ -71,16 +97,17 @@ export default function SettingsModal({
                 <>
                   {/* Sync with Drive Button */}
                   <button
-                    onClick={onSyncWithDrive}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded font-medium transition flex items-center justify-center gap-3"
+                    onClick={handleSyncWithDrive}
+                    disabled={isSyncing}
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white px-4 py-3 rounded font-medium transition flex items-center justify-center gap-3"
                   >
-                    <RefreshCw className="w-5 h-5" />
-                    {t("common:settings.googleDrive.sync")}
+                    <RefreshCw className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />
+                    {isSyncing ? t("common:settings.googleDrive.syncing", "Synchronizing...") : t("common:settings.googleDrive.sync")}
                   </button>
 
                   {/* Logout Button */}
                   <button
-                    onClick={onLogout}
+                    onClick={handleLogout}
                     className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded font-medium transition flex items-center justify-center gap-3"
                   >
                     <LogOut className="w-5 h-5" />
@@ -91,11 +118,13 @@ export default function SettingsModal({
             </div>
 
             {/* Connected Status */}
-            {isConnected && (
+            {isReadyToSync && (
               <div className="pt-3 border-t border-slate-700">
                 <div className="flex items-center gap-2 text-sm text-green-400">
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  {t("common:settings.googleDrive.connected")}
+                  {t("common:settings.googleDrive.connected", {
+                    lastSync: lastSyncText
+                  })}
                 </div>
               </div>
             )}

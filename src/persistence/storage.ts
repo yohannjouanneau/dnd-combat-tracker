@@ -1,4 +1,6 @@
+import type { SyncProvider } from "../api/sync/SyncProvider";
 import { GoogleDriveSyncProvider } from "../api/sync/gdrive/GoogleDriveSyncProvider";
+import { GOOGLE_DRIVE_APP_CLIENT_ID } from "../constants";
 import type {
   MonsterCombatant,
   PlayerCombatant,
@@ -16,9 +18,10 @@ export class DataStore {
   private combatProvider: CombatStorageProvider;
   private playerProvider: CombatantTemplateStorageProvider<"player">;
   private monsterProvider: CombatantTemplateStorageProvider<"monster">;
-  private syncProvider?: GoogleDriveSyncProvider;
+  private syncProvider: SyncProvider;
 
   constructor(
+    clientId: string,
     combatProvider: CombatStorageProvider = new CombatStorageProvider(
       COMBAT_STORAGE_KEY
     ),
@@ -32,20 +35,12 @@ export class DataStore {
     this.combatProvider = combatProvider;
     this.playerProvider = playerProvider;
     this.monsterProvider = monsterProvider;
+    this.syncProvider = new GoogleDriveSyncProvider(clientId);
   }
 
-  // Initialize Google Drive sync
-  initSync(clientId: string) {
-    if (!this.syncProvider) {
-      this.syncProvider = new GoogleDriveSyncProvider(clientId);
-    }
-  }
-
+  
   // Sync methods
   async authorizeSync() {
-    if (!this.syncProvider) {
-      throw new Error("Sync not initialized. Call initSync() first.");
-    }
     await this.syncProvider.authorize();
   }
 
@@ -78,8 +73,8 @@ export class DataStore {
     return this.syncProvider?.isAuthorized() ?? false;
   }
 
-  getLastSyncTime(): number | null {
-    return this.syncProvider?.getLastSyncTime() ?? null;
+  getLastSyncTime(): number | undefined {
+    return this.syncProvider?.getLastSyncTime();
   }
 
   // Combat methods
@@ -137,4 +132,4 @@ export class DataStore {
   }
 }
 
-export const dataStore = new DataStore();
+export const dataStore = new DataStore(GOOGLE_DRIVE_APP_CLIENT_ID);
