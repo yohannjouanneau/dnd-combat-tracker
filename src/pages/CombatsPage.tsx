@@ -104,7 +104,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
               </div>
 
               {/* Create Button */}
-              <div className="md:flex gap-2 md:items-end">
+              <div className="flex gap-2 md:items-end">
                 <button
                   onClick={create}
                   className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
