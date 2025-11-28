@@ -48,9 +48,9 @@ export class GoogleDriveSyncProvider implements SyncProvider {
    */
   private async uploadInternal(): Promise<void> {
     const data: SyncData = {
-      combats: localStorage.getItem(LAST_SYNC_STORAGE_KEY),
-      players: localStorage.getItem(LAST_SYNC_STORAGE_KEY),
-      monsters: localStorage.getItem(LAST_SYNC_STORAGE_KEY),
+      combats: localStorage.getItem(COMBAT_STORAGE_KEY),
+      players: localStorage.getItem(PLAYER_STORAGE_KEY),
+      monsters: localStorage.getItem(MONSTER_STORAGE_KEY),
       lastSynced: Date.now(),
     };
 
