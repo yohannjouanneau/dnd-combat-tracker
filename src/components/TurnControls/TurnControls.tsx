@@ -47,8 +47,10 @@ export default function TurnControls({
         </button>
         <button
           onClick={onNext}
-          className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded transition text-white text-sm md:text-base ${
-            combatantCount === 0 ? "bg-green-600 text-green-400 cursor-not-allowed"  : "bg-green-600 hover:bg-green-700"
+          className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded transition text-sm md:text-base ${
+            combatantCount === 0
+              ? "bg-green-500 text-opacity-50 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700 text-white"
           }`}
           title={t("combat:turn.next")}
         >

@@ -52,11 +52,22 @@
     },
     "addToLibrary": {
       "success": "Ajouté a la bibliothèque"
-    }, 
+    },
     "saveCombat": {
       "success": "Combat sauvegardé"
     },
     "confirm": "Confirmer",
     "cancel": "Annuler"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "googleDrive": {
+      "title": "Synchronisez vos combats sur tous vos appareils",
+      "connect": "Connectez-vous avec Google",
+      "sync": "Synchronisez",
+      "logout": "Se déconnecter",
+      "connected": "Dernière synchronisation : {{lastSync}}",
+      "syncExlpaination": "Connectez votre compte Google Drive pour sauvegarder et synchroniser vos combats, vos personnages et votre bibliothèque de monstres sur tous vos appareils. Ne perdez plus jamais vos données !"
+    }
   }
 }

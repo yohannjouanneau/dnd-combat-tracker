@@ -13,6 +13,7 @@ import type {
   NewCombatant,
   MonsterCombatant,
   SearchSource,
+  SyncApi,
 } from "./types";
 import { dataStore } from "./persistence/storage";
 import { DEFAULT_NEW_COMBATANT } from "./constants";
@@ -25,6 +26,9 @@ import { useTranslation } from "react-i18next";
 export type CombatStateManager = {
   // State
   state: CombatState;
+
+  // Sync
+  syncApi: SyncApi;
 
   // Saved Combats
   loadCombat: (combatId: string) => Promise<void>;
@@ -111,6 +115,50 @@ export function useCombatState(): CombatStateManager {
 
   const { t } = useTranslation(["common"]);
   const toastApi = useToast();
+
+  const authorizeSync = async () => {
+    if (!dataStore.isSyncAuthorized()) {
+      try {
+        await dataStore.authorizeSync();
+        toastApi.success("Connected to Google Drive");
+        return true;
+      } catch (error) {
+        toastApi.error(`Error while connecting to Google Drive ${error}`);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const synchronise = async () => {
+    try {
+      await dataStore.syncToCloud();
+      toastApi.success(`Sync successful`);
+      return true;
+    } catch (error) {
+      toastApi.error(`Error while syncing data ${error}`);
+    }
+    return false
+  };
+
+  const logout = async () => {
+    try {
+      await dataStore.logout();
+      toastApi.success(`Logout successful`);
+      return true;
+    } catch (error) {
+      toastApi.error(`Error while logging out ${error}`);
+      return false;
+    }
+  };
+
+  const getLastSyncTime = () => {
+    return dataStore.getLastSyncTime()
+  };
+
+  const isSyncAuthorized = () => {
+    return dataStore.isSyncAuthorized()
+  };
 
   const loadPlayers = useCallback(async () => {
     const players = await dataStore.listPlayer();
@@ -793,6 +841,15 @@ export function useCombatState(): CombatStateManager {
   return {
     // State
     state,
+
+    // Sync
+    syncApi: {
+      isSyncAuthorized,
+      authorizeSync,
+      synchronise,
+      getLastSyncTime,
+      logout,
+    },
 
     // Saved combats
     loadCombat,

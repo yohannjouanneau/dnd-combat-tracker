@@ -1,3 +1,6 @@
+import type { SyncProvider } from "../api/sync/SyncProvider";
+import { GoogleDriveSyncProvider } from "../api/sync/gdrive/GoogleDriveSyncProvider";
+import { COMBAT_STORAGE_KEY, MONSTER_STORAGE_KEY, PLAYER_STORAGE_KEY } from "../constants";
 import type {
   MonsterCombatant,
   PlayerCombatant,
@@ -7,31 +10,70 @@ import type {
 import { CombatStorageProvider } from "./CombatStorageProvider";
 import { CombatantTemplateStorageProvider } from "./CombatantTemplateStorageProvider";
 
-const COMBAT_STORAGE_KEY = "dnd-ct:combats:v1";
-const PLAYER_STORAGE_KEY = "dnd-ct:players:v1";
-const MONSTER_STORAGE_KEY = "dnd-ct:monsters:v1";
-
 export class DataStore {
   private combatProvider: CombatStorageProvider;
-  private playerProvider: CombatantTemplateStorageProvider<'player'>;
-  private monsterProvider: CombatantTemplateStorageProvider<'monster'>;
+  private playerProvider: CombatantTemplateStorageProvider<"player">;
+  private monsterProvider: CombatantTemplateStorageProvider<"monster">;
+  private syncProvider: SyncProvider;
 
   constructor(
+    clientId: string,
     combatProvider: CombatStorageProvider = new CombatStorageProvider(
       COMBAT_STORAGE_KEY
     ),
-    playerProvider = new CombatantTemplateStorageProvider<'player'>(
+    playerProvider = new CombatantTemplateStorageProvider<"player">(
       PLAYER_STORAGE_KEY
     ),
-    monsterProvider = new CombatantTemplateStorageProvider<'monster'>(
+    monsterProvider = new CombatantTemplateStorageProvider<"monster">(
       MONSTER_STORAGE_KEY
     )
   ) {
     this.combatProvider = combatProvider;
     this.playerProvider = playerProvider;
     this.monsterProvider = monsterProvider;
+    this.syncProvider = new GoogleDriveSyncProvider(clientId);
   }
 
+  
+  // Sync methods
+  async authorizeSync() {
+    await this.syncProvider.authorize();
+  }
+
+  async logout() {
+    await this.syncProvider?.revoke()
+  }
+
+  async syncToCloud() {
+    if (!this.syncProvider) {
+      throw new Error("Sync not initialized. Call initSync() first.");
+    }
+    await this.syncProvider.sync();
+  }
+
+  async uploadToCloud() {
+    if (!this.syncProvider) {
+      throw new Error("Sync not initialized. Call initSync() first.");
+    }
+    await this.syncProvider.upload();
+  }
+
+  async downloadFromCloud() {
+    if (!this.syncProvider) {
+      throw new Error("Sync not initialized. Call initSync() first.");
+    }
+    await this.syncProvider.download();
+  }
+
+  isSyncAuthorized(): boolean {
+    return this.syncProvider?.isAuthorized() ?? false;
+  }
+
+  getLastSyncTime(): number | undefined {
+    return this.syncProvider?.getLastSyncTime();
+  }
+
+  // Combat methods
   listCombat() {
     return this.combatProvider.list();
   }
@@ -48,6 +90,7 @@ export class DataStore {
     return this.combatProvider.delete(id);
   }
 
+  // Player methods
   listPlayer() {
     return this.playerProvider.list();
   }
@@ -64,6 +107,7 @@ export class DataStore {
     return this.playerProvider.delete(id);
   }
 
+  // Monster methods
   listMonster() {
     return this.monsterProvider.list();
   }
@@ -84,4 +128,4 @@ export class DataStore {
   }
 }
 
-export const dataStore = new DataStore();
+export const dataStore = new DataStore(import.meta.env.VITE_GOOGLE_CLIENT_ID);

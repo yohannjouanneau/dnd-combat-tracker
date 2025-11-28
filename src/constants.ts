@@ -58,3 +58,8 @@ export const DEFAULT_COLOR_PRESET = [
 export const HP_BAR_ID_PREFIX = "hpbar-input-";
 
 export const DND_API_HOST = "https://www.dnd5eapi.co";
+
+export const COMBAT_STORAGE_KEY = "dnd-ct:combats:v1";
+export const PLAYER_STORAGE_KEY = "dnd-ct:players:v1";
+export const MONSTER_STORAGE_KEY = "dnd-ct:monsters:v1";
+export const LAST_SYNC_STORAGE_KEY = "dnd-ct:lastSynced"

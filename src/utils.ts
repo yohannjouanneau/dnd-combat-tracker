@@ -37,3 +37,55 @@ export function getApiImageUrl(monster: ApiMonster) {
 export function safeParseInt(strNumber: string) {
   return parseInt(strNumber) || 0
 }
+
+/**
+ * Converts a timestamp to a human-readable relative time or absolute date
+ * - "just now" for < 1 minute
+ * - "X minutes ago" for < 1 hour
+ * - "X hours ago" for < 24 hours
+ * - "at 5:15 PM on 03/11" for older dates
+ */
+export function getReadableTimestamp(timestamp: number | Date): string {
+  const now = new Date();
+  const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+  
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+  // Less than 1 minute
+  if (diffMinutes < 1) {
+    return "just now";
+  }
+
+  // Less than 1 hour
+  if (diffMinutes < 60) {
+    return `${diffMinutes} ${diffMinutes === 1 ? 'minute' : 'minutes'} ago`;
+  }
+
+  // Less than 24 hours
+  if (diffHours < 24) {
+    return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+  }
+
+  // Format time (e.g., "5:15 PM")
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12;
+  const displayMinutes = minutes.toString().padStart(2, '0');
+  const timeString = `${displayHours}:${displayMinutes} ${ampm}`;
+
+  // Format date (e.g., "03/11")
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  
+  // If it's within the current year, omit the year
+  if (date.getFullYear() === now.getFullYear()) {
+    return `at ${timeString} on ${month}/${day}`;
+  }
+
+  // If it's from a previous year, include the year
+  const year = date.getFullYear();
+  return `at ${timeString} on ${month}/${day}/${year}`;
+}
