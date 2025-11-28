@@ -1,6 +1,6 @@
 import type { SyncProvider } from "../api/sync/SyncProvider";
 import { GoogleDriveSyncProvider } from "../api/sync/gdrive/GoogleDriveSyncProvider";
-import { GOOGLE_DRIVE_APP_CLIENT_ID } from "../constants";
+import { COMBAT_STORAGE_KEY, MONSTER_STORAGE_KEY, PLAYER_STORAGE_KEY } from "../constants";
 import type {
   MonsterCombatant,
   PlayerCombatant,
@@ -9,10 +9,6 @@ import type {
 } from "../types";
 import { CombatStorageProvider } from "./CombatStorageProvider";
 import { CombatantTemplateStorageProvider } from "./CombatantTemplateStorageProvider";
-
-const COMBAT_STORAGE_KEY = "dnd-ct:combats:v1";
-const PLAYER_STORAGE_KEY = "dnd-ct:players:v1";
-const MONSTER_STORAGE_KEY = "dnd-ct:monsters:v1";
 
 export class DataStore {
   private combatProvider: CombatStorageProvider;
@@ -132,4 +128,4 @@ export class DataStore {
   }
 }
 
-export const dataStore = new DataStore(GOOGLE_DRIVE_APP_CLIENT_ID);
+export const dataStore = new DataStore(import.meta.env.VITE_GOOGLE_CLIENT_ID);

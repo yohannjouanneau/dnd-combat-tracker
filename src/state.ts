@@ -136,7 +136,7 @@ export function useCombatState(): CombatStateManager {
       toastApi.success(`Sync successful`);
       return true;
     } catch (error) {
-      toastApi.error(`Error while sincing data ${error}`);
+      toastApi.error(`Error while syncing data ${error}`);
     }
     return false
   };
@@ -154,6 +154,10 @@ export function useCombatState(): CombatStateManager {
 
   const getLastSyncTime = () => {
     return dataStore.getLastSyncTime()
+  };
+
+  const isSyncAuthorized = () => {
+    return dataStore.isSyncAuthorized()
   };
 
   const loadPlayers = useCallback(async () => {
@@ -840,6 +844,7 @@ export function useCombatState(): CombatStateManager {
 
     // Sync
     syncApi: {
+      isSyncAuthorized,
       authorizeSync,
       synchronise,
       getLastSyncTime,

@@ -2,7 +2,7 @@ import { X, LogOut, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import gdriveSignIn from "../../assets/web_neutral_rd_SI@2x.png";
 import type { SyncApi } from "../../types";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getReadableTimestamp } from "../../utils";
 
 type Props = {
@@ -20,6 +20,14 @@ export default function SettingsModal({
   const [isReadyToSync, setIsReadyToSync] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(syncApi.getLastSyncTime());
+
+  useEffect(() => {
+    const checkGoogleAuth = async () => {
+      const authorized = await syncApi.isSyncAuthorized();
+      setIsReadyToSync(authorized);
+    };
+    checkGoogleAuth();
+  }, [syncApi]);
 
   const handleConnectGoogle = useCallback(async () => {
     const isAuthenticated = await syncApi.authorizeSync();

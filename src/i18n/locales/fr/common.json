@@ -63,7 +63,7 @@
     "title": "Paramètres",
     "googleDrive": {
       "title": "Synchronisez vos combats sur tous vos appareils",
-      "connect": "Connectez vous avec Google",
+      "connect": "Connectez-vous avec Google",
       "sync": "Synchronisez",
       "logout": "Se déconnecter",
       "connected": "Dernière synchronisation : {{lastSync}}",

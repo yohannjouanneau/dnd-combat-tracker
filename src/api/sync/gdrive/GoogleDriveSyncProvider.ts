@@ -1,4 +1,5 @@
 // src/persistence/GoogleDriveSyncProvider.ts
+import { COMBAT_STORAGE_KEY, LAST_SYNC_STORAGE_KEY, MONSTER_STORAGE_KEY, PLAYER_STORAGE_KEY } from '../../../constants';
 import type { SyncProvider } from '../SyncProvider';
 import type { SyncData } from '../types';
 import { GoogleDriveSyncClient } from './GoogleDriveSyncClient';
@@ -47,9 +48,9 @@ export class GoogleDriveSyncProvider implements SyncProvider {
    */
   private async uploadInternal(): Promise<void> {
     const data: SyncData = {
-      combats: localStorage.getItem('dnd-ct:combats:v1'),
-      players: localStorage.getItem('dnd-ct:players:v1'),
-      monsters: localStorage.getItem('dnd-ct:monsters:v1'),
+      combats: localStorage.getItem(LAST_SYNC_STORAGE_KEY),
+      players: localStorage.getItem(LAST_SYNC_STORAGE_KEY),
+      monsters: localStorage.getItem(LAST_SYNC_STORAGE_KEY),
       lastSynced: Date.now(),
     };
 
@@ -80,13 +81,13 @@ export class GoogleDriveSyncProvider implements SyncProvider {
 
     // Restore each key if it exists
     if (data.combats) {
-      localStorage.setItem('dnd-ct:combats:v1', data.combats);
+      localStorage.setItem(COMBAT_STORAGE_KEY, data.combats);
     }
     if (data.players) {
-      localStorage.setItem('dnd-ct:players:v1', data.players);
+      localStorage.setItem(PLAYER_STORAGE_KEY, data.players);
     }
     if (data.monsters) {
-      localStorage.setItem('dnd-ct:monsters:v1', data.monsters);
+      localStorage.setItem(MONSTER_STORAGE_KEY, data.monsters);
     }
   }
 
@@ -109,17 +110,17 @@ export class GoogleDriveSyncProvider implements SyncProvider {
       }
 
       const localLastSynced = parseInt(
-        localStorage.getItem('dnd-ct:lastSynced') || '0'
+        localStorage.getItem(LAST_SYNC_STORAGE_KEY) || '0'
       );
 
       // If remote is newer, download
       if (remoteData.lastSynced > localLastSynced) {
         await this.downloadInternal();
-        localStorage.setItem('dnd-ct:lastSynced', remoteData.lastSynced.toString());
+        localStorage.setItem(LAST_SYNC_STORAGE_KEY, remoteData.lastSynced.toString());
       } else {
         // Local is newer or same, upload
         await this.uploadInternal();
-        localStorage.setItem('dnd-ct:lastSynced', Date.now().toString());
+        localStorage.setItem(LAST_SYNC_STORAGE_KEY, Date.now().toString());
       }
     } finally {
       this.syncInProgress = false;
@@ -130,7 +131,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
    * Get last sync timestamp
    */
   getLastSyncTime(): number | undefined {
-    const time = localStorage.getItem('dnd-ct:lastSynced');
+    const time = localStorage.getItem(LAST_SYNC_STORAGE_KEY);
     return time ? parseInt(time) : undefined;
   }
 }

@@ -59,4 +59,7 @@ export const HP_BAR_ID_PREFIX = "hpbar-input-";
 
 export const DND_API_HOST = "https://www.dnd5eapi.co";
 
-export const GOOGLE_DRIVE_APP_CLIENT_ID = "64850603976-3ol3crrcvuo3om44jp7r4bmmf7mtlunt.apps.googleusercontent.com"
+export const COMBAT_STORAGE_KEY = "dnd-ct:combats:v1";
+export const PLAYER_STORAGE_KEY = "dnd-ct:players:v1";
+export const MONSTER_STORAGE_KEY = "dnd-ct:monsters:v1";
+export const LAST_SYNC_STORAGE_KEY = "dnd-ct:lastSynced"
