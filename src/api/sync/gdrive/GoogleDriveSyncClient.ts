@@ -96,6 +96,7 @@ export class GoogleDriveSyncClient {
 
       if (this.accessToken) {
         google.accounts.oauth2.revoke(this.accessToken, () => {
+          this.accessToken = null
           resolve()
         })
       }
