@@ -42,10 +42,10 @@ export class CombatantTemplateStorageProvider<T extends CombatantTemplateType> {
     const generatedId = generateId();
 
     const item: SavedCombatantTemplate<T> = {
+      ...data,
       id: generatedId,
       createdAt: now,
       updatedAt: now,
-      ...data
     };
 
     const items = this.readAll();
