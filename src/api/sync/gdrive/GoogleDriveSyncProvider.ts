@@ -133,7 +133,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
 
     this.syncInProgress = true;
     try {
-      const remoteData = await this.lastRemoteData ?? await this.loadData()
+      const remoteData = this.lastRemoteData ?? await this.loadData()
 
       if (!remoteData) {
         // No remote data, upload local
