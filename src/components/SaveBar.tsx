@@ -73,7 +73,7 @@ export default function SaveBar({
           </button>
           <button
             onClick={onSave}
-            className="disabled:opacity-50 disabled:pointer-events-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition font-medium"
+            className="disabled:opacity-50 disabled:pointer-events-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition font-medium h-[38px] flex items-center justify-center"
             disabled={!hasChanges}
           >
             {t("common:actions.save")}
@@ -81,7 +81,7 @@ export default function SaveBar({
           {onOpenLibrary && (
             <button
               onClick={onOpenLibrary}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded transition font-medium flex items-center gap-2"
+              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded transition font-medium flex items-center justify-center h-[38px]"
               title={t("common:actions.library")}
             >
               <BookOpen className="w-5 h-5" />
