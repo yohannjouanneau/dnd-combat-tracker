@@ -119,9 +119,8 @@ export class GoogleDriveSyncProvider implements SyncProvider {
 
     if (!this.lastRemoteData) {
       return false
-    } else {
-      return this.lastRemoteData.lastSynced > localLastSynced
     }
+    return this.lastRemoteData.lastSynced > localLastSynced
   }
 
   /**
