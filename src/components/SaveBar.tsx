@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import LabeledTextInput from "./common/LabeledTextInput";
 import LanguageSwitcher from "./common/LanguageSwitcher";
 import { useEffect } from "react";
+import { BookOpen } from "lucide-react";
 
 type Props = {
   name: string;
@@ -10,6 +11,7 @@ type Props = {
   onBack: () => void;
   onSave: () => void;
   hasChanges: boolean;
+  onOpenLibrary?: () => void;
 };
 
 export default function SaveBar({
@@ -19,6 +21,7 @@ export default function SaveBar({
   onBack,
   onSave,
   hasChanges,
+  onOpenLibrary,
 }: Props) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -70,11 +73,20 @@ export default function SaveBar({
           </button>
           <button
             onClick={onSave}
-            className="disabled:opacity-50 disabled:pointer-events-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition font-medium"
+            className="disabled:opacity-50 disabled:pointer-events-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition font-medium h-[38px] flex items-center justify-center"
             disabled={!hasChanges}
           >
             {t("common:actions.save")}
           </button>
+          {onOpenLibrary && (
+            <button
+              onClick={onOpenLibrary}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded transition font-medium flex items-center justify-center h-[38px]"
+              title={t("common:actions.library")}
+            >
+              <BookOpen className="w-5 h-5" />
+            </button>
+          )}
           <LanguageSwitcher />
         </div>
       </div>
