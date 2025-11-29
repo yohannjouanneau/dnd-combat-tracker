@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { BookOpen, Sword } from "lucide-react";
+import { Sword } from "lucide-react";
 import ParkedGroupsPanel from "../components/ParkedGroups/ParkedGroupsPanel";
 import AddCombatantForm from "../components/CombatForm/AddCombatantForm";
 import GroupsOverview from "../components/GroupsOverview/GroupsOverview";
@@ -204,17 +204,9 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
                   });
                 }}
                 hasChanges={combatStateManager.hasChanges}
+                onOpenLibrary={() => setShowLibrary(true)}
               />
             </div>
-
-            {/* Library Button */}
-            <button
-              onClick={() => setShowLibrary(true)}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded transition font-medium h-[42px] flex items-center gap-2"
-              title="Open Monster Library"
-            >
-              <BookOpen className="w-5 h-5" />
-            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
