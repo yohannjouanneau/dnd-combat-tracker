@@ -67,7 +67,7 @@
       "logout": "Se déconnecter",
       "connected": "Dernière synchronisation : {{lastSync}}",
       "syncExlpaination": "Connectez votre compte Google Drive pour sauvegarder et synchroniser vos combats, vos personnages et votre bibliothèque de monstres sur tous vos appareils. Ne perdez plus jamais vos données !",
-      "syncing": "Synchroniation...",
+      "syncing": "Synchronisation...",
       "uploadData": "Envoyer les données",
       "downloadData": "Télécharger les données"
     }
