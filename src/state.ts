@@ -642,6 +642,27 @@ export function useCombatState(): CombatStateManager {
     [prepareCombatantList]
   );
 
+  // Helper function to create combatants state update with reset when empty
+  const createCombatantsUpdate = (
+    prev: CombatState,
+    newCombatants: Combatant[],
+    defaultTurn: number
+  ): CombatState => {
+    if (newCombatants.length === 0) {
+      return {
+        ...prev,
+        combatants: newCombatants,
+        currentTurn: 0,
+        round: 1,
+      };
+    }
+    return {
+      ...prev,
+      combatants: newCombatants,
+      currentTurn: defaultTurn,
+    };
+  };
+
   const removeCombatant = useCallback((id: number) => {
     setState((prev) => {
       const newCombatants = prev.combatants.filter((c) => c.id !== id);
@@ -649,20 +670,15 @@ export function useCombatState(): CombatStateManager {
       if (newTurn >= prev.combatants.length - 1) {
         newTurn = Math.max(0, prev.combatants.length - 2);
       }
-      return {
-        ...prev,
-        combatants: newCombatants,
-        currentTurn: newTurn,
-      };
+      return createCombatantsUpdate(prev, newCombatants, newTurn);
     });
   }, []);
 
   const removeGroup = useCallback((name: string) => {
-    setState((prev) => ({
-      ...prev,
-      combatants: prev.combatants.filter((c) => c.name !== name),
-      currentTurn: 0,
-    }));
+    setState((prev) => {
+      const newCombatants = prev.combatants.filter((c) => c.name !== name);
+      return createCombatantsUpdate(prev, newCombatants, 0);
+    });
   }, []);
 
   const updateHP = useCallback((id: number, change: number) => {
