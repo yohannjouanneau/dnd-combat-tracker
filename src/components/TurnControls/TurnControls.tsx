@@ -36,7 +36,7 @@ export default function TurnControls({
           onClick={onPrev}
           disabled={isAtStart || combatantCount === 0}
           className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded transition text-sm md:text-base ${
-            isAtStart
+            isAtStart || combatantCount === 0
               ? "bg-slate-700 text-slate-500 cursor-not-allowed"
               : "bg-slate-700 hover:bg-slate-600 text-white"
           }`}
@@ -47,9 +47,10 @@ export default function TurnControls({
         </button>
         <button
           onClick={onNext}
+          disabled={combatantCount === 0}
           className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded transition text-sm md:text-base ${
             combatantCount === 0
-              ? "bg-green-500 text-opacity-50 cursor-not-allowed"
+              ? "bg-green-900 text-green-600 cursor-not-allowed"
               : "bg-green-600 hover:bg-green-700 text-white"
           }`}
           title={t("combat:turn.next")}

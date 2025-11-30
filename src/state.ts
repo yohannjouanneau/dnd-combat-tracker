@@ -645,6 +645,15 @@ export function useCombatState(): CombatStateManager {
   const removeCombatant = useCallback((id: number) => {
     setState((prev) => {
       const newCombatants = prev.combatants.filter((c) => c.id !== id);
+      // Reset turn and round when all combatants are removed
+      if (newCombatants.length === 0) {
+        return {
+          ...prev,
+          combatants: newCombatants,
+          currentTurn: 0,
+          round: 1,
+        };
+      }
       let newTurn = prev.currentTurn;
       if (newTurn >= prev.combatants.length - 1) {
         newTurn = Math.max(0, prev.combatants.length - 2);
@@ -658,11 +667,23 @@ export function useCombatState(): CombatStateManager {
   }, []);
 
   const removeGroup = useCallback((name: string) => {
-    setState((prev) => ({
-      ...prev,
-      combatants: prev.combatants.filter((c) => c.name !== name),
-      currentTurn: 0,
-    }));
+    setState((prev) => {
+      const newCombatants = prev.combatants.filter((c) => c.name !== name);
+      // Reset turn and round when all combatants are removed
+      if (newCombatants.length === 0) {
+        return {
+          ...prev,
+          combatants: newCombatants,
+          currentTurn: 0,
+          round: 1,
+        };
+      }
+      return {
+        ...prev,
+        combatants: newCombatants,
+        currentTurn: 0,
+      };
+    });
   }, []);
 
   const updateHP = useCallback((id: number, change: number) => {
