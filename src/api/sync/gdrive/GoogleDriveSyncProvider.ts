@@ -1,17 +1,24 @@
 // src/persistence/GoogleDriveSyncProvider.ts
-import { COMBAT_STORAGE_KEY, LAST_SYNC_STORAGE_KEY, MONSTER_STORAGE_KEY, PLAYER_STORAGE_KEY } from '../../../constants';
-import type { SyncProvider } from '../SyncProvider';
-import type { SyncData } from '../types';
-import { GoogleDriveSyncClient } from './GoogleDriveSyncClient';
-
-
+import {
+  COMBAT_STORAGE_KEY,
+  LAST_SYNC_STORAGE_KEY,
+  MONSTER_STORAGE_KEY,
+  PLAYER_STORAGE_KEY,
+} from "../../../constants";
+import type { SyncProvider } from "../SyncProvider";
+import type { SyncData } from "../types";
+import { GoogleDriveSyncClient } from "./GoogleDriveSyncClient";
 
 export class GoogleDriveSyncProvider implements SyncProvider {
   private client: GoogleDriveSyncClient;
   private syncInProgress = false;
+  private lastRemoteData: SyncData | null = null;
 
   constructor(clientId: string) {
-    this.client = new GoogleDriveSyncClient(clientId, 'dnd-combat-tracker.json');
+    this.client = new GoogleDriveSyncClient(
+      clientId,
+      "dnd-combat-tracker.json"
+    );
   }
 
   /**
@@ -37,7 +44,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
    */
   async upload(): Promise<void> {
     if (this.syncInProgress) {
-      throw new Error('Sync already in progress');
+      throw new Error("Sync already in progress");
     }
 
     await this.uploadInternal();
@@ -62,7 +69,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
    */
   async download(): Promise<void> {
     if (this.syncInProgress) {
-      throw new Error('Sync already in progress');
+      throw new Error("Sync already in progress");
     }
 
     await this.downloadInternal();
@@ -75,7 +82,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
     const data = await this.client.load<SyncData>();
 
     if (!data) {
-      console.log('No data found in Google Drive');
+      console.log("No data found in Google Drive");
       return;
     }
 
@@ -91,18 +98,43 @@ export class GoogleDriveSyncProvider implements SyncProvider {
     }
   }
 
+  private async loadData(): Promise<SyncData | null> {
+    try {
+      this.lastRemoteData = await this.client.load<SyncData>();
+      return this.lastRemoteData;
+    } catch (error) {
+      console.error(`Unable to load remote data`, error);
+      return null;
+    }
+  }
+
+  async hasNewRemoteData(): Promise<boolean> {
+    const localLastSynced = parseInt(
+      localStorage.getItem(LAST_SYNC_STORAGE_KEY) || "0"
+    );
+
+    if (!this.lastRemoteData) {
+      this.lastRemoteData = await this.loadData()
+    }
+
+    if (!this.lastRemoteData) {
+      return false
+    }
+    return this.lastRemoteData.lastSynced > localLastSynced
+  }
+
   /**
    * Uses "last write wins" strategy based on timestamps
    */
   async sync(): Promise<void> {
     if (this.syncInProgress) {
-      throw new Error('Sync already in progress');
+      throw new Error("Sync already in progress");
     }
 
     this.syncInProgress = true;
     try {
-      const remoteData = await this.client.load<SyncData>();
-      
+      const remoteData = this.lastRemoteData ?? await this.loadData()
+
       if (!remoteData) {
         // No remote data, upload local
         await this.uploadInternal();
@@ -110,13 +142,16 @@ export class GoogleDriveSyncProvider implements SyncProvider {
       }
 
       const localLastSynced = parseInt(
-        localStorage.getItem(LAST_SYNC_STORAGE_KEY) || '0'
+        localStorage.getItem(LAST_SYNC_STORAGE_KEY) || "0"
       );
 
       // If remote is newer, download
       if (remoteData.lastSynced > localLastSynced) {
         await this.downloadInternal();
-        localStorage.setItem(LAST_SYNC_STORAGE_KEY, remoteData.lastSynced.toString());
+        localStorage.setItem(
+          LAST_SYNC_STORAGE_KEY,
+          remoteData.lastSynced.toString()
+        );
       } else {
         // Local is newer or same, upload
         await this.uploadInternal();

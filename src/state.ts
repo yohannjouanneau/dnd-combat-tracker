@@ -130,6 +130,10 @@ export function useCombatState(): CombatStateManager {
     return true;
   };
 
+  const hasNewRemoteData = async () => {
+    return await dataStore.hasNewRemoteData()
+  }
+
   const synchronise = async () => {
     try {
       await dataStore.syncToCloud();
@@ -846,6 +850,7 @@ export function useCombatState(): CombatStateManager {
     syncApi: {
       isSyncAuthorized,
       authorizeSync,
+      hasNewRemoteData,
       synchronise,
       getLastSyncTime,
       logout,

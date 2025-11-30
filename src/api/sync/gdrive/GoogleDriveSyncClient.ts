@@ -79,7 +79,7 @@ export class GoogleDriveSyncClient {
           this.accessToken = response.access_token;
           gapi.client.setToken({ access_token: response.access_token });
           resolve();
-        },
+        }
       });
 
       this.tokenClient.requestAccessToken({ prompt: '' });

@@ -64,10 +64,12 @@
     "googleDrive": {
       "title": "Sync Your Combats Across All Your Devices",
       "connect": "Sign in with Google",
-      "sync": "Sync",
       "logout": "Sign out",
       "connected": "Last sync : {{lastSync}}",
-      "syncExlpaination": "Connect your Google Drive account to backup and sync your combat encounters, saved players, and monster library across all your devices. Never lose your data again!"
+      "syncExlpaination": "Connect your Google Drive account to backup and sync your combat encounters, saved players, and monster library across all your devices. Never lose your data again!",
+      "syncing": "Synchronizing...",
+      "uploadData": "Upload data",
+      "downloadData": "Download data"
     }
   }
 }

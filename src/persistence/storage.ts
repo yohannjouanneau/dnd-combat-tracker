@@ -1,6 +1,10 @@
 import type { SyncProvider } from "../api/sync/SyncProvider";
 import { GoogleDriveSyncProvider } from "../api/sync/gdrive/GoogleDriveSyncProvider";
-import { COMBAT_STORAGE_KEY, MONSTER_STORAGE_KEY, PLAYER_STORAGE_KEY } from "../constants";
+import {
+  COMBAT_STORAGE_KEY,
+  MONSTER_STORAGE_KEY,
+  PLAYER_STORAGE_KEY,
+} from "../constants";
 import type {
   MonsterCombatant,
   PlayerCombatant,
@@ -34,14 +38,20 @@ export class DataStore {
     this.syncProvider = new GoogleDriveSyncProvider(clientId);
   }
 
-  
   // Sync methods
   async authorizeSync() {
     await this.syncProvider.authorize();
   }
 
   async logout() {
-    await this.syncProvider?.revoke()
+    await this.syncProvider?.revoke();
+  }
+
+  async hasNewRemoteData() {
+    if (!this.syncProvider) {
+      throw new Error("Sync not initialized. Call initSync() first.");
+    }
+    return this.syncProvider.hasNewRemoteData()
   }
 
   async syncToCloud() {

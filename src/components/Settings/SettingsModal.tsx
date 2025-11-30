@@ -11,48 +11,63 @@ type Props = {
   onClose: () => void;
 };
 
-export default function SettingsModal({
-  isOpen,
-  syncApi,
-  onClose,
-}: Props) {
+export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
   const { t } = useTranslation(["common"]);
   const [isReadyToSync, setIsReadyToSync] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(syncApi.getLastSyncTime());
+  const [hasNewRemoteData, setHasRemoteData] = useState(false);
 
   useEffect(() => {
     const checkGoogleAuth = async () => {
-      const authorized = await syncApi.isSyncAuthorized();
+      const authorized = syncApi.isSyncAuthorized();
       setIsReadyToSync(authorized);
+      if (authorized) {
+        const hasRemote = await syncApi.hasNewRemoteData();
+        setHasRemoteData(hasRemote);
+      }
     };
+
     checkGoogleAuth();
   }, [syncApi]);
 
   const handleConnectGoogle = useCallback(async () => {
     const isAuthenticated = await syncApi.authorizeSync();
     setIsReadyToSync(isAuthenticated);
-  }, [syncApi])
+    if (isAuthenticated) {
+      const hasRemote = await syncApi.hasNewRemoteData();
+      setHasRemoteData(hasRemote);
+    }
+  }, [syncApi]);
 
-  const handleSyncWithDrive = useCallback( async () => {
-    setIsSyncing(true)
-    await syncApi.synchronise()
-    setLastSyncTime(syncApi.getLastSyncTime())
-    setIsSyncing(false)
-  },[syncApi])
+  const handleSyncWithDrive = useCallback(async () => {
+    setIsSyncing(true);
+    await syncApi.synchronise();
+    setLastSyncTime(syncApi.getLastSyncTime());
+    setHasRemoteData(await syncApi.hasNewRemoteData());
+    setIsSyncing(false);
+  }, [syncApi]);
 
   const handleLogout = useCallback(async () => {
-    const isLoggedOut = await syncApi.logout()
+    const isLoggedOut = await syncApi.logout();
     setIsReadyToSync(!isLoggedOut);
-  },[syncApi])
+  }, [syncApi]);
 
   const lastSyncText = useMemo(() => {
-    return lastSyncTime ? getReadableTimestamp(lastSyncTime): '-'
-  }, [lastSyncTime])  
+    return lastSyncTime ? getReadableTimestamp(lastSyncTime) : "-";
+  }, [lastSyncTime]);
+
+  const syncButtonText = useMemo(() => {
+    const notSyncingText = hasNewRemoteData
+      ? t("common:settings.googleDrive.downloadData")
+      : t("common:settings.googleDrive.uploadData");
+    return isSyncing
+      ? t("common:settings.googleDrive.syncing")
+      : notSyncingText;
+  }, [hasNewRemoteData, isSyncing, t]);
 
   if (!isOpen) return null;
 
-  
   return (
     <>
       {/* Backdrop */}
@@ -91,10 +106,7 @@ export default function SettingsModal({
 
               {!isReadyToSync ? (
                 // Sign in button
-                <button
-                  onClick={handleConnectGoogle}
-                  className="w-1/2"
-                >
+                <button onClick={handleConnectGoogle} className="w-1/2">
                   <img
                     src={gdriveSignIn}
                     alt={t("common:settings.googleDrive.connect")}
@@ -109,8 +121,10 @@ export default function SettingsModal({
                     disabled={isSyncing}
                     className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white px-4 py-3 rounded font-medium transition flex items-center justify-center gap-3"
                   >
-                    <RefreshCw className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />
-                    {isSyncing ? t("common:settings.googleDrive.syncing", "Synchronizing...") : t("common:settings.googleDrive.sync")}
+                    <RefreshCw
+                      className={`w-5 h-5 ${isSyncing ? "animate-spin" : ""}`}
+                    />
+                    {syncButtonText}
                   </button>
 
                   {/* Logout Button */}
@@ -131,7 +145,7 @@ export default function SettingsModal({
                 <div className="flex items-center gap-2 text-sm text-green-400">
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                   {t("common:settings.googleDrive.connected", {
-                    lastSync: lastSyncText
+                    lastSync: lastSyncText,
                   })}
                 </div>
               </div>

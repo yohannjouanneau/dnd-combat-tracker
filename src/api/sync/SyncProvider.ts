@@ -4,6 +4,7 @@ export interface SyncProvider {
   isAuthorized(): boolean;
   upload(): Promise<void>;
   download(): Promise<void>;
+  hasNewRemoteData(): Promise<boolean>;
   sync(): Promise<void>;
   getLastSyncTime(): number | undefined;
 }
