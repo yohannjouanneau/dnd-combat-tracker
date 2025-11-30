@@ -143,7 +143,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
                 {t("common:settings.googleDrive.title")}
               </h3>
 
-              <p className="text-lg font-light text-slate-300">
+              <p className="text-sm font-light text-slate-300">
                 {t("common:settings.googleDrive.syncExlpaination")}
               </p>
 
