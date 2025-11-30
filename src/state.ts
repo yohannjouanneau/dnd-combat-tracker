@@ -131,18 +131,23 @@ export function useCombatState(): CombatStateManager {
   };
 
   const hasNewRemoteData = async () => {
-    return await dataStore.hasNewRemoteData()
-  }
+    return await dataStore.hasNewRemoteData();
+  };
 
   const synchronise = async () => {
     try {
       await dataStore.syncToCloud();
+
+      // Reload data after sync to reflect any downloaded changes
+      await loadPlayers();
+      await loadMonsters();
+
       toastApi.success(`Sync successful`);
       return true;
     } catch (error) {
       toastApi.error(`Error while syncing data ${error}`);
     }
-    return false
+    return false;
   };
 
   const logout = async () => {
@@ -157,11 +162,11 @@ export function useCombatState(): CombatStateManager {
   };
 
   const getLastSyncTime = () => {
-    return dataStore.getLastSyncTime()
+    return dataStore.getLastSyncTime();
   };
 
   const isSyncAuthorized = () => {
-    return dataStore.isSyncAuthorized()
+    return dataStore.isSyncAuthorized();
   };
 
   const loadPlayers = useCallback(async () => {
