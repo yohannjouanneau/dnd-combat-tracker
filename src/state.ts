@@ -22,6 +22,7 @@ import { createGraphQLClient } from "./api/DnD5eGraphQLClient";
 import { getStatModifier, getApiImageUrl } from "./utils";
 import { useToast } from "./components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
+import { getSettings } from "./hooks/useSettings";
 
 export type CombatStateManager = {
   // State
@@ -278,18 +279,24 @@ export function useCombatState(): CombatStateManager {
           : -1;
 
       const baseId = Date.now();
-      let globalLetterIndex = maxGroupIndex + 1;
+      let globalIndex = maxGroupIndex + 1;
       const newCombatants: Combatant[] = [];
+
+      // Get identifier type from settings
+      const settings = getSettings();
+      const useNumbers = settings.combatantIdentifierType === "numbers";
 
       // Create combatants for each initiative group
       nc.initiativeGroups.forEach((group) => {
         const count = parseInt(group.count) || 0;
         for (let i = 0; i < count; i++) {
-          const letter = String.fromCharCode(65 + globalLetterIndex);
+          const identifier = useNumbers
+            ? String(globalIndex + 1)
+            : String.fromCharCode(65 + globalIndex);
           newCombatants.push({
-            id: baseId + globalLetterIndex,
+            id: baseId + globalIndex,
             name: nc.name,
-            displayName: totalCount > 1 ? `${nc.name} ${letter}` : nc.name,
+            displayName: totalCount > 1 ? `${nc.name} ${identifier}` : nc.name,
             initiative: parseFloat(group.initiative),
             hp: nc.hp,
             maxHp: effectiveMaxHp,
@@ -298,11 +305,11 @@ export function useCombatState(): CombatStateManager {
             concentration: false,
             deathSaves: { successes: 0, failures: 0 },
             color: nc.color,
-            groupIndex: globalLetterIndex,
+            groupIndex: globalIndex,
             imageUrl: nc.imageUrl,
             externalResourceUrl: nc.externalResourceUrl,
           });
-          globalLetterIndex++;
+          globalIndex++;
         }
       });
 

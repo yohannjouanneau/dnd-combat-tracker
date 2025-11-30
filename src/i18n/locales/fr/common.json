@@ -61,6 +61,12 @@
   },
   "settings": {
     "title": "Paramètres",
+    "combatantIdentifier": {
+      "title": "Identifiant des combattants",
+      "description": "Choisissez comment les combattants sont identifiés lorsque plusieurs créatures du même type sont ajoutées (ex: Orc A, Orc B ou Orc 1, Orc 2)",
+      "letters": "Lettres (A, B, C...)",
+      "numbers": "Nombres (1, 2, 3...)"
+    },
     "googleDrive": {
       "title": "Synchronisez vos combats sur tous vos appareils",
       "connect": "Connectez-vous avec Google",

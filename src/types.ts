@@ -1,5 +1,8 @@
 import type { ApiMonster } from "./api/types";
 
+// Settings types
+export type CombatantIdentifierType = "letters" | "numbers";
+
 // Base types for common metadata
 export type TimestampedEntity = {
   id: string;
