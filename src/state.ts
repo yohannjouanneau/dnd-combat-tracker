@@ -19,7 +19,7 @@ import { dataStore } from "./persistence/storage";
 import { DEFAULT_NEW_COMBATANT } from "./constants";
 import type { ApiMonster } from "./api/types";
 import { createGraphQLClient } from "./api/DnD5eGraphQLClient";
-import { getStatModifier, getApiImageUrl } from "./utils";
+import { getStatModifier, getApiImageUrl, indexToLetter } from "./utils";
 import { useToast } from "./components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 import { getSettings } from "./hooks/useSettings";
@@ -292,7 +292,7 @@ export function useCombatState(): CombatStateManager {
         for (let i = 0; i < count; i++) {
           const identifier = useNumbers
             ? String(globalIndex + 1)
-            : String.fromCharCode(65 + globalIndex);
+            : indexToLetter(globalIndex);
           newCombatants.push({
             id: baseId + globalIndex,
             name: nc.name,
