@@ -29,6 +29,11 @@ export default function ParkedGroupChip({
       onRemove(group.name);
     }
   };
+
+  const totalCount = group.initiativeGroups.reduce(
+    (sum, g) => sum + (parseInt(g.count) || 0),
+    0
+  );
   
   return (
     <div
@@ -40,6 +45,9 @@ export default function ParkedGroupChip({
         style={{ backgroundColor: group.color }}
       />
       <span className="font-semibold">{group.name}</span>
+      {totalCount > 1 && (
+        <span className="text-slate-400 text-sm">x {totalCount}</span>
+      )}
       <button
         onClick={() => onInclude(group)}
         className="text-blue-400 hover:text-blue-300 text-sm"
