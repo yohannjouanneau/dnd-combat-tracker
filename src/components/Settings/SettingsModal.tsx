@@ -44,6 +44,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
     setIsSyncing(true);
     await syncApi.synchronise();
     setLastSyncTime(syncApi.getLastSyncTime());
+    setHasRemoteData(await syncApi.hasNewRemoteData());
     setIsSyncing(false);
   }, [syncApi]);
 
