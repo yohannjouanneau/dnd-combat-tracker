@@ -75,7 +75,7 @@
     "noCombatsHint": "Create your first combat encounter above!"
   },
   "library": {
-    "title": "Monster Library",
+    "title": "Library",
     "emptyListTitle": "No monsters in your library yet.",
     "emptyListMessage": "Save monsters from the combat form to build your collection!",
     "new": "New",
