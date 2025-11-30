@@ -19,11 +19,21 @@ function App() {
 
   useEffect(() => {
     const combatIdMatch = route.match(/^#play\/([a-zA-Z0-9]+)$/);
-    if (combatIdMatch && !combatStateManager.state.combatId) {
-      setIsLoading(true);
-      combatStateManager.loadCombat(combatIdMatch[1]).finally(() => {
-        setIsLoading(false);
-      });
+    if (combatIdMatch) {
+      const newCombatId = combatIdMatch[1];
+      
+      // Only load if it's a different combat or no combat is loaded
+      if (newCombatId !== combatStateManager.state.combatId) {
+        setIsLoading(true);
+        combatStateManager.loadCombat(newCombatId).finally(() => {
+          setIsLoading(false);
+        });
+      }
+    } else {
+      // Reset state when navigating back to combat list
+      if (combatStateManager.state.combatId) {
+        combatStateManager.resetState();
+      }
     }
   }, [combatStateManager, route]);
 
