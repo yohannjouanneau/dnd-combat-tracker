@@ -31,7 +31,7 @@ export default function ParkedGroupChip({
   };
 
   const totalCount = group.initiativeGroups.reduce(
-    (sum, g) => sum + (parseInt(g.count) || 0),
+    (sum, g) => sum + (parseInt(g.count, 10) || 0),
     0
   );
   
