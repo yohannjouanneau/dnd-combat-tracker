@@ -1,9 +1,10 @@
 import { X, LogOut, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import gdriveSignIn from "../../assets/web_neutral_rd_SI@2x.png";
-import type { SyncApi } from "../../types";
+import type { SyncApi, CombatantIdentifierType } from "../../types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getReadableTimestamp } from "../../utils";
+import { useSettings } from "../../hooks/useSettings";
 
 type Props = {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(syncApi.getLastSyncTime());
   const [hasNewRemoteData, setHasRemoteData] = useState(false);
+  const { settings, updateSettings } = useSettings();
 
   useEffect(() => {
     const checkGoogleAuth = async () => {
@@ -52,6 +54,13 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
     const isLoggedOut = await syncApi.logout();
     setIsReadyToSync(!isLoggedOut);
   }, [syncApi]);
+
+  const handleIdentifierTypeChange = useCallback(
+    (type: CombatantIdentifierType) => {
+      updateSettings({ combatantIdentifierType: type });
+    },
+    [updateSettings]
+  );
 
   const lastSyncText = useMemo(() => {
     return lastSyncTime ? getReadableTimestamp(lastSyncTime) : "-";
@@ -93,9 +102,43 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
           </div>
 
           {/* Content */}
-          <div className="p-4 md:p-6 space-y-4">
-            {/* Google Drive Section */}
+          <div className="p-4 md:p-6 space-y-6">
+            {/* Combatant Identifier Section */}
             <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-slate-300">
+                {t("common:settings.combatantIdentifier.title")}
+              </h3>
+
+              <p className="text-sm font-light text-slate-400">
+                {t("common:settings.combatantIdentifier.description")}
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleIdentifierTypeChange("letters")}
+                  className={`flex-1 px-4 py-3 rounded font-medium transition ${
+                    settings.combatantIdentifierType === "letters"
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                  }`}
+                >
+                  {t("common:settings.combatantIdentifier.letters")}
+                </button>
+                <button
+                  onClick={() => handleIdentifierTypeChange("numbers")}
+                  className={`flex-1 px-4 py-3 rounded font-medium transition ${
+                    settings.combatantIdentifierType === "numbers"
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                  }`}
+                >
+                  {t("common:settings.combatantIdentifier.numbers")}
+                </button>
+              </div>
+            </div>
+
+            {/* Google Drive Section */}
+            <div className="space-y-3 pt-3 border-t border-slate-700">
               <h3 className="text-lg font-semibold text-slate-300">
                 {t("common:settings.googleDrive.title")}
               </h3>

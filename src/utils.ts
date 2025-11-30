@@ -39,6 +39,22 @@ export function safeParseInt(strNumber: string) {
 }
 
 /**
+ * Converts an index to a letter identifier (A, B, C, ..., Z, AA, AB, ...)
+ * Index 0 = A, Index 25 = Z, Index 26 = AA, etc.
+ */
+export function indexToLetter(index: number): string {
+  let result = "";
+  let num = index;
+  
+  do {
+    result = String.fromCharCode(65 + (num % 26)) + result;
+    num = Math.floor(num / 26) - 1;
+  } while (num >= 0);
+  
+  return result;
+}
+
+/**
  * Converts a timestamp to a human-readable relative time or absolute date
  * - "just now" for < 1 minute
  * - "X minutes ago" for < 1 hour
