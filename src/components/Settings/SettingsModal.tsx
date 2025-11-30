@@ -34,6 +34,10 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
   const handleConnectGoogle = useCallback(async () => {
     const isAuthenticated = await syncApi.authorizeSync();
     setIsReadyToSync(isAuthenticated);
+    if (isAuthenticated) {
+      const hasRemote = await syncApi.hasNewRemoteData();
+      setHasRemoteData(hasRemote);
+    }
   }, [syncApi]);
 
   const handleSyncWithDrive = useCallback(async () => {
