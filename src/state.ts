@@ -642,47 +642,42 @@ export function useCombatState(): CombatStateManager {
     [prepareCombatantList]
   );
 
+  // Helper function to create combatants state update with reset when empty
+  const createCombatantsUpdate = (
+    prev: CombatState,
+    newCombatants: Combatant[],
+    defaultTurn: number
+  ): CombatState => {
+    if (newCombatants.length === 0) {
+      return {
+        ...prev,
+        combatants: newCombatants,
+        currentTurn: 0,
+        round: 1,
+      };
+    }
+    return {
+      ...prev,
+      combatants: newCombatants,
+      currentTurn: defaultTurn,
+    };
+  };
+
   const removeCombatant = useCallback((id: number) => {
     setState((prev) => {
       const newCombatants = prev.combatants.filter((c) => c.id !== id);
-      // Reset turn and round when all combatants are removed
-      if (newCombatants.length === 0) {
-        return {
-          ...prev,
-          combatants: newCombatants,
-          currentTurn: 0,
-          round: 1,
-        };
-      }
       let newTurn = prev.currentTurn;
       if (newTurn >= prev.combatants.length - 1) {
         newTurn = Math.max(0, prev.combatants.length - 2);
       }
-      return {
-        ...prev,
-        combatants: newCombatants,
-        currentTurn: newTurn,
-      };
+      return createCombatantsUpdate(prev, newCombatants, newTurn);
     });
   }, []);
 
   const removeGroup = useCallback((name: string) => {
     setState((prev) => {
       const newCombatants = prev.combatants.filter((c) => c.name !== name);
-      // Reset turn and round when all combatants are removed
-      if (newCombatants.length === 0) {
-        return {
-          ...prev,
-          combatants: newCombatants,
-          currentTurn: 0,
-          round: 1,
-        };
-      }
-      return {
-        ...prev,
-        combatants: newCombatants,
-        currentTurn: 0,
-      };
+      return createCombatantsUpdate(prev, newCombatants, 0);
     });
   }, []);
 
