@@ -100,7 +100,7 @@ export default function MonsterLibraryModal({
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-700">
             <div className="flex items-center gap-3">
-              <BookOpen className="w-6 h-6 text-purple-400" />
+              <BookOpen className="w-6 h-6 text-amber-400" />
               <h2 className="text-xl md:text-2xl font-bold text-white">
                 {t("forms:library.title")}
               </h2>

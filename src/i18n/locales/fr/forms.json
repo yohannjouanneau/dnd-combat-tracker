@@ -75,7 +75,7 @@
     "noCombatsHint": "Créez votre première rencontre de combat ci-dessus !"
   },
   "library": {
-    "title": "Bibliothèque de monstres",
+    "title": "Bibliothèque",
     "emptyListTitle": "Aucun monstre dans votre bibliothèque pour le moment.",
     "emptyListMessage": "Sauvegardez des monstres depuis le formulaire de combat pour créer votre collection !",
     "new": "Nouveau",
