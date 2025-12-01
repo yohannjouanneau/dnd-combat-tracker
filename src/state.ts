@@ -709,7 +709,7 @@ export function useCombatState(): CombatStateManager {
       combatants: prev.combatants.map((c) => {
         if (c.id === id) {
           const newHp = Math.max(0, Math.min(c.maxHp ?? 0, c.hp ?? 0 + change));
-          return { ...c, hp: newHp ?? 0 };
+          return { ...c, hp: newHp };
         }
         return c;
       }),
