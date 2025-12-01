@@ -1,5 +1,6 @@
 import type { ApiMonster } from "./api/types";
 import { DND_API_HOST } from "./constants";
+import type { NewCombatant } from "./types";
 
 export function generateId(): string {
   // Generate a random id: 16 characters, URL-safe
@@ -26,16 +27,20 @@ export function safeStringify<T>(data: T[]): string {
   }
 }
 
-export function getStatModifier(stat: number) {
-  return Math.floor((stat - 10) / 2)
+export function getStatModifier(stat?: number) {
+  if (!stat) return undefined;
+  return Math.floor((stat - 10) / 2);
 }
 
 export function getApiImageUrl(monster: ApiMonster) {
-  return `${DND_API_HOST}${monster.image}`
+  return `${DND_API_HOST}${monster.image}`;
 }
 
-export function safeParseInt(strNumber: string) {
-  return parseInt(strNumber) || 0
+export function safeParseInt(strNumber: string, allowNegative: boolean = false) {
+  const result = parseInt(strNumber);
+  if (isNaN(result)) return undefined;
+  if (!allowNegative && result < 0) return undefined;
+  return result;
 }
 
 /**
@@ -45,12 +50,12 @@ export function safeParseInt(strNumber: string) {
 export function indexToLetter(index: number): string {
   let result = "";
   let num = index;
-  
+
   do {
     result = String.fromCharCode(65 + (num % 26)) + result;
     num = Math.floor(num / 26) - 1;
   } while (num >= 0);
-  
+
   return result;
 }
 
@@ -64,7 +69,7 @@ export function indexToLetter(index: number): string {
 export function getReadableTimestamp(timestamp: number | Date): string {
   const now = new Date();
   const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-  
+
   const diffMs = now.getTime() - date.getTime();
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -76,26 +81,26 @@ export function getReadableTimestamp(timestamp: number | Date): string {
 
   // Less than 1 hour
   if (diffMinutes < 60) {
-    return `${diffMinutes} ${diffMinutes === 1 ? 'minute' : 'minutes'} ago`;
+    return `${diffMinutes} ${diffMinutes === 1 ? "minute" : "minutes"} ago`;
   }
 
   // Less than 24 hours
   if (diffHours < 24) {
-    return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+    return `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
   }
 
   // Format time (e.g., "5:15 PM")
   const hours = date.getHours();
   const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const ampm = hours >= 12 ? "PM" : "AM";
   const displayHours = hours % 12 || 12;
-  const displayMinutes = minutes.toString().padStart(2, '0');
+  const displayMinutes = minutes.toString().padStart(2, "0");
   const timeString = `${displayHours}:${displayMinutes} ${ampm}`;
 
   // Format date (e.g., "03/11")
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+
   // If it's within the current year, omit the year
   if (date.getFullYear() === now.getFullYear()) {
     return `at ${timeString} on ${month}/${day}`;
@@ -104,4 +109,14 @@ export function getReadableTimestamp(timestamp: number | Date): string {
   // If it's from a previous year, include the year
   const year = date.getFullYear();
   return `at ${timeString} on ${month}/${day}/${year}`;
+}
+
+export function isNewCombatanInvalid(newCombatant: NewCombatant): boolean {
+  return (
+    newCombatant.name === "" ||
+    !newCombatant.ac || newCombatant.ac <= 0 ||
+    !newCombatant.hp || newCombatant.hp <= 0 ||
+    newCombatant.initiativeGroups.length === 0 ||
+    newCombatant.initiativeGroups.some((g) => g.initiative === "" || g.count === "")
+  );
 }

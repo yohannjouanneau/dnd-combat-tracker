@@ -7,7 +7,7 @@ type Props = {
   group: InitiativeGroup;
   index: number;
   canRemove: boolean;
-  initBonus: string;
+  initBonus: number | undefined;
   onChange: (id: string, patch: Partial<InitiativeGroup>) => void;
   onRemove: (id: string) => void;
 };
@@ -23,7 +23,7 @@ export default function InitiativeGroupInput({
   const { t } = useTranslation("form");
 
   const rollInitiative = useCallback(() => {
-    const bonus = initBonus.length > 0 ? parseInt(initBonus) : 0;
+    const bonus = initBonus ?? 0;
     const roll = Math.floor(Math.random() * 20) + 1;
     onChange(group.id, { initiative: String(roll + bonus) });
   }, [initBonus, group.id, onChange]);

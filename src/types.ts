@@ -12,19 +12,19 @@ export type TimestampedEntity = {
 
 // Base ability scores (used in multiple places)
 export type AbilityScores = {
-  str: number; // Strength
-  dex: number; // Dexterity
-  con: number; // Constitution
-  int: number; // Intelligence
-  wis: number; // Wisdom
-  cha: number; // Charisma
+  str?: number; // Strength
+  dex?: number; // Dexterity
+  con?: number; // Constitution
+  int?: number; // Intelligence
+  wis?: number; // Wisdom
+  cha?: number; // Charisma
 };
 
 // Combat stats used across all types
 export type CombatStats = {
-  hp: number;
-  maxHp: number;
-  ac: number;
+  hp?: number;
+  maxHp?: number;
+  ac?: number;
 };
 
 // Visual and reference data
@@ -60,7 +60,7 @@ export type InitiativeGroup = {
 // Initiative data (shared between CombatantTemplate and SavedPlayer)
 export type InitiativeData = {
   initiativeGroups: InitiativeGroup[];
-  initBonus: string;
+  initBonus?: number;
 };
 
 export type CombatantTemplateType = "player" | "monster";

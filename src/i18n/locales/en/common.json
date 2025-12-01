@@ -56,6 +56,15 @@
     "saveCombat": {
       "success": "Combat saved"
     },
+    "addedToCombat": {
+      "success": "Added to combat"
+    },
+    "addedPlayer": {
+      "success": "Player saved"
+    },
+    "addedToParkedGroup": {
+      "success": "Added to parked group"
+    },
     "confirm": "Confirm",
     "cancel": "Cancel"
   },

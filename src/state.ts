@@ -361,8 +361,9 @@ export function useCombatState(): CombatStateManager {
           combatants,
         };
       });
+      toastApi.success(t("common:confirmation.addedToParkedGroup.success"));
     },
-    [prepareCombatantList]
+    [prepareCombatantList, toastApi, t]
   );
 
   const removeParkedGroup = useCallback((name: string) => {
@@ -483,8 +484,16 @@ export function useCombatState(): CombatStateManager {
           combatants,
         };
       });
+      toastApi.success(t("common:confirmation.addedPlayer.success"));
     },
-    [state.newCombatant, savedPlayers, loadPlayers, prepareCombatantList]
+    [
+      state.newCombatant,
+      savedPlayers,
+      loadPlayers,
+      prepareCombatantList,
+      toastApi,
+      t,
+    ]
   );
 
   const removePlayer = useCallback(
@@ -540,8 +549,8 @@ export function useCombatState(): CombatStateManager {
         hp: monster.hit_points ?? 0,
         maxHp: monster.hit_points ?? 0,
         initBonus: monster.dexterity
-          ? getStatModifier(monster.dexterity).toString()
-          : "",
+          ? getStatModifier(monster.dexterity)
+          : undefined,
         ac: monster.armor_class?.at(0)?.value ?? 0,
         imageUrl: getApiImageUrl(monster),
       },
@@ -549,7 +558,7 @@ export function useCombatState(): CombatStateManager {
   };
 
   const fillFormWithMonsterLibraryData = (monster: SavedMonster) => {
-    const dexMod = monster.dex ? getStatModifier(monster.dex) : "";
+    const dexMod = getStatModifier(monster.dex);
     setState((prev) => ({
       ...prev,
       newCombatant: {
@@ -560,7 +569,7 @@ export function useCombatState(): CombatStateManager {
         ac: monster.ac,
         imageUrl: monster.imageUrl,
         externalResourceUrl: monster.externalResourceUrl,
-        initBonus: String(dexMod),
+        initBonus: dexMod,
         str: monster.str,
         dex: monster.dex,
         con: monster.con,
@@ -650,8 +659,9 @@ export function useCombatState(): CombatStateManager {
           newCombatant: DEFAULT_NEW_COMBATANT,
         };
       });
+      toastApi.success(t("common:confirmation.addedToCombat.success"));
     },
-    [prepareCombatantList]
+    [prepareCombatantList, toastApi, t]
   );
 
   // Helper function to create combatants state update with reset when empty
@@ -698,8 +708,8 @@ export function useCombatState(): CombatStateManager {
       ...prev,
       combatants: prev.combatants.map((c) => {
         if (c.id === id) {
-          const newHp = Math.max(0, Math.min(c.maxHp, c.hp + change));
-          return { ...c, hp: newHp };
+          const newHp = Math.max(0, Math.min(c.maxHp ?? 0, c.hp ?? 0 + change));
+          return { ...c, hp: newHp ?? 0 };
         }
         return c;
       }),

@@ -4,12 +4,8 @@ export const DEFAULT_NEW_COMBATANT: NewCombatant = {
   type: 'monster',
   name: "",
   initiativeGroups: [{ id: crypto.randomUUID(), initiative: "", count: "1" }],
-  hp: 0,
-  maxHp: 0,
-  ac: 0,
   color: "#3b82f6",
   imageUrl: "",
-  initBonus: "",
   externalResourceUrl: ""
 };
 
