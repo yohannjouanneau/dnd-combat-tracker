@@ -7,7 +7,7 @@ import ColorPicker from "../common/ColorPicker";
 import InitiativeGroupInput from "./InitiativeGroupInput";
 import { ChevronDown, Save, Sword, CircleParking, Dice3, BookOpen } from "lucide-react";
 import CombatantNameWithSearch from "./CombatantNameWithSearch";
-import { isNewCombatanInvalid, safeParseInt } from "../../utils";
+import { isNewCombatantInvalid, safeParseInt } from "../../utils";
 
 type Props = {
   formRef: RefObject<HTMLDivElement | null>;
@@ -197,7 +197,7 @@ export default function AddCombatantForm({
               onClick={onSubmit}
               className="disabled:pointer-events-none disabled:opacity-50 bg-lime-600 hover:bg-lime-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
               title={t("forms:combatant.actions.fight")}
-              disabled={isNewCombatanInvalid(value)}
+              disabled={isNewCombatantInvalid(value)}
             >
               <Sword className="w-5 h-5" />
               <span className="hidden md:inline">
@@ -208,7 +208,7 @@ export default function AddCombatantForm({
               onClick={onAddGroup}
               className="disabled:pointer-events-none disabled:opacity-50 bg-sky-600 hover:bg-sky-500 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
               title={parkGroupButtonText}
-              disabled={isNewCombatanInvalid(value)}
+              disabled={isNewCombatantInvalid(value)}
             >
               <CircleParking className="w-5 h-5" />
               <span className="hidden md:inline">{parkGroupButtonText}</span>
@@ -217,16 +217,16 @@ export default function AddCombatantForm({
               onClick={onSaveAsPlayer}
               className="disabled:pointer-events-none disabled:opacity-50 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
               title={savePlayerButtonText}
-              disabled={isNewCombatanInvalid(value)}
+              disabled={isNewCombatantInvalid(value)}
             >
               <Save className="w-5 h-5" />
               <span className="hidden md:inline">{savePlayerButtonText}</span>
             </button>
             <button
               onClick={onAddToLibrary}
-              className="disabled:opacity-50 bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+              className="disabled:pointer-events-none disabled:opacity-50 bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
               title={t("forms:combatant.actions.addToLibrary")}
-              disabled={isNewCombatanInvalid(value)}
+              disabled={isNewCombatantInvalid(value)}
             >
               <BookOpen className="w-5 h-5" />
               <span className="hidden md:inline">{t("forms:combatant.actions.addToLibrary")}</span>

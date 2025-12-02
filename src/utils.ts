@@ -111,7 +111,7 @@ export function getReadableTimestamp(timestamp: number | Date): string {
   return `at ${timeString} on ${month}/${day}/${year}`;
 }
 
-export function isNewCombatanInvalid(newCombatant: NewCombatant): boolean {
+export function isNewCombatantInvalid(newCombatant: NewCombatant): boolean {
   return (
     newCombatant.name === "" ||
     !newCombatant.ac || newCombatant.ac <= 0 ||
