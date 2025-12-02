@@ -38,7 +38,7 @@ export default function MonsterListItem({
   const getAbilityModifier = (score: number) => {
     const num = score || 10;
     const mod = getStatModifier(num);
-    return mod >= 0 ? `+${mod}` : `${mod}`;
+    return mod && mod >= 0 ? `+${mod}` : `${mod}`;
   };
 
   return (

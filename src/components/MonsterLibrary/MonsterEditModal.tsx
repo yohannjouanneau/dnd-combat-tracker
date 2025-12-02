@@ -44,12 +44,12 @@ export default function MonsterEditModal({
         updatedAt: Date.now(),
         type: "monster",
         name: apiMonster.name,
-        hp: apiMonster.hit_points ?? 0,
-        maxHp: apiMonster.hit_points ?? 0,
+        hp: apiMonster.hit_points,
+        maxHp: apiMonster.hit_points,
         ac: apiMonster.armor_class?.at(0)?.value ?? 0,
         initBonus: apiMonster.dexterity
-          ? getStatModifier(apiMonster.dexterity).toString()
-          : "",
+          ? getStatModifier(apiMonster.dexterity)
+          : undefined,
         externalResourceUrl: "",
         imageUrl: getApiImageUrl(apiMonster),
         color: DEFAULT_COLOR_PRESET[0].value,
@@ -108,7 +108,7 @@ export default function MonsterEditModal({
               <LabeledTextInput
                 id="edit-hp"
                 label={t("forms:library.edit.fields.hp")}
-                value={formData.hp.toString()}
+                value={formData.hp?.toString() ?? ""}
                 onChange={(v) => setFormData({ ...formData, hp: safeParseInt(v) })}
                 placeholder="50"
               />

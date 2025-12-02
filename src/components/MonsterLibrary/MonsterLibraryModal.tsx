@@ -37,15 +37,11 @@ export default function MonsterLibraryModal({
     type: "monster",
     id: "",
     name: "",
-    hp: 20,
-    maxHp: 20,
-    ac: 10,
     imageUrl: "",
     createdAt: 0,
     updatedAt: 0,
     color: "red",
     externalResourceUrl: "",
-    initBonus: "",
     initiativeGroups: [],
   };
 

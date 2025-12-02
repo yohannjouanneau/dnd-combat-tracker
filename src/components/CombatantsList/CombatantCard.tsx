@@ -194,8 +194,8 @@ export default function CombatantCard({
 
       <HpBar
         inputId={`${HP_BAR_ID_PREFIX}${combatant.id}`}
-        hp={combatant.hp}
-        maxHp={combatant.maxHp}
+        hp={combatant.hp ?? 0}
+        maxHp={combatant.maxHp ?? 0}
         isActive={isActive}
         onDelta={(d) => onDeltaHp(combatant.id, d)}
       />
