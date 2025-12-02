@@ -56,6 +56,15 @@
     "saveCombat": {
       "success": "Combat sauvegardé"
     },
+    "addedToCombat": {
+      "success": "Ajouté au combat"
+    },
+    "addedPlayer": {
+      "success": "Joueur sauvegardé"
+    },
+    "addedToParkedGroup": {
+      "success": "Ajouté au groupe mis en attente"
+    },
     "confirm": "Confirmer",
     "cancel": "Annuler"
   },

@@ -7,7 +7,7 @@ import ColorPicker from "../common/ColorPicker";
 import InitiativeGroupInput from "./InitiativeGroupInput";
 import { ChevronDown, Save, Sword, CircleParking, Dice3, BookOpen } from "lucide-react";
 import CombatantNameWithSearch from "./CombatantNameWithSearch";
-import { safeParseInt } from "../../utils";
+import { isNewCombatanInvalid, safeParseInt } from "../../utils";
 
 type Props = {
   formRef: RefObject<HTMLDivElement | null>;
@@ -134,21 +134,21 @@ export default function AddCombatantForm({
             <LabeledNumberInput
               id="combatHp"
               label={t("forms:combatant.currentHp")}
-              value={value.hp}
+              value={value.hp ?? ""}
               placeholder={t("forms:combatant.currentHpPlaceholder")}
               onChange={(v) => onChange({ hp: safeParseInt(v) })}
             />
             <LabeledNumberInput
               id="combatMaxHp"
               label={t("forms:combatant.maxHp")}
-              value={value.maxHp}
+              value={value.maxHp ?? ""}
               placeholder={t("forms:combatant.maxHpPlaceholder")}
               onChange={(v) => onChange({ maxHp: safeParseInt(v) })}
             />
             <LabeledNumberInput
               id="combatAc"
               label={t("forms:combatant.ac")}
-              value={value.ac}
+              value={value.ac ?? ""}
               placeholder={t("forms:combatant.acPlaceholder")}
               onChange={(v) => onChange({ ac: safeParseInt(v) })}
             />
@@ -156,9 +156,9 @@ export default function AddCombatantForm({
             <LabeledNumberInput
               id="initBonus"
               label={t("forms:combatant.initBonus")}
-              value={value.initBonus}
+              value={value.initBonus ?? ""}
               placeholder={t("forms:combatant.initBonusPlaceholder")}
-              onChange={(v) => onChange({ initBonus: v })}
+              onChange={(v) => onChange({ initBonus: safeParseInt(v, true) })}
             />
           </div>
 
@@ -195,8 +195,9 @@ export default function AddCombatantForm({
           <div className="grid grid-cols-2 md:flex gap-2 md:gap-3 mt-4">
             <button
               onClick={onSubmit}
-              className="bg-lime-600 hover:bg-lime-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+              className="disabled:pointer-events-none disabled:opacity-50 bg-lime-600 hover:bg-lime-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
               title={t("forms:combatant.actions.fight")}
+              disabled={isNewCombatanInvalid(value)}
             >
               <Sword className="w-5 h-5" />
               <span className="hidden md:inline">
@@ -205,24 +206,27 @@ export default function AddCombatantForm({
             </button>
             <button
               onClick={onAddGroup}
-              className="bg-sky-600 hover:bg-sky-500 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+              className="disabled:pointer-events-none disabled:opacity-50 bg-sky-600 hover:bg-sky-500 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
               title={parkGroupButtonText}
+              disabled={isNewCombatanInvalid(value)}
             >
               <CircleParking className="w-5 h-5" />
               <span className="hidden md:inline">{parkGroupButtonText}</span>
             </button>
             <button
               onClick={onSaveAsPlayer}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+              className="disabled:pointer-events-none disabled:opacity-50 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
               title={savePlayerButtonText}
+              disabled={isNewCombatanInvalid(value)}
             >
               <Save className="w-5 h-5" />
               <span className="hidden md:inline">{savePlayerButtonText}</span>
             </button>
             <button
               onClick={onAddToLibrary}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+              className="disabled:opacity-50 bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
               title={t("forms:combatant.actions.addToLibrary")}
+              disabled={isNewCombatanInvalid(value)}
             >
               <BookOpen className="w-5 h-5" />
               <span className="hidden md:inline">{t("forms:combatant.actions.addToLibrary")}</span>

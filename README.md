@@ -459,13 +459,12 @@ Contributions are welcome! Here's how you can help:
 
 ## 🗺️ Roadmap
 
-### Planned Features
+### Planned Features or ideas
 - [ ] Drag-and-drop initiative reordering
 - [ ] Dice roller integration
 - [ ] Spell slot tracking
-- [ ] Export combat logs (PDF/CSV)
-- [ ] Dark/light theme toggle
-- [ ] Undo/redo functionality
+- [ ] Export combat JSON
+- [ ] Themes (Dark light and others)
 - [ ] Combat statistics and analytics
 - [ ] Multi-language support (more languages)
 - [ ] Temporary HP tracking
@@ -506,7 +505,6 @@ This project is open source and available for personal use.
 - **Lucide Icons**: Beautiful open-source icon library
 - **Tailwind CSS**: For making styling enjoyable
 - **React Community**: For excellent documentation and tools
-- **Google Drive API**: For reliable cloud storage
 - **i18next**: For making internationalization simple
 
 ## 📧 Contact
