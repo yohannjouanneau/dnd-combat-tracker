@@ -39,10 +39,10 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
         {combatant.displayName}
       </h2>
 
-      {/* Stats Grid */}
-      <div className="space-y-4">
+      {/* Stats Row - Horizontal Layout */}
+      <div className="flex gap-4">
         {/* HP */}
-        <div className="bg-slate-700 rounded-lg p-4">
+        <div className="bg-slate-700 rounded-lg p-4 flex-1">
           <div className="text-sm text-slate-400 mb-1">Hit Points</div>
           <div className="text-3xl font-bold text-green-400">
             {combatant.hp ?? 0} / {combatant.maxHp ?? 0}
@@ -50,7 +50,7 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
         </div>
 
         {/* AC */}
-        <div className="bg-slate-700 rounded-lg p-4">
+        <div className="bg-slate-700 rounded-lg p-4 flex-1">
           <div className="text-sm text-slate-400 mb-1 flex items-center gap-2">
             <Shield className="w-4 h-4" />
             Armor Class
@@ -61,7 +61,7 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
         </div>
 
         {/* Initiative */}
-        <div className="bg-slate-700 rounded-lg p-4">
+        <div className="bg-slate-700 rounded-lg p-4 flex-1">
           <div className="text-sm text-slate-400 mb-1">Initiative</div>
           <div className="text-3xl font-bold text-blue-400">
             {combatant.initiative}

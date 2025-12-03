@@ -111,7 +111,7 @@ export default function CombatantCard({
       style={{ borderLeftWidth: "6px", borderLeftColor: combatant.color }}
     >
       <div className="flex items-start gap-3 md:gap-4 mb-4">
-        <div onClick={(e) => e.stopPropagation()}>
+        <div>
           <CombatantAvatar
             imageUrl={combatant.imageUrl}
             name={combatant.displayName}
@@ -132,15 +132,12 @@ export default function CombatantCard({
                     onChange={(e) => setInitValue(e.target.value)}
                     onBlur={handleSave}
                     onKeyDown={handleKeyDown}
-                    onClick={(e) => e.stopPropagation()}
-                    onFocus={(e) => e.stopPropagation()}
                     className="text-2xl md:text-3xl font-bold text-blue-400 bg-slate-700 border-2 border-blue-500 rounded px-2 w-16 md:w-20 focus:outline-none"
                     autoFocus
                   />
                 ) : (
                   <div
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       handleStartEdit();
                     }}
                     className="text-2xl md:text-3xl font-bold text-blue-400 cursor-pointer hover:text-blue-300 hover:bg-blue-900/20 rounded px-2 transition-colors select-none"
@@ -182,7 +179,7 @@ export default function CombatantCard({
                     <ExternalLink className="w-3 h-3 md:w-4 md:h-4" />
                   </a>
                 )}
-                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-1">
                   <ConcentrationToggle
                     active={combatant.concentration}
                     onToggle={() => onToggleConcentration(combatant.id)}
@@ -193,8 +190,7 @@ export default function CombatantCard({
             <div className="flex gap-2">
               {isActive && onShowDetail && (
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
+                  onClick={() => {
                     onShowDetail();
                   }}
                   className="text-blue-400 hover:text-blue-300 transition flex-shrink-0 p-1 md:hidden"
@@ -204,8 +200,7 @@ export default function CombatantCard({
                 </button>
               )}
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
+                onClick={() => {
                   confirmRemove();
                 }}
                 className="text-red-500 hover:text-red-400 transition flex-shrink-0 p-1"
@@ -218,7 +213,7 @@ export default function CombatantCard({
         </div>
       </div>
 
-      <div onClick={(e) => e.stopPropagation()}>
+      <div>
         <HpBar
           inputId={`${HP_BAR_ID_PREFIX}${combatant.id}`}
           hp={combatant.hp ?? 0}
@@ -228,14 +223,14 @@ export default function CombatantCard({
         />
       </div>
       {isDying && (
-        <div onClick={(e) => e.stopPropagation()}>
+        <div>
           <DeathSavesComp
             value={combatant.deathSaves}
             onChange={(type, value) => onDeathSaves(combatant.id, type, value)}
           />
         </div>
       )}
-      <div onClick={(e) => e.stopPropagation()}>
+      <div>
         <ConditionsList
           activeConditions={combatant.conditions}
           onToggle={(c) => onToggleCondition(combatant.id, c)}

@@ -1,6 +1,6 @@
-import type { RefObject } from 'react';
-import type { Combatant, DeathSaves } from '../../types';
-import CombatantCard from './CombatantCard';
+import type { RefObject } from "react";
+import type { Combatant, DeathSaves } from "../../types";
+import CombatantCard from "./CombatantCard";
 
 type Props = {
   combatListRef: RefObject<HTMLDivElement | null>;
@@ -27,14 +27,12 @@ export default function CombatantsList({
   onToggleCondition,
   onUpdateInitiative,
   onShowDetail,
-  isFocusMode = false
+  isFocusMode = false,
 }: Props) {
   return (
     <div
       className={`space-y-4 pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 ${
-        isFocusMode 
-          ? 'max-h-[calc(100vh-180px)] overflow-y-auto' 
-          : ''
+        isFocusMode ? "max-h-[calc(100vh-180px)] overflow-y-auto" : ""
       }`}
       ref={combatListRef}
     >
