@@ -10,7 +10,7 @@ type Props = {
 export default function CombatantDetailPanel({ combatant, onClose }: Props) {
   return (
     <div
-      className="bg-slate-800 rounded-lg p-4 md:p-6 border-2 border-slate-700 relative overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800"
+      className="bg-slate-800 rounded-lg p-4 md:p-6 border-2 border-slate-700 relative overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 h-full"
       style={{ borderLeftWidth: "6px", borderLeftColor: combatant.color }}
     >
       {/* Close button - Mobile only */}

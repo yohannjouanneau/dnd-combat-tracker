@@ -33,7 +33,7 @@ export default function DesktopCombatLayout({
   return (
     <div className="hidden md:flex gap-4">
       {/* Left side: CombatantsList */}
-      <div className="flex-1">
+      <div className={activeCombatant ? "flex-1" : "w-full"}>
         <CombatantsList
           combatListRef={combatListRef}
           combatants={combatants}
@@ -48,18 +48,16 @@ export default function DesktopCombatLayout({
         />
       </div>
 
-      {/* Right side: Detail panel or placeholder */}
-      <div className="flex-1">
-        {activeCombatant ? (
+      {/* Right side: Detail panel - only render if active combatant exists */}
+      {activeCombatant && (
+        <div className={`flex-1 ${
+          isFocusMode
+            ? 'max-h-[calc(100vh-180px)] overflow-y-auto'
+            : ''
+        }`}>
           <CombatantDetailPanel combatant={activeCombatant} />
-        ) : (
-          <div className="bg-slate-800 rounded-lg p-6 border-2 border-slate-700 flex items-center justify-center h-full min-h-[200px]">
-            <div className="text-center text-slate-400">
-              <p className="text-lg">No active combatant</p>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
