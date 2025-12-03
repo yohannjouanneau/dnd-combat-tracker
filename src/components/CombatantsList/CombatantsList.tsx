@@ -12,19 +12,21 @@ type Props = {
   onToggleConcentration: (id: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
+  onShowDetail?: () => void;
   isFocusMode?: boolean;
 };
 
-export default function CombatantsList({ 
-  combatListRef, 
-  combatants, 
-  currentTurn, 
-  onRemove, 
-  onDeltaHp, 
-  onDeathSaves, 
-  onToggleConcentration, 
-  onToggleCondition, 
+export default function CombatantsList({
+  combatListRef,
+  combatants,
+  currentTurn,
+  onRemove,
+  onDeltaHp,
+  onDeathSaves,
+  onToggleConcentration,
+  onToggleCondition,
   onUpdateInitiative,
+  onShowDetail,
   isFocusMode = false
 }: Props) {
   return (
@@ -47,6 +49,7 @@ export default function CombatantsList({
           onToggleConcentration={onToggleConcentration}
           onToggleCondition={onToggleCondition}
           onUpdateInitiative={onUpdateInitiative}
+          onShowDetail={onShowDetail}
         />
       ))}
     </div>

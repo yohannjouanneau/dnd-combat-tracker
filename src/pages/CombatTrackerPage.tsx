@@ -5,7 +5,8 @@ import ParkedGroupsPanel from "../components/ParkedGroups/ParkedGroupsPanel";
 import AddCombatantForm from "../components/CombatForm/AddCombatantForm";
 import GroupsOverview from "../components/GroupsOverview/GroupsOverview";
 import TurnControls from "../components/TurnControls/TurnControls";
-import CombatantsList from "../components/CombatantsList/CombatantsList";
+import DesktopCombatLayout from "../components/CombatLayout/DesktopCombatLayout";
+import MobileCombatLayout from "../components/CombatLayout/MobileCombatLayout";
 import type {
   GroupSummary,
   SavedPlayer,
@@ -277,17 +278,30 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           </div>
         </div>
 
-        <CombatantsList
+        <DesktopCombatLayout
           combatListRef={combatListRef}
           combatants={combatants}
           currentTurn={combatStateManager.state.currentTurn}
+          isFocusMode={isFocusMode}
           onRemove={combatStateManager.removeCombatant}
           onDeltaHp={combatStateManager.updateHP}
           onDeathSaves={combatStateManager.updateDeathSave}
           onToggleConcentration={combatStateManager.toggleConcentration}
           onToggleCondition={combatStateManager.toggleCondition}
           onUpdateInitiative={combatStateManager.updateInitiative}
+        />
+
+        <MobileCombatLayout
+          combatListRef={combatListRef}
+          combatants={combatants}
+          currentTurn={combatStateManager.state.currentTurn}
           isFocusMode={isFocusMode}
+          onRemove={combatStateManager.removeCombatant}
+          onDeltaHp={combatStateManager.updateHP}
+          onDeathSaves={combatStateManager.updateDeathSave}
+          onToggleConcentration={combatStateManager.toggleConcentration}
+          onToggleCondition={combatStateManager.toggleCondition}
+          onUpdateInitiative={combatStateManager.updateInitiative}
         />
 
         {combatants.length === 0 && (

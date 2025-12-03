@@ -5,7 +5,7 @@ import HpBar from "./HpBar";
 import DeathSavesComp from "./DeathSaves";
 import ConcentrationToggle from "./ConcentrationToggle";
 import ConditionsList from "./ConditionsList";
-import { Shield, Trash2, ExternalLink } from "lucide-react";
+import { Shield, Trash2, ExternalLink, Eye } from "lucide-react";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { HP_BAR_ID_PREFIX } from "../../constants";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
@@ -19,6 +19,7 @@ type Props = {
   onToggleConcentration: (id: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
+  onShowDetail?: () => void;
 };
 
 export default function CombatantCard({
@@ -30,6 +31,7 @@ export default function CombatantCard({
   onToggleConcentration,
   onToggleCondition,
   onUpdateInitiative,
+  onShowDetail,
 }: Props) {
   const { t } = useTranslation(["combat", "common"]);
 
@@ -109,12 +111,14 @@ export default function CombatantCard({
       style={{ borderLeftWidth: "6px", borderLeftColor: combatant.color }}
     >
       <div className="flex items-start gap-3 md:gap-4 mb-4">
-        <CombatantAvatar
-          imageUrl={combatant.imageUrl}
-          name={combatant.displayName}
-          color={combatant.color}
-          size="md"
-        />
+        <div onClick={(e) => e.stopPropagation()}>
+          <CombatantAvatar
+            imageUrl={combatant.imageUrl}
+            name={combatant.displayName}
+            color={combatant.color}
+            size="md"
+          />
+        </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
@@ -128,12 +132,17 @@ export default function CombatantCard({
                     onChange={(e) => setInitValue(e.target.value)}
                     onBlur={handleSave}
                     onKeyDown={handleKeyDown}
+                    onClick={(e) => e.stopPropagation()}
+                    onFocus={(e) => e.stopPropagation()}
                     className="text-2xl md:text-3xl font-bold text-blue-400 bg-slate-700 border-2 border-blue-500 rounded px-2 w-16 md:w-20 focus:outline-none"
                     autoFocus
                   />
                 ) : (
                   <div
-                    onClick={handleStartEdit}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStartEdit();
+                    }}
                     className="text-2xl md:text-3xl font-bold text-blue-400 cursor-pointer hover:text-blue-300 hover:bg-blue-900/20 rounded px-2 transition-colors select-none"
                     title={t("combat:combatant.editInitiative")}
                   >
@@ -173,7 +182,7 @@ export default function CombatantCard({
                     <ExternalLink className="w-3 h-3 md:w-4 md:h-4" />
                   </a>
                 )}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                   <ConcentrationToggle
                     active={combatant.concentration}
                     onToggle={() => onToggleConcentration(combatant.id)}
@@ -181,34 +190,57 @@ export default function CombatantCard({
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => confirmRemove()}
-              className="text-red-500 hover:text-red-400 transition flex-shrink-0 p-1"
-              title={t("combat:combatant.remove")}
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
+            <div className="flex gap-2">
+              {isActive && onShowDetail && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onShowDetail();
+                  }}
+                  className="text-blue-400 hover:text-blue-300 transition flex-shrink-0 p-1 md:hidden"
+                  title="View details"
+                >
+                  <Eye className="w-5 h-5" />
+                </button>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  confirmRemove();
+                }}
+                className="text-red-500 hover:text-red-400 transition flex-shrink-0 p-1"
+                title={t("combat:combatant.remove")}
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <HpBar
-        inputId={`${HP_BAR_ID_PREFIX}${combatant.id}`}
-        hp={combatant.hp ?? 0}
-        maxHp={combatant.maxHp ?? 0}
-        isActive={isActive}
-        onDelta={(d) => onDeltaHp(combatant.id, d)}
-      />
-      {isDying && (
-        <DeathSavesComp
-          value={combatant.deathSaves}
-          onChange={(type, value) => onDeathSaves(combatant.id, type, value)}
+      <div onClick={(e) => e.stopPropagation()}>
+        <HpBar
+          inputId={`${HP_BAR_ID_PREFIX}${combatant.id}`}
+          hp={combatant.hp ?? 0}
+          maxHp={combatant.maxHp ?? 0}
+          isActive={isActive}
+          onDelta={(d) => onDeltaHp(combatant.id, d)}
         />
+      </div>
+      {isDying && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <DeathSavesComp
+            value={combatant.deathSaves}
+            onChange={(type, value) => onDeathSaves(combatant.id, type, value)}
+          />
+        </div>
       )}
-      <ConditionsList
-        activeConditions={combatant.conditions}
-        onToggle={(c) => onToggleCondition(combatant.id, c)}
-      />
+      <div onClick={(e) => e.stopPropagation()}>
+        <ConditionsList
+          activeConditions={combatant.conditions}
+          onToggle={(c) => onToggleCondition(combatant.id, c)}
+        />
+      </div>
     </div>
   );
 }
