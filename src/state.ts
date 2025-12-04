@@ -308,6 +308,12 @@ export function useCombatState(): CombatStateManager {
             groupIndex: globalIndex,
             imageUrl: nc.imageUrl,
             externalResourceUrl: nc.externalResourceUrl,
+            cha: nc.cha,
+            con: nc.con,
+            dex: nc.dex,
+            int: nc.int,
+            str: nc.str,
+            wis: nc.wis
           });
           globalIndex++;
         }
@@ -708,7 +714,7 @@ export function useCombatState(): CombatStateManager {
       ...prev,
       combatants: prev.combatants.map((c) => {
         if (c.id === id) {
-          const newHp = Math.max(0, Math.min(c.maxHp ?? 0, c.hp ?? 0 + change));
+          const newHp = Math.max(0, Math.min(c.maxHp ?? 0, (c.hp ?? 0) + change));
           return { ...c, hp: newHp };
         }
         return c;

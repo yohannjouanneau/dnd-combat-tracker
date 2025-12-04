@@ -5,7 +5,7 @@ import HpBar from "./HpBar";
 import DeathSavesComp from "./DeathSaves";
 import ConcentrationToggle from "./ConcentrationToggle";
 import ConditionsList from "./ConditionsList";
-import { Shield, Trash2, ExternalLink } from "lucide-react";
+import { Shield, Trash2, ExternalLink, Eye } from "lucide-react";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { HP_BAR_ID_PREFIX } from "../../constants";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
@@ -19,6 +19,7 @@ type Props = {
   onToggleConcentration: (id: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
+  onShowDetail?: () => void;
 };
 
 export default function CombatantCard({
@@ -30,6 +31,7 @@ export default function CombatantCard({
   onToggleConcentration,
   onToggleCondition,
   onUpdateInitiative,
+  onShowDetail,
 }: Props) {
   const { t } = useTranslation(["combat", "common"]);
 
@@ -109,12 +111,14 @@ export default function CombatantCard({
       style={{ borderLeftWidth: "6px", borderLeftColor: combatant.color }}
     >
       <div className="flex items-start gap-3 md:gap-4 mb-4">
-        <CombatantAvatar
-          imageUrl={combatant.imageUrl}
-          name={combatant.displayName}
-          color={combatant.color}
-          size="md"
-        />
+        <div>
+          <CombatantAvatar
+            imageUrl={combatant.imageUrl}
+            name={combatant.displayName}
+            color={combatant.color}
+            size="md"
+          />
+        </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
@@ -133,7 +137,9 @@ export default function CombatantCard({
                   />
                 ) : (
                   <div
-                    onClick={handleStartEdit}
+                    onClick={() => {
+                      handleStartEdit();
+                    }}
                     className="text-2xl md:text-3xl font-bold text-blue-400 cursor-pointer hover:text-blue-300 hover:bg-blue-900/20 rounded px-2 transition-colors select-none"
                     title={t("combat:combatant.editInitiative")}
                   >
@@ -181,34 +187,55 @@ export default function CombatantCard({
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => confirmRemove()}
-              className="text-red-500 hover:text-red-400 transition flex-shrink-0 p-1"
-              title={t("combat:combatant.remove")}
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
+            <div className="flex gap-2">
+              {isActive && onShowDetail && (
+                <button
+                  onClick={() => {
+                    onShowDetail();
+                  }}
+                  className="text-blue-400 hover:text-blue-300 transition flex-shrink-0 p-1 md:hidden"
+                  title="View details"
+                >
+                  <Eye className="w-5 h-5" />
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  confirmRemove();
+                }}
+                className="text-red-500 hover:text-red-400 transition flex-shrink-0 p-1"
+                title={t("combat:combatant.remove")}
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <HpBar
-        inputId={`${HP_BAR_ID_PREFIX}${combatant.id}`}
-        hp={combatant.hp ?? 0}
-        maxHp={combatant.maxHp ?? 0}
-        isActive={isActive}
-        onDelta={(d) => onDeltaHp(combatant.id, d)}
-      />
-      {isDying && (
-        <DeathSavesComp
-          value={combatant.deathSaves}
-          onChange={(type, value) => onDeathSaves(combatant.id, type, value)}
+      <div>
+        <HpBar
+          inputId={`${HP_BAR_ID_PREFIX}${combatant.id}`}
+          hp={combatant.hp ?? 0}
+          maxHp={combatant.maxHp ?? 0}
+          isActive={isActive}
+          onDelta={(d) => onDeltaHp(combatant.id, d)}
         />
+      </div>
+      {isDying && (
+        <div>
+          <DeathSavesComp
+            value={combatant.deathSaves}
+            onChange={(type, value) => onDeathSaves(combatant.id, type, value)}
+          />
+        </div>
       )}
-      <ConditionsList
-        activeConditions={combatant.conditions}
-        onToggle={(c) => onToggleCondition(combatant.id, c)}
-      />
+      <div>
+        <ConditionsList
+          activeConditions={combatant.conditions}
+          onToggle={(c) => onToggleCondition(combatant.id, c)}
+        />
+      </div>
     </div>
   );
 }

@@ -19,7 +19,12 @@
     "active": "Actif",
     "remove": "Retirer le combattant",
     "noCombatants": "Aucun combattant pour le moment. Ajoutez-en pour commencer la bataille !",
-    "editInitiative": "Cliquer pour modifier l'initiative"
+    "editInitiative": "Cliquer pour modifier l'initiative",
+    "details": {
+      "hitPoints":"Point de vie",
+      "initiative":"Initiative",
+      "armorClass":"Classe d'armure"
+    }
   },
   "groups": {
     "title": "Groupes",

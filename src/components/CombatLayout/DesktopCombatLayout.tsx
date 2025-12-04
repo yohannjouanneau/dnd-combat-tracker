@@ -1,55 +1,59 @@
 import type { RefObject } from "react";
 import type { Combatant, DeathSaves } from "../../types";
-import CombatantCard from "./CombatantCard";
+import CombatantsList from "../CombatantsList/CombatantsList";
+import CombatantDetailPanel from "../CombatantDetailPanel/CombatantDetailPanel";
 
 type Props = {
   combatListRef: RefObject<HTMLDivElement | null>;
   combatants: Combatant[];
   currentTurn: number;
+  isFocusMode: boolean;
   onRemove: (id: number) => void;
   onDeltaHp: (id: number, delta: number) => void;
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
   onToggleConcentration: (id: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
-  onShowDetail?: () => void;
-  isFocusMode?: boolean;
 };
 
-export default function CombatantsList({
+export default function DesktopCombatLayout({
   combatListRef,
   combatants,
   currentTurn,
+  isFocusMode,
   onRemove,
   onDeltaHp,
   onDeathSaves,
   onToggleConcentration,
   onToggleCondition,
   onUpdateInitiative,
-  onShowDetail,
-  isFocusMode = false,
 }: Props) {
+  const activeCombatant = combatants[currentTurn] ?? null;
+
   return (
-    <div
-      className={`space-y-4 pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 ${
-        isFocusMode ? "max-h-[calc(100vh-180px)] overflow-y-auto" : ""
-      }`}
-      ref={combatListRef}
-    >
-      {combatants.map((c, index) => (
-        <CombatantCard
-          key={c.id}
-          combatant={c}
-          isActive={index === currentTurn}
+    <div className="hidden md:flex gap-4">
+      {/* Left side: CombatantsList */}
+      <div className={activeCombatant && isFocusMode ? "flex-1" : "w-full"}>
+        <CombatantsList
+          combatListRef={combatListRef}
+          combatants={combatants}
+          currentTurn={currentTurn}
           onRemove={onRemove}
           onDeltaHp={onDeltaHp}
           onDeathSaves={onDeathSaves}
           onToggleConcentration={onToggleConcentration}
           onToggleCondition={onToggleCondition}
           onUpdateInitiative={onUpdateInitiative}
-          onShowDetail={onShowDetail}
+          isFocusMode={isFocusMode}
         />
-      ))}
+      </div>
+
+      {/* Right side: Detail panel - only render if active combatant exists AND in focus mode */}
+      {activeCombatant && isFocusMode && (
+        <div className="flex-1 max-h-[calc(100vh-180px)] overflow-y-auto">
+          <CombatantDetailPanel combatant={activeCombatant} />
+        </div>
+      )}
     </div>
   );
 }

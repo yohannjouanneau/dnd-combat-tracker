@@ -49,7 +49,7 @@ export type Combatant = {
   deathSaves: DeathSaves;
   groupIndex: number;
 } & Presentation &
-  CombatStats;
+  CombatStats & AbilityScores;
 
 export type InitiativeGroup = {
   id: string;
