@@ -2,8 +2,8 @@ import { Sword, Trash2, Edit } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
-import { getStatModifier } from "../../utils";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
+import { AbilityScore } from "../common/AbilityScore";
 
 type Props = {
   monster: SavedMonster;
@@ -27,18 +27,12 @@ export default function MonsterListItem({
     const isConfirmed = await confirmDialog({
       title: t("common:confirmation.deleteFromLibrary.title"),
       message: t("common:confirmation.deleteFromLibrary.message", {
-        name: monster.name
+        name: monster.name,
       }),
     });
     if (isConfirmed) {
-        onDelete(monster.id)
+      onDelete(monster.id);
     }
-  };
-
-  const getAbilityModifier = (score: number) => {
-    const num = score || 10;
-    const mod = getStatModifier(num);
-    return mod && mod >= 0 ? `+${mod}` : `${mod}`;
   };
 
   return (
@@ -80,29 +74,16 @@ export default function MonsterListItem({
         </div>
 
         {/* Ability Scores */}
-        <div className="hidden md:flex items-center gap-2 flex-shrink-0">
-          {[
-            { label: t("library.listItem.abilities.str"), value: monster.str ?? 0 },
-            { label: t("library.listItem.abilities.dex"), value: monster.dex ?? 0},
-            { label: t("library.listItem.abilities.con"), value: monster.con ?? 0},
-            { label: t("library.listItem.abilities.int"), value: monster.int ?? 0},
-            { label: t("library.listItem.abilities.wis"), value: monster.wis ?? 0},
-            { label: t("library.listItem.abilities.cha"), value: monster.cha ?? 0},
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="bg-slate-800 rounded px-2 py-1 text-center min-w-[48px]"
-            >
-              <div className="text-xs text-slate-400 leading-none">{label}</div>
-              <div className="text-sm font-semibold text-white leading-none mt-0.5">
-                {value}
-              </div>
-              <div className="text-xs text-blue-400 leading-none mt-0.5">
-                {getAbilityModifier(value)}
-              </div>
-            </div>
-          ))}
-        </div>
+        <AbilityScore
+          scores={{
+            cha: monster.cha,
+            con: monster.con,
+            dex: monster.dex,
+            str: monster.str,
+            int: monster.int,
+            wis: monster.wis,
+          }}
+        />
 
         {/* Action Buttons */}
         <div className="flex gap-2 flex-shrink-0">

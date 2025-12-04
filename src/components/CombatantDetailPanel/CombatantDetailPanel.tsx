@@ -1,6 +1,8 @@
-import { X, Shield } from "lucide-react";
+import { X, Shield, Heart, Hourglass } from "lucide-react";
 import type { Combatant } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
+import { AbilityScore } from "../common/AbilityScore";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   combatant: Combatant;
@@ -8,6 +10,7 @@ type Props = {
 };
 
 export default function CombatantDetailPanel({ combatant, onClose }: Props) {
+  const { t } = useTranslation(["combat"]);
   return (
     <div
       className="bg-slate-800 rounded-lg p-4 md:p-6 border-2 border-slate-700 relative overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 h-full"
@@ -40,33 +43,54 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
       </h2>
 
       {/* Stats Row - Horizontal Layout */}
-      <div className="flex gap-4">
+      <div className="flex gap-2 md:gap-4">
         {/* HP */}
-        <div className="bg-slate-700 rounded-lg p-4 flex-1">
-          <div className="text-sm text-slate-400 mb-1">Hit Points</div>
-          <div className="text-3xl font-bold text-green-400">
+        <div className="bg-slate-700 rounded-lg p-2 md:p-4 flex-1 flex flex-col items-center">
+          <div className="text-xs md:text-sm text-slate-400 mb-1 flex items-center gap-1 md:gap-2">
+            <Heart className="w-3 h-3 md:w-4 md:h-4" />
+            {t("combat:combatant.details.hitPoints")}
+          </div>
+          <div className="text-2xl md:text-3xl font-bold text-green-400">
             {combatant.hp ?? 0} / {combatant.maxHp ?? 0}
           </div>
         </div>
 
         {/* AC */}
-        <div className="bg-slate-700 rounded-lg p-4 flex-1">
-          <div className="text-sm text-slate-400 mb-1 flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            Armor Class
+        <div className="bg-slate-700 rounded-lg p-2 md:p-4 flex-1 flex flex-col items-center">
+          <div className="text-xs md:text-sm text-slate-400 mb-1 flex items-center gap-1 md:gap-2">
+            <Shield className="w-3 h-3 md:w-4 md:h-4" />
+            {t("combat:combatant.details.armorClass")}
           </div>
-          <div className="text-3xl font-bold text-blue-400">
+          <div className="text-2xl md:text-3xl font-bold text-blue-400">
             {combatant.ac ?? 0}
           </div>
         </div>
 
         {/* Initiative */}
-        <div className="bg-slate-700 rounded-lg p-4 flex-1">
-          <div className="text-sm text-slate-400 mb-1">Initiative</div>
-          <div className="text-3xl font-bold text-blue-400">
+        <div className="bg-slate-700 rounded-lg p-2 md:p-4 flex-1 flex flex-col items-center">
+          <div className="text-xs md:text-sm text-slate-400 mb-1 flex items-center gap-1 md:gap-2">
+            <Hourglass className="w-3 h-3 md:w-4 md:h-4" />
+            {t("combat:combatant.details.initiative")}
+          </div>
+          <div className="text-2xl md:text-3xl font-bold text-blue-400">
             {combatant.initiative}
           </div>
         </div>
+      </div>
+
+      {/* Ability Scores */}
+      <div className="mt-6">
+        <AbilityScore
+          type="combatant_details"
+          scores={{
+            str: combatant.str,
+            dex: combatant.dex,
+            con: combatant.con,
+            int: combatant.int,
+            wis: combatant.wis,
+            cha: combatant.cha,
+          }}
+        />
       </div>
     </div>
   );

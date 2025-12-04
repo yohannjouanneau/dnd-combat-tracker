@@ -1,4 +1,5 @@
 import type { ApiMonster } from "./api/types";
+import type { AbilityScore } from "./components/common/AbilityScore";
 
 // Settings types
 export type CombatantIdentifierType = "letters" | "numbers";
@@ -49,7 +50,7 @@ export type Combatant = {
   deathSaves: DeathSaves;
   groupIndex: number;
 } & Presentation &
-  CombatStats;
+  CombatStats & AbilityScores;
 
 export type InitiativeGroup = {
   id: string;

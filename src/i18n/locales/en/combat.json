@@ -19,7 +19,12 @@
     "active": "Active",
     "remove": "Remove combatant",
     "noCombatants": "No combatants yet. Add some to start the battle!",
-    "editInitiative": "Click to edit initiative"
+    "editInitiative": "Click to edit initiative",
+    "details": {
+      "hitPoints":"Hit points",
+      "initiative":"Initiative",
+      "armorClass":"Armor class"
+    }
   },
   "groups": {
     "title": "Groups",

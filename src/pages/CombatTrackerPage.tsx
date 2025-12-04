@@ -5,8 +5,7 @@ import ParkedGroupsPanel from "../components/ParkedGroups/ParkedGroupsPanel";
 import AddCombatantForm from "../components/CombatForm/AddCombatantForm";
 import GroupsOverview from "../components/GroupsOverview/GroupsOverview";
 import TurnControls from "../components/TurnControls/TurnControls";
-import DesktopCombatLayout from "../components/CombatLayout/DesktopCombatLayout";
-import MobileCombatLayout from "../components/CombatLayout/MobileCombatLayout";
+import CombatLayout from "../components/CombatLayout/CombatLayout";
 import type {
   GroupSummary,
   SavedPlayer,
@@ -278,20 +277,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           </div>
         </div>
 
-        <DesktopCombatLayout
-          combatListRef={combatListRef}
-          combatants={combatants}
-          currentTurn={combatStateManager.state.currentTurn}
-          isFocusMode={isFocusMode}
-          onRemove={combatStateManager.removeCombatant}
-          onDeltaHp={combatStateManager.updateHP}
-          onDeathSaves={combatStateManager.updateDeathSave}
-          onToggleConcentration={combatStateManager.toggleConcentration}
-          onToggleCondition={combatStateManager.toggleCondition}
-          onUpdateInitiative={combatStateManager.updateInitiative}
-        />
-
-        <MobileCombatLayout
+        <CombatLayout
           combatListRef={combatListRef}
           combatants={combatants}
           currentTurn={combatStateManager.state.currentTurn}

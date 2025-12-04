@@ -308,6 +308,12 @@ export function useCombatState(): CombatStateManager {
             groupIndex: globalIndex,
             imageUrl: nc.imageUrl,
             externalResourceUrl: nc.externalResourceUrl,
+            cha: nc.cha,
+            con: nc.con,
+            dex: nc.dex,
+            int: nc.int,
+            str: nc.str,
+            wis: nc.wis
           });
           globalIndex++;
         }

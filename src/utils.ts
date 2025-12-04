@@ -32,6 +32,12 @@ export function getStatModifier(stat?: number) {
   return Math.floor((stat - 10) / 2);
 }
 
+export function getAbilityModifier(score: number) {
+  const num = score || 10;
+  const mod = getStatModifier(num);
+  return mod && mod >= 0 ? `+${mod}` : `${mod}`;
+};
+
 export function getApiImageUrl(monster: ApiMonster) {
   return `${DND_API_HOST}${monster.image}`;
 }
