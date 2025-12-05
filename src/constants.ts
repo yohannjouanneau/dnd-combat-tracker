@@ -6,7 +6,8 @@ export const DEFAULT_NEW_COMBATANT: NewCombatant = {
   initiativeGroups: [{ id: crypto.randomUUID(), initiative: "", count: "1" }],
   color: "#3b82f6",
   imageUrl: "",
-  externalResourceUrl: ""
+  externalResourceUrl: "",
+  notes: ""
 };
 
 // Condition keys for translation - use these with t('conditions:key')

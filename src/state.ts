@@ -208,6 +208,8 @@ export function useCombatState(): CombatStateManager {
   const loadCombat = async (combatId: string) => {
     const savedCombat = await dataStore.getCombat(combatId);
 
+    
+
     if (savedCombat?.data) {
       setState({
         ...savedCombat.data,
@@ -313,7 +315,8 @@ export function useCombatState(): CombatStateManager {
             dex: nc.dex,
             int: nc.int,
             str: nc.str,
-            wis: nc.wis
+            wis: nc.wis,
+            notes: nc.notes
           });
           globalIndex++;
         }
@@ -582,6 +585,7 @@ export function useCombatState(): CombatStateManager {
         int: monster.int,
         wis: monster.wis,
         cha: monster.cha,
+        notes: monster.notes,
       },
     }));
   };
