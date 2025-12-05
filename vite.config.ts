@@ -6,6 +6,16 @@ export default defineConfig({
   plugins: [react()],
   base: '/dnd-combat-tracker/',
   build: {
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Split markdown dependencies into a separate chunk
+          if (id.includes('react-markdown') || id.includes('remark-gfm')) {
+            return 'markdown';
+          }
+        }
+      }
+    }
   }
 })
