@@ -61,6 +61,7 @@ export default function MonsterEditModal({
         int: apiMonster.intelligence,
         wis: apiMonster.wisdom,
         cha: apiMonster.charisma,
+        notes: formData.notes ?? "",
       };
       setFormData(libraryMonster);
     }

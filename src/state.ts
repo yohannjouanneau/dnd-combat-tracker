@@ -19,7 +19,7 @@ import { dataStore } from "./persistence/storage";
 import { DEFAULT_NEW_COMBATANT } from "./constants";
 import type { ApiMonster } from "./api/types";
 import { createGraphQLClient } from "./api/DnD5eGraphQLClient";
-import { getStatModifier, getApiImageUrl, indexToLetter } from "./utils";
+import { getStatModifier, getApiImageUrl, indexToLetter, enrichWithMonsterNotes } from "./utils";
 import { useToast } from "./components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 import { getSettings } from "./hooks/useSettings";
@@ -208,11 +208,26 @@ export function useCombatState(): CombatStateManager {
   const loadCombat = async (combatId: string) => {
     const savedCombat = await dataStore.getCombat(combatId);
 
-    
-
     if (savedCombat?.data) {
+      // Load current monsters from library
+      const currentMonsters = await dataStore.listMonster();
+
+      // Enrich combatants with notes from monster library
+      const enrichedCombatants = enrichWithMonsterNotes(
+        savedCombat.data.combatants,
+        currentMonsters
+      );
+
+      // Enrich parked groups with notes from monster library
+      const enrichedParkedGroups = enrichWithMonsterNotes(
+        savedCombat.data.parkedGroups,
+        currentMonsters
+      );
+
       setState({
         ...savedCombat.data,
+        combatants: enrichedCombatants,
+        parkedGroups: enrichedParkedGroups,
         combatId: savedCombat.id,
         combatName: savedCombat.name,
         combatDescription: savedCombat.description,
