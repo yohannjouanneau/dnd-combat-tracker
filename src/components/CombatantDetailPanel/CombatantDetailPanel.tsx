@@ -97,7 +97,9 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
       {/* Notes Section */}
       {combatant.notes && (
         <div className="mt-6">
-          <h3 className="text-sm font-semibold text-slate-400 mb-2">Notes</h3>
+          <h3 className="text-sm font-semibold text-slate-400 mb-2">
+            {t("combat:combatant.details.notes")}
+          </h3>
           <div className="bg-slate-700 rounded-lg p-4">
             <MarkdownRenderer content={combatant.notes} />
           </div>

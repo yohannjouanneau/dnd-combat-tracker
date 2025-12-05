@@ -7,7 +7,7 @@ import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
 import { getStatModifier, getApiImageUrl, safeParseInt } from "../../utils";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
-import MarkdownEditor from "../common/mardown/MardownEditor";
+import MarkdownEditor from "../common/mardown/MarkdownEditor";
 
 type Props = {
   monster: SavedMonster;

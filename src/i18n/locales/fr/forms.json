@@ -123,6 +123,29 @@
         "wis": "SAG",
         "cha": "CHA"
       }
+    },
+    "notes": {
+      "label": "Notes",
+      "write": "Écrire",
+      "preview": "Aperçu",
+      "placeholder": "Ajouter des notes... (Markdown supporté)",
+      "emptyPreview": "Rien à prévisualiser. Passez en mode Écrire pour ajouter des notes.",
+      "help": {
+        "title": "Aide sur la syntaxe Markdown",
+        "header": "Syntaxe Markdown",
+        "heading1": "Grand titre",
+        "heading2": "Titre moyen",
+        "bold": "Texte en gras",
+        "italic": "Texte en italique",
+        "strikethrough": "Texte barré",
+        "bulletList": "Liste à puces",
+        "numberedList": "Liste numérotée",
+        "hyperlink": "Lien hypertexte",
+        "inlineCode": "Code en ligne",
+        "blockquote": "Citation",
+        "horizontalLine": "Ligne horizontale",
+        "tip": "💡 Astuce : Utilisez des lignes vides pour séparer les paragraphes"
+      }
     }
   }
 }

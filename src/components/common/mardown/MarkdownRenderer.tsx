@@ -4,7 +4,6 @@ import type { Components } from "react-markdown";
 
 type Props = {
   content: string;
-  className?: string;
 };
 
 export default function MarkdownRenderer({ content }: Props) {
