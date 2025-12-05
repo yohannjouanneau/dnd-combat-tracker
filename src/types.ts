@@ -30,8 +30,9 @@ export type CombatStats = {
 // Visual and reference data
 export type Presentation = {
   color: string;
-  imageUrl: string;
-  externalResourceUrl: string;
+  imageUrl?: string;
+  externalResourceUrl?: string;
+  notes?: string
 };
 
 export type DeathSaves = {

@@ -23,7 +23,8 @@
     "details": {
       "hitPoints":"Hit points",
       "initiative":"Initiative",
-      "armorClass":"Armor class"
+      "armorClass":"Armor class",
+      "notes":"Notes"
     }
   },
   "groups": {

@@ -3,6 +3,7 @@ import type { Combatant } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { AbilityScore } from "../common/AbilityScore";
 import { useTranslation } from "react-i18next";
+import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
 
 type Props = {
   combatant: Combatant;
@@ -92,6 +93,18 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
           }}
         />
       </div>
+
+      {/* Notes Section */}
+      {combatant.notes && (
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold text-slate-400 mb-2">
+            {t("combat:combatant.details.notes")}
+          </h3>
+          <div className="bg-slate-700 rounded-lg p-4">
+            <MarkdownRenderer content={combatant.notes} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

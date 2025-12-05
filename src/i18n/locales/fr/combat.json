@@ -23,7 +23,8 @@
     "details": {
       "hitPoints":"Point de vie",
       "initiative":"Initiative",
-      "armorClass":"Classe d'armure"
+      "armorClass":"Classe d'armure",
+      "notes":"Notes"
     }
   },
   "groups": {

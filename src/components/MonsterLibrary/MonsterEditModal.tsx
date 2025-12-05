@@ -7,6 +7,7 @@ import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
 import { getStatModifier, getApiImageUrl, safeParseInt } from "../../utils";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
+import MarkdownEditor from "../common/mardown/MarkdownEditor";
 
 type Props = {
   monster: SavedMonster;
@@ -60,7 +61,7 @@ export default function MonsterEditModal({
         int: apiMonster.intelligence,
         wis: apiMonster.wisdom,
         cha: apiMonster.charisma,
-
+        notes: formData.notes ?? "",
       };
       setFormData(libraryMonster);
     }
@@ -69,6 +70,10 @@ export default function MonsterEditModal({
   const title = isCreating
     ? t("forms:library.edit.title.create")
     : t("forms:library.edit.title.edit", { name: monster.name });
+
+  const updateNotes = (notes: string) => {
+    setFormData({ ...formData, notes: notes });
+  };
 
   return (
     <>
@@ -109,29 +114,37 @@ export default function MonsterEditModal({
                 id="edit-hp"
                 label={t("forms:library.edit.fields.hp")}
                 value={formData.hp?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, hp: safeParseInt(v) })}
+                onChange={(v) =>
+                  setFormData({ ...formData, hp: safeParseInt(v) })
+                }
                 placeholder="50"
               />
               <LabeledTextInput
                 id="edit-ac"
                 label={t("forms:library.edit.fields.ac")}
                 value={formData.ac?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, ac: safeParseInt(v) })}
+                onChange={(v) =>
+                  setFormData({ ...formData, ac: safeParseInt(v) })
+                }
                 placeholder="15"
               />
               <LabeledTextInput
                 id="edit-imageUrl"
                 label={t("forms:library.edit.fields.imageUrl")}
-                value={formData.imageUrl}
+                value={formData.imageUrl ?? ""}
                 onChange={(v) => setFormData({ ...formData, imageUrl: v })}
                 placeholder={t("forms:library.edit.placeholders.imageUrl")}
               />
               <LabeledTextInput
                 id="edit-resouceUrl"
                 label={t("forms:library.edit.fields.externalResourceUrl")}
-                value={formData.externalResourceUrl}
-                onChange={(v) => setFormData({ ...formData, externalResourceUrl: v })}
-                placeholder={t("forms:library.edit.placeholders.externalResourceUrl")}
+                value={formData.externalResourceUrl ?? ""}
+                onChange={(v) =>
+                  setFormData({ ...formData, externalResourceUrl: v })
+                }
+                placeholder={t(
+                  "forms:library.edit.placeholders.externalResourceUrl"
+                )}
               />
             </div>
 
@@ -146,45 +159,61 @@ export default function MonsterEditModal({
                 id="edit-str"
                 label={t("forms:library.edit.fields.str")}
                 value={formData.str?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, str: safeParseInt(v) })}
+                onChange={(v) =>
+                  setFormData({ ...formData, str: safeParseInt(v) })
+                }
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-dex"
                 label={t("forms:library.edit.fields.dex")}
                 value={formData.dex?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, dex: safeParseInt(v) })}
+                onChange={(v) =>
+                  setFormData({ ...formData, dex: safeParseInt(v) })
+                }
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-con"
                 label={t("forms:library.edit.fields.con")}
                 value={formData.con?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, con: safeParseInt(v) })}
+                onChange={(v) =>
+                  setFormData({ ...formData, con: safeParseInt(v) })
+                }
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-int"
                 label={t("forms:library.edit.fields.int")}
                 value={formData.int?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, int: safeParseInt(v) })}
+                onChange={(v) =>
+                  setFormData({ ...formData, int: safeParseInt(v) })
+                }
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-wis"
                 label={t("forms:library.edit.fields.wis")}
                 value={formData.wis?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, wis: safeParseInt(v) })}
+                onChange={(v) =>
+                  setFormData({ ...formData, wis: safeParseInt(v) })
+                }
                 placeholder="10"
               />
               <LabeledTextInput
                 id="edit-cha"
                 label={t("forms:library.edit.fields.cha")}
                 value={formData.cha?.toString() ?? ""}
-                onChange={(v) => setFormData({ ...formData, cha: safeParseInt(v) })}
+                onChange={(v) =>
+                  setFormData({ ...formData, cha: safeParseInt(v) })
+                }
                 placeholder="10"
               />
             </div>
+            <MarkdownEditor
+              value={formData.notes ?? ""}
+              onChange={updateNotes}
+            />
           </div>
 
           {/* Footer */}

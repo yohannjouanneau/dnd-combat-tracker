@@ -302,7 +302,9 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           isOpen={showLibrary}
           monsters={combatStateManager.monsters}
           canLoadToForm={true}
-          onClose={() => setShowLibrary(false)}
+          onClose={() => {
+            setShowLibrary(false);
+          }}
           onLoadToForm={(monster) => {
             combatStateManager.loadMonsterToForm({
               source: "library",

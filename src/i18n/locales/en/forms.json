@@ -123,6 +123,29 @@
         "wis": "WIS",
         "cha": "CHA"
       }
+    },
+    "notes": {
+      "label": "Notes",
+      "write": "Write",
+      "preview": "Preview",
+      "placeholder": "Add notes... (Markdown supported)",
+      "emptyPreview": "Nothing to preview. Switch to Write mode to add notes.",
+      "help": {
+        "title": "Markdown syntax help",
+        "header": "Markdown Syntax",
+        "heading1": "Large heading",
+        "heading2": "Medium heading",
+        "bold": "Bold text",
+        "italic": "Italic text",
+        "strikethrough": "Crossed out",
+        "bulletList": "Bullet list",
+        "numberedList": "Numbered list",
+        "hyperlink": "Hyperlink",
+        "inlineCode": "Inline code",
+        "blockquote": "Blockquote",
+        "horizontalLine": "Horizontal line",
+        "tip": "💡 Tip: Use blank lines to separate paragraphs"
+      }
     }
   }
 }
