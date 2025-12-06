@@ -118,6 +118,27 @@ export default function MarkdownHelpTooltip() {
                 </code>
                 <span className="text-slate-500 ml-2">{t('forms:library.notes.help.horizontalLine')}</span>
               </div>
+
+              {/* D&D specific notations */}
+              <div className="mt-3 pt-3 border-t border-slate-700">
+                <div className="font-semibold text-slate-300 mb-2">
+                  {t('forms:library.notes.help.dndNotations')}
+                </div>
+              </div>
+
+              <div>
+                <code className="bg-slate-900 px-1.5 py-0.5 rounded">
+                  2d6+3
+                </code>
+                <span className="text-slate-500 ml-2">{t('forms:library.notes.help.diceNotation')}</span>
+              </div>
+
+              <div>
+                <code className="bg-slate-900 px-1.5 py-0.5 rounded">
+                  {`{hit: +5 to hit}`}
+                </code>
+                <span className="text-slate-500 ml-2">{t('forms:library.notes.help.hitNotation')}</span>
+              </div>
             </div>
 
             {/* Footer tip */}

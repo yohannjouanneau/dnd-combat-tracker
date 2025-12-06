@@ -130,6 +130,7 @@
       "preview": "Aperçu",
       "placeholder": "Ajouter des notes... (Markdown supporté)",
       "emptyPreview": "Rien à prévisualiser. Passez en mode Écrire pour ajouter des notes.",
+      "wrapHitButton": "Encadrer le texte sélectionné avec {hit:}",
       "help": {
         "title": "Aide sur la syntaxe Markdown",
         "header": "Syntaxe Markdown",
@@ -144,6 +145,9 @@
         "inlineCode": "Code en ligne",
         "blockquote": "Citation",
         "horizontalLine": "Ligne horizontale",
+        "dndNotations": "Notations D&D",
+        "diceNotation": "Notation de dés (vert)",
+        "hitNotation": "Modificateur d'attaque (rouge)",
         "tip": "💡 Astuce : Utilisez des lignes vides pour séparer les paragraphes"
       }
     }

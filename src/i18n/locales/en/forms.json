@@ -130,6 +130,7 @@
       "preview": "Preview",
       "placeholder": "Add notes... (Markdown supported)",
       "emptyPreview": "Nothing to preview. Switch to Write mode to add notes.",
+      "wrapHitButton": "Wrap selected text with {hit:} tag",
       "help": {
         "title": "Markdown syntax help",
         "header": "Markdown Syntax",
@@ -144,6 +145,9 @@
         "inlineCode": "Inline code",
         "blockquote": "Blockquote",
         "horizontalLine": "Horizontal line",
+        "dndNotations": "D&D Notations",
+        "diceNotation": "Dice notation (green)",
+        "hitNotation": "Attack modifier (red)",
         "tip": "💡 Tip: Use blank lines to separate paragraphs"
       }
     }

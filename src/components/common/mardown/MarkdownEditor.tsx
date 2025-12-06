@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Eye, Edit3 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Eye, Edit3, Sword } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import MarkdownHelpTooltip from './MarkdownHelpTooltip';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -19,8 +19,36 @@ export default function MarkdownEditor({
 }: Props) {
   const { t } = useTranslation(['forms']);
   const [isPreview, setIsPreview] = useState(false);
-  
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const defaultPlaceholder = t('forms:library.notes.placeholder');
+
+  const wrapWithHit = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = value.substring(start, end);
+    const scrollTop = textarea.scrollTop; // Save scroll position
+
+    // If no text selected, insert placeholder
+    const textToWrap = selectedText || '+0';
+
+    const beforeText = value.substring(0, start);
+    const afterText = value.substring(end);
+    const newText = beforeText + `{hit: ${textToWrap}}` + afterText;
+
+    onChange(newText);
+
+    // Restore focus, cursor position, and scroll position after the inserted text
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPos = start + `{hit: ${textToWrap}}`.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+      textarea.scrollTop = scrollTop; // Restore scroll position
+    }, 0);
+  };
 
   return (
     <div className="space-y-2">
@@ -33,32 +61,53 @@ export default function MarkdownEditor({
           <MarkdownHelpTooltip />
         </div>
 
-        {/* Tab buttons */}
-        <div className="flex gap-1 bg-slate-900 rounded p-1">
-          <button
-            type="button"
-            onClick={() => setIsPreview(false)}
-            className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
-              !isPreview
-                ? 'bg-slate-700 text-white'
-                : 'text-slate-400 hover:text-slate-300'
-            }`}
-          >
-            <Edit3 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t('forms:library.notes.write')}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsPreview(true)}
-            className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
-              isPreview
-                ? 'bg-slate-700 text-white'
-                : 'text-slate-400 hover:text-slate-300'
-            }`}
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t('forms:library.notes.preview')}</span>
-          </button>
+        {/* Action buttons and tabs */}
+        <div className="flex gap-2">
+          {/* Hit tag button - separate group */}
+          <div className="flex gap-1 bg-slate-900 rounded p-1">
+            <button
+              type="button"
+              onClick={wrapWithHit}
+              disabled={isPreview}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
+                isPreview
+                  ? 'text-slate-600 cursor-not-allowed'
+                  : 'text-slate-400 hover:text-slate-300 hover:bg-slate-800'
+              }`}
+              title={t('forms:library.notes.wrapHitButton')}
+            >
+              <Sword className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{`{hit:}`}</span>
+            </button>
+          </div>
+
+          {/* Write/Preview tabs */}
+          <div className="flex gap-1 bg-slate-900 rounded p-1">
+            <button
+              type="button"
+              onClick={() => setIsPreview(false)}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
+                !isPreview
+                  ? 'bg-slate-700 text-white'
+                  : 'text-slate-400 hover:text-slate-300'
+              }`}
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{t('forms:library.notes.write')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsPreview(true)}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
+                isPreview
+                  ? 'bg-slate-700 text-white'
+                  : 'text-slate-400 hover:text-slate-300'
+              }`}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{t('forms:library.notes.preview')}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -68,6 +117,7 @@ export default function MarkdownEditor({
           // Write mode - Textarea
           <div>
             <textarea
+              ref={textareaRef}
               value={value}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder ?? defaultPlaceholder}
