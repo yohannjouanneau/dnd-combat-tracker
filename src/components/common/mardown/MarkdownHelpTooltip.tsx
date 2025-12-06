@@ -135,9 +135,37 @@ export default function MarkdownHelpTooltip() {
 
               <div>
                 <code className="bg-slate-900 px-1.5 py-0.5 rounded">
-                  {`{hit: +5 to hit}`}
+                  {`{hit: +5}`}
                 </code>
-                <span className="text-slate-500 ml-2">{t('forms:library.notes.help.hitNotation')}</span>
+                <span className="text-slate-500 ml-2">{t('forms:library.notes.tags.hit')}</span>
+              </div>
+
+              <div>
+                <code className="bg-slate-900 px-1.5 py-0.5 rounded">
+                  {`{dmg: 2d6+3 fire}`}
+                </code>
+                <span className="text-slate-500 ml-2">{t('forms:library.notes.tags.dmg')}</span>
+              </div>
+
+              <div>
+                <code className="bg-slate-900 px-1.5 py-0.5 rounded">
+                  {`{save: DC 15 Dex}`}
+                </code>
+                <span className="text-slate-500 ml-2">{t('forms:library.notes.tags.save')}</span>
+              </div>
+
+              <div>
+                <code className="bg-slate-900 px-1.5 py-0.5 rounded">
+                  {`{heal: 2d8+4}`}
+                </code>
+                <span className="text-slate-500 ml-2">{t('forms:library.notes.tags.heal')}</span>
+              </div>
+
+              <div>
+                <code className="bg-slate-900 px-1.5 py-0.5 rounded">
+                  {`{ac: 18}, {range: 60 ft.}, {speed: 30 ft.}`}
+                </code>
+                <span className="text-slate-500 ml-2">+9 more tags...</span>
               </div>
             </div>
 
