@@ -3,106 +3,16 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import type { ReactNode } from "react";
-import {
-  Dices,
-  Sword,
-  Flame,
-  Shield,
-  Heart,
-  ShieldCheck,
-  Skull,
-  Target,
-  Wind,
-  ShieldPlus,
-  Sparkles,
-  RotateCw,
-  Star,
-  ShieldX
-} from "lucide-react";
+import { Dices } from "lucide-react";
+import { DICE_NOTATION_REGEX, DICE_NOTATION_TEST_REGEX, EDITOR_TAGS } from "../../../constants";
 
 type Props = {
   content: string;
 };
 
-type CustomTag = {
-  pattern: RegExp;
-  icon: React.ComponentType<{ className?: string }>;
-  className: string;
-};
-
-const CUSTOM_TAGS: CustomTag[] = [
-  {
-    pattern: /\{hit:\s*([^}]+)\}/gi,
-    icon: Sword,
-    className: "text-red-400 font-semibold",
-  },
-  {
-    pattern: /\{dmg:\s*([^}]+)\}/gi,
-    icon: Flame,
-    className: "text-orange-400 font-semibold",
-  },
-  {
-    pattern: /\{save:\s*([^}]+)\}/gi,
-    icon: Shield,
-    className: "text-blue-400 font-semibold",
-  },
-  {
-    pattern: /\{heal:\s*([^}]+)\}/gi,
-    icon: Heart,
-    className: "text-green-400 font-semibold",
-  },
-  {
-    pattern: /\{ac:\s*([^}]+)\}/gi,
-    icon: ShieldCheck,
-    className: "text-cyan-400 font-semibold",
-  },
-  {
-    pattern: /\{cond:\s*([^}]+)\}/gi,
-    icon: Skull,
-    className: "text-yellow-400 font-semibold",
-  },
-  {
-    pattern: /\{range:\s*([^}]+)\}/gi,
-    icon: Target,
-    className: "text-purple-400 font-semibold",
-  },
-  {
-    pattern: /\{speed:\s*([^}]+)\}/gi,
-    icon: Wind,
-    className: "text-sky-400 font-semibold",
-  },
-  {
-    pattern: /\{resist:\s*([^}]+)\}/gi,
-    icon: ShieldPlus,
-    className: "text-indigo-400 font-semibold",
-  },
-  {
-    pattern: /\{spell:\s*([^}]+)\}/gi,
-    icon: Sparkles,
-    className: "text-pink-400 font-semibold",
-  },
-  {
-    pattern: /\{recharge:\s*([^}]+)\}/gi,
-    icon: RotateCw,
-    className: "text-amber-400 font-semibold",
-  },
-  {
-    pattern: /\{legendary:\s*([^}]+)\}/gi,
-    icon: Star,
-    className: "text-yellow-300 font-semibold",
-  },
-  {
-    pattern: /\{vuln:\s*([^}]+)\}/gi,
-    icon: ShieldX,
-    className: "text-red-500 font-semibold",
-  },
-];
 
 export default function MarkdownRenderer({ content }: Props) {
-  // Regex pattern for dice notation (e.g., 2d12+4, 2d12 + 4, 1d6, 3d8-2, 3d8 - 2)
-  const DICE_NOTATION_REGEX = /(\d+d\d+(?:\s*[+-]\s*\d+)?)/gi;
-  const DICE_NOTATION_TEST_REGEX = /^\d+d\d+(?:\s*[+-]\s*\d+)?$/i;
-
+  
   /**
    * Process children to detect and render dice notation with icons
    * @param child - React child element or string
@@ -146,27 +56,46 @@ export default function MarkdownRenderer({ content }: Props) {
       let segments: (string | ReactNode)[] = [child];
 
       // Process each custom tag
-      CUSTOM_TAGS.forEach((tag, tagIndex) => {
-        segments = segments.flatMap(segment => {
+      EDITOR_TAGS.forEach((tag, tagIndex) => {
+        segments = segments.flatMap((segment, segmentIndex) => {
           if (typeof segment !== 'string') return segment;
 
-          const parts = segment.split(tag.pattern);
-          return parts.map((part, index) => {
-            // Check if this is a captured group (odd indices after split with capture groups)
-            if (index % 2 === 1) {
-              const Icon = tag.icon;
-              return (
-                <span
-                  key={`tag-${tagIndex}-${index}`}
-                  className={`inline-flex items-center gap-1 ${tag.className}`}
-                >
-                  <Icon className="w-3 h-3 inline" />
-                  {part.trim()}
-                </span>
-              );
+          const result: (string | ReactNode)[] = [];
+          let lastIndex = 0;
+
+          // Use matchAll to find all matches with their positions
+          const matches = Array.from(segment.matchAll(tag.pattern));
+
+          for (const match of matches) {
+            const matchIndex = match.index!;
+            const capturedContent = match[1]; // First capture group
+
+            // Add text before this match
+            if (matchIndex > lastIndex) {
+              result.push(segment.substring(lastIndex, matchIndex));
             }
-            return part;
-          });
+
+            // Add the tagged span
+            const Icon = tag.icon;
+            result.push(
+              <span
+                key={`tag-${tagIndex}-${segmentIndex}-${matchIndex}`}
+                className={`inline-flex items-center gap-1 ${tag.className}`}
+              >
+                <Icon className="w-3 h-3 inline" />
+                {capturedContent.trim()}
+              </span>
+            );
+
+            lastIndex = matchIndex + match[0].length;
+          }
+
+          // Add remaining text after last match
+          if (lastIndex < segment.length) {
+            result.push(segment.substring(lastIndex));
+          }
+
+          return result.length > 0 ? result : [segment];
         });
       });
 
