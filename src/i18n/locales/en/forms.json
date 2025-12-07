@@ -130,6 +130,23 @@
       "preview": "Preview",
       "placeholder": "Add notes... (Markdown supported)",
       "emptyPreview": "Nothing to preview. Switch to Write mode to add notes.",
+      "tagsLabel": "Tags",
+      "tagMenu": "Insert D&D tag",
+      "tags": {
+        "hit": "Attack",
+        "dmg": "Damage",
+        "save": "Save",
+        "heal": "Healing",
+        "ac": "AC",
+        "cond": "Condition",
+        "range": "Range",
+        "speed": "Speed",
+        "resist": "Resistance",
+        "spell": "Spell",
+        "recharge": "Recharge",
+        "legendary": "Legendary",
+        "vuln": "Vulnerability"
+      },
       "help": {
         "title": "Markdown syntax help",
         "header": "Markdown Syntax",
@@ -144,6 +161,9 @@
         "inlineCode": "Inline code",
         "blockquote": "Blockquote",
         "horizontalLine": "Horizontal line",
+        "dndNotations": "D&D Notations",
+        "diceNotation": "Dice notation (green)",
+        "hitNotation": "Attack modifier (red)",
         "tip": "💡 Tip: Use blank lines to separate paragraphs"
       }
     }
