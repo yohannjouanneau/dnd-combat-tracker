@@ -1,25 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
 import {
-  Eye,
-  Edit3,
-  Sparkles,
-  ChevronDown,
-  Sword,
-  Flame,
-  Shield,
-  Heart,
-  ShieldCheck,
-  Skull,
-  Target,
-  Wind,
-  ShieldPlus,
-  RotateCw,
-  Star,
-  ShieldX
-} from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import MarkdownHelpTooltip from './MarkdownHelpTooltip';
-import MarkdownRenderer from './MarkdownRenderer';
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useLayoutEffect,
+} from "react";
+import { Eye, Edit3, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import MarkdownHelpTooltip from "./MarkdownHelpTooltip";
+import MarkdownRenderer from "./MarkdownRenderer";
+import { MarkdownEditorTagMenu } from "./MarkdownEditorTagMenu";
 
 type Props = {
   value: string;
@@ -32,80 +22,68 @@ export default function MarkdownEditor({
   value,
   onChange,
   placeholder,
-  maxLength = 10000,
+  maxLength = 5000,
 }: Props) {
-  const { t } = useTranslation(['forms']);
+  const { t } = useTranslation(["forms"]);
   const [isPreview, setIsPreview] = useState(false);
   const [isTagMenuOpen, setIsTagMenuOpen] = useState(false);
+  const [newCursorPos, setNewCursorPos] = useState<number | undefined>();
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const defaultPlaceholder = t('forms:library.notes.placeholder');
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsTagMenuOpen(false);
       }
     };
 
     if (isTagMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isTagMenuOpen]);
 
+  const defaultPlaceholder = t("forms:library.notes.placeholder");
+
   // Generic wrap function for any tag
-  const wrapWithTag = (tagName: string, placeholder: string = '') => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+  const wrapWithTag = useCallback(
+    (tagName: string, placeholder: string = "") => {
+      const textarea = textareaRef?.current;
+      if (!textarea) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = value.substring(start, end);
-    const scrollTop = textarea.scrollTop;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = value.substring(start, end);
+      const textToWrap = selectedText || placeholder;
+      const beforeText = value.substring(0, start);
+      const afterText = value.substring(end);
+      const newText = beforeText + `{${tagName}: ${textToWrap}}` + afterText;
 
-    const textToWrap = selectedText || placeholder;
-    const beforeText = value.substring(0, start);
-    const afterText = value.substring(end);
-    const newText = beforeText + `{${tagName}: ${textToWrap}}` + afterText;
-
-    onChange(newText);
-
-    setTimeout(() => {
+      onChange(newText);
       textarea.focus();
-      const newCursorPos = start + `{${tagName}: ${textToWrap}}`.length;
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-      textarea.scrollTop = scrollTop;
-    }, 0);
+      const newPos = start + `{${tagName}: ${textToWrap}}`.length;
+      setNewCursorPos(newPos)
+      setIsTagMenuOpen(false);
+    },
+    [onChange, value]
+  );
 
-    setIsTagMenuOpen(false);
-  };
+  useLayoutEffect(() => {
+    const textarea = textareaRef?.current;
+    if (!textarea || !newCursorPos) return;
 
-  // Tag menu items configuration
-  const tagMenuItems = [
-    // Combat
-    { key: 'hit', icon: Sword, color: 'text-red-400', labelKey: 'hit', placeholder: '+0' },
-    { key: 'dmg', icon: Flame, color: 'text-orange-400', labelKey: 'dmg', placeholder: '1d6' },
-    { key: 'heal', icon: Heart, color: 'text-green-400', labelKey: 'heal', placeholder: '1d8' },
-    // Status & Utility
-    { key: 'cond', icon: Skull, color: 'text-yellow-400', labelKey: 'cond', placeholder: 'poisoned' },
-    { key: 'range', icon: Target, color: 'text-purple-400', labelKey: 'range', placeholder: '30 ft.' },
-    { key: 'speed', icon: Wind, color: 'text-sky-400', labelKey: 'speed', placeholder: '30 ft.' },
-    // Defense
-    { key: 'save', icon: Shield, color: 'text-blue-400', labelKey: 'save', placeholder: 'DC 10' },
-    { key: 'ac', icon: ShieldCheck, color: 'text-cyan-400', labelKey: 'ac', placeholder: '15' },
-    { key: 'resist', icon: ShieldPlus, color: 'text-indigo-400', labelKey: 'resist', placeholder: 'fire' },
-    { key: 'vuln', icon: ShieldX, color: 'text-red-500', labelKey: 'vuln', placeholder: 'cold' },
-    // Special
-    { key: 'spell', icon: Sparkles, color: 'text-pink-400', labelKey: 'spell', placeholder: 'Fireball' },
-    { key: 'recharge', icon: RotateCw, color: 'text-amber-400', labelKey: 'recharge', placeholder: '5-6' },
-    { key: 'legendary', icon: Star, color: 'text-yellow-300', labelKey: 'legendary', placeholder: '3' },
-  ];
+    textarea.focus();
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+  }, [newCursorPos]);
 
   return (
     <div className="space-y-2">
@@ -113,7 +91,7 @@ export default function MarkdownEditor({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <label className="text-sm font-semibold text-slate-300">
-            {t('forms:library.notes.label')}
+            {t("forms:library.notes.label")}
           </label>
           <MarkdownHelpTooltip />
         </div>
@@ -121,44 +99,30 @@ export default function MarkdownEditor({
         {/* Action buttons and tabs */}
         <div className="flex gap-2">
           {/* Tag dropdown menu - separate group */}
-          <div className="flex gap-1 bg-slate-900 rounded p-1 relative" ref={dropdownRef}>
+          <div
+            className="flex gap-1 bg-slate-900 rounded p-1 relative"
+            ref={dropdownRef}
+          >
             <button
               type="button"
               onClick={() => setIsTagMenuOpen(!isTagMenuOpen)}
               disabled={isPreview}
               className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
                 isPreview
-                  ? 'text-slate-600 cursor-not-allowed'
-                  : 'text-slate-400 hover:text-slate-300 hover:bg-slate-800'
+                  ? "text-slate-600 cursor-not-allowed"
+                  : "text-slate-400 hover:text-slate-300 hover:bg-slate-800"
               }`}
-              title={t('forms:library.notes.tagMenu')}
+              title={t("forms:library.notes.tagMenu")}
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t('forms:library.notes.tagsLabel')}</span>
+              <span className="hidden sm:inline">
+                {t("forms:library.notes.tagsLabel")}
+              </span>
               <ChevronDown className="w-3 h-3" />
             </button>
 
             {/* Dropdown Menu */}
             {isTagMenuOpen && !isPreview && (
-              <div className="absolute top-full left-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 min-w-[200px] max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
-                {tagMenuItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.key}
-                      type="button"
-                      onClick={() => wrapWithTag(item.key, item.placeholder)}
-                      className="w-full px-3 py-2 text-left text-xs hover:bg-slate-700 transition flex items-center gap-2"
-                    >
-                      <Icon className={`w-3.5 h-3.5 ${item.color}`} />
-                      <span className="text-slate-300">{`{${item.key}:}`}</span>
-                      <span className="text-slate-500 ml-auto text-[10px]">
-                        {t(`forms:library.notes.tags.${item.labelKey}`)}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <MarkdownEditorTagMenu wrapWithTag={wrapWithTag} />
             )}
           </div>
 
@@ -169,24 +133,28 @@ export default function MarkdownEditor({
               onClick={() => setIsPreview(false)}
               className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
                 !isPreview
-                  ? 'bg-slate-700 text-white'
-                  : 'text-slate-400 hover:text-slate-300'
+                  ? "bg-slate-700 text-white"
+                  : "text-slate-400 hover:text-slate-300"
               }`}
             >
               <Edit3 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t('forms:library.notes.write')}</span>
+              <span className="hidden sm:inline">
+                {t("forms:library.notes.write")}
+              </span>
             </button>
             <button
               type="button"
               onClick={() => setIsPreview(true)}
               className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
                 isPreview
-                  ? 'bg-slate-700 text-white'
-                  : 'text-slate-400 hover:text-slate-300'
+                  ? "bg-slate-700 text-white"
+                  : "text-slate-400 hover:text-slate-300"
               }`}
             >
               <Eye className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t('forms:library.notes.preview')}</span>
+              <span className="hidden sm:inline">
+                {t("forms:library.notes.preview")}
+              </span>
             </button>
           </div>
         </div>
@@ -211,8 +179,8 @@ export default function MarkdownEditor({
               <span
                 className={`text-xs ${
                   value.length > maxLength * 0.9
-                    ? 'text-orange-400'
-                    : 'text-slate-500'
+                    ? "text-orange-400"
+                    : "text-slate-500"
                 }`}
               >
                 {value.length} / {maxLength.toLocaleString()}
@@ -226,7 +194,7 @@ export default function MarkdownEditor({
               <MarkdownRenderer content={value} />
             ) : (
               <p className="text-slate-500 text-sm italic">
-                {t('forms:library.notes.emptyPreview')}
+                {t("forms:library.notes.emptyPreview")}
               </p>
             )}
           </div>
