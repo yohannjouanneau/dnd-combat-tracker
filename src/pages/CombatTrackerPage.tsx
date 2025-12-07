@@ -18,6 +18,7 @@ import logo from "../assets/logo.png";
 import SaveBar from "../components/SaveBar";
 import { HP_BAR_ID_PREFIX } from "../constants";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
+import { generateId } from "../utils";
 
 type Props = {
   combatStateManager: CombatStateManager;
@@ -123,6 +124,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
   const includePlayerToFight = (player: SavedPlayer) => {
     const playerCombattant: PlayerCombatant = {
+      id: generateId(),
       type: "player",
       name: player.name,
       initiativeGroups: player.initiativeGroups,
@@ -134,7 +136,13 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
       initBonus: player.initBonus,
       externalResourceUrl: player.externalResourceUrl,
     };
-    combatStateManager.addCombatant(playerCombattant);
+    combatStateManager.addCombatant({
+      ...playerCombattant,
+      templateOrigin: {
+        orgin: 'player_library',
+        id: player.id
+      }
+    });
     if (combatListRef.current) {
       combatListRef.current.scrollIntoView({
         behavior: "smooth",

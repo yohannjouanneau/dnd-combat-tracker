@@ -15,8 +15,10 @@ import {
 } from "lucide-react";
 import type { EditorTag, EditorTagMenuItem } from "./components/common/mardown/types";
 import type { NewCombatant } from "./types";
+import { generateId } from "./utils";
 
 export const DEFAULT_NEW_COMBATANT: NewCombatant = {
+  id : generateId(),
   type: "monster",
   name: "",
   initiativeGroups: [{ id: crypto.randomUUID(), initiative: "", count: "1" }],
@@ -24,6 +26,10 @@ export const DEFAULT_NEW_COMBATANT: NewCombatant = {
   imageUrl: "",
   externalResourceUrl: "",
   notes: "",
+  templateOrigin: {
+    orgin: 'no_template',
+    id: ''
+  }
 };
 
 // Condition keys for translation - use these with t('conditions:key')

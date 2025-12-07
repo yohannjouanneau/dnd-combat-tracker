@@ -3,7 +3,7 @@ import type {
   CombatantTemplateType,
   SavedCombatantTemplate,
 } from "../types";
-import { generateId, safeParse, safeStringify } from "../utils";
+import { safeParse, safeStringify } from "../utils";
 
 export class CombatantTemplateStorageProvider<T extends CombatantTemplateType> {
   private key: string;
@@ -39,7 +39,7 @@ export class CombatantTemplateStorageProvider<T extends CombatantTemplateType> {
     data: CombatantTemplate<T>
   ): Promise<SavedCombatantTemplate<T>> {
     const now = Date.now();
-    const generatedId = generateId();
+    const generatedId = data.id;
 
     const item: SavedCombatantTemplate<T> = {
       ...data,

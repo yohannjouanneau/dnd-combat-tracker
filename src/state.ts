@@ -19,7 +19,12 @@ import { dataStore } from "./persistence/storage";
 import { DEFAULT_NEW_COMBATANT } from "./constants";
 import type { ApiMonster } from "./api/types";
 import { createGraphQLClient } from "./api/DnD5eGraphQLClient";
-import { getStatModifier, getApiImageUrl, indexToLetter, enrichWithMonsterNotes } from "./utils";
+import {
+  getStatModifier,
+  getApiImageUrl,
+  indexToLetter,
+  generateId,
+} from "./utils";
 import { useToast } from "./components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 import { getSettings } from "./hooks/useSettings";
@@ -209,25 +214,13 @@ export function useCombatState(): CombatStateManager {
     const savedCombat = await dataStore.getCombat(combatId);
 
     if (savedCombat?.data) {
-      // Load current monsters from library
-      const currentMonsters = await dataStore.listMonster();
-
-      // Enrich combatants with notes from monster library
-      const enrichedCombatants = enrichWithMonsterNotes(
-        savedCombat.data.combatants,
-        currentMonsters
-      );
-
-      // Enrich parked groups with notes from monster library
-      const enrichedParkedGroups = enrichWithMonsterNotes(
-        savedCombat.data.parkedGroups,
-        currentMonsters
-      );
+     
+     
 
       setState({
         ...savedCombat.data,
-        combatants: enrichedCombatants,
-        parkedGroups: enrichedParkedGroups,
+        combatants: savedCombat.data.combatants,
+        parkedGroups: savedCombat.data.parkedGroups,
         combatId: savedCombat.id,
         combatName: savedCombat.name,
         combatDescription: savedCombat.description,
@@ -331,7 +324,8 @@ export function useCombatState(): CombatStateManager {
             int: nc.int,
             str: nc.str,
             wis: nc.wis,
-            notes: nc.notes
+            notes: nc.notes,
+            templateOrigin: nc.templateOrigin
           });
           globalIndex++;
         }
@@ -364,9 +358,16 @@ export function useCombatState(): CombatStateManager {
           return prev;
 
         // If maxHp is empty, copy hp to maxHp
-        const groupToAdd = {
+        const groupToAdd: NewCombatant = {
           ...nc,
           maxHp: nc.maxHp || nc.hp,
+          templateOrigin:
+            prev.newCombatant.templateOrigin.orgin !== "no_template"
+              ? prev.newCombatant.templateOrigin
+              : {
+                  orgin: "parked_group",
+                  id: nc.id,
+                },
         };
 
         // Remove existing group with same name (if any) and add new one
@@ -482,6 +483,7 @@ export function useCombatState(): CombatStateManager {
       } else {
         // Create new player
         await dataStore.createPlayer({
+          id: generateId(),
           type: "player",
           name: nc.name,
           initiativeGroups: nc.initiativeGroups,
@@ -532,6 +534,7 @@ export function useCombatState(): CombatStateManager {
     setState((prev) => ({
       ...prev,
       newCombatant: {
+        id: generateId(),
         type: "player",
         name: player.name,
         initiativeGroups: player.initiativeGroups,
@@ -542,6 +545,10 @@ export function useCombatState(): CombatStateManager {
         imageUrl: player.imageUrl,
         initBonus: player.initBonus,
         externalResourceUrl: player.externalResourceUrl,
+        templateOrigin: {
+          orgin: "player_library",
+          id: player.id,
+        },
       },
     }));
   }, []);
@@ -601,6 +608,10 @@ export function useCombatState(): CombatStateManager {
         wis: monster.wis,
         cha: monster.cha,
         notes: monster.notes,
+        templateOrigin: {
+          orgin: "monster_library",
+          id: monster.id,
+        },
       },
     }));
   };
@@ -733,7 +744,10 @@ export function useCombatState(): CombatStateManager {
       ...prev,
       combatants: prev.combatants.map((c) => {
         if (c.id === id) {
-          const newHp = Math.max(0, Math.min(c.maxHp ?? 0, (c.hp ?? 0) + change));
+          const newHp = Math.max(
+            0,
+            Math.min(c.maxHp ?? 0, (c.hp ?? 0) + change)
+          );
           return { ...c, hp: newHp };
         }
         return c;

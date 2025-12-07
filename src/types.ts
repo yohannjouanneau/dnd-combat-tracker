@@ -5,7 +5,6 @@ export type CombatantIdentifierType = "letters" | "numbers";
 
 // Base types for common metadata
 export type TimestampedEntity = {
-  id: string;
   createdAt: number;
   updatedAt: number;
 };
@@ -32,7 +31,7 @@ export type Presentation = {
   color: string;
   imageUrl?: string;
   externalResourceUrl?: string;
-  notes?: string
+  notes?: string;
 };
 
 export type DeathSaves = {
@@ -49,8 +48,10 @@ export type Combatant = {
   concentration: boolean;
   deathSaves: DeathSaves;
   groupIndex: number;
+  templateOrigin: TemplateOigin;
 } & Presentation &
-  CombatStats & AbilityScores;
+  CombatStats &
+  AbilityScores;
 
 export type InitiativeGroup = {
   id: string;
@@ -68,6 +69,7 @@ export type CombatantTemplateType = "player" | "monster";
 
 // Base entity for any combatant template (monsters, players, NPCs)
 export type CombatantTemplate<T extends CombatantTemplateType> = {
+  id: string;
   name: string;
   type: T;
 } & CombatStats &
@@ -76,16 +78,23 @@ export type CombatantTemplate<T extends CombatantTemplateType> = {
   InitiativeData;
 
 export type SavedCombatantTemplate<T extends CombatantTemplateType> =
-   CombatantTemplate<T> & TimestampedEntity;
+  CombatantTemplate<T> & TimestampedEntity;
 
 export type SavedPlayer = SavedCombatantTemplate<"player">;
 export type SavedMonster = SavedCombatantTemplate<"monster">;
 
-export type NewCombatant = CombatantTemplate<'player'| 'monster'>
-export type MonsterCombatant = CombatantTemplate<'monster'>
-export type PlayerCombatant = CombatantTemplate<'player'>
+export type TemplateOigin = {
+  orgin: "parked_group" | "monster_library" | "player_library" | "no_template";
+  id: string;
+};
 
-export type SearchSource = "api" | "library"
+export type NewCombatant = {
+  templateOrigin: TemplateOigin;
+} & CombatantTemplate<"player" | "monster">;
+export type MonsterCombatant = CombatantTemplate<"monster">;
+export type PlayerCombatant = CombatantTemplate<"player">;
+
+export type SearchSource = "api" | "library";
 export type SearchResult = {
   source: SearchSource;
   monster: ApiMonster | SavedMonster;
@@ -110,20 +119,19 @@ export type CombatState = {
 };
 
 export type SavedCombat = TimestampedEntity & {
+  id: string;
   name: string;
   description: string;
   data: CombatState;
 };
 
-
 export type SavedCombatInput = Omit<SavedCombat, keyof TimestampedEntity>;
-
 
 export interface SyncApi {
   isSyncAuthorized: () => boolean;
   authorizeSync: () => Promise<boolean>;
   hasNewRemoteData: () => Promise<boolean>;
   synchronise: () => Promise<boolean>;
-  getLastSyncTime: () => number | undefined
+  getLastSyncTime: () => number | undefined;
   logout: () => Promise<boolean>;
 }

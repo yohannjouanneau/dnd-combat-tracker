@@ -11,6 +11,7 @@ import type { CombatStateManager } from "../state";
 import CombatList from "../components/CombatsList/CombatList";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
 import SettingsModal from "../components/Settings/SettingsModal";
+import { generateId } from "../utils";
 
 type Props = {
   onOpen: (id: string) => void;
@@ -44,6 +45,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
     };
 
     const created = await combatStateManager.createCombat({
+      id: generateId(),
       name: name.trim(),
       description: description.trim(),
       data: emptyState,
