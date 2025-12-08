@@ -1,34 +1,14 @@
 import type {
   Combatant,
-  CombatantReference,
   CombatState,
   NewCombatant,
-  OptimizedCombatState,
-  ParkedGroupReference,
   SavedPlayer,
   SavedMonster,
 } from "../types";
 import type { DataStore } from "./storage";
 
-// Type guards to check if data is optimized
-export function isCombatantReference(
-  combatant: Combatant | CombatantReference
-): combatant is CombatantReference {
-  // CombatantReference only has specific fields, missing fields like 'name', 'maxHp', 'ac', etc.
-  return !("name" in combatant && "maxHp" in combatant && "ac" in combatant);
-}
-
-export function isParkedGroupReference(
-  group: NewCombatant | ParkedGroupReference
-): group is ParkedGroupReference {
-  // ParkedGroupReference has templateOrigin + initiativeGroups, but missing other fields like name, hp, etc.
-  return !("name" in group && "hp" in group && "type" in group);
-}
-
 // Optimization functions
-export function optimizeCombatant(
-  combatant: Combatant
-): Combatant | CombatantReference {
+export function optimizeCombatant(combatant: Combatant): Combatant {
   const origin = combatant.templateOrigin?.orgin;
 
   // Keep full data for no_template
@@ -52,15 +32,14 @@ export function optimizeCombatant(
       conditions: combatant.conditions,
       concentration: combatant.concentration,
       deathSaves: combatant.deathSaves,
-    };
+      isReference: true,
+    } as Combatant;
   }
 
   return combatant;
 }
 
-export function optimizeParkedGroup(
-  group: NewCombatant
-): NewCombatant | ParkedGroupReference {
+export function optimizeParkedGroup(group: NewCombatant): NewCombatant {
   const origin = group.templateOrigin?.orgin;
 
   // Keep full data for no_template and parked_group
@@ -75,15 +54,14 @@ export function optimizeParkedGroup(
       initiativeGroups: group.initiativeGroups,
       initBonus: group.initBonus,
       color: group.color,
-    };
+      isReference: true,
+    } as NewCombatant;
   }
 
   return group;
 }
 
-export function cleanCombatStateForStorage(
-  state: CombatState
-): OptimizedCombatState {
+export function cleanCombatStateForStorage(state: CombatState): CombatState {
   return {
     ...state,
     combatants: state.combatants.map(optimizeCombatant),
@@ -191,12 +169,12 @@ export async function migrateLegacyData(
 
 // Restoration functions
 export async function restoreCombatant(
-  combatant: Combatant | CombatantReference,
+  combatant: Combatant,
   dataStore: DataStore,
   parkedGroups: NewCombatant[] = []
 ): Promise<Combatant> {
-  // If already full combatant, return as-is
-  if (!isCombatantReference(combatant)) {
+  // If not a reference, return as-is
+  if (!combatant.isReference) {
     return combatant;
   }
 
@@ -275,11 +253,11 @@ export async function restoreCombatant(
 }
 
 export async function restoreParkedGroup(
-  group: NewCombatant | ParkedGroupReference,
+  group: NewCombatant,
   dataStore: DataStore
 ): Promise<NewCombatant> {
-  // If already full parked group, return as-is
-  if (!isParkedGroupReference(group)) {
+  // If not a reference, return as-is
+  if (!group.isReference) {
     return group;
   }
 
@@ -326,21 +304,21 @@ export async function restoreParkedGroup(
 }
 
 export async function restoreCombatState(
-  optimized: OptimizedCombatState | CombatState,
+  state: CombatState,
   dataStore: DataStore
 ): Promise<CombatState> {
   // Restore parked groups first (combatants may reference them)
   const parkedGroups = await Promise.all(
-    optimized.parkedGroups.map((g) => restoreParkedGroup(g, dataStore))
+    state.parkedGroups.map((g) => restoreParkedGroup(g, dataStore))
   );
 
   // Then restore combatants (passing restored parked groups for parked_group origin lookups)
   const combatants = await Promise.all(
-    optimized.combatants.map((c) => restoreCombatant(c, dataStore, parkedGroups))
+    state.combatants.map((c) => restoreCombatant(c, dataStore, parkedGroups))
   );
 
   return {
-    ...optimized,
+    ...state,
     combatants,
     parkedGroups,
   };

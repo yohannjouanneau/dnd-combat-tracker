@@ -49,6 +49,7 @@ export type Combatant = {
   deathSaves: DeathSaves;
   groupIndex: number;
   templateOrigin: TemplateOigin;
+  isReference?: boolean;
 } & Presentation &
   CombatStats &
   AbilityScores;
@@ -90,6 +91,7 @@ export type TemplateOigin = {
 
 export type NewCombatant = {
   templateOrigin: TemplateOigin;
+  isReference?: boolean;
 } & CombatantTemplate<"player" | "monster">;
 export type MonsterCombatant = CombatantTemplate<"monster">;
 export type PlayerCombatant = CombatantTemplate<"player">;
@@ -118,30 +120,8 @@ export type CombatState = {
   lastSavedSnapshot?: string;
 };
 
-// Optimized storage types for reducing localStorage usage
-export type CombatantReference = {
-  id: number;
-  templateOrigin: TemplateOigin;
-  initiative: number;
-  displayName: string;
-  groupIndex: number;
-  hp?: number;
-  conditions: string[];
-  concentration: boolean;
-  deathSaves: DeathSaves;
-};
-
-export type ParkedGroupReference = {
-  templateOrigin: TemplateOigin;
-  initiativeGroups: InitiativeData["initiativeGroups"];
-  initBonus?: number;
-  color: string;
-};
-
-export type OptimizedCombatState = Omit<CombatState, 'combatants' | 'parkedGroups'> & {
-  combatants: (Combatant | CombatantReference)[];
-  parkedGroups: (NewCombatant | ParkedGroupReference)[];
-};
+// Note: Combatant and NewCombatant now have isReference flag for optimization
+// No separate reference types needed
 
 export type SavedCombat = TimestampedEntity & {
   id: string;
