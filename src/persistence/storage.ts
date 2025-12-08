@@ -13,6 +13,11 @@ import type {
 } from "../types";
 import { CombatStorageProvider } from "./CombatStorageProvider";
 import { CombatantTemplateStorageProvider } from "./CombatantTemplateStorageProvider";
+import {
+  cleanCombatStateForStorage,
+  migrateLegacyData,
+  restoreCombatState,
+} from "./combatStateOptimizer";
 
 export class DataStore {
   private combatProvider: CombatStorageProvider;
@@ -87,14 +92,61 @@ export class DataStore {
   listCombat() {
     return this.combatProvider.list();
   }
-  getCombat(id: string) {
-    return this.combatProvider.get(id);
+  async getCombat(id: string) {
+    const savedCombat = await this.combatProvider.get(id);
+
+    if (!savedCombat) {
+      return undefined;
+    }
+
+    // Restore optimized data
+    const restoredData = await restoreCombatState(savedCombat.data, this);
+
+    return {
+      ...savedCombat,
+      data: restoredData,
+    };
   }
-  createCombat(input: SavedCombatInput) {
-    return this.combatProvider.create(input);
+  async createCombat(input: SavedCombatInput) {
+    // Migrate and optimize data before saving
+    const migratedData = await migrateLegacyData(input.data, this);
+    const optimizedData = cleanCombatStateForStorage(migratedData);
+
+    const savedCombat = await this.combatProvider.create({
+      ...input,
+      data: optimizedData as unknown as typeof input.data,
+    });
+
+    // Return the full data (not optimized) so state doesn't lose information
+    return {
+      ...savedCombat,
+      data: migratedData,
+    };
   }
-  updateCombat(id: string, patch: Partial<SavedCombat>) {
-    return this.combatProvider.update(id, patch);
+  async updateCombat(id: string, patch: Partial<SavedCombat>) {
+    // Migrate and optimize data if present
+    let originalData = patch.data;
+    if (patch.data) {
+      const migratedData = await migrateLegacyData(patch.data, this);
+      const optimizedData = cleanCombatStateForStorage(migratedData);
+      patch = {
+        ...patch,
+        data: optimizedData as unknown as typeof patch.data,
+      };
+      originalData = migratedData; // Keep the full migrated data
+    }
+
+    const savedCombat = await this.combatProvider.update(id, patch);
+
+    // Return the full data (not optimized) so state doesn't lose information
+    if (originalData) {
+      return {
+        ...savedCombat,
+        data: originalData,
+      };
+    }
+
+    return savedCombat;
   }
   deleteCombat(id: string) {
     return this.combatProvider.delete(id);
