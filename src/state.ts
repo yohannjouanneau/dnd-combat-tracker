@@ -377,7 +377,7 @@ export function useCombatState(): CombatStateManager {
 
         const combatants = isFightModeEnabled
           ? prepareCombatantList(prev, groupToAdd)
-          : [];
+          : prev.combatants; // Preserve existing combatants
 
         return {
           ...prev,
@@ -563,12 +563,43 @@ export function useCombatState(): CombatStateManager {
     [loadMonsters]
   );
 
+  const syncMonsterNotesToCombat = useCallback((monsterId: string, notes: string) => {
+    setState((prev) => ({
+      ...prev,
+      // Update active combatants
+      combatants: prev.combatants.map((combatant) => {
+        // Check if combatant references this monster
+        if (
+          combatant.templateOrigin?.orgin === "monster_library" &&
+          combatant.templateOrigin.id === monsterId
+        ) {
+          return { ...combatant, notes };
+        }
+        return combatant;
+      }),
+      // Update parked groups
+      parkedGroups: prev.parkedGroups.map((group) => {
+        // Check if parked group references this monster
+        if (
+          group.templateOrigin?.orgin === "monster_library" &&
+          group.templateOrigin.id === monsterId
+        ) {
+          return { ...group, notes };
+        }
+        return group;
+      }),
+    }));
+  }, []);
+
   const updateMonster = useCallback(
     async (id: string, monster: SavedMonster) => {
       await dataStore.updateMonster(id, monster);
       await loadMonsters();
+
+      // Sync notes to active combatants and parked groups
+      syncMonsterNotesToCombat(id, monster.notes || "");
     },
-    [loadMonsters]
+    [loadMonsters, syncMonsterNotesToCombat]
   );
 
   const fillFormWithMonsterRemoteData = (monster: ApiMonster) => {
