@@ -362,10 +362,10 @@ export function useCombatState(): CombatStateManager {
           ...nc,
           maxHp: nc.maxHp || nc.hp,
           templateOrigin:
-            prev.newCombatant.templateOrigin.orgin !== "no_template"
+            prev.newCombatant.templateOrigin.origin !== "no_template"
               ? prev.newCombatant.templateOrigin
               : {
-                  orgin: "parked_group",
+                  origin: "parked_group",
                   id: nc.id,
                 },
         };
@@ -546,7 +546,7 @@ export function useCombatState(): CombatStateManager {
         initBonus: player.initBonus,
         externalResourceUrl: player.externalResourceUrl,
         templateOrigin: {
-          orgin: "player_library",
+          origin: "player_library",
           id: player.id,
         },
       },
@@ -570,7 +570,7 @@ export function useCombatState(): CombatStateManager {
       combatants: prev.combatants.map((combatant) => {
         // Check if combatant references this monster
         if (
-          combatant.templateOrigin?.orgin === "monster_library" &&
+          combatant.templateOrigin?.origin === "monster_library" &&
           combatant.templateOrigin.id === monsterId
         ) {
           return { ...combatant, notes };
@@ -581,7 +581,7 @@ export function useCombatState(): CombatStateManager {
       parkedGroups: prev.parkedGroups.map((group) => {
         // Check if parked group references this monster
         if (
-          group.templateOrigin?.orgin === "monster_library" &&
+          group.templateOrigin?.origin === "monster_library" &&
           group.templateOrigin.id === monsterId
         ) {
           return { ...group, notes };
@@ -640,7 +640,7 @@ export function useCombatState(): CombatStateManager {
         cha: monster.cha,
         notes: monster.notes,
         templateOrigin: {
-          orgin: "monster_library",
+          origin: "monster_library",
           id: monster.id,
         },
       },

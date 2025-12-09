@@ -39,6 +39,19 @@ export type DeathSaves = {
   failures: number;
 };
 
+/**
+ * Represents a combatant in combat.
+ *
+ * IMPORTANT: When `isReference` is true, this is a lightweight reference object
+ * that only contains runtime state fields. Template fields (name, ac, maxHp,
+ * ability scores, presentation) are omitted and will be undefined.
+ *
+ * Use `isCombatantReference()` to check if an object is a reference.
+ * Use `restoreCombatant()` to get the full combatant with all fields.
+ *
+ * @see isCombatantReference
+ * @see restoreCombatant
+ */
 export type Combatant = {
   id: number;
   name: string;
@@ -48,7 +61,7 @@ export type Combatant = {
   concentration: boolean;
   deathSaves: DeathSaves;
   groupIndex: number;
-  templateOrigin: TemplateOigin;
+  templateOrigin: TemplateOrigin;
   isReference?: boolean;
 } & Presentation &
   CombatStats &
@@ -84,13 +97,26 @@ export type SavedCombatantTemplate<T extends CombatantTemplateType> =
 export type SavedPlayer = SavedCombatantTemplate<"player">;
 export type SavedMonster = SavedCombatantTemplate<"monster">;
 
-export type TemplateOigin = {
-  orgin: "parked_group" | "monster_library" | "player_library" | "no_template";
+export type TemplateOrigin = {
+  origin: "parked_group" | "monster_library" | "player_library" | "no_template";
   id: string;
 };
 
+/**
+ * Represents a new combatant or parked group.
+ *
+ * IMPORTANT: When `isReference` is true, this is a lightweight reference object
+ * that only contains minimal fields needed for initialization. Template fields
+ * may be omitted and will be undefined.
+ *
+ * Use `isNewCombatantReference()` to check if an object is a reference.
+ * Use `restoreParkedGroup()` to get the full template with all fields.
+ *
+ * @see isNewCombatantReference
+ * @see restoreParkedGroup
+ */
 export type NewCombatant = {
-  templateOrigin: TemplateOigin;
+  templateOrigin: TemplateOrigin;
   isReference?: boolean;
 } & CombatantTemplate<"player" | "monster">;
 export type MonsterCombatant = CombatantTemplate<"monster">;

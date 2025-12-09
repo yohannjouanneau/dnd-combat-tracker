@@ -139,7 +139,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     combatStateManager.addCombatant({
       ...playerCombattant,
       templateOrigin: {
-        orgin: 'player_library',
+        origin: 'player_library',
         id: player.id
       }
     });

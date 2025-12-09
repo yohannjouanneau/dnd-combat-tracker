@@ -25,7 +25,7 @@ export const DEFAULT_NEW_COMBATANT: Omit<NewCombatant, 'id'> = {
   externalResourceUrl: "",
   notes: "",
   templateOrigin: {
-    orgin: 'no_template',
+    origin: 'no_template',
     id: ''
   }
 };
