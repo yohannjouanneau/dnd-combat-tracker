@@ -50,6 +50,7 @@ export function optimizeParkedGroup(group: NewCombatant): NewCombatant {
   // For library references, keep templateOrigin + initiative data + color
   if (origin === "player_library" || origin === "monster_library") {
     return {
+      id: group.id,
       templateOrigin: group.templateOrigin,
       initiativeGroups: group.initiativeGroups,
       initBonus: group.initBonus,
@@ -189,52 +190,13 @@ export async function restoreCombatant(
   } else if (origin.orgin === "parked_group") {
     // Template is in the parked groups (combatant was added from a parked group)
     template = parkedGroups.find((pg) => pg.id === origin.id);
-
-    if (!template) {
-      console.warn(
-        `Parked group template not found for combatant ${combatant.id}, origin id: ${origin.id}`
-      );
-      // Create a minimal combatant with available data
-      return {
-        ...combatant,
-        name: combatant.displayName,
-        maxHp: combatant.hp || 0,
-        ac: 10,
-        color: "#3b82f6",
-        imageUrl: "",
-        externalResourceUrl: "",
-        notes: "",
-        str: 10,
-        dex: 10,
-        con: 10,
-        int: 10,
-        wis: 10,
-        cha: 10,
-      } as Combatant;
-    }
   }
 
   if (!template) {
     // Template not found - create fallback combatant
-    console.warn(
+    throw(
       `Template not found for combatant ${combatant.id}, origin: ${origin.orgin}, id: ${origin.id}`
     );
-    return {
-      ...combatant,
-      name: combatant.displayName,
-      maxHp: combatant.hp || 0,
-      ac: 10,
-      color: "#3b82f6",
-      imageUrl: "",
-      externalResourceUrl: "",
-      notes: "",
-      str: 10,
-      dex: 10,
-      con: 10,
-      int: 10,
-      wis: 10,
-      cha: 10,
-    } as Combatant;
   }
 
   // Merge template data with runtime state
@@ -273,29 +235,15 @@ export async function restoreParkedGroup(
 
   if (!template) {
     // Template not found - create fallback with minimal data
-    console.warn(
+    throw(
       `Template not found for parked group, origin: ${origin.orgin}, id: ${origin.id}`
     );
-    return {
-      id: origin.id,
-      name: "Unknown",
-      type: "monster",
-      hp: 0,
-      maxHp: 0,
-      ac: 10,
-      color: "#3b82f6",
-      imageUrl: "",
-      externalResourceUrl: "",
-      notes: "",
-      initiativeGroups: [{ id: crypto.randomUUID(), initiative: "", count: "1" }],
-      initBonus: 0,
-      templateOrigin: origin,
-    } as NewCombatant;
   }
 
   // Return template with templateOrigin and initiative data + color from the reference
   return {
     ...template,
+    id: group.id,
     templateOrigin: origin,
     initiativeGroups: group.initiativeGroups,
     initBonus: group.initBonus ?? template.initBonus ?? 0,

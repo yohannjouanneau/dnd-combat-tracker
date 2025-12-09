@@ -2,16 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedCombat, CombatState } from "../types";
 import LabeledTextInput from "../components/common/LabeledTextInput";
-import {
-  DEFAULT_NEW_COMBATANT,
-} from "../constants";
 import logo from "../assets/logo.png";
 import { BookOpen, Plus, Settings } from "lucide-react";
 import type { CombatStateManager } from "../state";
 import CombatList from "../components/CombatsList/CombatList";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
 import SettingsModal from "../components/Settings/SettingsModal";
-import { generateId } from "../utils";
+import { generateDefaultNewCombatant, generateId } from "../utils";
 
 type Props = {
   onOpen: (id: string) => void;
@@ -41,7 +38,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
       currentTurn: 0,
       round: 1,
       parkedGroups: [],
-      newCombatant: DEFAULT_NEW_COMBATANT,
+      newCombatant: generateDefaultNewCombatant(),
     };
 
     const created = await combatStateManager.createCombat({

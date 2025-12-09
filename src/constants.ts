@@ -15,10 +15,8 @@ import {
 } from "lucide-react";
 import type { EditorTag, EditorTagMenuItem } from "./components/common/mardown/types";
 import type { NewCombatant } from "./types";
-import { generateId } from "./utils";
 
-export const DEFAULT_NEW_COMBATANT: NewCombatant = {
-  id : generateId(),
+export const DEFAULT_NEW_COMBATANT: Omit<NewCombatant, 'id'> = {
   type: "monster",
   name: "",
   initiativeGroups: [{ id: crypto.randomUUID(), initiative: "", count: "1" }],

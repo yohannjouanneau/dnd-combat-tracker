@@ -1,5 +1,5 @@
 import type { ApiMonster } from "./api/types";
-import { DND_API_HOST } from "./constants";
+import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "./constants";
 import type { NewCombatant } from "./types";
 
 export function generateId(): string {
@@ -125,4 +125,11 @@ export function isNewCombatantInvalid(newCombatant: NewCombatant): boolean {
     newCombatant.initiativeGroups.length === 0 ||
     newCombatant.initiativeGroups.some((g) => g.initiative === "" || g.count === "")
   );
+}
+
+export function generateDefaultNewCombatant() {
+  return {
+    ...DEFAULT_NEW_COMBATANT,
+    id: generateId()
+  }
 }

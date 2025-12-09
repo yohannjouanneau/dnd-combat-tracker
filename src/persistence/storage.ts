@@ -114,7 +114,7 @@ export class DataStore {
 
     const savedCombat = await this.combatProvider.create({
       ...input,
-      data: optimizedData as unknown as typeof input.data,
+      data: optimizedData,
     });
 
     // Return the full data (not optimized) so state doesn't lose information
@@ -131,7 +131,7 @@ export class DataStore {
       const optimizedData = cleanCombatStateForStorage(migratedData);
       patch = {
         ...patch,
-        data: optimizedData as unknown as typeof patch.data,
+        data: optimizedData,
       };
       originalData = migratedData; // Keep the full migrated data
     }

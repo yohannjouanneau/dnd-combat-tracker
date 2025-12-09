@@ -16,7 +16,6 @@ import type {
   SyncApi,
 } from "./types";
 import { dataStore } from "./persistence/storage";
-import { DEFAULT_NEW_COMBATANT } from "./constants";
 import type { ApiMonster } from "./api/types";
 import { createGraphQLClient } from "./api/DnD5eGraphQLClient";
 import {
@@ -24,6 +23,7 @@ import {
   getApiImageUrl,
   indexToLetter,
   generateId,
+  generateDefaultNewCombatant,
 } from "./utils";
 import { useToast } from "./components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
@@ -110,7 +110,7 @@ const getInitialState = (): CombatState => ({
   currentTurn: 0,
   round: 1,
   parkedGroups: [],
-  newCombatant: DEFAULT_NEW_COMBATANT,
+  newCombatant: generateDefaultNewCombatant(),
 });
 
 export function useCombatState(): CombatStateManager {
@@ -382,7 +382,7 @@ export function useCombatState(): CombatStateManager {
         return {
           ...prev,
           parkedGroups: [...filteredGroups, groupToAdd],
-          newCombatant: DEFAULT_NEW_COMBATANT,
+          newCombatant: generateDefaultNewCombatant(),
           combatants,
         };
       });
@@ -506,7 +506,7 @@ export function useCombatState(): CombatStateManager {
           : [];
         return {
           ...prev,
-          newCombatant: DEFAULT_NEW_COMBATANT,
+          newCombatant: generateDefaultNewCombatant(),
           combatants,
         };
       });
@@ -723,7 +723,7 @@ export function useCombatState(): CombatStateManager {
         return {
           ...prev,
           combatants: updated,
-          newCombatant: DEFAULT_NEW_COMBATANT,
+          newCombatant: generateDefaultNewCombatant(),
         };
       });
       toastApi.success(t("common:confirmation.addedToCombat.success"));
