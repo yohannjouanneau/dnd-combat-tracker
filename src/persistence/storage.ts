@@ -15,7 +15,6 @@ import { CombatStorageProvider } from "./CombatStorageProvider";
 import { CombatantTemplateStorageProvider } from "./CombatantTemplateStorageProvider";
 import {
   cleanCombatStateForStorage,
-  migrateLegacyData,
   restoreCombatState,
 } from "./combatStateOptimizer";
 
@@ -108,37 +107,31 @@ export class DataStore {
     };
   }
   async createCombat(input: SavedCombatInput) {
-    // Migrate and optimize data before saving
-    const migratedData = await migrateLegacyData(input.data, this);
-    const optimizedData = cleanCombatStateForStorage(migratedData);
+    const optimizedData = cleanCombatStateForStorage(input.data);
 
     const savedCombat = await this.combatProvider.create({
       ...input,
       data: optimizedData,
     });
 
-    // Return the full data (not optimized) so state doesn't lose information
     return {
       ...savedCombat,
-      data: migratedData,
+      data: input.data,
     };
   }
   async updateCombat(id: string, patch: Partial<SavedCombat>) {
-    // Migrate and optimize data if present
     let originalData = patch.data;
     if (patch.data) {
-      const migratedData = await migrateLegacyData(patch.data, this);
-      const optimizedData = cleanCombatStateForStorage(migratedData);
+      const optimizedData = cleanCombatStateForStorage(patch.data);
       patch = {
         ...patch,
         data: optimizedData,
       };
-      originalData = migratedData; // Keep the full migrated data
+      originalData = patch.data;
     }
 
     const savedCombat = await this.combatProvider.update(id, patch);
 
-    // Return the full data (not optimized) so state doesn't lose information
     if (originalData) {
       return {
         ...savedCombat,

@@ -26,7 +26,7 @@ import type { DataStore } from "./storage";
  * @returns Optimized combatant (may be a reference)
  * @see restoreCombatant
  */
-export function optimizeCombatant(combatant: Combatant): Combatant {
+function optimizeCombatant(combatant: Combatant): Combatant {
   const origin = combatant.templateOrigin?.origin;
 
   // Keep full data for no_template
@@ -75,7 +75,7 @@ export function optimizeCombatant(combatant: Combatant): Combatant {
  * @returns Optimized parked group (may be a reference)
  * @see restoreParkedGroup
  */
-export function optimizeParkedGroup(group: NewCombatant): NewCombatant {
+function optimizeParkedGroup(group: NewCombatant): NewCombatant {
   const origin = group.templateOrigin?.origin;
 
   // Keep full data for no_template and parked_group
@@ -117,131 +117,6 @@ export function cleanCombatStateForStorage(state: CombatState): CombatState {
   };
 }
 
-// Migration function for legacy data
-export async function migrateLegacyData(
-  state: CombatState,
-  dataStore: DataStore
-): Promise<CombatState> {
-  // Get libraries for matching
-  const [players, monsters] = await Promise.all([
-    dataStore.listPlayer(),
-    dataStore.listMonster(),
-  ]);
-
-  // Migrate combatants
-  const migratedCombatants = state.combatants.map((combatant) => {
-    // If already has templateOrigin, no migration needed
-    if (combatant.templateOrigin?.origin) {
-      return combatant;
-    }
-
-    // Try to find match in libraries by name
-    const playerMatch = players.find((p) => p.name === combatant.name);
-    if (playerMatch) {
-      return {
-        ...combatant,
-        templateOrigin: {
-          origin: "player_library" as const,
-          id: playerMatch.id,
-        },
-      };
-    }
-
-    const monsterMatch = monsters.find((m) => m.name === combatant.name);
-    if (monsterMatch) {
-      return {
-        ...combatant,
-        templateOrigin: {
-          origin: "monster_library" as const,
-          id: monsterMatch.id,
-        },
-      };
-    }
-
-    // No match found, mark as no_template
-    return {
-      ...combatant,
-      templateOrigin: {
-        origin: "no_template" as const,
-        id: "",
-      },
-    };
-  });
-
-  // Migrate parked groups
-  const migratedParkedGroups = state.parkedGroups.map((group) => {
-    // If already has templateOrigin, no migration needed
-    if (group.templateOrigin?.origin) {
-      return group;
-    }
-
-    // Try to find match in libraries by name
-    const playerMatch = players.find((p) => p.name === group.name);
-    if (playerMatch) {
-      return {
-        ...group,
-        templateOrigin: {
-          origin: "player_library" as const,
-          id: playerMatch.id,
-        },
-      };
-    }
-
-    const monsterMatch = monsters.find((m) => m.name === group.name);
-    if (monsterMatch) {
-      return {
-        ...group,
-        templateOrigin: {
-          origin: "monster_library" as const,
-          id: monsterMatch.id,
-        },
-      };
-    }
-
-    // No match found, mark as no_template
-    return {
-      ...group,
-      templateOrigin: {
-        origin: "no_template" as const,
-        id: "",
-      },
-    };
-  });
-
-  return {
-    ...state,
-    combatants: migratedCombatants,
-    parkedGroups: migratedParkedGroups,
-  };
-}
-
-/**
- * Migrates template origin field from legacy 'orgin' to 'origin'.
- *
- * @param obj - Object with templateOrigin field to migrate
- */
-export function migrateTemplateOriginField(
-  obj: { templateOrigin?: Record<string, unknown> }
-): void {
-  if (obj.templateOrigin && "orgin" in obj.templateOrigin) {
-    obj.templateOrigin.origin = obj.templateOrigin.orgin;
-    delete obj.templateOrigin.orgin;
-  }
-}
-
-/**
- * Migrates all template origin fields in a combat state.
- *
- * @param state - The combat state to migrate
- * @returns Migrated combat state
- */
-export function migrateCombatStateFieldNames(state: CombatState): CombatState {
-  state.combatants.forEach(migrateTemplateOriginField);
-  state.parkedGroups.forEach(migrateTemplateOriginField);
-  migrateTemplateOriginField(state.newCombatant);
-  return state;
-}
-
 // Restoration functions
 
 /**
@@ -258,7 +133,7 @@ export function migrateCombatStateFieldNames(state: CombatState): CombatState {
  * @returns Fully restored combatant
  * @throws Error if template is not found
  */
-export async function restoreCombatant(
+async function restoreCombatant(
   combatant: Combatant,
   dataStore: DataStore,
   parkedGroups: NewCombatant[] = []
@@ -316,7 +191,7 @@ export async function restoreCombatant(
  * @returns Fully restored parked group
  * @throws Error if template is not found
  */
-export async function restoreParkedGroup(
+async function restoreParkedGroup(
   group: NewCombatant,
   dataStore: DataStore
 ): Promise<NewCombatant> {
