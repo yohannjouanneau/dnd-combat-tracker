@@ -55,7 +55,7 @@ export class DataStore {
     if (!this.syncProvider) {
       throw new Error("Sync not initialized. Call initSync() first.");
     }
-    return this.syncProvider.hasNewRemoteData()
+    return this.syncProvider.hasNewRemoteData();
   }
 
   async syncToCloud() {
@@ -101,6 +101,10 @@ export class DataStore {
     // Restore optimized data
     const restoredData = await restoreCombatState(savedCombat.data, this);
 
+    if (!restoredData) {
+      return undefined
+    }
+
     return {
       ...savedCombat,
       data: restoredData,
@@ -120,27 +124,22 @@ export class DataStore {
     };
   }
   async updateCombat(id: string, patch: Partial<SavedCombat>) {
-    let originalData = patch.data;
     if (patch.data) {
       const optimizedData = cleanCombatStateForStorage(patch.data);
-      patch = {
+      const optimizedPatch = {
         ...patch,
         data: optimizedData,
       };
-      originalData = patch.data;
-    }
-
-    const savedCombat = await this.combatProvider.update(id, patch);
-
-    if (originalData) {
+      const otpmizedSavedCombat = await this.combatProvider.update(id, optimizedPatch);
       return {
-        ...savedCombat,
-        data: originalData,
-      };
+        ...otpmizedSavedCombat,
+        data: patch.data
+      }
     }
-
+    const savedCombat = await this.combatProvider.update(id, patch);
     return savedCombat;
   }
+
   deleteCombat(id: string) {
     return this.combatProvider.delete(id);
   }

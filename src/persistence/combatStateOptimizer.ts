@@ -144,7 +144,8 @@ async function restoreCombatant(
   }
 
   const origin = combatant.templateOrigin;
-  let template: SavedPlayer | SavedMonster | NewCombatant | undefined = undefined;
+  let template: SavedPlayer | SavedMonster | NewCombatant | undefined =
+    undefined;
 
   // Fetch template from appropriate source
   if (origin.origin === "player_library") {
@@ -242,20 +243,24 @@ async function restoreParkedGroup(
 export async function restoreCombatState(
   state: CombatState,
   dataStore: DataStore
-): Promise<CombatState> {
-  // Restore parked groups first (combatants may reference them)
-  const parkedGroups = await Promise.all(
-    state.parkedGroups.map((g) => restoreParkedGroup(g, dataStore))
-  );
+): Promise<CombatState | undefined> {
+  try {
+    // Restore parked groups first (combatants may reference them)
+    const parkedGroups = await Promise.all(
+      state.parkedGroups.map((g) => restoreParkedGroup(g, dataStore))
+    );
 
-  // Then restore combatants (passing restored parked groups for parked_group origin lookups)
-  const combatants = await Promise.all(
-    state.combatants.map((c) => restoreCombatant(c, dataStore, parkedGroups))
-  );
+    // Then restore combatants (passing restored parked groups for parked_group origin lookups)
+    const combatants = await Promise.all(
+      state.combatants.map((c) => restoreCombatant(c, dataStore, parkedGroups))
+    );
 
-  return {
-    ...state,
-    combatants,
-    parkedGroups,
-  };
+    return {
+      ...state,
+      combatants,
+      parkedGroups,
+    };
+  } catch (error) {
+    console.log("Unable to restore combat state", error);
+  }
 }
