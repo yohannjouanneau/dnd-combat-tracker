@@ -5,7 +5,6 @@ export type CombatantIdentifierType = "letters" | "numbers";
 
 // Base types for common metadata
 export type TimestampedEntity = {
-  id: string;
   createdAt: number;
   updatedAt: number;
 };
@@ -32,7 +31,7 @@ export type Presentation = {
   color: string;
   imageUrl?: string;
   externalResourceUrl?: string;
-  notes?: string
+  notes?: string;
 };
 
 export type DeathSaves = {
@@ -40,6 +39,19 @@ export type DeathSaves = {
   failures: number;
 };
 
+/**
+ * Represents a combatant in combat.
+ *
+ * IMPORTANT: When `isReference` is true, this is a lightweight reference object
+ * that only contains runtime state fields. Template fields (name, ac, maxHp,
+ * ability scores, presentation) are omitted and will be undefined.
+ *
+ * Use `isCombatantReference()` to check if an object is a reference.
+ * Use `restoreCombatant()` to get the full combatant with all fields.
+ *
+ * @see isCombatantReference
+ * @see restoreCombatant
+ */
 export type Combatant = {
   id: number;
   name: string;
@@ -49,8 +61,11 @@ export type Combatant = {
   concentration: boolean;
   deathSaves: DeathSaves;
   groupIndex: number;
+  templateOrigin: TemplateOrigin;
+  isReference?: boolean;
 } & Presentation &
-  CombatStats & AbilityScores;
+  CombatStats &
+  AbilityScores;
 
 export type InitiativeGroup = {
   id: string;
@@ -68,6 +83,7 @@ export type CombatantTemplateType = "player" | "monster";
 
 // Base entity for any combatant template (monsters, players, NPCs)
 export type CombatantTemplate<T extends CombatantTemplateType> = {
+  id: string;
   name: string;
   type: T;
 } & CombatStats &
@@ -76,16 +92,37 @@ export type CombatantTemplate<T extends CombatantTemplateType> = {
   InitiativeData;
 
 export type SavedCombatantTemplate<T extends CombatantTemplateType> =
-   CombatantTemplate<T> & TimestampedEntity;
+  CombatantTemplate<T> & TimestampedEntity;
 
 export type SavedPlayer = SavedCombatantTemplate<"player">;
 export type SavedMonster = SavedCombatantTemplate<"monster">;
 
-export type NewCombatant = CombatantTemplate<'player'| 'monster'>
-export type MonsterCombatant = CombatantTemplate<'monster'>
-export type PlayerCombatant = CombatantTemplate<'player'>
+export type TemplateOrigin = {
+  origin: "parked_group" | "monster_library" | "player_library" | "no_template";
+  id: string;
+};
 
-export type SearchSource = "api" | "library"
+/**
+ * Represents a new combatant or parked group.
+ *
+ * IMPORTANT: When `isReference` is true, this is a lightweight reference object
+ * that only contains minimal fields needed for initialization. Template fields
+ * may be omitted and will be undefined.
+ *
+ * Use `isNewCombatantReference()` to check if an object is a reference.
+ * Use `restoreParkedGroup()` to get the full template with all fields.
+ *
+ * @see isNewCombatantReference
+ * @see restoreParkedGroup
+ */
+export type NewCombatant = {
+  templateOrigin: TemplateOrigin;
+  isReference?: boolean;
+} & CombatantTemplate<"player" | "monster">;
+export type MonsterCombatant = CombatantTemplate<"monster">;
+export type PlayerCombatant = CombatantTemplate<"player">;
+
+export type SearchSource = "api" | "library";
 export type SearchResult = {
   source: SearchSource;
   monster: ApiMonster | SavedMonster;
@@ -109,21 +146,23 @@ export type CombatState = {
   lastSavedSnapshot?: string;
 };
 
+// Note: Combatant and NewCombatant now have isReference flag for optimization
+// No separate reference types needed
+
 export type SavedCombat = TimestampedEntity & {
+  id: string;
   name: string;
   description: string;
   data: CombatState;
 };
 
-
 export type SavedCombatInput = Omit<SavedCombat, keyof TimestampedEntity>;
-
 
 export interface SyncApi {
   isSyncAuthorized: () => boolean;
   authorizeSync: () => Promise<boolean>;
   hasNewRemoteData: () => Promise<boolean>;
   synchronise: () => Promise<boolean>;
-  getLastSyncTime: () => number | undefined
+  getLastSyncTime: () => number | undefined;
   logout: () => Promise<boolean>;
 }

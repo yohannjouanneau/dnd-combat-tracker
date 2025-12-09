@@ -16,10 +16,15 @@ import type {
   SyncApi,
 } from "./types";
 import { dataStore } from "./persistence/storage";
-import { DEFAULT_NEW_COMBATANT } from "./constants";
 import type { ApiMonster } from "./api/types";
 import { createGraphQLClient } from "./api/DnD5eGraphQLClient";
-import { getStatModifier, getApiImageUrl, indexToLetter, enrichWithMonsterNotes } from "./utils";
+import {
+  getStatModifier,
+  getApiImageUrl,
+  indexToLetter,
+  generateId,
+  generateDefaultNewCombatant,
+} from "./utils";
 import { useToast } from "./components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 import { getSettings } from "./hooks/useSettings";
@@ -105,7 +110,7 @@ const getInitialState = (): CombatState => ({
   currentTurn: 0,
   round: 1,
   parkedGroups: [],
-  newCombatant: DEFAULT_NEW_COMBATANT,
+  newCombatant: generateDefaultNewCombatant(),
 });
 
 export function useCombatState(): CombatStateManager {
@@ -209,25 +214,13 @@ export function useCombatState(): CombatStateManager {
     const savedCombat = await dataStore.getCombat(combatId);
 
     if (savedCombat?.data) {
-      // Load current monsters from library
-      const currentMonsters = await dataStore.listMonster();
-
-      // Enrich combatants with notes from monster library
-      const enrichedCombatants = enrichWithMonsterNotes(
-        savedCombat.data.combatants,
-        currentMonsters
-      );
-
-      // Enrich parked groups with notes from monster library
-      const enrichedParkedGroups = enrichWithMonsterNotes(
-        savedCombat.data.parkedGroups,
-        currentMonsters
-      );
+     
+     
 
       setState({
         ...savedCombat.data,
-        combatants: enrichedCombatants,
-        parkedGroups: enrichedParkedGroups,
+        combatants: savedCombat.data.combatants,
+        parkedGroups: savedCombat.data.parkedGroups,
         combatId: savedCombat.id,
         combatName: savedCombat.name,
         combatDescription: savedCombat.description,
@@ -331,7 +324,8 @@ export function useCombatState(): CombatStateManager {
             int: nc.int,
             str: nc.str,
             wis: nc.wis,
-            notes: nc.notes
+            notes: nc.notes,
+            templateOrigin: nc.templateOrigin
           });
           globalIndex++;
         }
@@ -364,9 +358,16 @@ export function useCombatState(): CombatStateManager {
           return prev;
 
         // If maxHp is empty, copy hp to maxHp
-        const groupToAdd = {
+        const groupToAdd: NewCombatant = {
           ...nc,
           maxHp: nc.maxHp || nc.hp,
+          templateOrigin:
+            prev.newCombatant.templateOrigin.origin !== "no_template"
+              ? prev.newCombatant.templateOrigin
+              : {
+                  origin: "parked_group",
+                  id: nc.id,
+                },
         };
 
         // Remove existing group with same name (if any) and add new one
@@ -376,12 +377,12 @@ export function useCombatState(): CombatStateManager {
 
         const combatants = isFightModeEnabled
           ? prepareCombatantList(prev, groupToAdd)
-          : [];
+          : prev.combatants; // Preserve existing combatants
 
         return {
           ...prev,
           parkedGroups: [...filteredGroups, groupToAdd],
-          newCombatant: DEFAULT_NEW_COMBATANT,
+          newCombatant: generateDefaultNewCombatant(),
           combatants,
         };
       });
@@ -482,6 +483,7 @@ export function useCombatState(): CombatStateManager {
       } else {
         // Create new player
         await dataStore.createPlayer({
+          id: generateId(),
           type: "player",
           name: nc.name,
           initiativeGroups: nc.initiativeGroups,
@@ -504,7 +506,7 @@ export function useCombatState(): CombatStateManager {
           : [];
         return {
           ...prev,
-          newCombatant: DEFAULT_NEW_COMBATANT,
+          newCombatant: generateDefaultNewCombatant(),
           combatants,
         };
       });
@@ -532,6 +534,7 @@ export function useCombatState(): CombatStateManager {
     setState((prev) => ({
       ...prev,
       newCombatant: {
+        id: generateId(),
         type: "player",
         name: player.name,
         initiativeGroups: player.initiativeGroups,
@@ -542,6 +545,10 @@ export function useCombatState(): CombatStateManager {
         imageUrl: player.imageUrl,
         initBonus: player.initBonus,
         externalResourceUrl: player.externalResourceUrl,
+        templateOrigin: {
+          origin: "player_library",
+          id: player.id,
+        },
       },
     }));
   }, []);
@@ -556,12 +563,43 @@ export function useCombatState(): CombatStateManager {
     [loadMonsters]
   );
 
+  const syncMonsterNotesToCombat = useCallback((monsterId: string, notes: string) => {
+    setState((prev) => ({
+      ...prev,
+      // Update active combatants
+      combatants: prev.combatants.map((combatant) => {
+        // Check if combatant references this monster
+        if (
+          combatant.templateOrigin?.origin === "monster_library" &&
+          combatant.templateOrigin.id === monsterId
+        ) {
+          return { ...combatant, notes };
+        }
+        return combatant;
+      }),
+      // Update parked groups
+      parkedGroups: prev.parkedGroups.map((group) => {
+        // Check if parked group references this monster
+        if (
+          group.templateOrigin?.origin === "monster_library" &&
+          group.templateOrigin.id === monsterId
+        ) {
+          return { ...group, notes };
+        }
+        return group;
+      }),
+    }));
+  }, []);
+
   const updateMonster = useCallback(
     async (id: string, monster: SavedMonster) => {
       await dataStore.updateMonster(id, monster);
       await loadMonsters();
+
+      // Sync notes to active combatants and parked groups
+      syncMonsterNotesToCombat(id, monster.notes || "");
     },
-    [loadMonsters]
+    [loadMonsters, syncMonsterNotesToCombat]
   );
 
   const fillFormWithMonsterRemoteData = (monster: ApiMonster) => {
@@ -601,6 +639,10 @@ export function useCombatState(): CombatStateManager {
         wis: monster.wis,
         cha: monster.cha,
         notes: monster.notes,
+        templateOrigin: {
+          origin: "monster_library",
+          id: monster.id,
+        },
       },
     }));
   };
@@ -681,7 +723,7 @@ export function useCombatState(): CombatStateManager {
         return {
           ...prev,
           combatants: updated,
-          newCombatant: DEFAULT_NEW_COMBATANT,
+          newCombatant: generateDefaultNewCombatant(),
         };
       });
       toastApi.success(t("common:confirmation.addedToCombat.success"));
@@ -733,7 +775,10 @@ export function useCombatState(): CombatStateManager {
       ...prev,
       combatants: prev.combatants.map((c) => {
         if (c.id === id) {
-          const newHp = Math.max(0, Math.min(c.maxHp ?? 0, (c.hp ?? 0) + change));
+          const newHp = Math.max(
+            0,
+            Math.min(c.maxHp ?? 0, (c.hp ?? 0) + change)
+          );
           return { ...c, hp: newHp };
         }
         return c;

@@ -13,6 +13,10 @@ import type {
 } from "../types";
 import { CombatStorageProvider } from "./CombatStorageProvider";
 import { CombatantTemplateStorageProvider } from "./CombatantTemplateStorageProvider";
+import {
+  cleanCombatStateForStorage,
+  restoreCombatState,
+} from "./combatStateOptimizer";
 
 export class DataStore {
   private combatProvider: CombatStorageProvider;
@@ -51,7 +55,7 @@ export class DataStore {
     if (!this.syncProvider) {
       throw new Error("Sync not initialized. Call initSync() first.");
     }
-    return this.syncProvider.hasNewRemoteData()
+    return this.syncProvider.hasNewRemoteData();
   }
 
   async syncToCloud() {
@@ -87,15 +91,55 @@ export class DataStore {
   listCombat() {
     return this.combatProvider.list();
   }
-  getCombat(id: string) {
-    return this.combatProvider.get(id);
+  async getCombat(id: string) {
+    const savedCombat = await this.combatProvider.get(id);
+
+    if (!savedCombat) {
+      return undefined;
+    }
+
+    // Restore optimized data
+    const restoredData = await restoreCombatState(savedCombat.data, this);
+
+    if (!restoredData) {
+      return undefined
+    }
+
+    return {
+      ...savedCombat,
+      data: restoredData,
+    };
   }
-  createCombat(input: SavedCombatInput) {
-    return this.combatProvider.create(input);
+  async createCombat(input: SavedCombatInput) {
+    const optimizedData = cleanCombatStateForStorage(input.data);
+
+    const savedCombat = await this.combatProvider.create({
+      ...input,
+      data: optimizedData,
+    });
+
+    return {
+      ...savedCombat,
+      data: input.data,
+    };
   }
-  updateCombat(id: string, patch: Partial<SavedCombat>) {
-    return this.combatProvider.update(id, patch);
+  async updateCombat(id: string, patch: Partial<SavedCombat>) {
+    if (patch.data) {
+      const optimizedData = cleanCombatStateForStorage(patch.data);
+      const optimizedPatch = {
+        ...patch,
+        data: optimizedData,
+      };
+      const otpmizedSavedCombat = await this.combatProvider.update(id, optimizedPatch);
+      return {
+        ...otpmizedSavedCombat,
+        data: patch.data
+      }
+    }
+    const savedCombat = await this.combatProvider.update(id, patch);
+    return savedCombat;
   }
+
   deleteCombat(id: string) {
     return this.combatProvider.delete(id);
   }

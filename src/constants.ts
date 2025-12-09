@@ -16,7 +16,7 @@ import {
 import type { EditorTag, EditorTagMenuItem } from "./components/common/mardown/types";
 import type { NewCombatant } from "./types";
 
-export const DEFAULT_NEW_COMBATANT: NewCombatant = {
+export const DEFAULT_NEW_COMBATANT: Omit<NewCombatant, 'id'> = {
   type: "monster",
   name: "",
   initiativeGroups: [{ id: crypto.randomUUID(), initiative: "", count: "1" }],
@@ -24,6 +24,10 @@ export const DEFAULT_NEW_COMBATANT: NewCombatant = {
   imageUrl: "",
   externalResourceUrl: "",
   notes: "",
+  templateOrigin: {
+    origin: 'no_template',
+    id: ''
+  }
 };
 
 // Condition keys for translation - use these with t('conditions:key')

@@ -1,6 +1,6 @@
 import type { ApiMonster } from "./api/types";
-import { DND_API_HOST } from "./constants";
-import type { NewCombatant, SavedMonster } from "./types";
+import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "./constants";
+import type { NewCombatant } from "./types";
 
 export function generateId(): string {
   // Generate a random id: 16 characters, URL-safe
@@ -127,34 +127,9 @@ export function isNewCombatantInvalid(newCombatant: NewCombatant): boolean {
   );
 }
 
-/**
- * Enriches combatants and parked groups with notes from the monster library
- * by matching names (case-insensitive contains)
- */
-export function enrichWithMonsterNotes<T extends { name: string; notes?: string }>(
-  entities: T[],
-  monsters: SavedMonster[]
-): T[] {
-  return entities.map((entity) => {
-    // Skip if already has notes
-    if (entity.notes) {
-      return entity;
-    }
-
-    // Find matching monster by name (case-insensitive contains)
-    const matchingMonster = monsters.find((monster) =>
-      monster.name.toLowerCase().includes(entity.name.toLowerCase()) ||
-      entity.name.toLowerCase().includes(monster.name.toLowerCase())
-    );
-
-    // If found, add notes
-    if (matchingMonster?.notes) {
-      return {
-        ...entity,
-        notes: matchingMonster.notes,
-      };
-    }
-
-    return entity;
-  });
+export function generateDefaultNewCombatant() {
+  return {
+    ...DEFAULT_NEW_COMBATANT,
+    id: generateId()
+  }
 }

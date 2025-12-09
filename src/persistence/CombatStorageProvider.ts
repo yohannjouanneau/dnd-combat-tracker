@@ -1,5 +1,5 @@
 import type { SavedCombat, SavedCombatInput } from "../types";
-import { generateId, safeParse, safeStringify } from "../utils";
+import { safeParse, safeStringify } from "../utils";
 
 export class CombatStorageProvider {
   private key: string;
@@ -26,7 +26,7 @@ export class CombatStorageProvider {
 
   async create(data: SavedCombatInput): Promise<SavedCombat> {
     const now = Date.now();
-    const generatedId = generateId();
+    const generatedId = data.id;
     const item: SavedCombat = {
       id: generatedId,
       createdAt: now,
