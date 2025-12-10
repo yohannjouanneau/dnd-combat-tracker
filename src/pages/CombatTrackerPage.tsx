@@ -29,19 +29,17 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const combatListRef = useRef<HTMLDivElement>(null);
   const combatants = combatStateManager.state.combatants;
   const [isFocusMode, setIsFocusMode] = useState(false);
-  const [isFightModifierEnabled, setEnableFightModifier] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addModalMode, setAddModalMode] = useState<AddCombatantModalMode>("fight");
 
-  // Keyboard shortcuts for turn navigation, focus mode and fight mode
+  // Keyboard shortcuts for turn navigation and focus mode
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Ignore if user is typing in an input field
       const target = event.target as HTMLElement;
       const isHpBarInput = target.id.startsWith(HP_BAR_ID_PREFIX);
       if (
-        !event.altKey &&
         !isHpBarInput &&
         ((target.tagName && target.tagName === "INPUT") ||
           target.tagName === "TEXTAREA" ||
@@ -66,10 +64,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         // Toggle focus mode with F key
         event.preventDefault();
         setIsFocusMode((prev) => !prev);
-      } else if (event.altKey) {
-        // Park / Save player and Fight button switch on Alt
-        event.preventDefault();
-        setEnableFightModifier(true);
       }
     };
 
@@ -77,22 +71,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [combatants.length, combatStateManager]);
-
-  useEffect(() => {
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (!event.altKey) {
-        // Park / Save player and Fight button switch on Alt
-        event.preventDefault();
-        setEnableFightModifier(false);
-      }
-    };
-
-    window.addEventListener("keyup", handleKeyUp);
-
-    return () => {
-      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [combatants.length, combatStateManager]);
 
@@ -157,6 +135,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   };
 
   const handleModalSubmit = () => {
+    const addToFight = combatStateManager.state.newCombatant.addToFight ?? false;
+
     switch (addModalMode) {
       case "fight":
         combatStateManager.addCombatant();
@@ -167,10 +147,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         }
         break;
       case "player":
-        combatStateManager.addPlayerFromForm(isFightModifierEnabled);
+        combatStateManager.addPlayerFromForm(addToFight);
         break;
       case "group":
-        combatStateManager.addParkedGroup(isFightModifierEnabled);
+        combatStateManager.addParkedGroup(addToFight);
         break;
     }
     closeAddModal();
@@ -339,7 +319,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           value={combatStateManager.state.newCombatant}
           stagedFrom={stagedFrom}
           totalCount={combatStateManager.getTotalCombatantCount()}
-          isFightModeEnabled={isFightModifierEnabled}
           onChange={combatStateManager.updateNewCombatant}
           onSubmit={handleModalSubmit}
           onAddGroup={handleModalSubmit}

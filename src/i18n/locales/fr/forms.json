@@ -28,12 +28,11 @@
     "atLeastOneGroup": "Au moins un groupe requis",
     "colorPicker": "Couleur",
     "stagedFrom": "Chargé depuis",
+    "addToFight": "Ajouter au combat",
     "actions": {
       "fight": "Combat !",
       "park": "Mettre de coté",
-      "parkAndFight": "Mettre de coté + Combat",
       "savePlayer": "Enreg. joueur",
-      "savePlayerAndFight": "Enreg. joueur + Combat",
       "addToLibrary": "Dans la bibliothèque",
       "addInitGroup": "Ajouter un groupe d'init"
     },

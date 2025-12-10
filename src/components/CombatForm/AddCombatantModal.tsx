@@ -14,7 +14,6 @@ type Props = {
   value: NewCombatant;
   stagedFrom?: string;
   totalCount: number;
-  isFightModeEnabled: boolean;
   onChange: (patch: Partial<NewCombatant>) => void;
   onSubmit: () => void;
   onAddGroup: () => void;
@@ -43,7 +42,6 @@ export default function AddCombatantModal({
   value,
   stagedFrom,
   totalCount,
-  isFightModeEnabled,
   onChange,
   onSubmit,
   onAddGroup,
@@ -92,7 +90,6 @@ export default function AddCombatantModal({
               value={value}
               stagedFrom={stagedFrom}
               totalCount={totalCount}
-              isFightModeEnabled={isFightModeEnabled}
               inModal={true}
               visibleButtons={visibleButtons}
               onChange={onChange}

@@ -28,12 +28,11 @@
     "atLeastOneGroup": "At least one group required",
     "colorPicker": "Color",
     "stagedFrom": "Staged from",
+    "addToFight": "Add to fight",
     "actions": {
       "fight": "Fight",
       "park": "Park group",
-      "parkAndFight": "Park group + Fight",
       "savePlayer": "Save player",
-      "savePlayerAndFight": "Save player + Fight",
       "addToLibrary": "Add to library",
       "addInitGroup": "Add init group"
     },

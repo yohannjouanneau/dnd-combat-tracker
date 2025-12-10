@@ -118,6 +118,7 @@ export type TemplateOrigin = {
 export type NewCombatant = {
   templateOrigin: TemplateOrigin;
   isReference?: boolean;
+  addToFight?: boolean;
 } & CombatantTemplate<"player" | "monster">;
 export type MonsterCombatant = CombatantTemplate<"monster">;
 export type PlayerCombatant = CombatantTemplate<"player">;

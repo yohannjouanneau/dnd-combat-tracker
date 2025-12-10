@@ -17,7 +17,6 @@ type Props = {
   stagedFrom?: string;
   totalCount: number;
   isCollapsed?: boolean;
-  isFightModeEnabled: boolean;
   inModal?: boolean;
   visibleButtons?: ButtonType[];
   onToggleCollapse?: (collapsed: boolean) => void;
@@ -42,7 +41,6 @@ export default function AddCombatantForm({
   stagedFrom,
   totalCount,
   isCollapsed = false,
-  isFightModeEnabled,
   inModal = false,
   visibleButtons,
   onToggleCollapse,
@@ -69,14 +67,6 @@ export default function AddCombatantForm({
     const lastLetter = String.fromCharCode(65 + totalCount - 1);
     return ` (A-${lastLetter})`;
   };
-
-  const parkGroupButtonText = isFightModeEnabled
-    ? t("forms:combatant.actions.parkAndFight")
-    : t("forms:combatant.actions.park");
-
-  const savePlayerButtonText = isFightModeEnabled
-    ? t("forms:combatant.actions.savePlayerAndFight")
-    : t("forms:combatant.actions.savePlayer");
 
   const content = (
     <div className={inModal ? "" : "px-6 pb-6"}>
@@ -179,6 +169,21 @@ export default function AddCombatantForm({
             </div>
           </div>
 
+          {/* Add to Fight Checkbox - Only show in player/group modes */}
+          {(isButtonVisible("savePlayer") || isButtonVisible("park")) && (
+            <div className="mb-4">
+              <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={value.addToFight ?? false}
+                  onChange={(e) => onChange({ addToFight: e.target.checked })}
+                  className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-lime-600 focus:ring-lime-600 focus:ring-offset-slate-800"
+                />
+                <span className="text-sm font-medium">{t("forms:combatant.addToFight")}</span>
+              </label>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 md:flex gap-2 md:gap-3 mt-4">
             {isButtonVisible("fight") && (
               <button
@@ -197,22 +202,22 @@ export default function AddCombatantForm({
               <button
                 onClick={onAddGroup}
                 className="disabled:pointer-events-none disabled:opacity-50 bg-sky-600 hover:bg-sky-500 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-                title={parkGroupButtonText}
+                title={t("forms:combatant.actions.park")}
                 disabled={isNewCombatantInvalid(value)}
               >
                 <CircleParking className="w-5 h-5" />
-                <span className="hidden md:inline">{parkGroupButtonText}</span>
+                <span className="hidden md:inline">{t("forms:combatant.actions.park")}</span>
               </button>
             )}
             {isButtonVisible("savePlayer") && (
               <button
                 onClick={onSaveAsPlayer}
                 className="disabled:pointer-events-none disabled:opacity-50 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-                title={savePlayerButtonText}
+                title={t("forms:combatant.actions.savePlayer")}
                 disabled={isNewCombatantInvalid(value)}
               >
                 <Save className="w-5 h-5" />
-                <span className="hidden md:inline">{savePlayerButtonText}</span>
+                <span className="hidden md:inline">{t("forms:combatant.actions.savePlayer")}</span>
               </button>
             )}
             {isButtonVisible("addToLibrary") && (
