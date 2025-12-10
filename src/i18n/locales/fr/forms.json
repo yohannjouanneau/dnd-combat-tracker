@@ -37,6 +37,11 @@
       "addToLibrary": "Dans la bibliothèque",
       "addInitGroup": "Ajouter un groupe d'init"
     },
+    "modalTitle": {
+      "player": "Créer un joueur",
+      "group": "Créer un groupe",
+      "fight": "Ajouter au combat"
+    },
     "searchMonster": "Rechercher cette créature dans l'API",
     "enterNameToSearch": "Entrer un nom pour rechercher",
     "searchResults": "{{count}} résultat trouvé",
@@ -53,14 +58,16 @@
     "deleteTooltip": "Supprimer le joueur",
     "groups": "{{count}} groupes, {{total}} au total",
     "singleGroup": "{{count}} combattant",
-    "singleGroup_plural": "{{count}} combattants"
+    "singleGroup_plural": "{{count}} combattants",
+    "addNew": "Ajouter un joueur"
   },
   "parkedGroups": {
     "title": "Groupes en attente",
     "empty": "Mettez des combattants en attente pour les utiliser plus tard dans ce combat",
     "edit": "Modifier",
     "fight": "Combat",
-    "remove": "Retirer"
+    "remove": "Retirer",
+    "addNew": "Ajouter un groupe"
   },
   "combat": {
     "name": "Nom",

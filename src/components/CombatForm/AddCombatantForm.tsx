@@ -9,14 +9,18 @@ import { ChevronDown, Save, Sword, CircleParking, Dice3, BookOpen } from "lucide
 import CombatantNameWithSearch from "./CombatantNameWithSearch";
 import { isNewCombatantInvalid, safeParseInt } from "../../utils";
 
+type ButtonType = "fight" | "park" | "savePlayer" | "addToLibrary" | "addInitGroup";
+
 type Props = {
-  formRef: RefObject<HTMLDivElement | null>;
+  formRef?: RefObject<HTMLDivElement | null>;
   value: NewCombatant;
   stagedFrom?: string;
   totalCount: number;
-  isCollapsed: boolean;
+  isCollapsed?: boolean;
   isFightModeEnabled: boolean;
-  onToggleCollapse: (collapsed: boolean) => void;
+  inModal?: boolean;
+  visibleButtons?: ButtonType[];
+  onToggleCollapse?: (collapsed: boolean) => void;
   onChange: (patch: Partial<NewCombatant>) => void;
   onSubmit: () => void;
   onAddGroup: () => void;
@@ -37,8 +41,10 @@ export default function AddCombatantForm({
   value,
   stagedFrom,
   totalCount,
-  isCollapsed,
+  isCollapsed = false,
   isFightModeEnabled,
+  inModal = false,
+  visibleButtons,
   onToggleCollapse,
   onChange,
   onSubmit,
@@ -52,6 +58,11 @@ export default function AddCombatantForm({
   onAddToLibrary
 }: Props) {
   const { t } = useTranslation("forms");
+
+  const isButtonVisible = (button: ButtonType) => {
+    if (!visibleButtons) return true;
+    return visibleButtons.includes(button);
+  };
 
   const getLetterRange = () => {
     if (totalCount <= 1) return "";
@@ -67,32 +78,8 @@ export default function AddCombatantForm({
     ? t("forms:combatant.actions.savePlayerAndFight")
     : t("forms:combatant.actions.savePlayer");
 
-  return (
-    <div
-      ref={formRef}
-      className="bg-slate-800 rounded-lg border border-slate-700 mb-6 overflow-hidden"
-    >
-      <button
-        onClick={() => onToggleCollapse(!isCollapsed)}
-        className="w-full flex items-center justify-between p-6 hover:bg-slate-700 transition-colors"
-      >
-        <h2 className="text-xl font-semibold">{t("forms:combatant.title")}</h2>
-        <div
-          className="transition-transform duration-300"
-          style={{ transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)" }}
-        >
-          <ChevronDown className="w-5 h-5 text-slate-400" />
-        </div>
-      </button>
-
-      <div
-        className="transition-all duration-300 ease-in-out overflow-hidden"
-        style={{
-          maxHeight: isCollapsed ? "0px" : "2000px",
-          opacity: isCollapsed ? 0 : 1,
-        }}
-      >
-        <div className="px-6 pb-6">
+  const content = (
+    <div className={inModal ? "" : "px-6 pb-6"}>
           {stagedFrom && (
             <div className="mb-3 text-sm text-slate-300">
               {t("forms:combatant.stagedFrom")}{" "}
@@ -193,56 +180,98 @@ export default function AddCombatantForm({
           </div>
 
           <div className="grid grid-cols-2 md:flex gap-2 md:gap-3 mt-4">
-            <button
-              onClick={onSubmit}
-              className="disabled:pointer-events-none disabled:opacity-50 bg-lime-600 hover:bg-lime-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-              title={t("forms:combatant.actions.fight")}
-              disabled={isNewCombatantInvalid(value)}
-            >
-              <Sword className="w-5 h-5" />
-              <span className="hidden md:inline">
-                {t("forms:combatant.actions.fight")}
-              </span>
-            </button>
-            <button
-              onClick={onAddGroup}
-              className="disabled:pointer-events-none disabled:opacity-50 bg-sky-600 hover:bg-sky-500 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-              title={parkGroupButtonText}
-              disabled={isNewCombatantInvalid(value)}
-            >
-              <CircleParking className="w-5 h-5" />
-              <span className="hidden md:inline">{parkGroupButtonText}</span>
-            </button>
-            <button
-              onClick={onSaveAsPlayer}
-              className="disabled:pointer-events-none disabled:opacity-50 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-              title={savePlayerButtonText}
-              disabled={isNewCombatantInvalid(value)}
-            >
-              <Save className="w-5 h-5" />
-              <span className="hidden md:inline">{savePlayerButtonText}</span>
-            </button>
-            <button
-              onClick={onAddToLibrary}
-              className="disabled:pointer-events-none disabled:opacity-50 bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-              title={t("forms:combatant.actions.addToLibrary")}
-              disabled={isNewCombatantInvalid(value)}
-            >
-              <BookOpen className="w-5 h-5" />
-              <span className="hidden md:inline">{t("forms:combatant.actions.addToLibrary")}</span>
-            </button>
-            <button
-              onClick={onAddInitiativeGroup}
-              className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-              title={t("forms:combatant.actions.addInitGroup")}
-            >
-              <Dice3 className="w-5 h-5" />
-              <span className="hidden md:inline">
-                {t("forms:combatant.actions.addInitGroup")}
-              </span>
-            </button>
+            {isButtonVisible("fight") && (
+              <button
+                onClick={onSubmit}
+                className="disabled:pointer-events-none disabled:opacity-50 bg-lime-600 hover:bg-lime-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+                title={t("forms:combatant.actions.fight")}
+                disabled={isNewCombatantInvalid(value)}
+              >
+                <Sword className="w-5 h-5" />
+                <span className="hidden md:inline">
+                  {t("forms:combatant.actions.fight")}
+                </span>
+              </button>
+            )}
+            {isButtonVisible("park") && (
+              <button
+                onClick={onAddGroup}
+                className="disabled:pointer-events-none disabled:opacity-50 bg-sky-600 hover:bg-sky-500 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+                title={parkGroupButtonText}
+                disabled={isNewCombatantInvalid(value)}
+              >
+                <CircleParking className="w-5 h-5" />
+                <span className="hidden md:inline">{parkGroupButtonText}</span>
+              </button>
+            )}
+            {isButtonVisible("savePlayer") && (
+              <button
+                onClick={onSaveAsPlayer}
+                className="disabled:pointer-events-none disabled:opacity-50 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+                title={savePlayerButtonText}
+                disabled={isNewCombatantInvalid(value)}
+              >
+                <Save className="w-5 h-5" />
+                <span className="hidden md:inline">{savePlayerButtonText}</span>
+              </button>
+            )}
+            {isButtonVisible("addToLibrary") && (
+              <button
+                onClick={onAddToLibrary}
+                className="disabled:pointer-events-none disabled:opacity-50 bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+                title={t("forms:combatant.actions.addToLibrary")}
+                disabled={isNewCombatantInvalid(value)}
+              >
+                <BookOpen className="w-5 h-5" />
+                <span className="hidden md:inline">{t("forms:combatant.actions.addToLibrary")}</span>
+              </button>
+            )}
+            {isButtonVisible("addInitGroup") && (
+              <button
+                onClick={onAddInitiativeGroup}
+                className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+                title={t("forms:combatant.actions.addInitGroup")}
+              >
+                <Dice3 className="w-5 h-5" />
+                <span className="hidden md:inline">
+                  {t("forms:combatant.actions.addInitGroup")}
+                </span>
+              </button>
+            )}
           </div>
         </div>
+  );
+
+  if (inModal) {
+    return content;
+  }
+
+  return (
+    <div
+      ref={formRef}
+      className="bg-slate-800 rounded-lg border border-slate-700 mb-6 overflow-hidden"
+    >
+      <button
+        onClick={() => onToggleCollapse?.(! isCollapsed)}
+        className="w-full flex items-center justify-between p-6 hover:bg-slate-700 transition-colors"
+      >
+        <h2 className="text-xl font-semibold">{t("forms:combatant.title")}</h2>
+        <div
+          className="transition-transform duration-300"
+          style={{ transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)" }}
+        >
+          <ChevronDown className="w-5 h-5 text-slate-400" />
+        </div>
+      </button>
+
+      <div
+        className="transition-all duration-300 ease-in-out overflow-hidden"
+        style={{
+          maxHeight: isCollapsed ? "0px" : "2000px",
+          opacity: isCollapsed ? 0 : 1,
+        }}
+      >
+        {content}
       </div>
     </div>
   );

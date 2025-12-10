@@ -7,7 +7,8 @@
     "next": "Tour suivant",
     "previous": "Tour précédent",
     "previousShort": "Précédent",
-    "nextShort": "Suivant"
+    "nextShort": "Suivant",
+    "addToFight": "Ajouter"
   },
   "combatant": {
     "name": "Nom",

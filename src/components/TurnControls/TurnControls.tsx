@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { Plus } from "lucide-react";
 import FocusModeToggle from "./FocusModeToggle";
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
   onPrev: () => void;
   onNext: () => void;
   onToggleFocus: () => void;
+  onOpenAddModal: () => void;
 };
 
 export default function TurnControls({
@@ -19,6 +21,7 @@ export default function TurnControls({
   onPrev,
   onNext,
   onToggleFocus,
+  onOpenAddModal,
 }: Props) {
   const { t } = useTranslation("combat");
   const isAtStart = round === 1 && currentTurn === 0;
@@ -57,6 +60,13 @@ export default function TurnControls({
         >
           <span className="hidden sm:inline">{t("combat:turn.next")}</span>
           <span className="sm:hidden">{t("combat:turn.nextShort")}</span>
+        </button>
+        <button
+          onClick={onOpenAddModal}
+          className="bg-lime-600 hover:bg-lime-700 text-white px-4 py-3 md:py-2 rounded transition flex items-center justify-center"
+          title={t("combat:turn.addToFight")}
+        >
+          <Plus className="w-5 h-5" />
         </button>
         <FocusModeToggle isFocusMode={isFocusMode} onToggle={onToggleFocus} />
       </div>
