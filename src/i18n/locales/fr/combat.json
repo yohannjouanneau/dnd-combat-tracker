@@ -29,7 +29,7 @@
     }
   },
   "groups": {
-    "title": "Groupes",
+    "title": "Groupes en combat",
     "removeAll": "Tout retirer",
     "count": "{{count}} combattant",
     "count_plural": "{{count}} combattants"

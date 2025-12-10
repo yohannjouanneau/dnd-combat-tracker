@@ -63,7 +63,7 @@ export default function TurnControls({
         </button>
         <button
           onClick={onOpenAddModal}
-          className="bg-lime-600 hover:bg-lime-700 text-white px-4 py-3 md:py-2 rounded transition flex items-center justify-center"
+          className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-3 md:py-2 rounded transition flex items-center justify-center"
           title={t("combat:turn.addToFight")}
         >
           <Plus className="w-5 h-5" />

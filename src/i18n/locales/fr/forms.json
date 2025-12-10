@@ -29,17 +29,22 @@
     "colorPicker": "Couleur",
     "stagedFrom": "Chargé depuis",
     "addToFight": "Ajouter au combat",
+    "addAnother": "En ajouter un autre",
     "actions": {
-      "fight": "Combat !",
-      "park": "Mettre de coté",
-      "savePlayer": "Enreg. joueur",
-      "addToLibrary": "Dans la bibliothèque",
-      "addInitGroup": "Ajouter un groupe d'init"
+      "fight": "Ajouter au Combat",
+      "park": "Soumettre",
+      "savePlayer": "Sauvegarder",
+      "addToLibrary": "Sauvegarder dans la bibliothèque",
+      "addInitGroup": "Ajouter un groupe d'init",
+      "library": "Ouvrir la bibliothèque"
     },
     "modalTitle": {
       "player": "Créer un joueur",
+      "player-edit": "Editer un joueur",
       "group": "Créer un groupe",
-      "fight": "Ajouter au combat"
+      "group-edit": "Editer un groupe",
+      "fight": "Ajouter au combat",
+      "fight-edit": "Editer un combatant"
     },
     "searchMonster": "Rechercher cette créature dans l'API",
     "enterNameToSearch": "Entrer un nom pour rechercher",

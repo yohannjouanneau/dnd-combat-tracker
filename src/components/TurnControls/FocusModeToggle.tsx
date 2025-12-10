@@ -16,9 +16,7 @@ export default function FocusModeToggle({ isFocusMode, onToggle }: Props) {
   return (
     <button
       onClick={onToggle}
-      className={`bg-slate-800 rounded-lg px-4 py-4 border border-slate-700 flex items-center justify-center transition hover:bg-slate-700 ${
-        isFocusMode ? "text-amber-400" : "text-purple-400"
-      }`}
+      className={`bg-slate-800 rounded-lg px-4 py-4 border border-slate-700 flex items-center justify-center transition hover:bg-slate-700 text-yellow-400`}
       title={title}
     >
       {isFocusMode ? (

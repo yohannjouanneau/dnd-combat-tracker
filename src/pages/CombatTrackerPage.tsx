@@ -2,7 +2,9 @@ import { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Sword } from "lucide-react";
 import ParkedGroupsPanel from "../components/ParkedGroups/ParkedGroupsPanel";
-import AddCombatantModal, { type AddCombatantModalMode } from "../components/CombatForm/AddCombatantModal";
+import AddCombatantModal, {
+  type AddCombatantModalMode,
+} from "../components/CombatForm/AddCombatantModal";
 import GroupsOverview from "../components/GroupsOverview/GroupsOverview";
 import TurnControls from "../components/TurnControls/TurnControls";
 import CombatLayout from "../components/CombatLayout/CombatLayout";
@@ -31,7 +33,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [addModalMode, setAddModalMode] = useState<AddCombatantModalMode>("fight");
+  const [addModalMode, setAddModalMode] =
+    useState<AddCombatantModalMode>("fight");
+  const [addToFight, setAddToFight] = useState(false);
+  const [addAnOther, setAddAnOther] = useState(false);
 
   // Keyboard shortcuts for turn navigation and focus mode
   useEffect(() => {
@@ -111,9 +116,9 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     combatStateManager.addCombatant({
       ...playerCombattant,
       templateOrigin: {
-        origin: 'player_library',
-        id: player.id
-      }
+        origin: "player_library",
+        id: player.id,
+      },
     });
     if (combatListRef.current) {
       combatListRef.current.scrollIntoView({
@@ -128,21 +133,32 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     setShowAddModal(true);
   };
 
+  const handleAddToFightChange = (checked: boolean) => {
+    setAddToFight(checked);
+  };
+
+  const handleAddAnotherChange = (checked: boolean) => {
+    setAddAnOther(checked);
+  };
+
   const closeAddModal = () => {
     setShowAddModal(false);
-    // Always reset form state
+    // Always reset form state and checkboxes
     combatStateManager.updateNewCombatant(generateDefaultNewCombatant());
+    setAddToFight(false);
+    setAddAnOther(false);
   };
 
   const handleModalSubmit = () => {
-    const addToFight = combatStateManager.state.newCombatant.addToFight ?? false;
-
     switch (addModalMode) {
       case "fight":
         combatStateManager.addCombatant();
         if (combatListRef.current) {
           setTimeout(() => {
-            combatListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            combatListRef.current?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
           }, 100);
         }
         break;
@@ -153,7 +169,11 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         combatStateManager.addParkedGroup(addToFight);
         break;
     }
-    closeAddModal();
+
+    // Only close modal if "Add another" is NOT checked
+    if (!addAnOther) {
+      closeAddModal();
+    }
   };
 
   const stagedFromParkedGroups = combatStateManager.state.parkedGroups.find(
@@ -217,7 +237,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
                   });
                 }}
                 hasChanges={combatStateManager.hasChanges}
-                onOpenLibrary={() => setShowLibrary(true)}
               />
             </div>
           </div>
@@ -282,7 +301,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
         {combatants.length === 0 && (
           <div className="text-center text-slate-400 py-12">
-            <Sword className="text-lime-400 w-16 h-16 mx-auto mb-4 opacity-50" />
+            <Sword className="text-yellow-400 w-16 h-16 mx-auto mb-4 opacity-50" />
             <p className="text-xl">{t("combat:combatant.noCombatants")}</p>
           </div>
         )}
@@ -316,7 +335,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           isOpen={showAddModal}
           mode={addModalMode}
           onClose={closeAddModal}
-          value={combatStateManager.state.newCombatant}
+          newCombatant={combatStateManager.state.newCombatant}
           stagedFrom={stagedFrom}
           totalCount={combatStateManager.getTotalCombatantCount()}
           onChange={combatStateManager.updateNewCombatant}
@@ -329,6 +348,11 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onSearchMonsters={combatStateManager.searchWithLibrary}
           onSelectSearchResult={combatStateManager.loadMonsterToForm}
           onAddToLibrary={combatStateManager.addCombatantToLibrary}
+          onOpenLibrary={() => setShowLibrary(true)}
+          addAnotherChecked={addAnOther}
+          addToFightChecked={addToFight}
+          onAddToFightChange={handleAddToFightChange}
+          onAddAnotherChange={handleAddAnotherChange}
         />
       </div>
     </div>

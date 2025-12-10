@@ -110,7 +110,7 @@ const getInitialState = (): CombatState => ({
   currentTurn: 0,
   round: 1,
   parkedGroups: [],
-  newCombatant: generateDefaultNewCombatant(),
+  newCombatant: generateDefaultNewCombatant()
 });
 
 export function useCombatState(): CombatStateManager {

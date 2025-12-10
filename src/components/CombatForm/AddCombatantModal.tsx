@@ -1,19 +1,28 @@
-import { X } from "lucide-react";
+import { X, BookOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { InitiativeGroup, NewCombatant, SearchResult } from "../../types";
 import AddCombatantForm from "./AddCombatantForm";
 
 export type AddCombatantModalMode = "player" | "group" | "fight";
 
-type ButtonType = "fight" | "park" | "savePlayer" | "addToLibrary" | "addInitGroup";
+type ButtonType =
+  | "fight"
+  | "park"
+  | "savePlayer"
+  | "addToLibrary"
+  | "addInitGroup";
 
 type Props = {
   isOpen: boolean;
   mode: AddCombatantModalMode;
   onClose: () => void;
-  value: NewCombatant;
+  newCombatant: NewCombatant;
   stagedFrom?: string;
   totalCount: number;
+  addToFightChecked: boolean;
+  onAddToFightChange: (checked: boolean) => void;
+  addAnotherChecked: boolean;
+  onAddAnotherChange: (checked: boolean) => void;
   onChange: (patch: Partial<NewCombatant>) => void;
   onSubmit: () => void;
   onAddGroup: () => void;
@@ -27,21 +36,26 @@ type Props = {
   onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
   onSelectSearchResult: (searchResult: SearchResult) => void;
   onAddToLibrary: () => void;
+  onOpenLibrary: () => void;
 };
 
 const BUTTON_MODE_MAP: Record<AddCombatantModalMode, ButtonType[]> = {
   player: ["savePlayer", "addToLibrary", "addInitGroup"],
   group: ["park", "addToLibrary", "addInitGroup"],
-  fight: ["fight", "addToLibrary", "addInitGroup"]
+  fight: ["fight", "addToLibrary", "addInitGroup"],
 };
 
 export default function AddCombatantModal({
   isOpen,
   mode,
   onClose,
-  value,
+  newCombatant,
   stagedFrom,
   totalCount,
+  addToFightChecked,
+  onAddToFightChange,
+  addAnotherChecked,
+  onAddAnotherChange,
   onChange,
   onSubmit,
   onAddGroup,
@@ -51,14 +65,16 @@ export default function AddCombatantModal({
   onUpdateInitiativeGroup,
   onSearchMonsters,
   onSelectSearchResult,
-  onAddToLibrary
+  onAddToLibrary,
+  onOpenLibrary,
 }: Props) {
   const { t } = useTranslation("forms");
 
   if (!isOpen) return null;
 
   const visibleButtons = BUTTON_MODE_MAP[mode];
-  const modalTitle = t(`forms:combatant.modalTitle.${mode}`);
+  const titleKey = newCombatant.name ? `${mode}-edit` : mode;
+  const modalTitle = t(`forms:combatant.modalTitle.${titleKey}`);
 
   return (
     <>
@@ -76,22 +92,34 @@ export default function AddCombatantModal({
             <h2 className="text-xl md:text-2xl font-bold text-white">
               {modalTitle}
             </h2>
-            <button
-              onClick={onClose}
-              className="text-slate-400 hover:text-white transition"
-            >
-              <X className="w-6 h-6" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onOpenLibrary}
+                className="bg-amber-600 hover:bg-amber-700 text-white p-2 rounded transition"
+                title={t("forms:combatant.actions.library")}
+              >
+                <BookOpen className="w-5 h-5" />
+              </button>
+              <button
+                onClick={onClose}
+                className="text-slate-400 hover:text-white transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
           </div>
 
           {/* Content */}
           <div className="overflow-y-auto p-4 md:p-6">
             <AddCombatantForm
-              value={value}
+              newCombatant={newCombatant}
               stagedFrom={stagedFrom}
               totalCount={totalCount}
-              inModal={true}
               visibleButtons={visibleButtons}
+              addToFightChecked={addToFightChecked}
+              onAddToFightChange={onAddToFightChange}
+              addAnotherChecked={addAnotherChecked}
+              onAddAnotherChange={onAddAnotherChange}
               onChange={onChange}
               onSubmit={onSubmit}
               onAddGroup={onAddGroup}
