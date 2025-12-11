@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 
 const languages = [
-  { code: "en", flag: "🇬🇧" },
-  { code: "fr", flag: "🇫🇷" },
+  { code: "en", flag: "🇬🇧", name: "English" },
+  { code: "fr", flag: "🇫🇷", name: "Français" },
 ];
 
 export default function LanguageSwitcher() {
@@ -19,7 +19,7 @@ export default function LanguageSwitcher() {
       >
         {languages.map((lang) => (
           <option key={lang.code} value={lang.code}>
-            {lang.flag}
+            {lang.flag} {lang.name}
           </option>
         ))}
       </select>
