@@ -28,7 +28,7 @@
     }
   },
   "groups": {
-    "title": "Groups",
+    "title": "Fighting groups",
     "removeAll": "Remove All",
     "count": "{{count}} combatant",
     "count_plural": "{{count}} combatants"

@@ -28,14 +28,23 @@
     "atLeastOneGroup": "Au moins un groupe requis",
     "colorPicker": "Couleur",
     "stagedFrom": "Chargé depuis",
+    "addToFight": "Ajouter au combat",
+    "addAnother": "En ajouter un autre",
     "actions": {
-      "fight": "Combat !",
-      "park": "Mettre de coté",
-      "parkAndFight": "Mettre de coté + Combat",
-      "savePlayer": "Enreg. joueur",
-      "savePlayerAndFight": "Enreg. joueur + Combat",
-      "addToLibrary": "Dans la bibliothèque",
-      "addInitGroup": "Ajouter un groupe d'init"
+      "fight": "Ajouter au Combat",
+      "park": "Soumettre",
+      "savePlayer": "Sauvegarder",
+      "addToLibrary": "Sauvegarder dans la bibliothèque",
+      "addInitGroup": "Ajouter un groupe d'init",
+      "library": "Ouvrir la bibliothèque"
+    },
+    "modalTitle": {
+      "player": "Créer un joueur",
+      "player-edit": "Editer un joueur",
+      "group": "Créer un groupe",
+      "group-edit": "Editer un groupe",
+      "fight": "Ajouter au combat",
+      "fight-edit": "Editer un combatant"
     },
     "searchMonster": "Rechercher cette créature dans l'API",
     "enterNameToSearch": "Entrer un nom pour rechercher",
@@ -53,14 +62,16 @@
     "deleteTooltip": "Supprimer le joueur",
     "groups": "{{count}} groupes, {{total}} au total",
     "singleGroup": "{{count}} combattant",
-    "singleGroup_plural": "{{count}} combattants"
+    "singleGroup_plural": "{{count}} combattants",
+    "addNew": "Ajouter un joueur"
   },
   "parkedGroups": {
     "title": "Groupes en attente",
     "empty": "Mettez des combattants en attente pour les utiliser plus tard dans ce combat",
     "edit": "Modifier",
     "fight": "Combat",
-    "remove": "Retirer"
+    "remove": "Retirer",
+    "addNew": "Ajouter un groupe"
   },
   "combat": {
     "name": "Nom",

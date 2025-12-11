@@ -2,7 +2,9 @@ import { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Sword } from "lucide-react";
 import ParkedGroupsPanel from "../components/ParkedGroups/ParkedGroupsPanel";
-import AddCombatantForm from "../components/CombatForm/AddCombatantForm";
+import AddCombatantModal, {
+  type AddCombatantModalMode,
+} from "../components/CombatForm/AddCombatantModal";
 import GroupsOverview from "../components/GroupsOverview/GroupsOverview";
 import TurnControls from "../components/TurnControls/TurnControls";
 import CombatLayout from "../components/CombatLayout/CombatLayout";
@@ -18,7 +20,7 @@ import logo from "../assets/logo.png";
 import SaveBar from "../components/SaveBar";
 import { HP_BAR_ID_PREFIX } from "../constants";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
-import { generateId } from "../utils";
+import { generateId, generateDefaultNewCombatant } from "../utils";
 
 type Props = {
   combatStateManager: CombatStateManager;
@@ -26,22 +28,23 @@ type Props = {
 
 export default function CombatTrackerPage({ combatStateManager }: Props) {
   const { t } = useTranslation("combat");
-  const formRef = useRef<HTMLDivElement>(null);
   const combatListRef = useRef<HTMLDivElement>(null);
   const combatants = combatStateManager.state.combatants;
-  const [formCollapsed, setFormCollapsed] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
-  const [isFightModifierEnabled, setEnableFightModifier] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addModalMode, setAddModalMode] =
+    useState<AddCombatantModalMode>("fight");
+  const [addToFight, setAddToFight] = useState(false);
+  const [addAnOther, setAddAnOther] = useState(false);
 
-  // Keyboard shortcuts for turn navigation, focus mode and fight mode
+  // Keyboard shortcuts for turn navigation and focus mode
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Ignore if user is typing in an input field
       const target = event.target as HTMLElement;
       const isHpBarInput = target.id.startsWith(HP_BAR_ID_PREFIX);
       if (
-        !event.altKey &&
         !isHpBarInput &&
         ((target.tagName && target.tagName === "INPUT") ||
           target.tagName === "TEXTAREA" ||
@@ -66,10 +69,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         // Toggle focus mode with F key
         event.preventDefault();
         setIsFocusMode((prev) => !prev);
-      } else if (event.altKey) {
-        // Park / Save player and Fight button switch on Alt
-        event.preventDefault();
-        setEnableFightModifier(true);
       }
     };
 
@@ -80,28 +79,9 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     };
   }, [combatants.length, combatStateManager]);
 
-  useEffect(() => {
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (!event.altKey) {
-        // Park / Save player and Fight button switch on Alt
-        event.preventDefault();
-        setEnableFightModifier(false);
-      }
-    };
-
-    window.addEventListener("keyup", handleKeyUp);
-
-    return () => {
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, [combatants.length, combatStateManager]);
-
   const handleIncludeParked = (combatant: NewCombatant) => {
     combatStateManager.includeParkedGroup(combatant);
-    if (formRef.current) {
-      setFormCollapsed(false); // Auto-expand
-      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    openAddModal("group");
   };
 
   const includeToFight = (combatant: NewCombatant) => {
@@ -116,10 +96,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
   const includePlayerToForm = (player: SavedPlayer) => {
     combatStateManager.includePlayer(player);
-    if (formRef.current) {
-      setFormCollapsed(false); // Auto-expand
-      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    openAddModal("player");
   };
 
   const includePlayerToFight = (player: SavedPlayer) => {
@@ -139,15 +116,63 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     combatStateManager.addCombatant({
       ...playerCombattant,
       templateOrigin: {
-        origin: 'player_library',
-        id: player.id
-      }
+        origin: "player_library",
+        id: player.id,
+      },
     });
     if (combatListRef.current) {
       combatListRef.current.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
+    }
+  };
+
+  const openAddModal = (mode: AddCombatantModalMode) => {
+    setAddModalMode(mode);
+    setShowAddModal(true);
+  };
+
+  const handleAddToFightChange = (checked: boolean) => {
+    setAddToFight(checked);
+  };
+
+  const handleAddAnotherChange = (checked: boolean) => {
+    setAddAnOther(checked);
+  };
+
+  const closeAddModal = () => {
+    setShowAddModal(false);
+    // Always reset form state and checkboxes
+    combatStateManager.updateNewCombatant(generateDefaultNewCombatant());
+    setAddToFight(false);
+    setAddAnOther(false);
+  };
+
+  const handleModalSubmit = () => {
+    switch (addModalMode) {
+      case "fight":
+        combatStateManager.addCombatant();
+        if (combatListRef.current) {
+          setTimeout(() => {
+            combatListRef.current?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }, 100);
+        }
+        break;
+      case "player":
+        combatStateManager.addPlayerFromForm(addToFight);
+        break;
+      case "group":
+        combatStateManager.addParkedGroup(addToFight);
+        break;
+    }
+
+    // Only close modal if "Add another" is NOT checked
+    if (!addAnOther) {
+      closeAddModal();
     }
   };
 
@@ -212,7 +237,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
                   });
                 }}
                 hasChanges={combatStateManager.hasChanges}
-                onOpenLibrary={() => setShowLibrary(true)}
               />
             </div>
           </div>
@@ -223,6 +247,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               onInclude={includePlayerToForm}
               onFight={includePlayerToFight}
               onRemove={combatStateManager.removePlayer}
+              onOpenAddModal={() => openAddModal("player")}
             />
 
             <ParkedGroupsPanel
@@ -230,34 +255,9 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               onInclude={handleIncludeParked}
               onFight={includeToFight}
               onRemove={combatStateManager.removeParkedGroup}
+              onOpenAddModal={() => openAddModal("group")}
             />
           </div>
-
-          <AddCombatantForm
-            formRef={formRef}
-            value={combatStateManager.state.newCombatant}
-            stagedFrom={stagedFrom}
-            totalCount={combatStateManager.getTotalCombatantCount()}
-            isCollapsed={formCollapsed}
-            isFightModeEnabled={isFightModifierEnabled}
-            onToggleCollapse={setFormCollapsed}
-            onChange={combatStateManager.updateNewCombatant}
-            onSubmit={() => {
-              combatStateManager.addCombatant();
-            }}
-            onAddGroup={() =>
-              combatStateManager.addParkedGroup(isFightModifierEnabled)
-            }
-            onSaveAsPlayer={() =>
-              combatStateManager.addPlayerFromForm(isFightModifierEnabled)
-            }
-            onAddInitiativeGroup={combatStateManager.addInitiativeGroup}
-            onRemoveInitiativeGroup={combatStateManager.removeInitiativeGroup}
-            onUpdateInitiativeGroup={combatStateManager.updateInitiativeGroup}
-            onSearchMonsters={combatStateManager.searchWithLibrary}
-            onSelectSearchResult={combatStateManager.loadMonsterToForm}
-            onAddToLibrary={combatStateManager.addCombatantToLibrary}
-          />
 
           {combatants.length > 0 && (
             <GroupsOverview
@@ -281,6 +281,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               onPrev={combatStateManager.prevTurn}
               onNext={combatStateManager.nextTurn}
               onToggleFocus={() => setIsFocusMode((prev) => !prev)}
+              onOpenAddModal={() => openAddModal("fight")}
             />
           </div>
         </div>
@@ -300,7 +301,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
         {combatants.length === 0 && (
           <div className="text-center text-slate-400 py-12">
-            <Sword className="text-lime-400 w-16 h-16 mx-auto mb-4 opacity-50" />
+            <Sword className="text-yellow-400 w-16 h-16 mx-auto mb-4 opacity-50" />
             <p className="text-xl">{t("combat:combatant.noCombatants")}</p>
           </div>
         )}
@@ -319,13 +320,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               monster: monster,
             });
             setShowLibrary(false);
-            if (formRef.current) {
-              setFormCollapsed(false);
-              formRef.current.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
-            }
+            openAddModal("fight");
           }}
           onCreate={combatStateManager.createMonster}
           onDelete={combatStateManager.removeMonster}
@@ -333,6 +328,31 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onSearchMonsters={(query: string) => {
             return combatStateManager.searchWithLibrary(query, "api");
           }}
+        />
+
+        {/* Add Combatant Modal */}
+        <AddCombatantModal
+          isOpen={showAddModal}
+          mode={addModalMode}
+          onClose={closeAddModal}
+          newCombatant={combatStateManager.state.newCombatant}
+          stagedFrom={stagedFrom}
+          totalCount={combatStateManager.getTotalCombatantCount()}
+          onChange={combatStateManager.updateNewCombatant}
+          onSubmit={handleModalSubmit}
+          onAddGroup={handleModalSubmit}
+          onSaveAsPlayer={handleModalSubmit}
+          onAddInitiativeGroup={combatStateManager.addInitiativeGroup}
+          onRemoveInitiativeGroup={combatStateManager.removeInitiativeGroup}
+          onUpdateInitiativeGroup={combatStateManager.updateInitiativeGroup}
+          onSearchMonsters={combatStateManager.searchWithLibrary}
+          onSelectSearchResult={combatStateManager.loadMonsterToForm}
+          onAddToLibrary={combatStateManager.addCombatantToLibrary}
+          onOpenLibrary={() => setShowLibrary(true)}
+          addAnotherChecked={addAnOther}
+          addToFightChecked={addToFight}
+          onAddToFightChange={handleAddToFightChange}
+          onAddAnotherChange={handleAddAnotherChange}
         />
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { CircleParking } from "lucide-react";
+import { CircleParking, Plus } from "lucide-react";
 import type { NewCombatant } from "../../types";
 import ParkedGroupChip from "./ParkedGroupChip";
 
@@ -8,6 +8,7 @@ type Props = {
   onInclude: (group: NewCombatant) => void;
   onFight: (group: NewCombatant) => void;
   onRemove: (name: string) => void;
+  onOpenAddModal: () => void;
 };
 
 export default function ParkedGroupsPanel({
@@ -15,16 +16,26 @@ export default function ParkedGroupsPanel({
   onInclude,
   onFight,
   onRemove,
+  onOpenAddModal,
 }: Props) {
   const { t } = useTranslation("forms");
 
   return (
     <div className="bg-slate-800 rounded-lg p-6 mb-6 border border-slate-700">
-      <div className="flex items-center gap-2 mb-4">
-        <CircleParking className="w-5 h-5 text-sky-400" />
-        <h2 className="text-xl font-semibold">
-          {t("forms:parkedGroups.title")}
-        </h2>
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <div className="flex items-center gap-2">
+          <CircleParking className="w-5 h-5 text-sky-400" />
+          <h2 className="text-xl font-semibold">
+            {t("forms:parkedGroups.title")}
+          </h2>
+        </div>
+        <button
+          onClick={onOpenAddModal}
+          className="bg-sky-600 hover:bg-sky-700 text-white p-2 rounded transition flex items-center justify-center"
+          title={t("forms:parkedGroups.addNew")}
+        >
+          <Plus className="w-5 h-5" />
+        </button>
       </div>
       {parkedGroups.length > 0 && (
         <div className="flex flex-wrap gap-2">

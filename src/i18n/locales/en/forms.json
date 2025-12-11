@@ -28,14 +28,23 @@
     "atLeastOneGroup": "At least one group required",
     "colorPicker": "Color",
     "stagedFrom": "Staged from",
+    "addToFight": "Add to fight",
+    "addAnother": "Add an other",
     "actions": {
-      "fight": "Fight",
-      "park": "Park group",
-      "parkAndFight": "Park group + Fight",
-      "savePlayer": "Save player",
-      "savePlayerAndFight": "Save player + Fight",
-      "addToLibrary": "Add to library",
-      "addInitGroup": "Add init group"
+      "fight": "Add to fight",
+      "park": "Submit",
+      "savePlayer": "Save",
+      "addToLibrary": "Save in library",
+      "addInitGroup": "Add init group",
+      "library": "Open the library"
+    },
+    "modalTitle": {
+      "player": "Create a player",
+      "player-edit": "Edit a player",
+      "group": "Create a group",
+      "group-edit": "Edit a group",
+      "fight": "Add a combatant",
+      "fight-edit": "Edit a combatant"
     },
     "searchMonster": "Search API for this creature",
     "enterNameToSearch": "Enter a name to search",

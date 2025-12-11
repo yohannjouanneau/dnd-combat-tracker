@@ -7,7 +7,8 @@
     "next": "Tour suivant",
     "previous": "Tour précédent",
     "previousShort": "Précédent",
-    "nextShort": "Suivant"
+    "nextShort": "Suivant",
+    "addToFight": "Ajouter"
   },
   "combatant": {
     "name": "Nom",
@@ -28,7 +29,7 @@
     }
   },
   "groups": {
-    "title": "Groupes",
+    "title": "Groupes en combat",
     "removeAll": "Tout retirer",
     "count": "{{count}} combattant",
     "count_plural": "{{count}} combattants"
