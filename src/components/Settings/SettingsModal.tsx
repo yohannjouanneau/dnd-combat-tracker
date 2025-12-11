@@ -5,6 +5,7 @@ import type { SyncApi, CombatantIdentifierType } from "../../types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getReadableTimestamp } from "../../utils";
 import { useSettings } from "../../hooks/useSettings";
+import LanguageSwitcher from "../common/LanguageSwitcher";
 
 type Props = {
   isOpen: boolean;
@@ -103,8 +104,17 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
 
           {/* Content */}
           <div className="p-4 md:p-6 space-y-6">
-            {/* Combatant Identifier Section */}
+            {/* Language Section */}
             <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-slate-300">
+                {t("common:settings.language.title")}
+              </h3>
+
+              <LanguageSwitcher />
+            </div>
+
+            {/* Combatant Identifier Section */}
+            <div className="space-y-3 pt-3 border-t border-slate-700">
               <h3 className="text-lg font-semibold text-slate-300">
                 {t("common:settings.combatantIdentifier.title")}
               </h3>
