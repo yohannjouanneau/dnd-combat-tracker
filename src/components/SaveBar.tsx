@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import LabeledTextInput from "./common/LabeledTextInput";
-import LanguageSwitcher from "./common/LanguageSwitcher";
 import { useEffect } from "react";
 
 type Props = {
@@ -75,7 +74,6 @@ export default function SaveBar({
           >
             {t("common:actions.save")}
           </button>
-          <LanguageSwitcher />
         </div>
       </div>
     </div>
