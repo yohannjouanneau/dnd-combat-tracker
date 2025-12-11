@@ -14,7 +14,7 @@ import type {
   NewCombatant,
   PlayerCombatant,
 } from "../types";
-import type { CombatStateManager } from "../state";
+import type { CombatStateManager } from "../store/types";
 import SavedPlayersPanel from "../components/CombatForm/SavedPlayerPanel";
 import logo from "../assets/logo.png";
 import SaveBar from "../components/SaveBar";

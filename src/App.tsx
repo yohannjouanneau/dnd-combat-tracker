@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import CombatTrackerPage from "./pages/CombatTrackerPage";
 import CombatsPage from "./pages/CombatsPage";
-import { useCombatState } from "./state";
+import { useCombatState } from "./store/state";
 
 function App() {
   const [route, setRoute] = useState<string>(location.hash || "#combats");

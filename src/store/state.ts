@@ -3,7 +3,6 @@ import type {
   CombatState,
   Combatant,
   DeathSaves,
-  GroupSummary,
   InitiativeGroup,
   SavedPlayer,
   SavedCombat,
@@ -13,97 +12,22 @@ import type {
   NewCombatant,
   MonsterCombatant,
   SearchSource,
-  SyncApi,
-} from "./types";
-import { dataStore } from "./persistence/storage";
-import type { ApiMonster } from "./api/types";
-import { createGraphQLClient } from "./api/DnD5eGraphQLClient";
+} from "../types";
+import { dataStore } from "../persistence/storage";
+import type { ApiMonster } from "../api/types";
+import { createGraphQLClient } from "../api/DnD5eGraphQLClient";
 import {
   getStatModifier,
   getApiImageUrl,
   indexToLetter,
   generateId,
   generateDefaultNewCombatant,
-} from "./utils";
-import { useToast } from "./components/common/Toast/useToast";
+} from "../utils";
+import { useToast } from "../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
-import { getSettings } from "./hooks/useSettings";
+import { getSettings } from "../hooks/useSettings";
+import type { CombatStateManager } from "./types";
 
-export type CombatStateManager = {
-  // State
-  state: CombatState;
-
-  // Sync
-  syncApi: SyncApi;
-
-  // Saved Combats
-  loadCombat: (combatId: string) => Promise<void>;
-  saveCombat: (patch: Partial<SavedCombat>) => Promise<void>;
-  updateCombat: (name: string, description: string) => void;
-
-  // Saved Players
-  savedPlayers: SavedPlayer[];
-  loadPlayers: () => Promise<void>;
-
-  // Parked Groups
-  addParkedGroup: (isFightModeEnabled: boolean) => void;
-  removeParkedGroup: (name: string) => void;
-  includeParkedGroup: (combatant: NewCombatant) => void;
-
-  // New Combatant Form
-  updateNewCombatant: (patch: Partial<NewCombatant>) => void;
-
-  // Initiative Groups
-  addInitiativeGroup: () => void;
-  removeInitiativeGroup: (id: string) => void;
-  updateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
-
-  // Player Management
-  addPlayerFromForm: (isFightModeEnabled: boolean) => Promise<void>;
-  removePlayer: (id: string) => Promise<void>;
-  includePlayer: (player: SavedPlayer) => void;
-
-  // Combatants
-  addCombatant: (combatant?: NewCombatant) => void;
-  removeCombatant: (id: number) => void;
-  removeGroup: (name: string) => void;
-  updateHP: (id: number, change: number) => void;
-  updateInitiative: (id: number, newInitiative: number) => void;
-  toggleCondition: (id: number, condition: string) => void;
-  toggleConcentration: (id: number) => void;
-  updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
-
-  // Combat List
-  listCombat: () => Promise<SavedCombat[]>;
-  createCombat: (input: SavedCombatInput) => Promise<SavedCombat>;
-  deleteCombat: (id: string) => Promise<void>;
-
-  // Turn Management
-  nextTurn: () => void;
-  prevTurn: () => void;
-
-  // Monster Library
-  monsters: SavedMonster[];
-  loadMonsters: () => Promise<void>;
-  createMonster: (monster: MonsterCombatant) => Promise<void>;
-  removeMonster: (id: string) => Promise<void>;
-  updateMonster: (id: string, monster: SavedMonster) => Promise<void>;
-  loadMonsterToForm: (searchTerm: SearchResult) => void;
-  searchWithLibrary: (
-    query: string,
-    source?: SearchSource
-  ) => Promise<SearchResult[]>;
-  addCombatantToLibrary: () => Promise<void>;
-
-  // Utility
-  getUniqueGroups: () => GroupSummary[];
-  getTotalCombatantCount: () => number;
-  loadState: (newState: CombatState) => void;
-  resetState: () => void;
-
-  // Dirty state management
-  hasChanges: boolean;
-};
 
 const getInitialState = (): CombatState => ({
   combatants: [],
