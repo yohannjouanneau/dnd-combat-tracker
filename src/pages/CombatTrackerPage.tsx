@@ -320,7 +320,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               monster: monster,
             });
             setShowLibrary(false);
-            openAddModal("fight");
+            openAddModal(addModalMode);
           }}
           onCreate={combatStateManager.createMonster}
           onDelete={combatStateManager.removeMonster}
