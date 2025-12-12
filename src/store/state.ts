@@ -4,7 +4,6 @@ import type {
   Combatant,
   DeathSaves,
   InitiativeGroup,
-  SavedPlayer,
   SavedCombat,
   SavedCombatInput,
   SavedMonster,
@@ -20,13 +19,13 @@ import {
   getStatModifier,
   getApiImageUrl,
   indexToLetter,
-  generateId,
   generateDefaultNewCombatant,
 } from "../utils";
 import { useToast } from "../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 import { getSettings } from "../hooks/useSettings";
 import type { CombatStateManager } from "./types";
+import { usePlayerState } from "./player/usePlayerState";
 
 
 const getInitialState = (): CombatState => ({
@@ -40,11 +39,21 @@ const getInitialState = (): CombatState => ({
 export function useCombatState(): CombatStateManager {
   const apiClient = useMemo(() => createGraphQLClient(), []);
   const [state, setState] = useState<CombatState>(getInitialState());
-  const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
   const [monsters, setMonsters] = useState<SavedMonster[]>([]);
+
+  // Helper to update state from child hooks
+  const updateState = useCallback((patch: Partial<CombatState>) => {
+    setState((prev) => ({ ...prev, ...patch }));
+  }, []);
 
   const { t } = useTranslation(["common"]);
   const toastApi = useToast();
+
+  // Initialize player state hook early (needs to be before it's used in synchronise)
+  const playerStore = usePlayerState({
+    combatState: state,
+    updateState,
+  });
 
   const authorizeSync = async () => {
     if (!dataStore.isSyncAuthorized()) {
@@ -69,7 +78,7 @@ export function useCombatState(): CombatStateManager {
       await dataStore.syncToCloud();
 
       // Reload data after sync to reflect any downloaded changes
-      await loadPlayers();
+      await playerStore.actions.loadPlayers();
       await loadMonsters();
 
       toastApi.success(`Sync successful`);
@@ -99,11 +108,6 @@ export function useCombatState(): CombatStateManager {
     return dataStore.isSyncAuthorized();
   };
 
-  const loadPlayers = useCallback(async () => {
-    const players = await dataStore.listPlayer();
-    setSavedPlayers(players);
-  }, []);
-
   const loadMonsters = useCallback(async () => {
     const monsterList = await dataStore.listMonster();
     setMonsters(monsterList);
@@ -121,11 +125,6 @@ export function useCombatState(): CombatStateManager {
   useEffect(() => {
     loadMonsters();
   }, [loadMonsters]);
-
-  // Load players on mount
-  useEffect(() => {
-    loadPlayers();
-  }, [loadPlayers]);
 
   function takeSnapshot(state: CombatState) {
     return JSON.stringify(state, (key, value) => {
@@ -384,98 +383,28 @@ export function useCombatState(): CombatStateManager {
     []
   );
 
-  // Player Management
+  // Player Management - wrapper around playerStore to add combat logic
   const addPlayerFromForm = useCallback(
     async (isFightModeEnabled: boolean) => {
+      // Get the current newCombatant before we clear it
       const nc = state.newCombatant;
-      if (!nc.name || !nc.hp) return;
-      if (nc.initiativeGroups.length === 0) return;
-      if (nc.initiativeGroups.some((g) => !g.initiative || !g.count)) return;
 
-      // Check if player with same name already exists
-      const existingPlayer = savedPlayers.find((p) => p.name === nc.name);
+      // Call the hook's action to save player
+      await playerStore.actions.addPlayerFromForm();
 
-      if (existingPlayer) {
-        // Update existing player
-        await dataStore.updatePlayer(existingPlayer.id, {
-          initiativeGroups: nc.initiativeGroups,
-          hp: nc.hp,
-          maxHp: nc.maxHp || nc.hp,
-          ac: nc.ac,
-          color: nc.color,
-        });
-      } else {
-        // Create new player
-        await dataStore.createPlayer({
-          id: generateId(),
-          type: "player",
-          name: nc.name,
-          initiativeGroups: nc.initiativeGroups,
-          hp: nc.hp,
-          maxHp: nc.maxHp || nc.hp,
-          ac: nc.ac,
-          color: nc.color,
-          imageUrl: nc.imageUrl,
-          initBonus: nc.initBonus,
-          externalResourceUrl: nc.externalResourceUrl,
-        });
-      }
+      // Clear form and optionally add to combat
+      const combatants = isFightModeEnabled
+        ? prepareCombatantList(state, nc)
+        : state.combatants;
 
-      await loadPlayers();
-
-      // Clear the form after saving player
-      setState((prev) => {
-        const combatants = isFightModeEnabled
-          ? prepareCombatantList(prev, nc)
-          : [];
-        return {
-          ...prev,
-          newCombatant: generateDefaultNewCombatant(),
-          combatants,
-        };
-      });
-      toastApi.success(t("common:confirmation.addedPlayer.success"));
+      setState((prev) => ({
+        ...prev,
+        newCombatant: generateDefaultNewCombatant(),
+        combatants,
+      }));
     },
-    [
-      state.newCombatant,
-      savedPlayers,
-      loadPlayers,
-      prepareCombatantList,
-      toastApi,
-      t,
-    ]
+    [state, playerStore.actions, prepareCombatantList]
   );
-
-  const removePlayer = useCallback(
-    async (id: string) => {
-      await dataStore.deletePlayer(id);
-      await loadPlayers();
-    },
-    [loadPlayers]
-  );
-
-  const includePlayer = useCallback((player: SavedPlayer) => {
-    setState((prev) => ({
-      ...prev,
-      newCombatant: {
-        id: generateId(),
-        type: "player",
-        name: player.name,
-        initiativeGroups: player.initiativeGroups,
-        hp: player.hp,
-        maxHp: player.maxHp,
-        ac: player.ac,
-        color: player.color,
-        imageUrl: player.imageUrl,
-        initBonus: player.initBonus,
-        externalResourceUrl: player.externalResourceUrl,
-        templateOrigin: {
-          origin: "player_library",
-          id: player.id,
-        },
-      },
-    }));
-  }, []);
 
   // Library Management
 
@@ -893,10 +822,6 @@ export function useCombatState(): CombatStateManager {
     saveCombat,
     updateCombat,
 
-    // Saved Players
-    savedPlayers,
-    loadPlayers,
-
     // Parked Groups
     addParkedGroup,
     removeParkedGroup,
@@ -912,8 +837,10 @@ export function useCombatState(): CombatStateManager {
 
     // Player Management
     addPlayerFromForm,
-    removePlayer,
-    includePlayer,
+    removePlayer: playerStore.actions.removePlayer,
+    includePlayer: playerStore.actions.includePlayer,
+    savedPlayers: playerStore.state.savedPlayers,
+    loadPlayers: playerStore.actions.loadPlayers,
 
     // Monster Library
     monsters,

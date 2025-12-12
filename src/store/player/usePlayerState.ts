@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
-import type { CombatState, SavedPlayer, NewCombatant, Combatant } from "../../types";
+import type { CombatState, SavedPlayer } from "../../types";
 import { dataStore } from "../../persistence/storage";
-import { generateId, generateDefaultNewCombatant } from "../../utils";
+import { generateId } from "../../utils";
 import { useToast } from "../../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 
@@ -9,7 +9,7 @@ interface PlayerActions {
   loadPlayers: () => Promise<void>;
   removePlayer: (id: string) => Promise<void>;
   includePlayer: (player: SavedPlayer) => void;
-  addPlayerFromForm: (isFightModeEnabled: boolean) => Promise<void>;
+  addPlayerFromForm: () => Promise<void>;
 }
 
 interface PlayerState {
@@ -23,14 +23,12 @@ interface PlayerStore {
 
 interface Props {
   combatState: CombatState;
-  updateState: (patch: Partial<CombatState>) => CombatState;
-  prepareCombatantList: (prev: CombatState, combatant?: NewCombatant) => Combatant[];
+  updateState: (patch: Partial<CombatState>) => void;
 }
 
 export function usePlayerState({
   combatState,
   updateState,
-  prepareCombatantList,
 }: Props): PlayerStore {
   // Local reactive state for saved players
   const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
@@ -85,9 +83,9 @@ export function usePlayerState({
     [updateState]
   );
 
-  // Add player from form to dataStore and optionally to combat
+  // Add player from form to dataStore
   const addPlayerFromForm = useCallback(
-    async (isFightModeEnabled: boolean) => {
+    async () => {
       const nc = combatState.newCombatant;
 
       // Validation
@@ -126,19 +124,9 @@ export function usePlayerState({
 
       await loadPlayers();
 
-      // Clear the form and optionally add to combat
-      const combatants = isFightModeEnabled
-        ? prepareCombatantList(combatState, nc)
-        : combatState.combatants;
-
-      updateState({
-        newCombatant: generateDefaultNewCombatant(),
-        combatants,
-      });
-
       toastApi.success(t("common:confirmation.addedPlayer.success"));
     },
-    [combatState, savedPlayers, loadPlayers, prepareCombatantList, updateState, toastApi, t]
+    [combatState, savedPlayers, loadPlayers, toastApi, t]
   );
 
   return {
