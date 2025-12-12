@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import { getSettings } from "../hooks/useSettings";
 import type { CombatStateManager } from "./types";
 import { usePlayerState } from "./player/usePlayerState";
+import { useSyncApi } from "../api/sync/hooks/useSyncApi";
 
 
 const getInitialState = (): CombatState => ({
@@ -55,58 +56,14 @@ export function useCombatState(): CombatStateManager {
     updateState,
   });
 
-  const authorizeSync = async () => {
-    if (!dataStore.isSyncAuthorized()) {
-      try {
-        await dataStore.authorizeSync();
-        toastApi.success("Connected to Google Drive");
-        return true;
-      } catch (error) {
-        toastApi.error(`Error while connecting to Google Drive ${error}`);
-        return false;
-      }
-    }
-    return true;
-  };
-
-  const hasNewRemoteData = async () => {
-    return await dataStore.hasNewRemoteData();
-  };
-
-  const synchronise = async () => {
-    try {
-      await dataStore.syncToCloud();
-
+  // Initialize sync API hook with reload callback
+  const syncApi = useSyncApi({
+    onSyncSuccess: async () => {
       // Reload data after sync to reflect any downloaded changes
       await playerStore.actions.loadPlayers();
       await loadMonsters();
-
-      toastApi.success(`Sync successful`);
-      return true;
-    } catch (error) {
-      toastApi.error(`Error while syncing data ${error}`);
     }
-    return false;
-  };
-
-  const logout = async () => {
-    try {
-      await dataStore.logout();
-      toastApi.success(`Logout successful`);
-      return true;
-    } catch (error) {
-      toastApi.error(`Error while logging out ${error}`);
-      return false;
-    }
-  };
-
-  const getLastSyncTime = () => {
-    return dataStore.getLastSyncTime();
-  };
-
-  const isSyncAuthorized = () => {
-    return dataStore.isSyncAuthorized();
-  };
+  });
 
   const loadMonsters = useCallback(async () => {
     const monsterList = await dataStore.listMonster();
@@ -808,14 +765,14 @@ export function useCombatState(): CombatStateManager {
     state,
 
     // Sync
-    syncApi: {
-      isSyncAuthorized,
-      authorizeSync,
-      hasNewRemoteData,
-      synchronise,
-      getLastSyncTime,
-      logout,
-    },
+    syncApi,
+
+    // Player Management
+    addPlayerFromForm,
+    removePlayer: playerStore.actions.removePlayer,
+    includePlayer: playerStore.actions.includePlayer,
+    savedPlayers: playerStore.state.savedPlayers,
+    loadPlayers: playerStore.actions.loadPlayers,
 
     // Saved combats
     loadCombat,
@@ -834,13 +791,6 @@ export function useCombatState(): CombatStateManager {
     addInitiativeGroup,
     removeInitiativeGroup,
     updateInitiativeGroup,
-
-    // Player Management
-    addPlayerFromForm,
-    removePlayer: playerStore.actions.removePlayer,
-    includePlayer: playerStore.actions.includePlayer,
-    savedPlayers: playerStore.state.savedPlayers,
-    loadPlayers: playerStore.actions.loadPlayers,
 
     // Monster Library
     monsters,

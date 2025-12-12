@@ -1,4 +1,5 @@
-import type { CombatState, SyncApi, SavedCombat, SavedPlayer, NewCombatant, InitiativeGroup, DeathSaves, SavedCombatInput, SavedMonster, MonsterCombatant, SearchResult, SearchSource, GroupSummary } from "../types";
+import type { SyncApi } from "../api/sync/types";
+import type { CombatState, SavedCombat, SavedPlayer, NewCombatant, InitiativeGroup, DeathSaves, SavedCombatInput, SavedMonster, MonsterCombatant, SearchResult, SearchSource, GroupSummary } from "../types";
 
 export type CombatStateManager = {
     // State
@@ -6,15 +7,18 @@ export type CombatStateManager = {
   
     // Sync
     syncApi: SyncApi;
+
+    // Player Management
+    addPlayerFromForm: (isFightModeEnabled: boolean) => Promise<void>;
+    removePlayer: (id: string) => Promise<void>;
+    includePlayer: (player: SavedPlayer) => void;
+    savedPlayers: SavedPlayer[];
+    loadPlayers: () => Promise<void>;
   
     // Saved Combats
     loadCombat: (combatId: string) => Promise<void>;
     saveCombat: (patch: Partial<SavedCombat>) => Promise<void>;
     updateCombat: (name: string, description: string) => void;
-  
-    // Saved Players
-    savedPlayers: SavedPlayer[];
-    loadPlayers: () => Promise<void>;
   
     // Parked Groups
     addParkedGroup: (isFightModeEnabled: boolean) => void;
@@ -28,11 +32,6 @@ export type CombatStateManager = {
     addInitiativeGroup: () => void;
     removeInitiativeGroup: (id: string) => void;
     updateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
-  
-    // Player Management
-    addPlayerFromForm: (isFightModeEnabled: boolean) => Promise<void>;
-    removePlayer: (id: string) => Promise<void>;
-    includePlayer: (player: SavedPlayer) => void;
   
     // Combatants
     addCombatant: (combatant?: NewCombatant) => void;
