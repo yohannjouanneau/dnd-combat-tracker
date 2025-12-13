@@ -28,15 +28,13 @@ export type CombatStateManager = {
     createCombat: (input: SavedCombatInput) => Promise<SavedCombat>;
     deleteCombat: (id: string) => Promise<void>;
     
-    // New Combatant Form
+    // New Combatant Form and Initiative Groups
     updateNewCombatant: (patch: Partial<NewCombatant>) => void;
-  
-    // Initiative Groups
     addInitiativeGroup: () => void;
     removeInitiativeGroup: (id: string) => void;
     updateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
   
-    // Combatants
+    // Combatants and Turn Management
     addCombatant: (combatant?: NewCombatant) => void;
     removeCombatant: (id: number) => void;
     removeGroup: (name: string) => void;
@@ -45,8 +43,6 @@ export type CombatStateManager = {
     toggleCondition: (id: number, condition: string) => void;
     toggleConcentration: (id: number) => void;
     updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
-  
-    // Turn Management
     nextTurn: () => void;
     prevTurn: () => void;
   
@@ -66,7 +62,6 @@ export type CombatStateManager = {
     // Utility
     getUniqueGroups: () => GroupSummary[];
     getTotalCombatantCount: () => number;
-    loadState: (newState: CombatState) => void;
     resetState: () => void;
   
     // Dirty state management

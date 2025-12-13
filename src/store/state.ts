@@ -3,7 +3,6 @@ import type {
   CombatState,
   Combatant,
   DeathSaves,
-  InitiativeGroup,
   SavedMonster,
   SearchResult,
   NewCombatant,
@@ -27,6 +26,7 @@ import { usePlayerStore } from "./hooks/usePlayerStore";
 import { useSyncApi } from "../api/sync/hooks/useSyncApi";
 import { useParkedGroupStore } from "./hooks/useParkedGroupStore";
 import { useCombatStore } from "./hooks/useCombatStore";
+import { useCombatantFormStore } from "./hooks/useCombatantFormStore";
 
 
 const getInitialState = (): CombatState => ({
@@ -77,6 +77,12 @@ export function useCombatState(): CombatStateManager {
     setState,
   });
 
+  // Initialize combatant form store
+  const combatantFormStore = useCombatantFormStore({
+    setState,
+    combatState: state,
+  });
+
   const loadMonsters = useCallback(async () => {
     const monsterList = await dataStore.listMonster();
     setMonsters(monsterList);
@@ -97,7 +103,7 @@ export function useCombatState(): CombatStateManager {
 
   const prepareCombatantList = useCallback(
     (prev: CombatState, combatant?: NewCombatant) => {
-      const nc = combatant ?? prev.newCombatant;
+      const nc = combatant ?? state.newCombatant;
       if (!nc.name || !nc.hp) return prev.combatants;
       if (nc.initiativeGroups.length === 0) return prev.combatants;
       if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
@@ -178,7 +184,7 @@ export function useCombatState(): CombatStateManager {
 
       return updated;
     },
-    []
+    [state.newCombatant]
   );
 
   // Parked Groups Management - Wrapper that handles combat logic
@@ -204,68 +210,13 @@ export function useCombatState(): CombatStateManager {
           })
         : state.combatants;
 
+      combatantFormStore.actions.resetForm();
       setState((prev) => ({
         ...prev,
-        newCombatant: generateDefaultNewCombatant(),
         combatants,
       }));
     },
-    [state, parkedGroupStore.actions, prepareCombatantList]
-  );
-
-  // New Combatant Form Management
-  const updateNewCombatant = useCallback((patch: Partial<NewCombatant>) => {
-    setState((prev) => ({
-      ...prev,
-      newCombatant: { ...prev.newCombatant, ...patch },
-    }));
-  }, []);
-
-  // Initiative Groups Management
-  const addInitiativeGroup = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      newCombatant: {
-        ...prev.newCombatant,
-        initiativeGroups: [
-          ...prev.newCombatant.initiativeGroups,
-          { id: crypto.randomUUID(), initiative: "", count: "1" },
-        ],
-      },
-    }));
-  }, []);
-
-  const removeInitiativeGroup = useCallback((id: string) => {
-    setState((prev) => {
-      const filtered = prev.newCombatant.initiativeGroups.filter(
-        (g) => g.id !== id
-      );
-      // Keep at least one group
-      if (filtered.length === 0) return prev;
-
-      return {
-        ...prev,
-        newCombatant: {
-          ...prev.newCombatant,
-          initiativeGroups: filtered,
-        },
-      };
-    });
-  }, []);
-
-  const updateInitiativeGroup = useCallback(
-    (id: string, patch: Partial<InitiativeGroup>) => {
-      setState((prev) => ({
-        ...prev,
-        newCombatant: {
-          ...prev.newCombatant,
-          initiativeGroups: prev.newCombatant.initiativeGroups.map((g) =>
-            g.id === id ? { ...g, ...patch } : g
-          ),
-        },
-      }));
-    },
-    []
+    [state, parkedGroupStore.actions, prepareCombatantList, combatantFormStore]
   );
 
   // Player Management - wrapper around playerStore to add combat logic
@@ -282,13 +233,13 @@ export function useCombatState(): CombatStateManager {
         ? prepareCombatantList(state, nc)
         : state.combatants;
 
+      combatantFormStore.actions.resetForm();
       setState((prev) => ({
         ...prev,
-        newCombatant: generateDefaultNewCombatant(),
         combatants,
       }));
     },
-    [state, playerStore.actions, prepareCombatantList]
+    [state, playerStore.actions, prepareCombatantList, combatantFormStore]
   );
 
   // Library Management
@@ -340,50 +291,42 @@ export function useCombatState(): CombatStateManager {
     [loadMonsters, syncMonsterNotesToCombat]
   );
 
-  const fillFormWithMonsterRemoteData = (monster: ApiMonster) => {
-    setState((prev) => ({
-      ...prev,
-      newCombatant: {
-        ...prev.newCombatant,
-        name: monster.name,
-        hp: monster.hit_points ?? 0,
-        maxHp: monster.hit_points ?? 0,
-        initBonus: monster.dexterity
-          ? getStatModifier(monster.dexterity)
-          : undefined,
-        ac: monster.armor_class?.at(0)?.value ?? 0,
-        imageUrl: getApiImageUrl(monster),
-      },
-    }));
-  };
+  const fillFormWithMonsterRemoteData = useCallback((monster: ApiMonster) => {
+    combatantFormStore.actions.updateNewCombatant({
+      name: monster.name,
+      hp: monster.hit_points ?? 0,
+      maxHp: monster.hit_points ?? 0,
+      initBonus: monster.dexterity
+        ? getStatModifier(monster.dexterity)
+        : undefined,
+      ac: monster.armor_class?.at(0)?.value ?? 0,
+      imageUrl: getApiImageUrl(monster),
+    });
+  }, [combatantFormStore]);
 
-  const fillFormWithMonsterLibraryData = (monster: SavedMonster) => {
+  const fillFormWithMonsterLibraryData = useCallback((monster: SavedMonster) => {
     const dexMod = getStatModifier(monster.dex);
-    setState((prev) => ({
-      ...prev,
-      newCombatant: {
-        ...prev.newCombatant,
-        name: monster.name,
-        hp: monster.hp,
-        maxHp: monster.hp,
-        ac: monster.ac,
-        imageUrl: monster.imageUrl,
-        externalResourceUrl: monster.externalResourceUrl,
-        initBonus: dexMod,
-        str: monster.str,
-        dex: monster.dex,
-        con: monster.con,
-        int: monster.int,
-        wis: monster.wis,
-        cha: monster.cha,
-        notes: monster.notes,
-        templateOrigin: {
-          origin: "monster_library",
-          id: monster.id,
-        },
+    combatantFormStore.actions.updateNewCombatant({
+      name: monster.name,
+      hp: monster.hp,
+      maxHp: monster.hp,
+      ac: monster.ac,
+      imageUrl: monster.imageUrl,
+      externalResourceUrl: monster.externalResourceUrl,
+      initBonus: dexMod,
+      str: monster.str,
+      dex: monster.dex,
+      con: monster.con,
+      int: monster.int,
+      wis: monster.wis,
+      cha: monster.cha,
+      notes: monster.notes,
+      templateOrigin: {
+        origin: "monster_library",
+        id: monster.id,
       },
-    }));
-  };
+    });
+  }, [combatantFormStore]);
 
   const loadMonsterToForm = useCallback((searchResult: SearchResult) => {
     if (searchResult.source === "api") {
@@ -391,7 +334,7 @@ export function useCombatState(): CombatStateManager {
     } else {
       fillFormWithMonsterLibraryData(searchResult.monster as SavedMonster);
     }
-  }, []);
+  }, [fillFormWithMonsterRemoteData, fillFormWithMonsterLibraryData]);
 
   const searchWithLibrary = useCallback(
     async (query: string, source?: SearchSource) => {
@@ -433,21 +376,22 @@ export function useCombatState(): CombatStateManager {
   );
 
   const addCombatantToLibrary = useCallback(async () => {
-    const someInitAreIncomplete = state.newCombatant.initiativeGroups.some(
+    const nc = state.newCombatant;
+    const someInitAreIncomplete = nc.initiativeGroups.some(
       (g) => !g.initiative || !g.count
     );
     if (
-      !state.newCombatant.name ||
-      !state.newCombatant.hp ||
-      state.newCombatant.initiativeGroups.length === 0 ||
+      !nc.name ||
+      !nc.hp ||
+      nc.initiativeGroups.length === 0 ||
       someInitAreIncomplete
     ) {
       return;
     }
 
     await createMonster({
-      ...state.newCombatant,
-      maxHp: state.newCombatant.maxHp || state.newCombatant.hp,
+      ...nc,
+      maxHp: nc.maxHp || nc.hp,
       type: "monster",
     });
     toastApi.success(t("common:confirmation.addToLibrary.success"));
@@ -461,12 +405,12 @@ export function useCombatState(): CombatStateManager {
         return {
           ...prev,
           combatants: updated,
-          newCombatant: generateDefaultNewCombatant(),
         };
       });
+      combatantFormStore.actions.resetForm();
       toastApi.success(t("common:confirmation.addedToCombat.success"));
     },
-    [prepareCombatantList, toastApi, t]
+    [prepareCombatantList, combatantFormStore, toastApi, t]
   );
 
   // Helper function to create combatants state update with reset when empty
@@ -659,10 +603,7 @@ export function useCombatState(): CombatStateManager {
     }, 0);
   }, [state.newCombatant.initiativeGroups]);
 
-  const loadState = useCallback((newState: CombatState) => {
-    setState(newState);
-  }, []);
-
+  
   const resetState = useCallback(() => {
     setState(getInitialState());
   }, []);
@@ -694,13 +635,11 @@ export function useCombatState(): CombatStateManager {
     removeParkedGroup: parkedGroupStore.actions.removeParkedGroup,
     includeParkedGroup: parkedGroupStore.actions.includeParkedGroup,
 
-    // New Combatant Form
-    updateNewCombatant,
-
-    // Initiative Groups
-    addInitiativeGroup,
-    removeInitiativeGroup,
-    updateInitiativeGroup,
+    // New Combatant Form and Initiative Groups
+    updateNewCombatant: combatantFormStore.actions.updateNewCombatant,
+    addInitiativeGroup: combatantFormStore.actions.addInitiativeGroup,
+    removeInitiativeGroup: combatantFormStore.actions.removeInitiativeGroup,
+    updateInitiativeGroup: combatantFormStore.actions.updateInitiativeGroup,
 
     // Monster Library
     monsters,
@@ -712,7 +651,7 @@ export function useCombatState(): CombatStateManager {
     searchWithLibrary,
     addCombatantToLibrary,
 
-    // Combatants
+    // Combatants and Turn Management
     addCombatant,
     removeCombatant,
     removeGroup,
@@ -721,15 +660,12 @@ export function useCombatState(): CombatStateManager {
     toggleCondition,
     toggleConcentration,
     updateDeathSave,
-
-    // Turn Management
     nextTurn,
     prevTurn,
 
     // Utility
     getUniqueGroups,
     getTotalCombatantCount,
-    loadState,
     resetState,
 
     // Dirty state management
