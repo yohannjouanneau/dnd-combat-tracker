@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Sword } from "lucide-react";
 import ParkedGroupsPanel from "../components/ParkedGroups/ParkedGroupsPanel";
@@ -166,6 +166,13 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     location.hash = "#combats";
   };
 
+  const handleClearAll = useCallback(() => {
+    const groups = combatStateManager.getUniqueGroups();
+    groups.forEach((group) => {
+      combatStateManager.removeGroup(group.name);
+    });
+  }, [combatStateManager]);
+
   return (
     <div className="rounded-lg min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
       <div className="max-w-6xl mx-auto">
@@ -242,12 +249,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             <GroupsOverview
               groups={combatStateManager.getUniqueGroups() as GroupSummary[]}
               onRemoveGroup={combatStateManager.removeGroup}
-              onClearAll={() => {
-                const groups = combatStateManager.getUniqueGroups();
-                groups.forEach((group) => {
-                  combatStateManager.removeGroup(group.name);
-                });
-              }}
+              onClearAll={handleClearAll}
             />
           )}
         </div>
