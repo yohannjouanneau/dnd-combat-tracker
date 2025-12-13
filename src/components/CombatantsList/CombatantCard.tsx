@@ -33,6 +33,7 @@ export default function CombatantCard({
   onUpdateInitiative,
   onShowDetail,
 }: Props) {
+
   const { t } = useTranslation(["combat", "common"]);
 
   const confirmDialog = useConfirmationDialog();

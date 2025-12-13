@@ -29,7 +29,7 @@ export default function DesktopCombatLayout({
   const activeCombatant = combatants[currentTurn] ?? null;
 
   return (
-    <div className="hidden md:flex gap-4">
+    <div className="flex gap-4">
       {/* Left side: CombatantsList */}
       <div className={activeCombatant && isFocusMode ? "flex-1" : "w-full"}>
         <CombatantsList

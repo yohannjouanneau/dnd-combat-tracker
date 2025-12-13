@@ -1,6 +1,7 @@
 import DesktopCombatLayout from "./DesktopCombatLayout";
 import MobileCombatLayout from "./MobileCombatLayout";
 import type { Combatant, DeathSaves } from "../../types";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 type Props = {
   combatants: Combatant[];
@@ -24,8 +25,10 @@ export default function CombatLayout({
   onToggleCondition,
   onUpdateInitiative,
 }: Props) {
-  return (
-    <div>
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  if (isDesktop) {
+    return (
       <DesktopCombatLayout
         combatants={combatants}
         currentTurn={currentTurn}
@@ -37,17 +40,20 @@ export default function CombatLayout({
         onToggleCondition={onToggleCondition}
         onUpdateInitiative={onUpdateInitiative}
       />
-      <MobileCombatLayout
-        combatants={combatants}
-        currentTurn={currentTurn}
-        isFocusMode={isFocusMode}
-        onRemove={onRemove}
-        onDeltaHp={onDeltaHp}
-        onDeathSaves={onDeathSaves}
-        onToggleConcentration={onToggleConcentration}
-        onToggleCondition={onToggleCondition}
-        onUpdateInitiative={onUpdateInitiative}
-      />
-    </div>
+    );
+  }
+
+  return (
+    <MobileCombatLayout
+      combatants={combatants}
+      currentTurn={currentTurn}
+      isFocusMode={isFocusMode}
+      onRemove={onRemove}
+      onDeltaHp={onDeltaHp}
+      onDeathSaves={onDeathSaves}
+      onToggleConcentration={onToggleConcentration}
+      onToggleCondition={onToggleCondition}
+      onUpdateInitiative={onUpdateInitiative}
+    />
   );
 }

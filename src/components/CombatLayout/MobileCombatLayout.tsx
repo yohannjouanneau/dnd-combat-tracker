@@ -35,7 +35,7 @@ export default function MobileCombatLayout({
   }, [currentTurn]);
 
   return (
-    <div className="md:hidden overflow-hidden">
+    <div className="overflow-hidden">
       <div
         className={`flex transition-all duration-500 ease-in-out ${
           showDetail ? "-translate-x-full" : "translate-x-0"
