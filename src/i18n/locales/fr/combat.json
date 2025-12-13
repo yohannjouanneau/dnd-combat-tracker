@@ -31,6 +31,7 @@
   "groups": {
     "title": "Groupes en combat",
     "removeAll": "Tout retirer",
+    "clearAll": "Tout effacer",
     "count": "{{count}} combattant",
     "count_plural": "{{count}} combattants"
   },

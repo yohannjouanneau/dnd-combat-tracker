@@ -34,6 +34,10 @@
       "message": "Are you sure you want to remove the combatant {{name}}?",
       "message_other": "Are you sure you want to remove all {{count}} combatants from the {{name}} group?"
     },
+    "clearAllGroups": {
+      "title": "Clear All Combatants",
+      "message": "Are you sure you want to remove all combatants from the fight? This action cannot be undone."
+    },
     "removeParkedGroup": {
       "title": "Remove Parked Group",
       "message": "Are you sure you want to remove {{name}} from parked groups?"
