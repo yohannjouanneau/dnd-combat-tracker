@@ -10,7 +10,7 @@ interface CombatantFormActions {
   resetForm: () => void;
 }
 
-interface CombatantFormStore {
+export interface CombatantFormStore {
   actions: CombatantFormActions;
 }
 

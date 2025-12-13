@@ -1,23 +1,11 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback } from "react";
 import type {
   CombatState,
   Combatant,
   DeathSaves,
-  SavedMonster,
-  SearchResult,
   NewCombatant,
-  MonsterCombatant,
-  SearchSource,
 } from "../types";
-import { dataStore } from "../persistence/storage";
-import type { ApiMonster } from "../api/types";
-import { createGraphQLClient } from "../api/DnD5eGraphQLClient";
-import {
-  getStatModifier,
-  getApiImageUrl,
-  indexToLetter,
-  generateDefaultNewCombatant,
-} from "../utils";
+import { indexToLetter, generateDefaultNewCombatant } from "../utils";
 import { useToast } from "../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 import { getSettings } from "../hooks/useSettings";
@@ -27,20 +15,18 @@ import { useSyncApi } from "../api/sync/hooks/useSyncApi";
 import { useParkedGroupStore } from "./hooks/useParkedGroupStore";
 import { useCombatStore } from "./hooks/useCombatStore";
 import { useCombatantFormStore } from "./hooks/useCombatantFormStore";
-
+import { useMonsterStore } from "./hooks/useMonsterStore";
 
 const getInitialState = (): CombatState => ({
   combatants: [],
   currentTurn: 0,
   round: 1,
   parkedGroups: [],
-  newCombatant: generateDefaultNewCombatant()
+  newCombatant: generateDefaultNewCombatant(),
 });
 
 export function useCombatState(): CombatStateManager {
-  const apiClient = useMemo(() => createGraphQLClient(), []);
   const [state, setState] = useState<CombatState>(getInitialState());
-  const [monsters, setMonsters] = useState<SavedMonster[]>([]);
 
   // Helper to update state from child hooks
   const updateState = useCallback((patch: Partial<CombatState>) => {
@@ -54,15 +40,6 @@ export function useCombatState(): CombatStateManager {
   const playerStore = usePlayerStore({
     combatState: state,
     updateState,
-  });
-
-  // Initialize sync API hook with reload callback
-  const syncApi = useSyncApi({
-    onSyncSuccess: async () => {
-      // Reload data after sync to reflect any downloaded changes
-      await playerStore.actions.loadPlayers();
-      await loadMonsters();
-    }
   });
 
   // Initialize parked group store
@@ -83,23 +60,21 @@ export function useCombatState(): CombatStateManager {
     combatState: state,
   });
 
-  const loadMonsters = useCallback(async () => {
-    const monsterList = await dataStore.listMonster();
-    setMonsters(monsterList);
-  }, []);
+  // Initialize monster store (needs combatantFormStore)
+  const monsterStore = useMonsterStore({
+    state,
+    setState,
+    combatantFormStore,
+  });
 
-  const createMonster = useCallback(
-    async (monster: MonsterCombatant) => {
-      await dataStore.createMonster(monster);
-      await loadMonsters();
+  // Initialize sync API hook with reload callback (needs playerStore and monsterStore)
+  const syncApi = useSyncApi({
+    onSyncSuccess: async () => {
+      // Reload data after sync to reflect any downloaded changes
+      await playerStore.actions.loadPlayers();
+      await monsterStore.actions.loadMonsters();
     },
-    [loadMonsters]
-  );
-
-  // Load monsters on mount
-  useEffect(() => {
-    loadMonsters();
-  }, [loadMonsters]);
+  });
 
   const prepareCombatantList = useCallback(
     (prev: CombatState, combatant?: NewCombatant) => {
@@ -165,7 +140,7 @@ export function useCombatState(): CombatStateManager {
             str: nc.str,
             wis: nc.wis,
             notes: nc.notes,
-            templateOrigin: nc.templateOrigin
+            templateOrigin: nc.templateOrigin,
           });
           globalIndex++;
         }
@@ -241,161 +216,6 @@ export function useCombatState(): CombatStateManager {
     },
     [state, playerStore.actions, prepareCombatantList, combatantFormStore]
   );
-
-  // Library Management
-
-  const removeMonster = useCallback(
-    async (id: string) => {
-      await dataStore.deleteMonster(id);
-      await loadMonsters();
-    },
-    [loadMonsters]
-  );
-
-  const syncMonsterNotesToCombat = useCallback((monsterId: string, notes: string) => {
-    setState((prev) => ({
-      ...prev,
-      // Update active combatants
-      combatants: prev.combatants.map((combatant) => {
-        // Check if combatant references this monster
-        if (
-          combatant.templateOrigin?.origin === "monster_library" &&
-          combatant.templateOrigin.id === monsterId
-        ) {
-          return { ...combatant, notes };
-        }
-        return combatant;
-      }),
-      // Update parked groups
-      parkedGroups: prev.parkedGroups.map((group) => {
-        // Check if parked group references this monster
-        if (
-          group.templateOrigin?.origin === "monster_library" &&
-          group.templateOrigin.id === monsterId
-        ) {
-          return { ...group, notes };
-        }
-        return group;
-      }),
-    }));
-  }, []);
-
-  const updateMonster = useCallback(
-    async (id: string, monster: SavedMonster) => {
-      await dataStore.updateMonster(id, monster);
-      await loadMonsters();
-
-      // Sync notes to active combatants and parked groups
-      syncMonsterNotesToCombat(id, monster.notes || "");
-    },
-    [loadMonsters, syncMonsterNotesToCombat]
-  );
-
-  const fillFormWithMonsterRemoteData = useCallback((monster: ApiMonster) => {
-    combatantFormStore.actions.updateNewCombatant({
-      name: monster.name,
-      hp: monster.hit_points ?? 0,
-      maxHp: monster.hit_points ?? 0,
-      initBonus: monster.dexterity
-        ? getStatModifier(monster.dexterity)
-        : undefined,
-      ac: monster.armor_class?.at(0)?.value ?? 0,
-      imageUrl: getApiImageUrl(monster),
-    });
-  }, [combatantFormStore]);
-
-  const fillFormWithMonsterLibraryData = useCallback((monster: SavedMonster) => {
-    const dexMod = getStatModifier(monster.dex);
-    combatantFormStore.actions.updateNewCombatant({
-      name: monster.name,
-      hp: monster.hp,
-      maxHp: monster.hp,
-      ac: monster.ac,
-      imageUrl: monster.imageUrl,
-      externalResourceUrl: monster.externalResourceUrl,
-      initBonus: dexMod,
-      str: monster.str,
-      dex: monster.dex,
-      con: monster.con,
-      int: monster.int,
-      wis: monster.wis,
-      cha: monster.cha,
-      notes: monster.notes,
-      templateOrigin: {
-        origin: "monster_library",
-        id: monster.id,
-      },
-    });
-  }, [combatantFormStore]);
-
-  const loadMonsterToForm = useCallback((searchResult: SearchResult) => {
-    if (searchResult.source === "api") {
-      fillFormWithMonsterRemoteData(searchResult.monster as ApiMonster);
-    } else {
-      fillFormWithMonsterLibraryData(searchResult.monster as SavedMonster);
-    }
-  }, [fillFormWithMonsterRemoteData, fillFormWithMonsterLibraryData]);
-
-  const searchWithLibrary = useCallback(
-    async (query: string, source?: SearchSource) => {
-      const results: SearchResult[] = [];
-
-      if (source === "api" || !source) {
-        // Search API
-        try {
-          const apiMonsters = await apiClient.searchMonsters(query);
-          results.push(
-            ...apiMonsters.map((m) => ({
-              source: "api" as const,
-              monster: m,
-            }))
-          );
-        } catch (error) {
-          console.error("API search failed:", error);
-        }
-      }
-
-      if (source === "library" || !source) {
-        // Search local library
-        try {
-          const libraryMonsters = await dataStore.searchMonster(query);
-          results.push(
-            ...libraryMonsters.map((m) => ({
-              source: "library" as const,
-              monster: m,
-            }))
-          );
-        } catch (error) {
-          console.error("Library search failed:", error);
-        }
-      }
-
-      return results;
-    },
-    [apiClient]
-  );
-
-  const addCombatantToLibrary = useCallback(async () => {
-    const nc = state.newCombatant;
-    const someInitAreIncomplete = nc.initiativeGroups.some(
-      (g) => !g.initiative || !g.count
-    );
-    if (
-      !nc.name ||
-      !nc.hp ||
-      nc.initiativeGroups.length === 0 ||
-      someInitAreIncomplete
-    ) {
-      return;
-    }
-
-    await createMonster({
-      ...nc,
-      maxHp: nc.maxHp || nc.hp,
-      type: "monster",
-    });
-    toastApi.success(t("common:confirmation.addToLibrary.success"));
-  }, [state.newCombatant, createMonster, toastApi, t]);
 
   // Combatant Management
   const addCombatant = useCallback(
@@ -603,7 +423,6 @@ export function useCombatState(): CombatStateManager {
     }, 0);
   }, [state.newCombatant.initiativeGroups]);
 
-  
   const resetState = useCallback(() => {
     setState(getInitialState());
   }, []);
@@ -631,7 +450,7 @@ export function useCombatState(): CombatStateManager {
     deleteCombat: combatStore.actions.deleteCombat,
 
     // Parked Groups
-    addParkedGroup,  // wrapper function
+    addParkedGroup, // wrapper function
     removeParkedGroup: parkedGroupStore.actions.removeParkedGroup,
     includeParkedGroup: parkedGroupStore.actions.includeParkedGroup,
 
@@ -642,14 +461,14 @@ export function useCombatState(): CombatStateManager {
     updateInitiativeGroup: combatantFormStore.actions.updateInitiativeGroup,
 
     // Monster Library
-    monsters,
-    loadMonsters,
-    createMonster,
-    removeMonster,
-    updateMonster,
-    loadMonsterToForm,
-    searchWithLibrary,
-    addCombatantToLibrary,
+    monsters: monsterStore.state.monsters,
+    loadMonsters: monsterStore.actions.loadMonsters,
+    createMonster: monsterStore.actions.createMonster,
+    removeMonster: monsterStore.actions.removeMonster,
+    updateMonster: monsterStore.actions.updateMonster,
+    loadMonsterToForm: monsterStore.actions.loadMonsterToForm,
+    searchWithLibrary: monsterStore.actions.searchWithLibrary,
+    addCombatantToLibrary: monsterStore.actions.addCombatantToLibrary,
 
     // Combatants and Turn Management
     addCombatant,
