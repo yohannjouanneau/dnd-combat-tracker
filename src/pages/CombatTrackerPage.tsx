@@ -149,7 +149,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     setAddAnOther(false);
   };
 
-  const handleModalSubmit = () => {
+  const handleModalSubmit = async () => {
     switch (addModalMode) {
       case "fight":
         combatStateManager.addCombatant();
@@ -163,7 +163,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         }
         break;
       case "player":
-        combatStateManager.savePlayerFromForm(addToFight);
+        await combatStateManager.savePlayerFromForm(addToFight);
         break;
       case "group":
         combatStateManager.addParkedGroupFromForm(addToFight);

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type { CombatState } from "../types";
 import { generateDefaultNewCombatant } from "../utils";
 import type { CombatStateManager } from "./types";
@@ -34,8 +34,7 @@ export function useCombatState(): CombatStateManager {
 
   // Initialize parked group store
   const parkedGroupStore = useParkedGroupStore({
-    combatState: state,
-    updateState,
+    setState,
   });
 
   // Initialize combat store
@@ -47,7 +46,6 @@ export function useCombatState(): CombatStateManager {
   // Initialize combatant form store
   const combatantFormStore = useCombatantFormStore({
     setState,
-    combatState: state,
   });
 
   // Initialize combatant store (needs combatantFormStore)
@@ -73,125 +71,149 @@ export function useCombatState(): CombatStateManager {
     },
   });
 
-  // Parked Groups Management - Wrapper that handles combat logic
+  // Parked Groups Management - Wrapper that calls store orchestration action
   const addParkedGroupFromForm = useCallback(
     (isFightModeEnabled: boolean) => {
-      const nc = state.newCombatant;
-
-      // Call hook to add parked group
-      parkedGroupStore.actions.addParkedGroup();
-
-      // Handle combat logic and form clearing in wrapper
-      const combatants = isFightModeEnabled
-        ? combatantStore.actions.prepareCombatantList(state, {
-            ...nc,
-            maxHp: nc.maxHp || nc.hp,
-            templateOrigin:
-              state.newCombatant.templateOrigin.origin !== "no_template"
-                ? state.newCombatant.templateOrigin
-                : {
-                    origin: "parked_group",
-                    id: nc.id,
-                  },
-          })
-        : state.combatants;
-
-      combatantFormStore.actions.resetForm();
-      setState((prev) => ({
-        ...prev,
-        combatants,
-      }));
+      parkedGroupStore.actions.addParkedGroupFromForm({
+        isFightModeEnabled,
+        prepareCombatantList: combatantStore.actions.prepareCombatantList,
+        resetForm: combatantFormStore.actions.resetForm,
+      });
     },
-    [state, parkedGroupStore.actions, combatantStore.actions, combatantFormStore]
+    [
+      parkedGroupStore.actions,
+      combatantStore.actions,
+      combatantFormStore.actions,
+    ]
   );
 
-  // Player Management - wrapper around playerStore to add combat logic
+  // Player Management - wrapper that calls store orchestration action
   const savePlayerFromForm = useCallback(
     async (isFightModeEnabled: boolean) => {
-      // Get the current newCombatant before we clear it
-      const nc = state.newCombatant;
-
-      // Call the hook's action to save player
-      await playerStore.actions.addPlayerFromForm();
-
-      // Clear form and optionally add to combat
-      const combatants = isFightModeEnabled
-        ? combatantStore.actions.prepareCombatantList(state, nc)
-        : state.combatants;
-
-      combatantFormStore.actions.resetForm();
-      setState((prev) => ({
-        ...prev,
-        combatants,
-      }));
+      await playerStore.actions.savePlayerFromForm({
+        isFightModeEnabled,
+        prepareCombatantList: combatantStore.actions.prepareCombatantList,
+        resetForm: combatantFormStore.actions.resetForm,
+      });
     },
-    [state, playerStore.actions, combatantStore.actions, combatantFormStore]
+    [playerStore.actions, combatantStore.actions, combatantFormStore.actions]
   );
 
   const resetState = useCallback(() => {
     setState(getInitialState());
   }, []);
 
-  return {
-    // State
-    state,
+  // Wrapper for getTotalCombatantCount to pass current state
+  const getTotalCombatantCount = useCallback(() => {
+    return combatantFormStore.actions.getTotalCombatantCount(state);
+  }, [state, combatantFormStore.actions]);
 
-    // Sync
-    syncApi,
+  return useMemo(
+    () => ({
+      // State
+      state,
 
-    // Player Management
-    savePlayerFromForm, // wrapper function
-    removePlayer: playerStore.actions.removePlayer,
-    includePlayer: playerStore.actions.includePlayer,
-    savedPlayers: playerStore.state.savedPlayers,
-    loadPlayers: playerStore.actions.loadPlayers,
+      // Sync
+      syncApi,
 
-    // Saved combats
-    loadCombat: combatStore.actions.loadCombat,
-    saveCombat: combatStore.actions.saveCombat,
-    updateCombat: combatStore.actions.updateCombat,
-    listCombat: combatStore.actions.listCombat,
-    createCombat: combatStore.actions.createCombat,
-    deleteCombat: combatStore.actions.deleteCombat,
+      // Player Management
+      savePlayerFromForm, // wrapper function
+      removePlayer: playerStore.actions.removePlayer,
+      includePlayer: playerStore.actions.includePlayer,
+      savedPlayers: playerStore.state.savedPlayers,
+      loadPlayers: playerStore.actions.loadPlayers,
 
-    // Parked Groups
-    addParkedGroupFromForm, // wrapper function
-    removeParkedGroup: parkedGroupStore.actions.removeParkedGroup,
-    includeParkedGroup: parkedGroupStore.actions.includeParkedGroup,
+      // Saved combats
+      loadCombat: combatStore.actions.loadCombat,
+      saveCombat: combatStore.actions.saveCombat,
+      updateCombat: combatStore.actions.updateCombat,
+      listCombat: combatStore.actions.listCombat,
+      createCombat: combatStore.actions.createCombat,
+      deleteCombat: combatStore.actions.deleteCombat,
 
-    // New Combatant Form and Initiative Groups
-    updateNewCombatant: combatantFormStore.actions.updateNewCombatant,
-    addInitiativeGroup: combatantFormStore.actions.addInitiativeGroup,
-    removeInitiativeGroup: combatantFormStore.actions.removeInitiativeGroup,
-    updateInitiativeGroup: combatantFormStore.actions.updateInitiativeGroup,
-    getTotalCombatantCount: combatantFormStore.actions.getTotalCombatantCount,
+      // Parked Groups
+      addParkedGroupFromForm, // wrapper function
+      removeParkedGroup: parkedGroupStore.actions.removeParkedGroup,
+      includeParkedGroup: parkedGroupStore.actions.includeParkedGroup,
 
-    // Monster Library
-    monsters: monsterStore.state.monsters,
-    loadMonsters: monsterStore.actions.loadMonsters,
-    createMonster: monsterStore.actions.createMonster,
-    removeMonster: monsterStore.actions.removeMonster,
-    updateMonster: monsterStore.actions.updateMonster,
-    loadMonsterToForm: monsterStore.actions.loadMonsterToForm,
-    searchWithLibrary: monsterStore.actions.searchWithLibrary,
-    addCombatantToLibrary: monsterStore.actions.addCombatantToLibrary,
+      // New Combatant Form and Initiative Groups
+      updateNewCombatant: combatantFormStore.actions.updateNewCombatant,
+      addInitiativeGroup: combatantFormStore.actions.addInitiativeGroup,
+      removeInitiativeGroup: combatantFormStore.actions.removeInitiativeGroup,
+      updateInitiativeGroup: combatantFormStore.actions.updateInitiativeGroup,
+      getTotalCombatantCount,
 
-    // Combatants and Turn Management
-    addCombatant: combatantStore.actions.addCombatant,
-    removeCombatant: combatantStore.actions.removeCombatant,
-    removeGroup: combatantStore.actions.removeGroup,
-    updateHP: combatantStore.actions.updateHP,
-    updateInitiative: combatantStore.actions.updateInitiative,
-    toggleCondition: combatantStore.actions.toggleCondition,
-    toggleConcentration: combatantStore.actions.toggleConcentration,
-    updateDeathSave: combatantStore.actions.updateDeathSave,
-    nextTurn: combatantStore.actions.nextTurn,
-    prevTurn: combatantStore.actions.prevTurn,
-    getUniqueGroups: combatantStore.actions.getUniqueGroups,
-    
-    resetState,
+      // Monster Library
+      monsters: monsterStore.state.monsters,
+      loadMonsters: monsterStore.actions.loadMonsters,
+      createMonster: monsterStore.actions.createMonster,
+      removeMonster: monsterStore.actions.removeMonster,
+      updateMonster: monsterStore.actions.updateMonster,
+      loadMonsterToForm: monsterStore.actions.loadMonsterToForm,
+      searchWithLibrary: monsterStore.actions.searchWithLibrary,
+      addCombatantToLibrary: monsterStore.actions.addCombatantToLibrary,
 
-    // Dirty state management
-    hasChanges: combatStore.hasChanges,
-  };
+      // Combatants and Turn Management
+      addCombatant: combatantStore.actions.addCombatant,
+      removeCombatant: combatantStore.actions.removeCombatant,
+      removeGroup: combatantStore.actions.removeGroup,
+      updateHP: combatantStore.actions.updateHP,
+      updateInitiative: combatantStore.actions.updateInitiative,
+      toggleCondition: combatantStore.actions.toggleCondition,
+      toggleConcentration: combatantStore.actions.toggleConcentration,
+      updateDeathSave: combatantStore.actions.updateDeathSave,
+      nextTurn: combatantStore.actions.nextTurn,
+      prevTurn: combatantStore.actions.prevTurn,
+      getUniqueGroups: combatantStore.actions.getUniqueGroups,
+
+      resetState,
+
+      // Dirty state management
+      hasChanges: combatStore.hasChanges,
+    }),
+    [
+      addParkedGroupFromForm,
+      combatStore.actions.createCombat,
+      combatStore.actions.deleteCombat,
+      combatStore.actions.listCombat,
+      combatStore.actions.loadCombat,
+      combatStore.actions.saveCombat,
+      combatStore.actions.updateCombat,
+      combatStore.hasChanges,
+      combatantFormStore.actions.addInitiativeGroup,
+      combatantFormStore.actions.removeInitiativeGroup,
+      combatantFormStore.actions.updateInitiativeGroup,
+      combatantFormStore.actions.updateNewCombatant,
+      combatantStore.actions.addCombatant,
+      combatantStore.actions.getUniqueGroups,
+      combatantStore.actions.nextTurn,
+      combatantStore.actions.prevTurn,
+      combatantStore.actions.removeCombatant,
+      combatantStore.actions.removeGroup,
+      combatantStore.actions.toggleConcentration,
+      combatantStore.actions.toggleCondition,
+      combatantStore.actions.updateDeathSave,
+      combatantStore.actions.updateHP,
+      combatantStore.actions.updateInitiative,
+      getTotalCombatantCount,
+      monsterStore.actions.addCombatantToLibrary,
+      monsterStore.actions.createMonster,
+      monsterStore.actions.loadMonsterToForm,
+      monsterStore.actions.loadMonsters,
+      monsterStore.actions.removeMonster,
+      monsterStore.actions.searchWithLibrary,
+      monsterStore.actions.updateMonster,
+      monsterStore.state.monsters,
+      parkedGroupStore.actions.includeParkedGroup,
+      parkedGroupStore.actions.removeParkedGroup,
+      playerStore.actions.includePlayer,
+      playerStore.actions.loadPlayers,
+      playerStore.actions.removePlayer,
+      playerStore.state.savedPlayers,
+      resetState,
+      savePlayerFromForm,
+      state,
+      syncApi,
+    ]
+  );
 }

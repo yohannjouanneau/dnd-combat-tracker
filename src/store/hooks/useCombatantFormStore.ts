@@ -7,8 +7,8 @@ interface CombatantFormActions {
   addInitiativeGroup: () => void;
   removeInitiativeGroup: (id: string) => void;
   updateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
-  getTotalCombatantCount: () => number;
-  resetForm: () => void;
+  resetForm: () => Partial<CombatState>;
+  getTotalCombatantCount: (state: CombatState) => number;
 }
 
 export interface CombatantFormStore {
@@ -16,88 +16,86 @@ export interface CombatantFormStore {
 }
 
 interface Props {
-  combatState: CombatState;
   setState: React.Dispatch<React.SetStateAction<CombatState>>;
 }
 
-export function useCombatantFormStore({
-  combatState,
-  setState,
-}: Props): CombatantFormStore {
-  const setNewCombatant = useCallback(
-    (onUpdate: (prev: NewCombatant) => NewCombatant) => {
+export function useCombatantFormStore({ setState }: Props): CombatantFormStore {
+
+  // Update form with partial data
+  const updateNewCombatant = useCallback(
+    (patch: Partial<NewCombatant>) => {
+      setState((prev) => ({
+        ...prev,
+        newCombatant: { ...prev.newCombatant, ...patch },
+      }));
+    },
+    [setState]
+  );
+
+  // Add new initiative group
+  const addInitiativeGroup = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      newCombatant: {
+        ...prev.newCombatant,
+        initiativeGroups: [
+          ...prev.newCombatant.initiativeGroups,
+          { id: crypto.randomUUID(), initiative: "", count: "1" },
+        ],
+      },
+    }));
+  }, [setState]);
+
+  // Remove initiative group by ID
+  const removeInitiativeGroup = useCallback(
+    (id: string) => {
       setState((prev) => {
-        const updated = onUpdate(prev.newCombatant);
+        const filtered = prev.newCombatant.initiativeGroups.filter((g) => g.id !== id);
+
+        // Keep at least one group - no-op if trying to remove last
+        if (filtered.length === 0) return prev;
 
         return {
           ...prev,
-          newCombatant: updated,
+          newCombatant: {
+            ...prev.newCombatant,
+            initiativeGroups: filtered,
+          },
         };
       });
     },
     [setState]
   );
 
-  // Update form with partial data
-  const updateNewCombatant = useCallback(
-    (patch: Partial<NewCombatant>) => {
-      setNewCombatant((prev) => ({ ...prev, ...patch }));
-    },
-    [setNewCombatant]
-  );
-
-  // Add new initiative group
-  const addInitiativeGroup = useCallback(() => {
-    setNewCombatant((prev) => ({
-      ...prev,
-      initiativeGroups: [
-        ...prev.initiativeGroups,
-        { id: crypto.randomUUID(), initiative: "", count: "1" },
-      ],
-    }));
-  }, [setNewCombatant]);
-
-  // Remove initiative group by ID
-  const removeInitiativeGroup = useCallback(
-    (id: string) => {
-      setNewCombatant((prev) => {
-        const filtered = prev.initiativeGroups.filter((g) => g.id !== id);
-
-        // Keep at least one group
-        if (filtered.length === 0) return prev;
-
-        return {
-          ...prev,
-          initiativeGroups: filtered,
-        };
-      });
-    },
-    [setNewCombatant]
-  );
-
   // Update specific initiative group
   const updateInitiativeGroup = useCallback(
     (id: string, patch: Partial<InitiativeGroup>) => {
-      setNewCombatant((prev) => ({
+      setState((prev) => ({
         ...prev,
-        initiativeGroups: prev.initiativeGroups.map((g) =>
-          g.id === id ? { ...g, ...patch } : g
-        ),
+        newCombatant: {
+          ...prev.newCombatant,
+          initiativeGroups: prev.newCombatant.initiativeGroups.map((g) =>
+            g.id === id ? { ...g, ...patch } : g
+          ),
+        },
       }));
     },
-    [setNewCombatant]
+    [setState]
   );
 
-  const getTotalCombatantCount = useCallback(() => {
-    return combatState.newCombatant.initiativeGroups.reduce((sum, g) => {
+  // Reset form to default state - returns patch for composition
+  const resetForm = useCallback((): Partial<CombatState> => {
+    return {
+      newCombatant: generateDefaultNewCombatant(),
+    };
+  }, []);
+
+  // Pure function to get total combatant count
+  const getTotalCombatantCount = useCallback((state: CombatState): number => {
+    return state.newCombatant.initiativeGroups.reduce((sum, g) => {
       return sum + (parseInt(g.count) || 0);
     }, 0);
-  }, [combatState.newCombatant.initiativeGroups]);
-
-  // Reset form to default state
-  const resetForm = useCallback(() => {
-    setNewCombatant(() => generateDefaultNewCombatant());
-  }, [setNewCombatant]);
+  }, []);
 
   return {
     actions: {
@@ -105,8 +103,8 @@ export function useCombatantFormStore({
       addInitiativeGroup,
       removeInitiativeGroup,
       updateInitiativeGroup,
-      getTotalCombatantCount,
       resetForm,
+      getTotalCombatantCount,
     },
   };
 }

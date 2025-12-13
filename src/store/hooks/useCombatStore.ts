@@ -116,7 +116,7 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
 
   // Compute whether state has changes since last save
   const hasChanges = useMemo(() => {
-    if (!state.lastSavedSnapshot) return false;
+    if (!state.lastSavedSnapshot) return true; // never saved
     return state.lastSavedSnapshot !== takeSnapshot(state);
   }, [state, takeSnapshot]);
 

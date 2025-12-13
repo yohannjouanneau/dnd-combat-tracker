@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import type { CombatState, SavedPlayer } from "../../types";
+import type { CombatState, SavedPlayer, NewCombatant, Combatant } from "../../types";
 import { dataStore } from "../../persistence/storage";
 import { generateId } from "../../utils";
 import { useToast } from "../../components/common/Toast/useToast";
@@ -10,6 +10,11 @@ interface PlayerActions {
   removePlayer: (id: string) => Promise<void>;
   includePlayer: (player: SavedPlayer) => void;
   addPlayerFromForm: () => Promise<void>;
+  savePlayerFromForm: (params: {
+    isFightModeEnabled: boolean;
+    prepareCombatantList: (prev: CombatState, nc: NewCombatant) => Combatant[];
+    resetForm: () => Partial<CombatState>;
+  }) => Promise<void>;
 }
 
 interface PlayerState {
@@ -129,6 +134,73 @@ export function usePlayerStore({
     [combatState, savedPlayers, loadPlayers, toastApi, t]
   );
 
+  // Orchestration action: save player and optionally add to combat
+  const savePlayerFromForm = useCallback(
+    async ({ isFightModeEnabled, prepareCombatantList, resetForm }: {
+      isFightModeEnabled: boolean;
+      prepareCombatantList: (prev: CombatState, nc: NewCombatant) => Combatant[];
+      resetForm: () => Partial<CombatState>;
+    }) => {
+      // Capture current newCombatant value
+      const nc = combatState.newCombatant;
+
+      // Validation
+      if (!nc.name || !nc.hp) return;
+      if (nc.initiativeGroups.length === 0) return;
+      if (nc.initiativeGroups.some((g) => !g.initiative || !g.count)) return;
+
+      // Pre-compute new combatants BEFORE async operations
+      const newCombatants = isFightModeEnabled
+        ? prepareCombatantList(combatState, nc)
+        : combatState.combatants;
+
+      // Get form patch BEFORE async operations
+      const formPatch = resetForm();
+
+      // Check if player with same name already exists
+      const existingPlayer = savedPlayers.find((p) => p.name === nc.name);
+
+      if (existingPlayer) {
+        // Update existing player
+        await dataStore.updatePlayer(existingPlayer.id, {
+          initiativeGroups: nc.initiativeGroups,
+          hp: nc.hp,
+          maxHp: nc.maxHp || nc.hp,
+          ac: nc.ac,
+          color: nc.color,
+        });
+      } else {
+        // Create new player
+        await dataStore.createPlayer({
+          id: generateId(),
+          type: "player",
+          name: nc.name,
+          initiativeGroups: nc.initiativeGroups,
+          hp: nc.hp,
+          maxHp: nc.maxHp || nc.hp,
+          ac: nc.ac,
+          color: nc.color,
+          imageUrl: nc.imageUrl,
+          initBonus: nc.initBonus,
+          externalResourceUrl: nc.externalResourceUrl,
+        });
+      }
+
+      // Reload players
+      await loadPlayers();
+
+      // Show toast
+      toastApi.success(t("common:confirmation.addedPlayer.success"));
+
+      // Update state with pre-computed values (not reading from combatState)
+      updateState({
+        ...formPatch,
+        combatants: newCombatants,
+      });
+    },
+    [combatState, savedPlayers, loadPlayers, toastApi, t, updateState]
+  );
+
   return {
     state: {
       savedPlayers,
@@ -138,6 +210,7 @@ export function usePlayerStore({
       removePlayer,
       includePlayer,
       addPlayerFromForm,
+      savePlayerFromForm,
     },
   };
 }
