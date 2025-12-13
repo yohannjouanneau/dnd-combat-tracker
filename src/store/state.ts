@@ -4,8 +4,6 @@ import type {
   Combatant,
   DeathSaves,
   InitiativeGroup,
-  SavedCombat,
-  SavedCombatInput,
   SavedMonster,
   SearchResult,
   NewCombatant,
@@ -28,6 +26,7 @@ import type { CombatStateManager } from "./types";
 import { usePlayerStore } from "./hooks/usePlayerStore";
 import { useSyncApi } from "../api/sync/hooks/useSyncApi";
 import { useParkedGroupStore } from "./hooks/useParkedGroupStore";
+import { useCombatStore } from "./hooks/useCombatStore";
 
 
 const getInitialState = (): CombatState => ({
@@ -72,6 +71,12 @@ export function useCombatState(): CombatStateManager {
     updateState,
   });
 
+  // Initialize combat store
+  const combatStore = useCombatStore({
+    state,
+    setState,
+  });
+
   const loadMonsters = useCallback(async () => {
     const monsterList = await dataStore.listMonster();
     setMonsters(monsterList);
@@ -89,64 +94,6 @@ export function useCombatState(): CombatStateManager {
   useEffect(() => {
     loadMonsters();
   }, [loadMonsters]);
-
-  function takeSnapshot(state: CombatState) {
-    return JSON.stringify(state, (key, value) => {
-      if (key === "lastSavedSnapshot") return undefined;
-      return value;
-    });
-  }
-
-  const loadCombat = async (combatId: string) => {
-    const savedCombat = await dataStore.getCombat(combatId);
-
-    if (savedCombat?.data) {
-     
-     
-
-      setState({
-        ...savedCombat.data,
-        combatants: savedCombat.data.combatants,
-        parkedGroups: savedCombat.data.parkedGroups,
-        combatId: savedCombat.id,
-        combatName: savedCombat.name,
-        combatDescription: savedCombat.description,
-        lastSavedSnapshot: takeSnapshot(savedCombat.data),
-      });
-    }
-  };
-
-  const markAsSaved = () => {
-    setState((prev) => ({
-      ...prev,
-      lastSavedSnapshot: takeSnapshot(prev),
-    }));
-  };
-
-  const saveCombat = async (patch: Partial<SavedCombat>) => {
-    if (state.combatId) {
-      const updatedCombat = await dataStore.updateCombat(state.combatId, patch);
-      setState((prev) => ({
-        ...updatedCombat.data,
-        combatId: prev.combatId,
-        combatName: prev.combatName,
-        combatDescription: prev.combatDescription,
-      }));
-      markAsSaved();
-      toastApi.success(t("common:confirmation.saveCombat.success"));
-    }
-  };
-
-  const updateCombat = (name: string, description: string) => {
-    setState((prev) => {
-      return {
-        ...prev,
-        combatName: name.length === 0 ? prev.combatName : name,
-        combatDescription:
-          description.length === 0 ? prev.combatDescription : description,
-      };
-    });
-  };
 
   const prepareCombatantList = useCallback(
     (prev: CombatState, combatant?: NewCombatant) => {
@@ -658,19 +605,6 @@ export function useCombatState(): CombatStateManager {
     []
   );
 
-  // Combat list
-  const listCombat = async () => {
-    return dataStore.listCombat();
-  };
-
-  const createCombat = async (input: SavedCombatInput) => {
-    return dataStore.createCombat(input);
-  };
-
-  const deleteCombat = (id: string) => {
-    return dataStore.deleteCombat(id);
-  };
-
   // Turn Management
   const nextTurn = useCallback(() => {
     setState((prev) => {
@@ -733,14 +667,6 @@ export function useCombatState(): CombatStateManager {
     setState(getInitialState());
   }, []);
 
-  // Dirty State management
-  const hasChanges = useMemo(() => {
-    if (!state.lastSavedSnapshot) return true; // Never saved
-
-    const currentSnapshot = takeSnapshot(state);
-    return currentSnapshot !== state.lastSavedSnapshot;
-  }, [state]);
-
   return {
     // State
     state,
@@ -756,9 +682,12 @@ export function useCombatState(): CombatStateManager {
     loadPlayers: playerStore.actions.loadPlayers,
 
     // Saved combats
-    loadCombat,
-    saveCombat,
-    updateCombat,
+    loadCombat: combatStore.actions.loadCombat,
+    saveCombat: combatStore.actions.saveCombat,
+    updateCombat: combatStore.actions.updateCombat,
+    listCombat: combatStore.actions.listCombat,
+    createCombat: combatStore.actions.createCombat,
+    deleteCombat: combatStore.actions.deleteCombat,
 
     // Parked Groups
     addParkedGroup,  // wrapper function
@@ -793,11 +722,6 @@ export function useCombatState(): CombatStateManager {
     toggleConcentration,
     updateDeathSave,
 
-    //Combat List
-    listCombat,
-    createCombat,
-    deleteCombat,
-
     // Turn Management
     nextTurn,
     prevTurn,
@@ -809,6 +733,6 @@ export function useCombatState(): CombatStateManager {
     resetState,
 
     // Dirty state management
-    hasChanges,
+    hasChanges: combatStore.hasChanges,
   };
 }

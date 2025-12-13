@@ -15,6 +15,7 @@ export type CombatStateManager = {
     savedPlayers: SavedPlayer[];
     loadPlayers: () => Promise<void>;
 
+    // Parked Groups
     addParkedGroup: (isFightModeEnabled: boolean) => void;
     removeParkedGroup: (name: string) => void;
     includeParkedGroup: (combatant: NewCombatant) => void;
@@ -23,10 +24,10 @@ export type CombatStateManager = {
     loadCombat: (combatId: string) => Promise<void>;
     saveCombat: (patch: Partial<SavedCombat>) => Promise<void>;
     updateCombat: (name: string, description: string) => void;
-  
-    // Parked Groups
+    listCombat: () => Promise<SavedCombat[]>;
+    createCombat: (input: SavedCombatInput) => Promise<SavedCombat>;
+    deleteCombat: (id: string) => Promise<void>;
     
-  
     // New Combatant Form
     updateNewCombatant: (patch: Partial<NewCombatant>) => void;
   
@@ -44,11 +45,6 @@ export type CombatStateManager = {
     toggleCondition: (id: number, condition: string) => void;
     toggleConcentration: (id: number) => void;
     updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
-  
-    // Combat List
-    listCombat: () => Promise<SavedCombat[]>;
-    createCombat: (input: SavedCombatInput) => Promise<SavedCombat>;
-    deleteCombat: (id: string) => Promise<void>;
   
     // Turn Management
     nextTurn: () => void;
