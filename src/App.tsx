@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import CombatTrackerPage from "./pages/CombatTrackerPage";
 import CombatsPage from "./pages/CombatsPage";
-import { useCombatState } from "./state";
+import { useCombatState } from "./store/state";
 
 function App() {
   const [route, setRoute] = useState<string>(location.hash || "#combats");
@@ -21,7 +21,7 @@ function App() {
     const combatIdMatch = route.match(/^#play\/([a-zA-Z0-9]+)$/);
     if (combatIdMatch) {
       const newCombatId = combatIdMatch[1];
-      
+
       // Only load if it's a different combat or no combat is loaded
       if (newCombatId !== combatStateManager.state.combatId) {
         setIsLoading(true);
@@ -35,7 +35,10 @@ function App() {
         combatStateManager.resetState();
       }
     }
-  }, [combatStateManager, route]);
+  }, [
+    combatStateManager,
+    route
+  ]);
 
   const open = (id: string) => {
     location.hash = `#play/${id}`;

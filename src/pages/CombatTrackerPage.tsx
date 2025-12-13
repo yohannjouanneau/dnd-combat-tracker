@@ -14,7 +14,7 @@ import type {
   NewCombatant,
   PlayerCombatant,
 } from "../types";
-import type { CombatStateManager } from "../state";
+import type { CombatStateManager } from "../store/types";
 import SavedPlayersPanel from "../components/CombatForm/SavedPlayerPanel";
 import logo from "../assets/logo.png";
 import SaveBar from "../components/SaveBar";
@@ -149,7 +149,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     setAddAnOther(false);
   };
 
-  const handleModalSubmit = () => {
+  const handleModalSubmit = async () => {
     switch (addModalMode) {
       case "fight":
         combatStateManager.addCombatant();
@@ -163,10 +163,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         }
         break;
       case "player":
-        combatStateManager.addPlayerFromForm(addToFight);
+        await combatStateManager.savePlayerFromForm(addToFight);
         break;
       case "group":
-        combatStateManager.addParkedGroup(addToFight);
+        combatStateManager.addParkedGroupFromForm(addToFight);
         break;
     }
 

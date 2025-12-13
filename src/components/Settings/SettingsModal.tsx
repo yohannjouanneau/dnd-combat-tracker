@@ -1,11 +1,12 @@
 import { X, LogOut, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import gdriveSignIn from "../../assets/web_neutral_rd_SI@2x.png";
-import type { SyncApi, CombatantIdentifierType } from "../../types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getReadableTimestamp } from "../../utils";
 import { useSettings } from "../../hooks/useSettings";
 import LanguageSwitcher from "../common/LanguageSwitcher";
+import type { SyncApi } from "../../api/sync/types";
+import type { CombatantIdentifierType } from "../../types";
 
 type Props = {
   isOpen: boolean;

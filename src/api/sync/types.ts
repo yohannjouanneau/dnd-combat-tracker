@@ -4,3 +4,12 @@ export interface SyncData {
   monsters: string | null;
   lastSynced: number;
 }
+
+export interface SyncApi {
+  isSyncAuthorized: () => boolean;
+  authorizeSync: () => Promise<boolean>;
+  hasNewRemoteData: () => Promise<boolean>;
+  synchronise: () => Promise<boolean>;
+  getLastSyncTime: () => number | undefined;
+  logout: () => Promise<boolean>;
+}

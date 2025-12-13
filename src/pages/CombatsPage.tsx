@@ -4,11 +4,11 @@ import type { SavedCombat, CombatState } from "../types";
 import LabeledTextInput from "../components/common/LabeledTextInput";
 import logo from "../assets/logo.png";
 import { BookOpen, Plus, Settings } from "lucide-react";
-import type { CombatStateManager } from "../state";
 import CombatList from "../components/CombatsList/CombatList";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
 import SettingsModal from "../components/Settings/SettingsModal";
 import { generateDefaultNewCombatant, generateId } from "../utils";
+import type { CombatStateManager } from "../store/types";
 
 type Props = {
   onOpen: (id: string) => void;
