@@ -26,7 +26,7 @@ interface Props {
   updateState: (patch: Partial<CombatState>) => void;
 }
 
-export function usePlayerState({
+export function usePlayerStore({
   combatState,
   updateState,
 }: Props): PlayerStore {

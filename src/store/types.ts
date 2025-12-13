@@ -14,6 +14,10 @@ export type CombatStateManager = {
     includePlayer: (player: SavedPlayer) => void;
     savedPlayers: SavedPlayer[];
     loadPlayers: () => Promise<void>;
+
+    addParkedGroup: (isFightModeEnabled: boolean) => void;
+    removeParkedGroup: (name: string) => void;
+    includeParkedGroup: (combatant: NewCombatant) => void;
   
     // Saved Combats
     loadCombat: (combatId: string) => Promise<void>;
@@ -21,9 +25,7 @@ export type CombatStateManager = {
     updateCombat: (name: string, description: string) => void;
   
     // Parked Groups
-    addParkedGroup: (isFightModeEnabled: boolean) => void;
-    removeParkedGroup: (name: string) => void;
-    includeParkedGroup: (combatant: NewCombatant) => void;
+    
   
     // New Combatant Form
     updateNewCombatant: (patch: Partial<NewCombatant>) => void;

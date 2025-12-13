@@ -25,8 +25,9 @@ import { useToast } from "../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 import { getSettings } from "../hooks/useSettings";
 import type { CombatStateManager } from "./types";
-import { usePlayerState } from "./player/usePlayerState";
+import { usePlayerStore } from "./hooks/usePlayerStore";
 import { useSyncApi } from "../api/sync/hooks/useSyncApi";
+import { useParkedGroupStore } from "./hooks/useParkedGroupStore";
 
 
 const getInitialState = (): CombatState => ({
@@ -51,7 +52,7 @@ export function useCombatState(): CombatStateManager {
   const toastApi = useToast();
 
   // Initialize player state hook early (needs to be before it's used in synchronise)
-  const playerStore = usePlayerState({
+  const playerStore = usePlayerStore({
     combatState: state,
     updateState,
   });
@@ -63,6 +64,12 @@ export function useCombatState(): CombatStateManager {
       await playerStore.actions.loadPlayers();
       await loadMonsters();
     }
+  });
+
+  // Initialize parked group store
+  const parkedGroupStore = useParkedGroupStore({
+    combatState: state,
+    updateState,
   });
 
   const loadMonsters = useCallback(async () => {
@@ -227,63 +234,37 @@ export function useCombatState(): CombatStateManager {
     []
   );
 
-  // Parked Groups Management
+  // Parked Groups Management - Wrapper that handles combat logic
   const addParkedGroup = useCallback(
     (isFightModeEnabled: boolean) => {
-      setState((prev) => {
-        const nc = prev.newCombatant;
-        if (!nc.name || !nc.hp) return prev;
-        if (nc.initiativeGroups.length === 0) return prev;
-        if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
-          return prev;
+      const nc = state.newCombatant;
 
-        // If maxHp is empty, copy hp to maxHp
-        const groupToAdd: NewCombatant = {
-          ...nc,
-          maxHp: nc.maxHp || nc.hp,
-          templateOrigin:
-            prev.newCombatant.templateOrigin.origin !== "no_template"
-              ? prev.newCombatant.templateOrigin
-              : {
-                  origin: "parked_group",
-                  id: nc.id,
-                },
-        };
+      // Call hook to add parked group
+      parkedGroupStore.actions.addParkedGroup();
 
-        // Remove existing group with same name (if any) and add new one
-        const filteredGroups = prev.parkedGroups.filter(
-          (g) => g.name !== nc.name
-        );
+      // Handle combat logic and form clearing in wrapper
+      const combatants = isFightModeEnabled
+        ? prepareCombatantList(state, {
+            ...nc,
+            maxHp: nc.maxHp || nc.hp,
+            templateOrigin:
+              state.newCombatant.templateOrigin.origin !== "no_template"
+                ? state.newCombatant.templateOrigin
+                : {
+                    origin: "parked_group",
+                    id: nc.id,
+                  },
+          })
+        : state.combatants;
 
-        const combatants = isFightModeEnabled
-          ? prepareCombatantList(prev, groupToAdd)
-          : prev.combatants; // Preserve existing combatants
-
-        return {
-          ...prev,
-          parkedGroups: [...filteredGroups, groupToAdd],
-          newCombatant: generateDefaultNewCombatant(),
-          combatants,
-        };
-      });
-      toastApi.success(t("common:confirmation.addedToParkedGroup.success"));
+      setState((prev) => ({
+        ...prev,
+        newCombatant: generateDefaultNewCombatant(),
+        combatants,
+      }));
     },
-    [prepareCombatantList, toastApi, t]
+    [state, parkedGroupStore.actions, prepareCombatantList]
   );
-
-  const removeParkedGroup = useCallback((name: string) => {
-    setState((prev) => ({
-      ...prev,
-      parkedGroups: prev.parkedGroups.filter((g) => g.name !== name),
-    }));
-  }, []);
-
-  const includeParkedGroup = useCallback((combatant: NewCombatant) => {
-    setState((prev) => ({
-      ...prev,
-      newCombatant: combatant,
-    }));
-  }, []);
 
   // New Combatant Form Management
   const updateNewCombatant = useCallback((patch: Partial<NewCombatant>) => {
@@ -780,9 +761,9 @@ export function useCombatState(): CombatStateManager {
     updateCombat,
 
     // Parked Groups
-    addParkedGroup,
-    removeParkedGroup,
-    includeParkedGroup,
+    addParkedGroup,  // wrapper function
+    removeParkedGroup: parkedGroupStore.actions.removeParkedGroup,
+    includeParkedGroup: parkedGroupStore.actions.includeParkedGroup,
 
     // New Combatant Form
     updateNewCombatant,
