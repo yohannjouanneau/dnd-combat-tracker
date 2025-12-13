@@ -9,14 +9,14 @@ export type CombatStateManager = {
     syncApi: SyncApi;
 
     // Player Management
-    addPlayerFromForm: (isFightModeEnabled: boolean) => Promise<void>;
+    savePlayerFromForm: (isFightModeEnabled: boolean) => Promise<void>;
     removePlayer: (id: string) => Promise<void>;
     includePlayer: (player: SavedPlayer) => void;
     savedPlayers: SavedPlayer[];
     loadPlayers: () => Promise<void>;
 
     // Parked Groups
-    addParkedGroup: (isFightModeEnabled: boolean) => void;
+    addParkedGroupFromForm: (isFightModeEnabled: boolean) => void;
     removeParkedGroup: (name: string) => void;
     includeParkedGroup: (combatant: NewCombatant) => void;
   
@@ -33,6 +33,7 @@ export type CombatStateManager = {
     addInitiativeGroup: () => void;
     removeInitiativeGroup: (id: string) => void;
     updateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
+    getTotalCombatantCount: () => number;
   
     // Combatants and Turn Management
     addCombatant: (combatant?: NewCombatant) => void;
@@ -45,6 +46,7 @@ export type CombatStateManager = {
     updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
     nextTurn: () => void;
     prevTurn: () => void;
+    getUniqueGroups: () => GroupSummary[];
   
     // Monster Library
     monsters: SavedMonster[];
@@ -60,8 +62,6 @@ export type CombatStateManager = {
     addCombatantToLibrary: () => Promise<void>;
   
     // Utility
-    getUniqueGroups: () => GroupSummary[];
-    getTotalCombatantCount: () => number;
     resetState: () => void;
   
     // Dirty state management

@@ -7,6 +7,7 @@ interface CombatantFormActions {
   addInitiativeGroup: () => void;
   removeInitiativeGroup: (id: string) => void;
   updateInitiativeGroup: (id: string, patch: Partial<InitiativeGroup>) => void;
+  getTotalCombatantCount: () => number;
   resetForm: () => void;
 }
 
@@ -19,13 +20,15 @@ interface Props {
   setState: React.Dispatch<React.SetStateAction<CombatState>>;
 }
 
-export function useCombatantFormStore({ setState }: Props): CombatantFormStore {
-  
+export function useCombatantFormStore({
+  combatState,
+  setState,
+}: Props): CombatantFormStore {
   const setNewCombatant = useCallback(
     (onUpdate: (prev: NewCombatant) => NewCombatant) => {
       setState((prev) => {
-        const updated = onUpdate(prev.newCombatant)
-        
+        const updated = onUpdate(prev.newCombatant);
+
         return {
           ...prev,
           newCombatant: updated,
@@ -85,6 +88,12 @@ export function useCombatantFormStore({ setState }: Props): CombatantFormStore {
     [setNewCombatant]
   );
 
+  const getTotalCombatantCount = useCallback(() => {
+    return combatState.newCombatant.initiativeGroups.reduce((sum, g) => {
+      return sum + (parseInt(g.count) || 0);
+    }, 0);
+  }, [combatState.newCombatant.initiativeGroups]);
+
   // Reset form to default state
   const resetForm = useCallback(() => {
     setNewCombatant(() => generateDefaultNewCombatant());
@@ -96,6 +105,7 @@ export function useCombatantFormStore({ setState }: Props): CombatantFormStore {
       addInitiativeGroup,
       removeInitiativeGroup,
       updateInitiativeGroup,
+      getTotalCombatantCount,
       resetForm,
     },
   };

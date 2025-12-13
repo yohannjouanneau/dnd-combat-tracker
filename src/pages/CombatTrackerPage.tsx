@@ -163,10 +163,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         }
         break;
       case "player":
-        combatStateManager.addPlayerFromForm(addToFight);
+        combatStateManager.savePlayerFromForm(addToFight);
         break;
       case "group":
-        combatStateManager.addParkedGroup(addToFight);
+        combatStateManager.addParkedGroupFromForm(addToFight);
         break;
     }
 
