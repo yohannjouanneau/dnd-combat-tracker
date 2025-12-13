@@ -34,6 +34,10 @@
       "message": "Êtes-vous sûr de vouloir retirer le combattant {{name}}?",
       "message_other": "Êtes-vous sûr de vouloir retirer les {{count}} combattants du groupe {{name}} ?"
     },
+    "clearAllGroups": {
+      "title": "Effacer tous les combattants",
+      "message": "Êtes-vous sûr de vouloir retirer tous les combattants du combat ? Cette action est irréversible."
+    },
     "removeParkedGroup": {
       "title": "Retirer le groupe mis en attente",
       "message": "Êtes-vous sûr de vouloir retirer {{name}} des groupes en attente ?"

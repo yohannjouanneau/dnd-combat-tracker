@@ -30,6 +30,7 @@
   "groups": {
     "title": "Fighting groups",
     "removeAll": "Remove All",
+    "clearAll": "Clear All",
     "count": "{{count}} combatant",
     "count_plural": "{{count}} combatants"
   },

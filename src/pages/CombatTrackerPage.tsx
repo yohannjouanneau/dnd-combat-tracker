@@ -242,6 +242,12 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             <GroupsOverview
               groups={combatStateManager.getUniqueGroups() as GroupSummary[]}
               onRemoveGroup={combatStateManager.removeGroup}
+              onClearAll={() => {
+                const groups = combatStateManager.getUniqueGroups();
+                groups.forEach((group) => {
+                  combatStateManager.removeGroup(group.name);
+                });
+              }}
             />
           )}
         </div>
