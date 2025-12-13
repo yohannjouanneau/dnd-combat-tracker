@@ -1,9 +1,7 @@
-import type { RefObject } from "react";
 import type { Combatant, DeathSaves } from "../../types";
 import CombatantCard from "./CombatantCard";
 
 type Props = {
-  combatListRef: RefObject<HTMLDivElement | null>;
   combatants: Combatant[];
   currentTurn: number;
   onRemove: (id: number) => void;
@@ -17,7 +15,6 @@ type Props = {
 };
 
 export default function CombatantsList({
-  combatListRef,
   combatants,
   currentTurn,
   onRemove,
@@ -34,7 +31,6 @@ export default function CombatantsList({
       className={`space-y-4 pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 ${
         isFocusMode ? "max-h-[calc(100vh-180px)] overflow-y-auto" : ""
       }`}
-      ref={combatListRef}
     >
       {combatants.map((c, index) => (
         <CombatantCard

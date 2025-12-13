@@ -1,10 +1,8 @@
 import DesktopCombatLayout from "./DesktopCombatLayout";
 import MobileCombatLayout from "./MobileCombatLayout";
 import type { Combatant, DeathSaves } from "../../types";
-import type { RefObject } from "react";
 
 type Props = {
-  combatListRef: RefObject<HTMLDivElement | null>;
   combatants: Combatant[];
   currentTurn: number;
   isFocusMode: boolean;
@@ -16,7 +14,6 @@ type Props = {
   onUpdateInitiative: (id: number, newInitiative: number) => void;
 };
 export default function CombatLayout({
-  combatListRef,
   combatants,
   currentTurn,
   isFocusMode,
@@ -30,7 +27,6 @@ export default function CombatLayout({
   return (
     <div>
       <DesktopCombatLayout
-        combatListRef={combatListRef}
         combatants={combatants}
         currentTurn={currentTurn}
         isFocusMode={isFocusMode}
@@ -42,7 +38,6 @@ export default function CombatLayout({
         onUpdateInitiative={onUpdateInitiative}
       />
       <MobileCombatLayout
-        combatListRef={combatListRef}
         combatants={combatants}
         currentTurn={currentTurn}
         isFocusMode={isFocusMode}

@@ -1,10 +1,9 @@
-import { useState, useEffect, type RefObject } from "react";
+import { useState, useEffect } from "react";
 import type { Combatant, DeathSaves } from "../../types";
 import CombatantsList from "../CombatantsList/CombatantsList";
 import CombatantDetailPanel from "../CombatantDetailPanel/CombatantDetailPanel";
 
 type Props = {
-  combatListRef: RefObject<HTMLDivElement | null>;
   combatants: Combatant[];
   currentTurn: number;
   isFocusMode: boolean;
@@ -17,7 +16,6 @@ type Props = {
 };
 
 export default function MobileCombatLayout({
-  combatListRef,
   combatants,
   currentTurn,
   isFocusMode,
@@ -46,7 +44,6 @@ export default function MobileCombatLayout({
         {/* Slide 1: CombatantsList */}
         <div className="w-full flex-shrink-0">
           <CombatantsList
-            combatListRef={combatListRef}
             combatants={combatants}
             currentTurn={currentTurn}
             onShowDetail={() => setShowDetail(true)}

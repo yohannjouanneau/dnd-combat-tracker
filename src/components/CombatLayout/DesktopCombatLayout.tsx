@@ -1,10 +1,9 @@
-import type { RefObject } from "react";
+
 import type { Combatant, DeathSaves } from "../../types";
 import CombatantsList from "../CombatantsList/CombatantsList";
 import CombatantDetailPanel from "../CombatantDetailPanel/CombatantDetailPanel";
 
 type Props = {
-  combatListRef: RefObject<HTMLDivElement | null>;
   combatants: Combatant[];
   currentTurn: number;
   isFocusMode: boolean;
@@ -17,7 +16,6 @@ type Props = {
 };
 
 export default function DesktopCombatLayout({
-  combatListRef,
   combatants,
   currentTurn,
   isFocusMode,
@@ -35,7 +33,6 @@ export default function DesktopCombatLayout({
       {/* Left side: CombatantsList */}
       <div className={activeCombatant && isFocusMode ? "flex-1" : "w-full"}>
         <CombatantsList
-          combatListRef={combatListRef}
           combatants={combatants}
           currentTurn={currentTurn}
           onRemove={onRemove}

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Sword } from "lucide-react";
 import ParkedGroupsPanel from "../components/ParkedGroups/ParkedGroupsPanel";
@@ -28,7 +28,6 @@ type Props = {
 
 export default function CombatTrackerPage({ combatStateManager }: Props) {
   const { t } = useTranslation("combat");
-  const combatListRef = useRef<HTMLDivElement>(null);
   const combatants = combatStateManager.state.combatants;
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
@@ -86,12 +85,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
   const includeToFight = (combatant: NewCombatant) => {
     combatStateManager.addCombatant(combatant);
-    if (combatListRef.current) {
-      combatListRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
   };
 
   const includePlayerToForm = (player: SavedPlayer) => {
@@ -120,12 +113,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         id: player.id,
       },
     });
-    if (combatListRef.current) {
-      combatListRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
   };
 
   const openAddModal = (mode: AddCombatantModalMode) => {
@@ -153,14 +140,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     switch (addModalMode) {
       case "fight":
         combatStateManager.addCombatant();
-        if (combatListRef.current) {
-          setTimeout(() => {
-            combatListRef.current?.scrollIntoView({
-              behavior: "smooth",
-              block: "start",
-            });
-          }, 100);
-        }
         break;
       case "player":
         await combatStateManager.savePlayerFromForm(addToFight);
@@ -287,7 +266,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         </div>
 
         <CombatLayout
-          combatListRef={combatListRef}
           combatants={combatants}
           currentTurn={combatStateManager.state.currentTurn}
           isFocusMode={isFocusMode}
