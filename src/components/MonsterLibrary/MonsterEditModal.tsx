@@ -85,7 +85,7 @@ export default function MonsterEditModal({
 
       {/* Modal */}
       <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
-        <div className="bg-slate-800 rounded-lg border border-slate-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-slate-800 rounded-lg border border-slate-700 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-700 sticky top-0 bg-slate-800 z-10">
             <h3 className="text-lg md:text-xl font-bold text-white">{title}</h3>

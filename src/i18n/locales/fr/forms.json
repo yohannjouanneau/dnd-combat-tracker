@@ -2,7 +2,7 @@
   "combatant": {
     "title": "Combattant",
     "name": "Nom",
-    "groupNamePlaceholder": "Nom",
+    "groupNamePlaceholder": "Tapez pour rechercher des monstres...",
     "currentHp": "PV actuels",
     "currentHpPlaceholder": "PV actuels",
     "maxHp": "PV max (optionnel)",
@@ -113,7 +113,7 @@
         "cha": "Charisme (CHA)"
       },
       "placeholders": {
-        "name": "Nom du monstre",
+        "name": "Tapez pour rechercher des monstres...",
         "imageUrl": "https://exemple.com/image.png",
         "externalResourceUrl": "https://monsitedndfavoris.co"
       },

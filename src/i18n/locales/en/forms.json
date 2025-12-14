@@ -2,7 +2,7 @@
   "combatant": {
     "title": "Combatant",
     "name": "Name",
-    "groupNamePlaceholder": "Name",
+    "groupNamePlaceholder": "Type to search monsters...",
     "currentHp": "Current HP",
     "currentHpPlaceholder": "Current HP",
     "maxHp": "Max HP (optional)",
@@ -111,7 +111,7 @@
         "cha": "Charisma (CHA)"
       },
       "placeholders": {
-        "name": "Monster Name",
+        "name": "Type to search monsters...",
         "imageUrl": "https://example.com/image.png",
         "externalResourceUrl": "https://mydndfavoritewebsite.co"
       },
