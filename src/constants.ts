@@ -24,6 +24,10 @@ export const DEFAULT_NEW_COMBATANT: Omit<NewCombatant, 'id'> = {
   imageUrl: "",
   externalResourceUrl: "",
   notes: "",
+  hp: 0,
+  maxHp: 0,
+  ac: 0,
+  initBonus: 0,
   templateOrigin: {
     origin: 'no_template',
     id: ''
