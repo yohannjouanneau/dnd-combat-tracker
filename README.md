@@ -4,9 +4,26 @@
 
 [![Under Active Development](https://img.shields.io/badge/status-active%20development-brightgreen)]()
 
-![Combat Tracker Demo 1](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_1.png)
-![Combat Tracker Demo 2](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_2.png)
-![Combat Tracker Demo 3](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_3.png)
+![Combat Tracker Demo](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_1.png)
+
+<details>
+<summary>📸 More Screenshots</summary>
+
+![Screenshot 2](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_2.png)
+
+![Screenshot 3](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_3.png)
+
+![Screenshot 4](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_4.png)
+
+![Screenshot 5](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_5.png)
+
+![Screenshot 6](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_6.png)
+
+![Screenshot 7](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_7.png)
+
+![Screenshot 8](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_8.png)
+
+</details>
 
 [Try it!](https://yohannjouanneau.github.io/dnd-combat-tracker/)
 
@@ -26,6 +43,9 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - 🌍 Multi-language support (English & French)
 - 🔍 Monster search powered by D&D 5e SRD API
 - 📚 Personal monster library for custom creatures
+- 📝 Rich Markdown notes with combat-specific tags and dice notation
+- 🎯 Detailed combatant view with ability scores and modifiers
+- 💡 Smart storage optimization with lightweight references
 
 ## ✨ Features
 
@@ -35,35 +55,59 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **HP Management**: Visual HP bars with quick damage/healing controls
   - Manual input field for precise adjustments
   - Quick buttons for common values (±1, ±5, ±10) on mobile
+  - Auto-expand quick buttons when combatant becomes active (mobile)
+  - Desktop auto-focus on HP input for active combatant
 - **Turn Tracking**: Automatic turn progression with round counter
-- **Keyboard Navigation**: 
+- **Keyboard Navigation**:
   - Arrow Left/Right to navigate turns quickly
   - F key to toggle Focus Mode
   - Alt key modifier for combined actions (Park/Save + Fight)
   - Ctrl/Cmd + S to save combat
+  - Enter key to apply HP changes
+  - Escape to cancel initiative editing
 - **Auto-scroll**: Active combatant automatically scrolls into view
 - **Group Management**: Organize combatants by groups with color coding
+  - Group summary panel showing all active groups
+  - Remove individual groups entirely
+  - "Clear All" action to remove all combatants at once with confirmation
 - **Focus Mode**: Hide form and panels to concentrate on active combat
+- **Combatant Detail Panel**: Expanded view with large avatar, ability scores, and notes
+  - Desktop/mobile optimized layouts
+  - Ability scores with automatic modifier calculations
+  - Markdown notes rendering
 
 ### Character Management
 - **Saved Players**: Reuse characters across different combat encounters
   - Edit saved players to load them into the form
   - Add saved players directly to combat with "Fight!" button
-  - Delete unwanted saved players
+  - Delete unwanted saved players with confirmation
+  - Update saved players by re-saving with same name
 - **Parked Groups**: Stage combatants before adding them to combat
   - Edit parked groups to modify their stats
   - Add parked groups directly to combat
   - Remove parked groups when no longer needed
+  - Encounter-specific (cleared between combats)
 - **Monster Library**: Build your personal collection of creatures
   - Save custom monsters and NPCs
   - Full stat tracking (HP, AC, ability scores)
   - Search and filter your library
   - Quick-add monsters to combat
   - Edit and manage library entries
+  - Markdown notes support for monster abilities
+  - Integration with monster search results
 - **Custom Avatars**: Add character images via URL with automatic fallback to initials
 - **Bulk Creation**: Create multiple combatants (e.g., "Goblin A, B, C") in one action
+  - Configurable identifier type (letters or numbers)
 - **Initiative Bonus**: Set a modifier that automatically applies to rolled initiatives
 - **Multiple Initiative Groups**: Create different initiative tiers for the same group
+- **Ability Scores**: Track all six ability scores (STR, DEX, CON, INT, WIS, CHA)
+  - Automatic modifier calculations
+  - Display in combatant detail panel
+- **Markdown Notes**: Rich text notes per combatant with combat-specific tags
+  - 12 combat-related tags with icons (Hit, Damage, Healing, Conditions, etc.)
+  - Dice notation recognition (e.g., "2d6", "1d20+5")
+  - Tag menu for quick insertion
+  - GitHub-flavored markdown support
 
 ### Monster Search & Integration
 - **D&D 5e SRD API Integration**: Search official D&D monsters
@@ -98,33 +142,62 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 
 ### Data Persistence
 - **Save Encounters**: Save combat states with names and descriptions
+  - Combat snapshots include full combatant state
+  - **Smart Storage Optimization**: Lightweight references for library-sourced combatants
+    - Combatants from player/monster libraries stored as references instead of full copies
+    - Only runtime state saved (HP, conditions, initiative, death saves)
+    - Template data fetched from library on load to save storage space
+    - Automatic restoration when loading saved combats
+  - Dirty state tracking for unsaved changes
 - **Combat History**: Access and manage previously saved encounters
   - List all saved combats
   - Rename existing combats
-  - Delete unwanted combats
+  - Delete unwanted combats with confirmation
 - **Manual Save**: Click "Save" (or Ctrl/Cmd+S) to preserve your current combat state
 - **Auto-load**: Combat state automatically loads when opening a saved encounter
+  - Automatic reference restoration from libraries
+  - Seamless merging of template data with runtime state
 - **Local Storage**: All data stored in browser localStorage by default
+  - Separate storage keys for combats, players, monsters, and settings
+  - JSON serialization with error handling
+  - ~5-10MB browser storage capacity
+  - Optimized to maximize storage efficiency
 - **Separate Player Storage**: Saved players persist independently across all combats
 - **Monster Library Persistence**: Your custom monsters are saved locally
 
 ### User Interface
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
+  - Desktop layout with side-by-side combatants and detail panel
+  - Mobile layout with slide animation between list and details
+  - Media query-based layout switching (768px breakpoint)
 - **Collapsible Form**: Hide the combatant creation form when not needed
 - **Color-Coded Groups**: Each group has a distinct color for easy identification
+  - 8 preset colors: Blue, Red, Green, Purple, Orange, Pink, Yellow, Cyan
 - **Avatar System**: Display character images or fallback to stylized initials
 - **Visual HP Bars**: Color changes based on health percentage (green → yellow → red)
 - **Sticky Controls**: Focus Mode keeps turn controls always visible
 - **Touch-Friendly**: Large tap targets and mobile-optimized quick buttons
 - **Multi-Language Support**: Available in English and French
-  - Automatic language detection
-  - Easy language switching
+  - Automatic language detection from browser settings
+  - Easy language switching via flag dropdown
   - Persistent language preference
+  - Complete translation of all UI elements
+- **Toast Notifications**: User feedback for actions (success, error, warning, info)
+  - Auto-dismiss with configurable duration
+  - Manual close option
+- **Combatant Detail Panel**: Expanded view with full stats
+  - Large avatar display
+  - All ability scores with modifiers
+  - Initiative, HP, and AC at a glance
+  - Markdown notes rendering
+  - Color-coded border matching group color
 
 ### Confirmation Dialogs
 - **Safe Deletions**: Confirmation prompts before removing combatants, groups, players, or combats
 - **Context-Aware Messages**: Clear explanations of what will be deleted
 - **Prevent Accidents**: Avoid accidentally losing important data
+- **Bulk Action Warnings**: Confirmation for clearing all groups at once
+- **Data Sync Prompts**: Download/upload confirmations for cloud sync
 
 ## 🛠️ Technology Stack
 
@@ -196,6 +269,9 @@ The production-ready files will be in the `dist/` directory.
    - **Your Library** (amber bookmark icon): Your custom monsters
    - **D&D API** (blue globe icon): Official SRD monsters
 4. **Click any result** to auto-fill the form with stats
+   - Automatically calculates ability modifiers
+   - Imports HP, AC, and images
+   - Adds external resource links
 5. **Add to Library** to save any creature for future use
 
 ### Adding Combatants
@@ -228,10 +304,15 @@ The production-ready files will be in the `dist/` directory.
 
 1. **Click the Library button** (book icon) on the main screen or combat page
 2. **View all your custom creatures** with full stats displayed
+   - HP, AC, and ability scores
+   - Markdown notes with combat tags
 3. **Create new monsters** with the "New" button
+   - Add ability scores for automatic modifier calculations
+   - Use Markdown editor with tag menu for abilities
 4. **Edit existing monsters** to update their stats
 5. **Load to form** to quickly add a library monster to combat
 6. **Search integration**: Library monsters appear in name search results
+7. **Delete monsters** you no longer need
 
 ### Managing Combat
 
@@ -241,19 +322,27 @@ The production-ready files will be in the `dist/` directory.
 - **Edit Initiative**: Click any initiative value to modify it mid-combat
   - Press Enter to save or Escape to cancel
   - Combatants automatically re-sort when initiative changes
-- **Apply Damage/Healing**: 
+- **Apply Damage/Healing**:
   - Manual: Enter amount and click checkmark (or press Enter)
   - Quick buttons (mobile): Tap ±1, ±5, or ±10 for fast adjustments
   - Auto-expand on mobile when combatant becomes active
-- **Toggle Conditions**: 
+  - Desktop: HP input auto-focuses for active combatant
+- **View Combatant Details**: Click on any combatant card to see expanded view
+  - Large avatar display
+  - All ability scores with modifiers
+  - Full HP, AC, and initiative stats
+  - Markdown notes rendered with combat tags
+  - Mobile: Slide animation for smooth transition
+- **Toggle Conditions**:
   - Click "Add Condition" to see available conditions
   - Click condition name to toggle on/off
   - Active conditions show with X button for quick removal
 - **Concentration**: Toggle concentration status in the combatant header
 - **Death Saves**: Click success/failure boxes for dying characters (0 HP)
 - **Focus Mode**: Press F key or click eye icon to hide forms and focus on combat
-- **Remove Combatant**: Click trash icon on any combatant card
+- **Remove Combatant**: Click trash icon on any combatant card (with confirmation)
 - **Remove Group**: Use the "Groups" panel to remove all combatants of a group at once
+- **Clear All Groups**: Remove all combatants from combat with single action (with confirmation)
 
 ### Using Cloud Sync
 
@@ -310,6 +399,23 @@ The production-ready files will be in the `dist/` directory.
 2. **Automatic Detection**: Language is auto-detected from browser settings
 3. **Persistent**: Your language choice is saved for future sessions
 4. **Complete Translation**: All UI elements are translated
+   - Combat mechanics and conditions
+   - Form labels and buttons
+   - Colors and common actions
+   - Confirmation messages and toasts
+
+### Using Markdown Notes
+
+1. **Add Notes**: Use the notes field in combatant form or monster library
+2. **Tag Menu**: Click tag icons to insert combat-specific tags
+   - 12 tags available: Hit, Damage, Healing, Conditions, Range, Speed, Save, AC, Resistance, Vulnerability, Spell, Recharge, Legendary
+   - Each tag has color-coded styling and icons
+3. **Dice Notation**: Type dice notation (e.g., "2d6", "1d20+5")
+   - Automatically rendered with dice icon
+4. **Markdown Formatting**: Use standard markdown syntax
+   - Bold, italic, lists, links, etc.
+   - GitHub-flavored markdown support
+5. **View Notes**: Open combatant detail panel to see rendered notes
 
 ## 📁 Project Structure
 ```
@@ -410,16 +516,22 @@ The application uses a custom React hook `useCombatState` that manages all comba
 
 ### Storage Strategy
 
-- **Combat encounters**: Stored with unique IDs, timestamps, and full state snapshots
+- **Combat encounters**: Stored with unique IDs, timestamps, and optimized state snapshots
 - **Saved players**: Stored separately for reuse across encounters
 - **Monster library**: Personal collection of custom creatures
+- **Smart optimization**: Combatants from libraries stored as lightweight references
+  - Template data stored once in library
+  - Combat snapshots only store runtime state (HP, conditions, initiative)
+  - Automatic restoration merges template with runtime state on load
+  - Significantly reduces storage footprint for large encounters
 - **Manual save required**: Click "Save" button to persist combat changes
 - **Data format**: JSON serialization with error handling
-- **Storage keys**: 
+- **Storage keys**:
   - `dnd-ct:combats:v1` for combat encounters
   - `dnd-ct:players:v1` for saved players
   - `dnd-ct:monsters:v1` for monster library
   - `dnd-ct:lastSynced` for sync timestamp
+  - `dnd-ct:settings:v1` for user settings
 
 ### API Integration
 
@@ -486,6 +598,13 @@ Contributions are welcome! Here's how you can help:
 - ✅ Ability score tracking
 - ✅ External resource links
 - ✅ Keyboard shortcut (Ctrl/Cmd+S) to save
+- ✅ Markdown notes with combat tags
+- ✅ Combatant detail panel
+- ✅ Bulk clear all groups action
+- ✅ Configurable combatant identifiers (letters/numbers)
+- ✅ Dice notation rendering
+- ✅ Desktop/mobile layout optimization
+- ✅ Smart storage optimization with combatant references
 
 ### Known Limitations
 - Cloud sync uses last-write-wins (no merge conflict resolution)
