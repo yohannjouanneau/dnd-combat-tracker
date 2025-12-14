@@ -30,6 +30,8 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
   // Helper: Serialize state to JSON for dirty tracking
   const takeSnapshot = useCallback((combatState: CombatState): string => {
     return JSON.stringify({
+      combatName: combatState.combatName,
+      combatDescription: combatState.combatDescription,
       combatants: combatState.combatants,
       parkedGroups: combatState.parkedGroups,
       currentTurn: combatState.currentTurn,
@@ -51,6 +53,7 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
       const savedCombat = await dataStore.getCombat(combatId);
 
       if (savedCombat?.data) {
+        const savedSnapshot = takeSnapshot(savedCombat.data)
         setState({
           ...savedCombat.data,
           combatants: savedCombat.data.combatants,
@@ -58,7 +61,7 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
           combatId: savedCombat.id,
           combatName: savedCombat.name,
           combatDescription: savedCombat.description,
-          lastSavedSnapshot: takeSnapshot(savedCombat.data),
+          lastSavedSnapshot: savedSnapshot,
         });
       }
     },
@@ -117,7 +120,9 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
   // Compute whether state has changes since last save
   const hasChanges = useMemo(() => {
     if (!state.lastSavedSnapshot) return true; // never saved
-    return state.lastSavedSnapshot !== takeSnapshot(state);
+    const currentSnapshot = takeSnapshot(state)
+    
+    return state.lastSavedSnapshot !== currentSnapshot;
   }, [state, takeSnapshot]);
 
   return {
