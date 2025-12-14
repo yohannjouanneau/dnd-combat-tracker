@@ -1,9 +1,10 @@
-import { X, LogOut, RefreshCw } from "lucide-react";
+import { X, LogOut, RefreshCw, Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import gdriveSignIn from "../../assets/web_neutral_rd_SI@2x.png";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getReadableTimestamp } from "../../utils";
 import { useSettings } from "../../hooks/useSettings";
+import { useTheme } from "../../hooks/useTheme";
 import LanguageSwitcher from "../common/LanguageSwitcher";
 import type { SyncApi } from "../../api/sync/types";
 import type { CombatantIdentifierType } from "../../types";
@@ -21,6 +22,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
   const [lastSyncTime, setLastSyncTime] = useState(syncApi.getLastSyncTime());
   const [hasNewRemoteData, setHasRemoteData] = useState(false);
   const { settings, updateSettings } = useSettings();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const checkGoogleAuth = async () => {
@@ -112,6 +114,42 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
               </h3>
 
               <LanguageSwitcher />
+            </div>
+
+            {/* Theme Section */}
+            <div className="space-y-3 pt-3 border-t border-slate-700">
+              <h3 className="text-lg font-semibold text-slate-300">
+                {t("common:settings.theme.title")}
+              </h3>
+
+              <p className="text-sm font-light text-slate-400">
+                {t("common:settings.theme.description")}
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setTheme("dark")}
+                  className={`flex-1 px-4 py-3 rounded font-medium transition flex items-center justify-center gap-2 ${
+                    theme === "dark"
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                  }`}
+                >
+                  <Moon className="w-4 h-4" />
+                  {t("common:settings.theme.dark")}
+                </button>
+                <button
+                  onClick={() => setTheme("light")}
+                  className={`flex-1 px-4 py-3 rounded font-medium transition flex items-center justify-center gap-2 ${
+                    theme === "light"
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                  }`}
+                >
+                  <Sun className="w-4 h-4" />
+                  {t("common:settings.theme.light")}
+                </button>
+              </div>
             </div>
 
             {/* Combatant Identifier Section */}

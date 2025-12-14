@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import LabeledTextInput from "./common/LabeledTextInput";
 import { useEffect } from "react";
+import { useTheme } from "../hooks/useTheme";
+import { Moon, Sun } from "lucide-react";
 
 type Props = {
   name: string;
@@ -39,6 +41,7 @@ export default function SaveBar({
     };
   }, [hasChanges, onSave]);
   const { t } = useTranslation(["forms", "common"]);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="w-full bg-slate-800 rounded-lg p-4 mb-6 border border-slate-700">
@@ -61,6 +64,13 @@ export default function SaveBar({
         </div>
 
         <div className="flex gap-2 flex-shrink-0 w-full md:w-auto justify-end items-center">
+          <button
+            onClick={toggleTheme}
+            className="bg-slate-700 hover:bg-slate-600 text-white p-2 rounded transition"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
           <button
             onClick={onBack}
             className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded transition font-medium"

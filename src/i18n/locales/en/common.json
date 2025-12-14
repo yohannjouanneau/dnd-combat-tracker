@@ -77,6 +77,12 @@
     "language": {
       "title": "Language"
     },
+    "theme": {
+      "title": "Theme",
+      "description": "Choose your preferred color theme",
+      "dark": "Dark",
+      "light": "Light"
+    },
     "combatantIdentifier": {
       "title": "Combatant Identifier",
       "description": "Choose how combatants are identified when multiple creatures of the same type are added (e.g., Orc A, Orc B or Orc 1, Orc 2)",

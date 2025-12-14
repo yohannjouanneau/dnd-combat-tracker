@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme (default) */
+    --color-app-bg: 248 250 252; /* slate-50 */
+    --color-panel-bg: 241 245 249; /* slate-100 */
+    --color-panel-secondary: 226 232 240; /* slate-200 */
+    --color-input-bg: 255 255 255; /* white */
+    --color-border-primary: 203 213 225; /* slate-300 */
+    --color-border-secondary: 148 163 184; /* slate-400 */
+    --color-text-primary: 15 23 42; /* slate-900 */
+    --color-text-secondary: 71 85 105; /* slate-600 */
+    --color-text-muted: 100 116 139; /* slate-500 */
+  }
+
+  html.dark {
+    /* Dark theme */
+    --color-app-bg: 15 23 42; /* slate-900 */
+    --color-panel-bg: 30 41 59; /* slate-800 */
+    --color-panel-secondary: 51 65 85; /* slate-700 */
+    --color-input-bg: 51 65 85; /* slate-700 */
+    --color-border-primary: 51 65 85; /* slate-700 */
+    --color-border-secondary: 71 85 105; /* slate-600 */
+    --color-text-primary: 241 245 249; /* slate-100 */
+    --color-text-secondary: 203 213 225; /* slate-300 */
+    --color-text-muted: 148 163 184; /* slate-400 */
+  }
+
+  /* Future themes can be added here */
+  /* Example:
+  html.sepia {
+    --color-app-bg: 245 245 220;
+    --color-panel-bg: 222 184 135;
+    ...
+  }
+  */
+}
