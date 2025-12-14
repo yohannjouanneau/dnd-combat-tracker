@@ -78,7 +78,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
               <img
                 src={logo}
                 alt="D&D Combat Tracker Logo"
-                className="w-16 h-16 md:w-40 md:h-40 object-contain"
+                className="w-16 h-16 md:w-40 md:h-40 rounded-xl"
               />
             </div>
 

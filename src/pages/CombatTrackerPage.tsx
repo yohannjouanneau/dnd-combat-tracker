@@ -189,7 +189,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             <img
               src={logo}
               alt="D&D Combat Tracker Logo"
-              className="w-16 h-16 object-contain"
+              className="w-16 h-16 rounded-xl"
             />
           </div>
 
@@ -199,7 +199,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               <img
                 src={logo}
                 alt="D&D Combat Tracker Logo"
-                className="w-24 h-24 object-contain"
+                className="w-24 h-24 rounded-xl"
               />
             </div>
             <div className="flex-1">
