@@ -69,7 +69,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
 
   return (
     <div className="mx-auto text-white">
-      <div className="bg-slate-800 rounded-lg border border-slate-700">
+      <div className="bg-slate-900 border border-slate-700">
         {/* Header Section with Logo and Inputs */}
         <div className="p-4 md:p-6">
           <div className="flex flex-col gap-4">
@@ -78,7 +78,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
               <img
                 src={logo}
                 alt="D&D Combat Tracker Logo"
-                className="w-16 h-16 md:w-40 md:h-40 rounded-xl"
+                className="h-20 md:h-40 rounded-xl"
               />
             </div>
 

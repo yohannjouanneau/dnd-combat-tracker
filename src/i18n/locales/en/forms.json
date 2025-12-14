@@ -60,6 +60,7 @@
     "deleteTooltip": "Delete player",
     "edit": "Edit",
     "fight": "Fight",
+    "delete": "Delete",
     "groups": "{{count}} groups, {{total}} total",
     "singleGroup": "{{count}} combatant",
     "singleGroup_plural": "{{count}} combatants"

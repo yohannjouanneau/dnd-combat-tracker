@@ -27,7 +27,7 @@ export default function CombatListItem({ combat, onOpen, onDelete }: Props) {
   return (
     <div
       key={combat.id}
-      className="flex flex-col md:flex-row md:items-center justify-between bg-slate-900 rounded p-3 md:p-4 border border-slate-700 hover:border-slate-600 transition gap-3"
+      className="flex flex-col md:flex-row md:items-center justify-between bg-slate-800 rounded p-3 md:p-4 border border-slate-700 hover:border-slate-600 transition gap-3"
     >
       <div className="flex-1 min-w-0 md:mr-4">
         <div className="font-semibold text-base md:text-lg text-white truncate">

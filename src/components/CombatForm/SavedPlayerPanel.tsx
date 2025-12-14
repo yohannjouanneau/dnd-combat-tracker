@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Users, Plus } from "lucide-react";
 import type { SavedPlayer } from "../../types";
-import SavedPlayerRow from "./SavedPlayerRow";
+import SavedPlayerItem from "./SavedPlayerItem";
 
 type Props = {
   savedPlayers: SavedPlayer[];
@@ -44,9 +44,9 @@ export default function SavedPlayersPanel({
           <p className="text-m">{t("forms:savedPlayers.empty")}</p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2 md:grid md:grid-cols-2">
           {savedPlayers.map((player) => (
-            <SavedPlayerRow
+            <SavedPlayerItem
               key={player.id}
               player={player}
               onInclude={onInclude}

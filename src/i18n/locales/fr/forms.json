@@ -59,6 +59,7 @@
     "edit": "Modifier",
     "fightTooltip": "Ajouter au combat",
     "fight": "Combat",
+    "delete": "Supprimer",
     "deleteTooltip": "Supprimer le joueur",
     "groups": "{{count}} groupes, {{total}} au total",
     "singleGroup": "{{count}} combattant",
