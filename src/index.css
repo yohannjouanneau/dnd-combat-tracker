@@ -4,16 +4,16 @@
 
 @layer base {
   :root {
-    /* Light theme (default) */
-    --color-app-bg: 248 250 252; /* slate-50 */
-    --color-panel-bg: 241 245 249; /* slate-100 */
-    --color-panel-secondary: 226 232 240; /* slate-200 */
-    --color-input-bg: 255 255 255; /* white */
-    --color-border-primary: 203 213 225; /* slate-300 */
-    --color-border-secondary: 148 163 184; /* slate-400 */
-    --color-text-primary: 15 23 42; /* slate-900 */
-    --color-text-secondary: 71 85 105; /* slate-600 */
-    --color-text-muted: 100 116 139; /* slate-500 */
+    /* Light theme - Warmer tones inspired by D&D parchment */
+    --color-app-bg: 245 241 230; /* Warm beige background */
+    --color-panel-bg: 250 247 240; /* Light parchment */
+    --color-panel-secondary: 240 235 225; /* Darker parchment */
+    --color-input-bg: 255 253 248; /* Cream white for inputs */
+    --color-border-primary: 210 200 185; /* Warm tan border */
+    --color-border-secondary: 180 165 145; /* Medium brown border */
+    --color-text-primary: 40 35 30; /* Dark brown text */
+    --color-text-secondary: 80 70 60; /* Medium brown text */
+    --color-text-muted: 120 110 95; /* Muted brown text */
   }
 
   html.dark {

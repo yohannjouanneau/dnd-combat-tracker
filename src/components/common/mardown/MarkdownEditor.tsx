@@ -127,7 +127,7 @@ export default function MarkdownEditor({
           </div>
 
           {/* Write/Preview tabs */}
-          <div className="flex gap-1 bg-slate-900 rounded p-1">
+          <div className="flex gap-1 bg-panel-secondary rounded p-1">
             <button
               type="button"
               onClick={() => setIsPreview(false)}
@@ -193,7 +193,7 @@ export default function MarkdownEditor({
             {value.trim() ? (
               <MarkdownRenderer content={value} />
             ) : (
-              <p className="text-slate-500 text-sm italic">
+              <p className="text-text-muted text-sm italic">
                 {t("forms:library.notes.emptyPreview")}
               </p>
             )}
