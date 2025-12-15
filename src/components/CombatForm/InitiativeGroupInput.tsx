@@ -50,7 +50,7 @@ export default function InitiativeGroupInput({
 
         <button
           onClick={rollInitiative}
-          className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-3 py-2 rounded border border-border-secondary flex-shrink-0"
+          className="bg-panel-bg hover:bg-panel-bg/80 text-text-primary px-3 py-2 rounded border border-border-secondary flex-shrink-0"
           title={t("forms:combatant:rollD20")}
         >
           <Dices className="w-4 h-4" />

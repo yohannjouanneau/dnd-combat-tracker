@@ -3,8 +3,10 @@
 // Helper function to use CSS variables with opacity
 function withOpacity(variableName) {
   return ({ opacityValue }) => {
+    // Fix this 
+    
     if (opacityValue !== undefined) {
-      return `rgba(var(${variableName}), ${opacityValue})`;
+      return `rgba(var(${variableName}) / ${opacityValue})`;
     }
     return `rgb(var(${variableName}))`;
   };
