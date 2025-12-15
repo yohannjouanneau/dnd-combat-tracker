@@ -90,7 +90,7 @@ export default function MarkdownEditor({
       {/* Header with tabs and help */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-semibold text-slate-300">
+          <label className="text-sm font-semibold text-text-secondary">
             {t("forms:library.notes.label")}
           </label>
           <MarkdownHelpTooltip />
@@ -100,7 +100,7 @@ export default function MarkdownEditor({
         <div className="flex gap-2">
           {/* Tag dropdown menu - separate group */}
           <div
-            className="flex gap-1 bg-slate-900 rounded p-1 relative"
+            className="flex gap-1 bg-app-bg rounded p-1 relative"
             ref={dropdownRef}
           >
             <button
@@ -109,8 +109,8 @@ export default function MarkdownEditor({
               disabled={isPreview}
               className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
                 isPreview
-                  ? "text-slate-600 cursor-not-allowed"
-                  : "text-slate-400 hover:text-slate-300 hover:bg-slate-800"
+                  ? "text-text-muted cursor-not-allowed"
+                  : "text-text-muted hover:text-text-secondary hover:bg-panel-bg"
               }`}
               title={t("forms:library.notes.tagMenu")}
             >
@@ -133,8 +133,8 @@ export default function MarkdownEditor({
               onClick={() => setIsPreview(false)}
               className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
                 !isPreview
-                  ? "bg-slate-700 text-white"
-                  : "text-slate-400 hover:text-slate-300"
+                  ? "bg-panel-secondary text-white"
+                  : "text-text-muted hover:text-text-secondary"
               }`}
             >
               <Edit3 className="w-3.5 h-3.5" />
@@ -147,8 +147,8 @@ export default function MarkdownEditor({
               onClick={() => setIsPreview(true)}
               className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
                 isPreview
-                  ? "bg-slate-700 text-white"
-                  : "text-slate-400 hover:text-slate-300"
+                  ? "bg-panel-secondary text-white"
+                  : "text-text-muted hover:text-text-secondary"
               }`}
             >
               <Eye className="w-3.5 h-3.5" />
@@ -172,7 +172,7 @@ export default function MarkdownEditor({
               placeholder={placeholder ?? defaultPlaceholder}
               maxLength={maxLength}
               rows={8}
-              className="w-full bg-slate-700 text-white rounded px-3 py-2 border border-slate-600 focus:border-blue-500 focus:outline-none resize-y min-h-[120px] text-base"
+              className="w-full bg-input-bg text-white rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none resize-y min-h-[120px] text-base"
             />
             {/* Character counter */}
             <div className="flex justify-end mt-1">
@@ -180,7 +180,7 @@ export default function MarkdownEditor({
                 className={`text-xs ${
                   value.length > maxLength * 0.9
                     ? "text-orange-400"
-                    : "text-slate-500"
+                    : "text-text-muted"
                 }`}
               >
                 {value.length} / {maxLength.toLocaleString()}
@@ -189,7 +189,7 @@ export default function MarkdownEditor({
           </div>
         ) : (
           // Preview mode - Rendered markdown
-          <div className="min-h-[120px] max-h-96 overflow-y-auto bg-slate-900 rounded px-3 py-2 border border-slate-600">
+          <div className="min-h-[120px] max-h-96 overflow-y-auto bg-app-bg rounded px-3 py-2 border border-border-secondary">
             {value.trim() ? (
               <MarkdownRenderer content={value} />
             ) : (

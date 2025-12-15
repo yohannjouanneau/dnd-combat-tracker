@@ -174,7 +174,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   }, [combatStateManager]);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-6">
+    <div className="min-h-screen bg-app-bg text-text-primary p-6">
       <div className="max-w-6xl mx-auto">
         {/* Wrapper with transition for hidden elements */}
         <div
@@ -286,7 +286,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         />
 
         {combatants.length === 0 && (
-          <div className="text-center text-slate-400 py-12">
+          <div className="text-center text-text-muted py-12">
             <Sword className="text-yellow-400 w-16 h-16 mx-auto mb-4 opacity-50" />
             <p className="text-xl">{t("combat:combatant.noCombatants")}</p>
           </div>

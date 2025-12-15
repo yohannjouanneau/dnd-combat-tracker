@@ -27,7 +27,7 @@ export default function GroupsOverview({ groups, onRemoveGroup, onClearAll }: Pr
   if (groups.length === 0) return null;
 
   return (
-    <div className="bg-slate-800 rounded-lg p-4 mb-6 border border-slate-700">
+    <div className="bg-panel-bg rounded-lg p-4 mb-6 border border-border-primary">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Users className="w-5 h-5" />

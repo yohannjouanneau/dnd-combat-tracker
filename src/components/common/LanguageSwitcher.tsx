@@ -13,7 +13,7 @@ export default function LanguageSwitcher() {
       <select
         id="lang-select"
         onChange={(e) => i18n.changeLanguage(e.target.value)}
-        className="bg-slate-700 text-white rounded px-2 py-1 text-sm border border-slate-600 focus:border-blue-500 focus:outline-none cursor-pointer"
+        className="bg-input-bg text-white rounded px-2 py-1 text-sm border border-border-secondary focus:border-blue-500 focus:outline-none cursor-pointer"
         aria-label="Select language"
         value={currentLanguage}
       >

@@ -60,7 +60,7 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
         
         <button
           onClick={() => setShowQuickButtons(!showQuickButtons)}
-          className="md:hidden text-purple-400 hover:text-purple-300 transition flex items-center gap-1 text-sm px-2 py-1 rounded hover:bg-slate-700"
+          className="md:hidden text-purple-400 hover:text-purple-300 transition flex items-center gap-1 text-sm px-2 py-1 rounded hover:bg-panel-secondary"
         >
           {showQuickButtons ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           {t('combat:hpBar.quick')}
@@ -68,7 +68,7 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
       </div>
 
       {/* HP Progress Bar */}
-      <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden mb-3">
+      <div className="w-full bg-panel-secondary rounded-full h-3 overflow-hidden mb-3">
         <div
           className={`h-full transition-all ${pct > 50 ? 'bg-green-500' : pct > 25 ? 'bg-yellow-500' : 'bg-red-500'}`}
           style={{ width: `${pct}%` }}
@@ -110,12 +110,12 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder={t('combat:hpBar.placeholder')}
-          className="bg-slate-700 text-white rounded px-3 py-2 border border-slate-600 focus:border-blue-500 focus:outline-none w-24 text-center"
+          className="bg-input-bg text-white rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none w-24 text-center"
         />
         <button 
           onClick={handleApply}
           disabled={!inputValue}
-          className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
+          className="bg-blue-600 hover:bg-blue-700 disabled:bg-panel-secondary disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
           title={t('combat:hpBar.apply')}
         >
           <Check className="w-4 h-4" />

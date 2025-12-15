@@ -104,10 +104,10 @@ export default function CombatantCard({
   return (
     <div
       ref={cardRef}
-      className={`bg-slate-800 rounded-lg p-4 md:p-6 border-2 transition ${
+      className={`bg-panel-bg rounded-lg p-4 md:p-6 border-2 transition ${
         isActive
           ? "border-yellow-500 shadow-lg shadow-yellow-500/20"
-          : "border-slate-700"
+          : "border-border-primary"
       }`}
       style={{ borderLeftWidth: "6px", borderLeftColor: combatant.color }}
     >
@@ -133,7 +133,7 @@ export default function CombatantCard({
                     onChange={(e) => setInitValue(e.target.value)}
                     onBlur={handleSave}
                     onKeyDown={handleKeyDown}
-                    className="text-2xl md:text-3xl font-bold text-blue-400 bg-slate-700 border-2 border-blue-500 rounded px-2 w-16 md:w-20 focus:outline-none"
+                    className="text-2xl md:text-3xl font-bold text-blue-400 bg-input-bg border-2 border-blue-500 rounded px-2 w-16 md:w-20 focus:outline-none"
                     autoFocus
                   />
                 ) : (
@@ -157,7 +157,7 @@ export default function CombatantCard({
                   )}
                 </h3>
               </div>
-              <div className="flex flex-wrap gap-x-3 md:gap-x-4 gap-y-1 text-xs md:text-sm text-slate-400">
+              <div className="flex flex-wrap gap-x-3 md:gap-x-4 gap-y-1 text-xs md:text-sm text-text-muted">
                 <div className="flex items-center gap-1">
                   <div
                     className="w-3 h-3 rounded-full flex-shrink-0"

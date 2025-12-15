@@ -28,7 +28,7 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
 
         <button
           onClick={() => setShowAll(!showAll)}
-          className="px-3 py-1 rounded text-sm bg-slate-700 hover:bg-slate-600 transition flex items-center gap-1"
+          className="px-3 py-1 rounded text-sm bg-panel-secondary hover:bg-panel-secondary/80 transition flex items-center gap-1"
         >
           <Plus className="w-4 h-4" />
           {showAll
@@ -38,8 +38,8 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
       </div>
 
       {showAll && (
-        <div className="mt-2 p-3 bg-slate-900 rounded border border-slate-700">
-          <div className="text-sm font-semibold mb-2 text-slate-400">
+        <div className="mt-2 p-3 bg-app-bg rounded border border-border-primary">
+          <div className="text-sm font-semibold mb-2 text-text-muted">
             {t("conditions:availableConditions")}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -55,7 +55,7 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
                 className={`px-3 py-1 rounded text-sm transition ${
                   activeConditions.includes(condition)
                     ? "bg-orange-600 hover:bg-orange-700"
-                    : "bg-slate-700 hover:bg-slate-600"
+                    : "bg-panel-secondary hover:bg-panel-secondary/80"
                 }`}
               >
                 {t(`conditions:${condition}`)}

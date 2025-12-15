@@ -91,15 +91,15 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
 
       {/* Modal */}
       <div className="fixed inset-0 z-20 flex items-center justify-center p-4">
-        <div className="bg-slate-800 rounded-lg border border-slate-700 max-w-md w-full shadow-xl">
+        <div className="bg-panel-bg rounded-lg border border-border-primary max-w-md w-full shadow-xl">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-700">
-            <h2 className="text-xl md:text-2xl font-bold text-white">
+          <div className="flex items-center justify-between p-4 md:p-6 border-b border-border-primary">
+            <h2 className="text-xl md:text-2xl font-bold text-text-primary">
               {t("common:settings.title")}
             </h2>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-white transition"
+              className="text-text-muted hover:text-text-primary transition"
             >
               <X className="w-6 h-6" />
             </button>
@@ -109,7 +109,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
           <div className="p-4 md:p-6 space-y-6">
             {/* Language Section */}
             <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-slate-300">
+              <h3 className="text-lg font-semibold text-text-secondary">
                 {t("common:settings.language.title")}
               </h3>
 
@@ -117,12 +117,12 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
             </div>
 
             {/* Theme Section */}
-            <div className="space-y-3 pt-3 border-t border-slate-700">
-              <h3 className="text-lg font-semibold text-slate-300">
+            <div className="space-y-3 pt-3 border-t border-border-primary">
+              <h3 className="text-lg font-semibold text-text-secondary">
                 {t("common:settings.theme.title")}
               </h3>
 
-              <p className="text-sm font-light text-slate-400">
+              <p className="text-sm font-light text-text-muted">
                 {t("common:settings.theme.description")}
               </p>
 
@@ -132,7 +132,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
                   className={`flex-1 px-4 py-3 rounded font-medium transition flex items-center justify-center gap-2 ${
                     theme === "dark"
                       ? "bg-blue-600 text-white"
-                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                      : "bg-panel-secondary text-text-secondary hover:bg-panel-secondary/80"
                   }`}
                 >
                   <Moon className="w-4 h-4" />
@@ -143,7 +143,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
                   className={`flex-1 px-4 py-3 rounded font-medium transition flex items-center justify-center gap-2 ${
                     theme === "light"
                       ? "bg-blue-600 text-white"
-                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                      : "bg-panel-secondary text-text-secondary hover:bg-panel-secondary/80"
                   }`}
                 >
                   <Sun className="w-4 h-4" />
@@ -153,12 +153,12 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
             </div>
 
             {/* Combatant Identifier Section */}
-            <div className="space-y-3 pt-3 border-t border-slate-700">
-              <h3 className="text-lg font-semibold text-slate-300">
+            <div className="space-y-3 pt-3 border-t border-border-primary">
+              <h3 className="text-lg font-semibold text-text-secondary">
                 {t("common:settings.combatantIdentifier.title")}
               </h3>
 
-              <p className="text-sm font-light text-slate-400">
+              <p className="text-sm font-light text-text-muted">
                 {t("common:settings.combatantIdentifier.description")}
               </p>
 
@@ -168,7 +168,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
                   className={`flex-1 px-4 py-3 rounded font-medium transition ${
                     settings.combatantIdentifierType === "letters"
                       ? "bg-blue-600 text-white"
-                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                      : "bg-panel-secondary text-text-secondary hover:bg-panel-secondary/80"
                   }`}
                 >
                   {t("common:settings.combatantIdentifier.letters")}
@@ -178,7 +178,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
                   className={`flex-1 px-4 py-3 rounded font-medium transition ${
                     settings.combatantIdentifierType === "numbers"
                       ? "bg-blue-600 text-white"
-                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                      : "bg-panel-secondary text-text-secondary hover:bg-panel-secondary/80"
                   }`}
                 >
                   {t("common:settings.combatantIdentifier.numbers")}
@@ -187,12 +187,12 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
             </div>
 
             {/* Google Drive Section */}
-            <div className="space-y-3 pt-3 border-t border-slate-700">
-              <h3 className="text-lg font-semibold text-slate-300">
+            <div className="space-y-3 pt-3 border-t border-border-primary">
+              <h3 className="text-lg font-semibold text-text-secondary">
                 {t("common:settings.googleDrive.title")}
               </h3>
 
-              <p className="text-sm font-light text-slate-300">
+              <p className="text-sm font-light text-text-secondary">
                 {t("common:settings.googleDrive.syncExlpaination")}
               </p>
 
@@ -233,7 +233,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
 
             {/* Connected Status */}
             {isReadyToSync && (
-              <div className="pt-3 border-t border-slate-700">
+              <div className="pt-3 border-t border-border-primary">
                 <div className="flex items-center gap-2 text-sm text-green-400">
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                   {t("common:settings.googleDrive.connected", {
@@ -245,10 +245,10 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-slate-700 p-4 md:p-6">
+          <div className="border-t border-border-primary p-4 md:p-6">
             <button
               onClick={onClose}
-              className="w-full bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded transition font-medium"
+              className="w-full bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-2 rounded transition font-medium"
             >
               {t("common:actions.close")}
             </button>

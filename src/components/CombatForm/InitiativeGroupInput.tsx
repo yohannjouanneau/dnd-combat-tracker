@@ -33,10 +33,10 @@ export default function InitiativeGroupInput({
   }, [rollInitiative]);
 
   return (
-    <div className="flex flex-col gap-2 p-2 bg-slate-900 rounded border border-slate-600">
+    <div className="flex flex-col gap-2 p-2 bg-panel-secondary rounded border border-border-secondary">
       {/* Top row: Index + Initiative + Roll button */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-slate-400 font-semibold min-w-[24px] flex-shrink-0">
+        <span className="text-xs text-text-muted font-semibold min-w-[24px] flex-shrink-0">
           #{index + 1}
         </span>
 
@@ -45,12 +45,12 @@ export default function InitiativeGroupInput({
           value={group.initiative}
           onChange={(e) => onChange(group.id, { initiative: e.target.value })}
           placeholder="Init"
-          className="bg-slate-700 text-white rounded px-2 py-2 text-sm border border-slate-600 focus:border-blue-500 focus:outline-none flex-1 min-w-0"
+          className="bg-input-bg text-text-primary rounded px-2 py-2 text-sm border border-border-secondary focus:border-blue-500 focus:outline-none flex-1 min-w-0"
         />
 
         <button
           onClick={rollInitiative}
-          className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded border border-slate-600 flex-shrink-0"
+          className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-3 py-2 rounded border border-border-secondary flex-shrink-0"
           title={t("forms:combatant:rollD20")}
         >
           <Dices className="w-4 h-4" />
@@ -59,7 +59,7 @@ export default function InitiativeGroupInput({
 
       {/* Bottom row: Count + Delete button */}
       <div className="flex items-center gap-2 min-w-0">
-        <span className="text-xs text-slate-400 flex-shrink-0">
+        <span className="text-xs text-text-muted flex-shrink-0">
           {t("forms:combatant.count")}
         </span>
 
@@ -69,7 +69,7 @@ export default function InitiativeGroupInput({
           onChange={(e) => onChange(group.id, { count: e.target.value })}
           placeholder="1"
           min={1}
-          className="bg-slate-700 text-white rounded px-2 py-2 text-sm border border-slate-600 focus:border-blue-500 focus:outline-none flex-1 min-w-0"
+          className="bg-input-bg text-text-primary rounded px-2 py-2 text-sm border border-border-secondary focus:border-blue-500 focus:outline-none flex-1 min-w-0"
         />
 
         <button
@@ -78,7 +78,7 @@ export default function InitiativeGroupInput({
           className={`px-3 py-2 rounded transition flex-shrink-0 ${
             canRemove
               ? "bg-red-600 hover:bg-red-700 text-white"
-              : "bg-slate-700 text-slate-500 cursor-not-allowed"
+              : "bg-panel-secondary text-text-muted cursor-not-allowed"
           }`}
           title={
             canRemove

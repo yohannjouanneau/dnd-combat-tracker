@@ -1,4 +1,15 @@
 /** @type {import('tailwindcss').Config} */
+
+// Helper function to use CSS variables with opacity
+function withOpacity(variableName) {
+  return ({ opacityValue }) => {
+    if (opacityValue !== undefined) {
+      return `rgba(var(${variableName}), ${opacityValue})`;
+    }
+    return `rgb(var(${variableName}))`;
+  };
+}
+
 export default {
   content: [
     "./index.html",
@@ -8,15 +19,15 @@ export default {
     extend: {
       colors: {
         // Semantic colors using CSS variables
-        'app-bg': 'rgb(var(--color-app-bg) / <alpha-value>)',
-        'panel-bg': 'rgb(var(--color-panel-bg) / <alpha-value>)',
-        'panel-secondary': 'rgb(var(--color-panel-secondary) / <alpha-value>)',
-        'input-bg': 'rgb(var(--color-input-bg) / <alpha-value>)',
-        'border-primary': 'rgb(var(--color-border-primary) / <alpha-value>)',
-        'border-secondary': 'rgb(var(--color-border-secondary) / <alpha-value>)',
-        'text-primary': 'rgb(var(--color-text-primary) / <alpha-value>)',
-        'text-secondary': 'rgb(var(--color-text-secondary) / <alpha-value>)',
-        'text-muted': 'rgb(var(--color-text-muted) / <alpha-value>)',
+        'app-bg': withOpacity('--color-app-bg'),
+        'panel-bg': withOpacity('--color-panel-bg'),
+        'panel-secondary': withOpacity('--color-panel-secondary'),
+        'input-bg': withOpacity('--color-input-bg'),
+        'border-primary': withOpacity('--color-border-primary'),
+        'border-secondary': withOpacity('--color-border-secondary'),
+        'text-primary': withOpacity('--color-text-primary'),
+        'text-secondary': withOpacity('--color-text-secondary'),
+        'text-muted': withOpacity('--color-text-muted'),
       },
     },
   },

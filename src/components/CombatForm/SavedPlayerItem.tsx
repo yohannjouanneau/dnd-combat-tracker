@@ -33,7 +33,7 @@ export default function SavedPlayerItem({
   };
   
   return (
-    <div className="bg-slate-900 rounded-lg border border-slate-700 p-3 hover:border-slate-600 transition-colors">
+    <div className="bg-panel-secondary rounded-lg border border-border-primary p-3 hover:border-border-secondary transition-colors">
       <div className="flex items-center gap-3">
         {/* Avatar */}
         <CombatantAvatar
@@ -42,10 +42,10 @@ export default function SavedPlayerItem({
           color={player.color}
           size="sm"
         />
-        
+
         {/* Info Section - Grows to fill space */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-white truncate text-base">
+          <h3 className="font-semibold text-text-primary truncate text-base">
             {player.name}
           </h3>
         </div>
@@ -53,13 +53,13 @@ export default function SavedPlayerItem({
         {/* Stats and Buttons Container */}
         <div className="flex items-center gap-3 flex-shrink-0">
           {/* Stats */}
-          <div className="hidden sm:flex items-center gap-4 text-sm text-slate-300">
+          <div className="hidden sm:flex items-center gap-4 text-sm text-text-secondary">
             <div className="flex flex-col items-center">
-              <span className="text-xs text-slate-500">HP</span>
+              <span className="text-xs text-text-muted">HP</span>
               <span className="font-semibold">{player.hp}/{player.maxHp || player.hp}</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-xs text-slate-500">AC</span>
+              <span className="text-xs text-text-muted">AC</span>
               <span className="font-semibold">{player.ac || 10}</span>
             </div>
           </div>

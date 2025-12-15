@@ -15,7 +15,7 @@ export default function CombatList({ combats, onOpen, onDelete }: Props) {
   return (
     <div className="p-4 md:p-6">
       {combats.length === 0 ? (
-        <div className="text-center text-slate-400 py-8">
+        <div className="text-center text-text-muted py-8">
           <FolderOpen className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 opacity-50" />
           <p className="text-base md:text-lg">{t("forms:combat.noCombats")}</p>
           <p className="text-xs md:text-sm mt-2">

@@ -92,9 +92,9 @@ export default function MonsterLibraryModal({
 
       {/* Modal */}
       <div className="fixed inset-0 z-30 flex items-center justify-center p-4">
-        <div className="bg-slate-800 rounded-lg border border-slate-700 max-w-4xl w-full max-h-[90vh] shadow-xl flex flex-col">
+        <div className="bg-panel-bg rounded-lg border border-border-primary max-w-4xl w-full max-h-[90vh] shadow-xl flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-700">
+          <div className="flex items-center justify-between p-4 md:p-6 border-b border-border-primary">
             <div className="flex items-center gap-3">
               <BookOpen className="w-6 h-6 text-amber-400" />
               <h2 className="text-xl md:text-2xl font-bold text-white">
@@ -114,7 +114,7 @@ export default function MonsterLibraryModal({
               </button>
               <button
                 onClick={onClose}
-                className="text-slate-400 hover:text-white transition"
+                className="text-text-muted hover:text-white transition"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -124,7 +124,7 @@ export default function MonsterLibraryModal({
           {/* Content - Scrollable Area */}
           <div className="flex-1 overflow-y-auto p-4 md:p-6 max-h-[60vh]">
             {monsters.length === 0 ? (
-              <div className="text-center text-slate-400 py-12">
+              <div className="text-center text-text-muted py-12">
                 <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p className="text-lg">
                     {t("forms:library.emptyListTitle")}
@@ -150,10 +150,10 @@ export default function MonsterLibraryModal({
           </div>
 
           {/* Footer */}
-          <div className="border-t border-slate-700 p-4 md:p-6">
+          <div className="border-t border-border-primary p-4 md:p-6">
             <button
               onClick={onClose}
-              className="w-full md:w-auto bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded transition font-medium"
+              className="w-full md:w-auto bg-panel-secondary hover:bg-panel-secondary/80 text-white px-6 py-2 rounded transition font-medium"
             >
               {t("common:actions.close")}
             </button>
