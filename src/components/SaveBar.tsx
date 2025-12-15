@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import LabeledTextInput from "./common/LabeledTextInput";
 import { useEffect } from "react";
 import { useTheme } from "../hooks/useTheme";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Leaf } from "lucide-react";
 
 type Props = {
   name: string;
@@ -67,9 +67,21 @@ export default function SaveBar({
           <button
             onClick={toggleTheme}
             className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
-            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            title={
+              theme === "dark"
+                ? t("common:theme.switchTo.light")
+                : theme === "light"
+                ? t("common:theme.switchTo.forest")
+                : t("common:theme.switchTo.dark")
+            }
           >
-            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {theme === "dark" ? (
+              <Moon className="w-5 h-5" />
+            ) : theme === "light" ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Leaf className="w-5 h-5" />
+            )}
           </button>
           <button
             onClick={onBack}

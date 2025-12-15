@@ -23,6 +23,13 @@
   "loading": "Chargement…",
   "noData": "Aucune donnée disponible",
   "error": "Une erreur s'est produite",
+  "theme": {
+    "switchTo": {
+      "dark": "Passer à Lune",
+      "light": "Passer à Soleil",
+      "forest": "Passer à Forêt"
+    }
+  },
   "confirmation": {
     "title": "Confirmer l’action",
     "removeCombatant": {
@@ -80,8 +87,9 @@
     "theme": {
       "title": "Thème",
       "description": "Choisissez votre thème de couleur préféré",
-      "dark": "Sombre",
-      "light": "Clair"
+      "dark": "Lune",
+      "light": "Soleil",
+      "forest": "Forêt"
     },
     "combatantIdentifier": {
       "title": "Identifiant des combattants",

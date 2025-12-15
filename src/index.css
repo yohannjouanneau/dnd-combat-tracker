@@ -29,6 +29,19 @@
     --color-text-muted: 148 163 184; /* slate-400 */
   }
 
+  html.forest {
+    /* Forest theme - Nature-inspired greens */
+    --color-app-bg: 232 237 223; /* Very light sage green */
+    --color-panel-bg: 240 244 235; /* Lighter sage */
+    --color-panel-secondary: 210 220 200; /* Medium sage */
+    --color-input-bg: 248 250 245; /* Almost white with green tint */
+    --color-border-primary: 180 195 165; /* Muted olive */
+    --color-border-secondary: 140 160 125; /* Medium olive */
+    --color-text-primary: 30 50 35; /* Deep forest green (almost black) */
+    --color-text-secondary: 55 80 60; /* Dark moss green */
+    --color-text-muted: 95 120 100; /* Medium moss green */
+  }
+
   /* Future themes can be added here */
   /* Example:
   html.sepia {

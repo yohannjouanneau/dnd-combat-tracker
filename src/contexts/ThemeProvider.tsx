@@ -7,7 +7,7 @@ const DEFAULT_THEME: Theme = "dark";
 function loadTheme(): Theme {
   try {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored === "light" || stored === "dark") {
+    if (stored === "light" || stored === "dark" || stored === "forest") {
       return stored;
     }
   } catch {
@@ -26,10 +26,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Apply theme to document root on mount and when theme changes
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
+    // Remove all theme classes
+    root.classList.remove("dark", "light", "forest");
+    // Add current theme class (light is the default :root, so no class needed)
+    if (theme !== "light") {
+      root.classList.add(theme);
     }
   }, [theme]);
 
@@ -39,7 +40,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    const themeOrder: Theme[] = ["dark", "light", "forest"];
+    const currentIndex = themeOrder.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themeOrder.length;
+    setTheme(themeOrder[nextIndex]);
   };
 
   return (
