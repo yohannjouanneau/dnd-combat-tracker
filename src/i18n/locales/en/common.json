@@ -23,6 +23,13 @@
   "loading": "Loading…",
   "noData": "No data available",
   "error": "An error occurred",
+  "theme": {
+    "switchTo": {
+      "dark": "Switch to Moon",
+      "light": "Switch to Sun",
+      "forest": "Switch to Forest"
+    }
+  },
   "confirmation": {
     "title": "Confirm Action",
     "removeCombatant": {
@@ -76,6 +83,13 @@
     "title": "Settings",
     "language": {
       "title": "Language"
+    },
+    "theme": {
+      "title": "Theme",
+      "description": "Choose your preferred color theme",
+      "dark": "Moon",
+      "light": "Sun",
+      "forest": "Forest"
     },
     "combatantIdentifier": {
       "title": "Combatant Identifier",

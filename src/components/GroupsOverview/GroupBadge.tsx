@@ -36,7 +36,7 @@ export default function GroupBadge({ group, onRemove }: Props) {
         style={{ backgroundColor: group.color }}
       />
       <span className="font-semibold">{group.name}</span>
-      <span className="text-sm text-slate-400">×{group.count}</span>
+      <span className="text-sm text-text-muted">×{group.count}</span>
       <button
         onClick={() => confirmRemove()}
         className="ml-2 text-red-400 hover:text-red-300 text-sm"

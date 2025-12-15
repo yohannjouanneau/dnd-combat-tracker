@@ -36,7 +36,7 @@ export default function MonsterListItem({
   };
 
   return (
-    <div className="bg-slate-900 rounded-lg border border-slate-700 p-3 hover:border-slate-600 transition-colors">
+    <div className="bg-panel-secondary rounded-lg border border-border-primary p-3 hover:border-border-secondary transition-colors">
       <div className="flex items-center gap-3">
         {/* Avatar */}
         <CombatantAvatar
@@ -48,7 +48,7 @@ export default function MonsterListItem({
 
         {/* Name */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-bold text-white truncate">
+          <h3 className="text-base font-bold text-text-primary truncate">
             {monster.name}
           </h3>
         </div>
@@ -56,18 +56,18 @@ export default function MonsterListItem({
         {/* HP & AC */}
         <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
           <div className="flex flex-col items-center">
-            <span className="text-xs text-slate-500 leading-none">
+            <span className="text-xs text-text-muted leading-none">
               {t("library.listItem.stats.hp")}
             </span>
-            <span className="font-semibold text-white text-base leading-none mt-1">
+            <span className="font-semibold text-text-primary text-base leading-none mt-1">
               {monster.hp}
             </span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-xs text-slate-500 leading-none">
+            <span className="text-xs text-text-muted leading-none">
               {t("library.listItem.stats.ac")}
             </span>
-            <span className="font-semibold text-white text-base leading-none mt-1">
+            <span className="font-semibold text-text-primary text-base leading-none mt-1">
               {monster.ac}
             </span>
           </div>

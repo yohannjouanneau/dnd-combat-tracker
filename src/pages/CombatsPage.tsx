@@ -65,11 +65,11 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
   },[create])
 
   if (loading)
-    return <div className="p-6 text-slate-300">{t("common:loading")}</div>;
+    return <div className="p-6 text-text-secondary">{t("common:loading")}</div>;
 
   return (
     <div className="mx-auto text-white">
-      <div className="bg-slate-800 rounded-lg border border-slate-700">
+      <div className="bg-app-bg border border-border-primary">
         {/* Header Section with Logo and Inputs */}
         <div className="p-4 md:p-6">
           <div className="flex flex-col gap-4">
@@ -78,7 +78,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
               <img
                 src={logo}
                 alt="D&D Combat Tracker Logo"
-                className="w-16 h-16 md:w-40 md:h-40 rounded-xl"
+                className="h-20 md:h-40 rounded-xl"
               />
             </div>
 
@@ -125,7 +125,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
                 </button>
                 <button
                   onClick={() => setShowSettings(true)}
-                  className="bg-slate-700 hover:bg-slate-600 px-4 py-3 md:py-2 rounded transition font-semibold h-[42px] flex items-center justify-center"
+                  className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-3 md:py-2 rounded transition font-semibold h-[42px] flex items-center justify-center"
                   title={t("settings:title")}
                 >
                   <Settings className="w-5 h-5" />
@@ -136,7 +136,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-slate-700"></div>
+        <div className="border-t border-border-primary"></div>
 
         {/* Combat List Section */}
         <CombatList combats={combats} onOpen={onOpen} onDelete={del} />

@@ -19,7 +19,7 @@ export default function LabeledNumberInput({
 }: Props) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm text-slate-300 text-start">
+      <label htmlFor={id} className="text-sm text-text-secondary text-start">
         {label}
       </label>
       <input
@@ -31,7 +31,7 @@ export default function LabeledNumberInput({
         onChange={(e) => onChange(e.target.value)}
         className={
           className ||
-          "bg-slate-700 rounded px-3 py-2 border border-slate-600 focus:border-blue-500 focus:outline-none"
+          "bg-input-bg rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none"
         }
       />
     </div>

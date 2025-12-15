@@ -86,10 +86,10 @@ export default function AddCombatantModal({
 
       {/* Modal Container */}
       <div className="fixed inset-0 z-20 flex items-center justify-center p-4">
-        <div className="bg-slate-800 rounded-lg border border-slate-700 max-w-4xl w-full max-h-[90vh] shadow-xl overflow-hidden flex flex-col">
+        <div className="bg-panel-bg rounded-lg border border-border-primary max-w-4xl w-full max-h-[90vh] shadow-xl overflow-hidden flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-700">
-            <h2 className="text-xl md:text-2xl font-bold text-white">
+          <div className="flex items-center justify-between p-4 md:p-6 border-b border-border-primary">
+            <h2 className="text-xl md:text-2xl font-bold text-text-primary">
               {modalTitle}
             </h2>
             <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export default function AddCombatantModal({
               </button>
               <button
                 onClick={onClose}
-                className="text-slate-400 hover:text-white transition"
+                className="text-text-muted hover:text-text-primary transition"
               >
                 <X className="w-6 h-6" />
               </button>

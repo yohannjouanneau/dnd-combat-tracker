@@ -30,7 +30,7 @@ export default function TurnControls({
       ? t("combat:turn.round", { number: round })
       : t("combat:turn.notStarted", { number: round });
   return (
-    <div className="bg-slate-800 rounded-lg p-3 md:p-4 mb-6 border border-slate-700 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
+    <div className="bg-panel-bg rounded-lg p-3 md:p-4 mb-6 border border-border-primary flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
       <div className="text-xl md:text-2xl font-bold text-center md:text-left">
         {roundCountText}
       </div>
@@ -40,8 +40,8 @@ export default function TurnControls({
           disabled={isAtStart || combatantCount === 0}
           className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded transition text-sm md:text-base ${
             isAtStart || combatantCount === 0
-              ? "bg-slate-700 text-slate-500 cursor-not-allowed"
-              : "bg-slate-700 active:bg-slate-600 md:hover:bg-slate-600 text-white"
+              ? "bg-panel-secondary text-text-muted cursor-not-allowed opacity-50"
+              : "bg-panel-secondary active:bg-panel-secondary/80 md:hover:bg-panel-secondary/80 text-text-primary"
           }`}
           title={t("combat:turn.previous")}
         >
@@ -51,10 +51,10 @@ export default function TurnControls({
         <button
           onClick={onNext}
           disabled={combatantCount === 0}
-          className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded transition text-sm md:text-base ${
+          className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded transition text-sm md:text-base bg-green-600 active:bg-green-700 md:hover:bg-green-700 text-white ${
             combatantCount === 0
-              ? "bg-green-900 text-green-600 cursor-not-allowed"
-              : "bg-green-600 active:bg-green-700 md:hover:bg-green-700 text-white"
+              ? "opacity-50 cursor-not-allowed"
+              : ""
           }`}
           title={t("combat:turn.next")}
         >

@@ -174,7 +174,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   }, [combatStateManager]);
 
   return (
-    <div className="rounded-lg min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
+    <div className="min-h-screen bg-app-bg text-text-primary p-6">
       <div className="max-w-6xl mx-auto">
         {/* Wrapper with transition for hidden elements */}
         <div
@@ -189,7 +189,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             <img
               src={logo}
               alt="D&D Combat Tracker Logo"
-              className="w-16 h-16 rounded-xl"
+              className="h-20 rounded-xl"
             />
           </div>
 
@@ -199,7 +199,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               <img
                 src={logo}
                 alt="D&D Combat Tracker Logo"
-                className="w-24 h-24 rounded-xl"
+                className="md:h-24 rounded-xl"
               />
             </div>
             <div className="flex-1">
@@ -227,7 +227,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <SavedPlayersPanel
               savedPlayers={combatStateManager.savedPlayers}
               onInclude={includePlayerToForm}
@@ -286,7 +286,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         />
 
         {combatants.length === 0 && (
-          <div className="text-center text-slate-400 py-12">
+          <div className="text-center text-text-muted py-12">
             <Sword className="text-yellow-400 w-16 h-16 mx-auto mb-4 opacity-50" />
             <p className="text-xl">{t("combat:combatant.noCombatants")}</p>
           </div>

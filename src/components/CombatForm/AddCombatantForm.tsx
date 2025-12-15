@@ -80,7 +80,7 @@ export default function AddCombatantForm({
   const content = (
     <div>
       {stagedFrom && (
-        <div className="mb-3 text-sm text-slate-300">
+        <div className="mb-3 text-sm text-text-secondary">
           {t("forms:combatant.stagedFrom")}{" "}
           <span className="font-semibold">{stagedFrom}</span>.
         </div>
@@ -150,7 +150,7 @@ export default function AddCombatantForm({
 
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium text-slate-300">
+          <label className="text-sm font-medium text-text-secondary">
             {t("forms:combatant.initiative")}
             {totalCount > 0 && (
               <span className="ml-2 text-blue-400 text-xs">
@@ -181,12 +181,12 @@ export default function AddCombatantForm({
       {/* Add to Fight Checkbox - Only show in player/group modes */}
       {(isButtonVisible("savePlayer") || isButtonVisible("park")) && (
         <div className="mb-4">
-          <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+          <label className="flex items-center gap-2 text-text-secondary cursor-pointer">
             <input
               type="checkbox"
               checked={addToFightChecked}
               onChange={(e) => onAddToFightChange(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-lime-600 focus:ring-lime-600 focus:ring-offset-slate-800"
+              className="w-4 h-4 rounded border-border-secondary bg-input-bg text-lime-600 focus:ring-lime-600 focus:ring-offset-panel-bg"
             />
             <span className="text-sm font-medium">
               {t("forms:combatant.addToFight")}
@@ -197,12 +197,12 @@ export default function AddCombatantForm({
 
       {/* Add Another Checkbox - Show in all modes */}
       <div className="mb-4">
-        <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+        <label className="flex items-center gap-2 text-text-secondary cursor-pointer">
           <input
             type="checkbox"
             checked={addAnotherChecked}
             onChange={(e) => onAddAnotherChange(e.target.checked)}
-            className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-lime-600 focus:ring-lime-600 focus:ring-offset-slate-800"
+            className="w-4 h-4 rounded border-border-secondary bg-input-bg text-lime-600 focus:ring-lime-600 focus:ring-offset-panel-bg"
           />
           <span className="text-sm font-medium">
             {t("forms:combatant.addAnother")}
@@ -266,7 +266,7 @@ export default function AddCombatantForm({
         {isButtonVisible("addInitGroup") && (
           <button
             onClick={onAddInitiativeGroup}
-            className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+            className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-3 rounded flex items-center justify-center gap-2 transition"
             title={t("forms:combatant.actions.addInitGroup")}
           >
             <Dice3 className="w-5 h-5" />

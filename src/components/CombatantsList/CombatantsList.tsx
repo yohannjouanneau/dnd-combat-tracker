@@ -28,7 +28,7 @@ export default function CombatantsList({
 }: Props) {
   return (
     <div
-      className={`space-y-4 pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 ${
+      className={`space-y-4 pr-2 scrollbar-thin scrollbar-thumb-border-secondary scrollbar-track-panel-bg ${
         isFocusMode ? "max-h-[calc(100vh-180px)] overflow-y-auto" : ""
       }`}
     >

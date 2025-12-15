@@ -9,7 +9,7 @@ interface Props {
 
 export function AbilityScore({ scores, type = "library" }: Props) {
   const { t } = useTranslation(["forms"]);
-  const backgroundColor = type === "library" ? "bg-slate-800" : "bg-slate-700";
+  const backgroundColor = type === "library" ? "bg-panel-bg" : "bg-panel-secondary";
 
   // Container classes
   const containerClass =
@@ -39,8 +39,8 @@ export function AbilityScore({ scores, type = "library" }: Props) {
         { label: t("library.listItem.abilities.cha"), value: scores.cha ?? 0 },
       ].map(({ label, value }) => (
         <div key={label} className={boxClass}>
-          <div className={`${labelClass} text-slate-400 leading-none`}>{label}</div>
-          <div className={`${valueClass} font-semibold text-white leading-none mt-1`}>
+          <div className={`${labelClass} text-text-muted leading-none`}>{label}</div>
+          <div className={`${valueClass} font-semibold text-text-primary leading-none mt-1`}>
             {value}
           </div>
           <div className={`${modifierClass} text-blue-400 leading-none mt-1`}>

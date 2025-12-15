@@ -11,7 +11,7 @@ type Props = {
   onRemove: (id: string) => void;
 };
 
-export default function SavedPlayerRow({
+export default function SavedPlayerItem({
   player,
   onInclude,
   onFight,
@@ -31,20 +31,9 @@ export default function SavedPlayerRow({
       onRemove(player.id)
     }
   };
-  const getInitiativeSummary = () => {
-    const totalCount = player.initiativeGroups.reduce(
-      (sum, g) => sum + (parseInt(g.count) || 0),
-      0
-    );
-    const groupCount = player.initiativeGroups.length;
-    if (groupCount === 1) {
-      return `${totalCount} combatant${totalCount !== 1 ? "s" : ""}`;
-    }
-    return `${groupCount} groups, ${totalCount} total`;
-  };
-
+  
   return (
-    <div className="bg-slate-900 rounded-lg border border-slate-700 p-3 hover:border-slate-600 transition-colors">
+    <div className="bg-panel-secondary rounded-lg border border-border-primary p-3 hover:border-border-secondary transition-colors">
       <div className="flex items-center gap-3">
         {/* Avatar */}
         <CombatantAvatar
@@ -53,27 +42,24 @@ export default function SavedPlayerRow({
           color={player.color}
           size="sm"
         />
-        
+
         {/* Info Section - Grows to fill space */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-white truncate text-base">
+          <h3 className="font-semibold text-text-primary truncate text-base">
             {player.name}
           </h3>
-          <div className="text-xs text-slate-400 mt-0.5">
-            {getInitiativeSummary()}
-          </div>
         </div>
 
         {/* Stats and Buttons Container */}
         <div className="flex items-center gap-3 flex-shrink-0">
           {/* Stats */}
-          <div className="hidden sm:flex items-center gap-4 text-sm text-slate-300">
+          <div className="hidden sm:flex items-center gap-4 text-sm text-text-secondary">
             <div className="flex flex-col items-center">
-              <span className="text-xs text-slate-500">HP</span>
+              <span className="text-xs text-text-muted">HP</span>
               <span className="font-semibold">{player.hp}/{player.maxHp || player.hp}</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-xs text-slate-500">AC</span>
+              <span className="text-xs text-text-muted">AC</span>
               <span className="font-semibold">{player.ac || 10}</span>
             </div>
           </div>
@@ -82,19 +68,17 @@ export default function SavedPlayerRow({
           <div className="flex gap-2">
             <button
               onClick={() => onInclude(player)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center transition min-w-[44px]"
               title={t("forms:savedPlayers:editTooltip")}
             >
               <Edit className="w-4 h-4" />
-              <span className="hidden md:inline">{t("forms:savedPlayers:edit")}</span>
             </button>
             <button
               onClick={() => onFight(player)}
-              className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+              className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center transition min-w-[44px]"
               title={t("forms:savedPlayers:fightTooltip")}
             >
               <Sword className="w-4 h-4" />
-              <span className="hidden md:inline">{t("forms:savedPlayers:fight")}</span>
             </button>
             <button
               onClick={() => confirmRemove()}

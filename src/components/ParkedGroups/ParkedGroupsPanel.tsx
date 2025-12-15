@@ -21,7 +21,7 @@ export default function ParkedGroupsPanel({
   const { t } = useTranslation("forms");
 
   return (
-    <div className="bg-slate-800 rounded-lg p-6 mb-6 border border-slate-700">
+    <div className="bg-panel-bg rounded-lg p-6 mb-6 border border-border-primary">
       <div className="flex items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-2">
           <CircleParking className="w-5 h-5 text-sky-400" />
@@ -51,7 +51,7 @@ export default function ParkedGroupsPanel({
         </div>
       )}
       {parkedGroups.length === 0 && (
-        <div className="text-center text-slate-200 py-3">
+        <div className="text-center text-text-secondary py-3">
           <CircleParking className="w-8 h-8 mx-auto mb-4 opacity-50" />
           <p className="text-m">{t("forms:parkedGroups.empty")}</p>
         </div>

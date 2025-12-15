@@ -46,7 +46,7 @@ export default function ParkedGroupChip({
       />
       <span className="font-semibold">{group.name}</span>
       {totalCount > 1 && (
-        <span className="text-slate-400 text-sm">x {totalCount}</span>
+        <span className="text-text-muted text-sm">x {totalCount}</span>
       )}
       <button
         onClick={() => onInclude(group)}

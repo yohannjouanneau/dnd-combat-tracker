@@ -11,7 +11,7 @@ export default function ConcentrationToggle({ active, onToggle }: Props) {
   return (
     <button
       onClick={onToggle}
-      className={`px-3 py-1 rounded text-sm transition ${active ? 'bg-purple-600 hover:bg-purple-700' : 'bg-slate-700 hover:bg-slate-600'}`}
+      className={`px-3 py-1 rounded text-sm transition ${active ? 'bg-purple-600 hover:bg-purple-700' : 'bg-panel-secondary hover:bg-panel-secondary/80'}`}
     >
       {active ? t('conditions:concentrating') : t('conditions:concentration')}
     </button>

@@ -19,7 +19,7 @@ export default function ColorPicker({ value, onChange }: Props) {
             className={`w-8 h-8 rounded border-2 transition ${
               value === preset.value
                 ? "border-white scale-110"
-                : "border-slate-600"
+                : "border-border-secondary"
             }`}
             style={{ backgroundColor: preset.value }}
             title={name}
