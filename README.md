@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/yohannjouanneau/dnd-combat-tracker/main/src/assets/logo.png" alt="Logo" width="250">
+</p>
+
 # ⚔️ D&D Combat Tracker
 
 > A modern, intuitive combat tracker for Dungeons & Dragons 5th Edition
@@ -23,6 +27,8 @@
 
 ![Screenshot 8](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_8.png)
 
+![Screenshot 9](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_9.png)
+
 </details>
 
 [Try it!](https://yohannjouanneau.github.io/dnd-combat-tracker/)
@@ -32,6 +38,7 @@
 D&D Combat Tracker is a web-based application designed to streamline combat encounters in Dungeons & Dragons 5e. Built for Dungeon Masters who want to focus on storytelling rather than bookkeeping, this tool handles initiative tracking, HP management, conditions, and more.
 
 **Key Benefits:**
+
 - ⚡ Lightning-fast combat setup with multi-combatant support
 - 💾 Save and reuse players across multiple encounters
 - 🔄 Cloud sync with Google Drive for seamless device switching
@@ -50,6 +57,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 ## ✨ Features
 
 ### Combat Management
+
 - **Initiative Tracking**: Support for multiple initiative groups per combatant
 - **Editable Initiative**: Click on any initiative value to edit it mid-combat
 - **HP Management**: Visual HP bars with quick damage/healing controls
@@ -77,6 +85,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
   - Markdown notes rendering
 
 ### Character Management
+
 - **Saved Players**: Reuse characters across different combat encounters
   - Edit saved players to load them into the form
   - Add saved players directly to combat with "Fight!" button
@@ -110,6 +119,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
   - GitHub-flavored markdown support
 
 ### Monster Search & Integration
+
 - **D&D 5e SRD API Integration**: Search official D&D monsters
 - **Dual Search**: Simultaneously searches both API and your personal library
   - Library results shown first with amber icon
@@ -122,6 +132,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **Add to Library**: Save any creature (API or custom) to your personal collection
 
 ### Cloud Sync
+
 - **Google Drive Integration**: Backup and sync your data across all devices
 - **Smart Sync**: Automatically detects newer data and prevents conflicts
 - **Last Write Wins**: Simple conflict resolution strategy
@@ -131,6 +142,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **Cross-Device**: Access your combats, players, and library from any device
 
 ### Combat Features
+
 - **Death Saving Throws**: Track successes and failures for dying characters
 - **Concentration**: Monitor which characters are concentrating on spells
 - **Conditions**: Quick-toggle 14 standard D&D 5e conditions (Blinded, Charmed, etc.)
@@ -141,6 +153,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **Auto-sort**: Combatants automatically sort by initiative when values change
 
 ### Data Persistence
+
 - **Save Encounters**: Save combat states with names and descriptions
   - Combat snapshots include full combatant state
   - **Smart Storage Optimization**: Lightweight references for library-sourced combatants
@@ -166,6 +179,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **Monster Library Persistence**: Your custom monsters are saved locally
 
 ### User Interface
+
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
   - Desktop layout with side-by-side combatants and detail panel
   - Mobile layout with slide animation between list and details
@@ -193,6 +207,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
   - Color-coded border matching group color
 
 ### Confirmation Dialogs
+
 - **Safe Deletions**: Confirmation prompts before removing combatants, groups, players, or combats
 - **Context-Aware Messages**: Clear explanations of what will be deleted
 - **Prevent Accidents**: Avoid accidentally losing important data
@@ -224,22 +239,26 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yohannjouanneau/dnd-combat-tracker.git
 cd dnd-combat-tracker
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. (Optional) Create a `.env` file for Google Drive sync:
+
 ```bash
 VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 ```
 
 4. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -247,6 +266,7 @@ npm run dev
 5. Open your browser to `http://localhost:5173`
 
 ### Building for Production
+
 ```bash
 npm run build
 ```
@@ -277,6 +297,7 @@ The production-ready files will be in the `dist/` directory.
 ### Adding Combatants
 
 1. **Fill in basic stats:**
+
    - Group Name (or search for a monster)
    - Current HP and Max HP (if maxHp is empty, it will default to hp)
    - AC (Armor Class)
@@ -286,6 +307,7 @@ The production-ready files will be in the `dist/` directory.
    - Add external resource URL (optional)
 
 2. **Set up initiative groups:**
+
    - Each group can have a different initiative value
    - Initiative automatically rolls d20 + bonus when created
    - Click the dice icon to re-roll initiative for a group
@@ -348,7 +370,7 @@ The production-ready files will be in the `dist/` directory.
 
 1. **Open Settings**: Click the settings icon on the combat list page
 2. **Sign in with Google**: Click "Sign in with Google" button
-3. **First Sync**: 
+3. **First Sync**:
    - If remote data exists, you'll be prompted to download or upload
    - Choose "Download" to get data from the cloud
    - Choose "Upload" to send your local data to the cloud
@@ -418,6 +440,7 @@ The production-ready files will be in the `dist/` directory.
 5. **View Notes**: Open combatant detail panel to see rendered notes
 
 ## 📁 Project Structure
+
 ```
 src/
 ├── api/
@@ -497,6 +520,7 @@ src/
 ### State Management
 
 The application uses a custom React hook `useCombatState` that manages all combat-related state:
+
 - Combatants list with full stats and tracking
 - Current turn and round tracking
 - Parked groups for staging
@@ -572,6 +596,7 @@ Contributions are welcome! Here's how you can help:
 ## 🗺️ Roadmap
 
 ### Planned Features or ideas
+
 - [ ] Drag-and-drop initiative reordering
 - [ ] Dice roller integration
 - [ ] Spell slot tracking
@@ -588,6 +613,7 @@ Contributions are welcome! Here's how you can help:
 - [ ] Encounter builder with CR calculations
 
 ### Recently Added Features
+
 - ✅ Google Drive cloud sync
 - ✅ Multi-language support (English & French)
 - ✅ Monster library system
@@ -607,6 +633,7 @@ Contributions are welcome! Here's how you can help:
 - ✅ Smart storage optimization with combatant references
 
 ### Known Limitations
+
 - Cloud sync uses last-write-wins (no merge conflict resolution)
 - No collaborative/multiplayer features
 - Limited to browser localStorage capacity (~5-10MB) for local storage
@@ -634,4 +661,4 @@ Project Link: [https://github.com/yohannjouanneau/dnd-combat-tracker](https://gi
 
 **Made with ⚔️ for DMs everywhere**
 
-*Roll for initiative!* 🎲
+_Roll for initiative!_ 🎲
