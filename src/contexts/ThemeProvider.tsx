@@ -28,10 +28,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     // Remove all theme classes
     root.classList.remove("dark", "light", "forest");
-    // Add current theme class (light is the default :root, so no class needed)
-    if (theme !== "light") {
-      root.classList.add(theme);
-    }
+    // Add current theme class
+    root.classList.add(theme);
   }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
