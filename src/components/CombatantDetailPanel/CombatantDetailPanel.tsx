@@ -21,7 +21,7 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
       {onClose && (
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-text-muted hover:text-white transition md:hidden"
+          className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition md:hidden"
           title="Close details"
         >
           <X className="w-6 h-6" />

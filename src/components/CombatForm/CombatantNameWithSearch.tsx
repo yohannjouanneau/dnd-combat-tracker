@@ -198,7 +198,7 @@ export default function CombatantNameWithSearch({
           onKeyDown={handleKeyDown}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          className="w-full bg-input-bg text-white rounded px-3 py-2 pr-10 border border-border-secondary focus:border-blue-500 focus:outline-none"
+          className="w-full bg-input-bg text-text-primary rounded px-3 py-2 pr-10 border border-border-secondary focus:border-blue-500 focus:outline-none"
         />
         {isSearching && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -230,7 +230,7 @@ export default function CombatantNameWithSearch({
                       handleSelectResult(result);
                     }}
                     onMouseEnter={() => setSelectedIndex(index)}
-                    className={`w-full text-left px-3 py-2 transition text-white border-b border-border-secondary last:border-b-0 ${
+                    className={`w-full text-left px-3 py-2 transition text-text-primary border-b border-border-secondary last:border-b-0 ${
                       isSelected ? 'bg-panel-secondary' : 'hover:bg-panel-secondary/80'
                     }`}
                   >
@@ -266,7 +266,7 @@ export default function CombatantNameWithSearch({
                       handleSelectResult(result);
                     }}
                     onMouseEnter={() => setSelectedIndex(globalIndex)}
-                    className={`w-full text-left px-3 py-2 transition text-white border-b border-border-secondary last:border-b-0 ${
+                    className={`w-full text-left px-3 py-2 transition text-text-primary border-b border-border-secondary last:border-b-0 ${
                       isSelected ? 'bg-panel-secondary' : 'hover:bg-panel-secondary/80'
                     }`}
                   >

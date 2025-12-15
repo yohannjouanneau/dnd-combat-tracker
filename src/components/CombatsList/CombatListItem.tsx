@@ -30,7 +30,7 @@ export default function CombatListItem({ combat, onOpen, onDelete }: Props) {
       className="flex flex-col md:flex-row md:items-center justify-between bg-panel-bg rounded p-3 md:p-4 border border-border-primary hover:border-border-secondary transition gap-3"
     >
       <div className="flex-1 min-w-0 md:mr-4">
-        <div className="font-semibold text-base md:text-lg text-white truncate">
+        <div className="font-semibold text-base md:text-lg text-text-primary truncate">
           {combat.name}
         </div>
         {combat.description && (

@@ -97,7 +97,7 @@ export default function MonsterLibraryModal({
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-border-primary">
             <div className="flex items-center gap-3">
               <BookOpen className="w-6 h-6 text-amber-400" />
-              <h2 className="text-xl md:text-2xl font-bold text-white">
+              <h2 className="text-xl md:text-2xl font-bold text-text-primary">
                 {t("forms:library.title")}
               </h2>
             </div>
@@ -114,7 +114,7 @@ export default function MonsterLibraryModal({
               </button>
               <button
                 onClick={onClose}
-                className="text-text-muted hover:text-white transition"
+                className="text-text-muted hover:text-text-primary transition"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -153,7 +153,7 @@ export default function MonsterLibraryModal({
           <div className="border-t border-border-primary p-4 md:p-6">
             <button
               onClick={onClose}
-              className="w-full md:w-auto bg-panel-secondary hover:bg-panel-secondary/80 text-white px-6 py-2 rounded transition font-medium"
+              className="w-full md:w-auto bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-6 py-2 rounded transition font-medium"
             >
               {t("common:actions.close")}
             </button>

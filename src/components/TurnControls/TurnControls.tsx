@@ -40,7 +40,7 @@ export default function TurnControls({
           disabled={isAtStart || combatantCount === 0}
           className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded transition text-sm md:text-base ${
             isAtStart || combatantCount === 0
-              ? "bg-panel-secondary text-text-muted cursor-not-allowed"
+              ? "bg-panel-secondary text-text-muted cursor-not-allowed opacity-50"
               : "bg-panel-secondary active:bg-panel-secondary/80 md:hover:bg-panel-secondary/80 text-text-primary"
           }`}
           title={t("combat:turn.previous")}
@@ -51,10 +51,10 @@ export default function TurnControls({
         <button
           onClick={onNext}
           disabled={combatantCount === 0}
-          className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded transition text-sm md:text-base ${
+          className={`flex-1 md:flex-none px-3 md:px-4 py-3 md:py-2 rounded transition text-sm md:text-base bg-green-600 active:bg-green-700 md:hover:bg-green-700 text-white ${
             combatantCount === 0
-              ? "bg-green-900 text-green-600 cursor-not-allowed"
-              : "bg-green-600 active:bg-green-700 md:hover:bg-green-700 text-white"
+              ? "opacity-50 cursor-not-allowed"
+              : ""
           }`}
           title={t("combat:turn.next")}
         >

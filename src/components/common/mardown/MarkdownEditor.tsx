@@ -133,7 +133,7 @@ export default function MarkdownEditor({
               onClick={() => setIsPreview(false)}
               className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
                 !isPreview
-                  ? "bg-panel-secondary text-white"
+                  ? "bg-panel-secondary text-text-primary"
                   : "text-text-muted hover:text-text-secondary"
               }`}
             >
@@ -147,7 +147,7 @@ export default function MarkdownEditor({
               onClick={() => setIsPreview(true)}
               className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
                 isPreview
-                  ? "bg-panel-secondary text-white"
+                  ? "bg-panel-secondary text-text-primary"
                   : "text-text-muted hover:text-text-secondary"
               }`}
             >
@@ -172,7 +172,7 @@ export default function MarkdownEditor({
               placeholder={placeholder ?? defaultPlaceholder}
               maxLength={maxLength}
               rows={8}
-              className="w-full bg-input-bg text-white rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none resize-y min-h-[120px] text-base"
+              className="w-full bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none resize-y min-h-[120px] text-base"
             />
             {/* Character counter */}
             <div className="flex justify-end mt-1">

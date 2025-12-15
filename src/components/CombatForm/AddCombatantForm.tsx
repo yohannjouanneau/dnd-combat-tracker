@@ -266,7 +266,7 @@ export default function AddCombatantForm({
         {isButtonVisible("addInitGroup") && (
           <button
             onClick={onAddInitiativeGroup}
-            className="bg-panel-secondary hover:bg-panel-secondary/80 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
+            className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-3 rounded flex items-center justify-center gap-2 transition"
             title={t("forms:combatant.actions.addInitGroup")}
           >
             <Dice3 className="w-5 h-5" />

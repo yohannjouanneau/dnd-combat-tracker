@@ -40,7 +40,7 @@ export function AbilityScore({ scores, type = "library" }: Props) {
       ].map(({ label, value }) => (
         <div key={label} className={boxClass}>
           <div className={`${labelClass} text-text-muted leading-none`}>{label}</div>
-          <div className={`${valueClass} font-semibold text-white leading-none mt-1`}>
+          <div className={`${valueClass} font-semibold text-text-primary leading-none mt-1`}>
             {value}
           </div>
           <div className={`${modifierClass} text-blue-400 leading-none mt-1`}>

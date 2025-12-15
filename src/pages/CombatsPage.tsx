@@ -125,7 +125,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
                 </button>
                 <button
                   onClick={() => setShowSettings(true)}
-                  className="bg-panel-secondary hover:bg-panel-secondary/80 px-4 py-3 md:py-2 rounded transition font-semibold h-[42px] flex items-center justify-center"
+                  className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-3 md:py-2 rounded transition font-semibold h-[42px] flex items-center justify-center"
                   title={t("settings:title")}
                 >
                   <Settings className="w-5 h-5" />

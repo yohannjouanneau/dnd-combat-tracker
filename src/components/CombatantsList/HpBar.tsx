@@ -54,7 +54,7 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-semibold text-white">
+        <span className="font-semibold text-text-primary">
           {hp} / {maxHp} {t('combat:combatant.hp')}
         </span>
         
@@ -110,7 +110,7 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder={t('combat:hpBar.placeholder')}
-          className="bg-input-bg text-white rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none w-24 text-center"
+          className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none w-24 text-center"
         />
         <button 
           onClick={handleApply}

@@ -88,10 +88,10 @@ export default function MonsterEditModal({
         <div className="bg-panel-bg rounded-lg border border-border-primary max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-border-primary sticky top-0 bg-panel-bg z-10">
-            <h3 className="text-lg md:text-xl font-bold text-white">{title}</h3>
+            <h3 className="text-lg md:text-xl font-bold text-text-primary">{title}</h3>
             <button
               onClick={onCancel}
-              className="text-text-muted hover:text-white transition"
+              className="text-text-muted hover:text-text-primary transition"
             >
               <X className="w-5 h-5" />
             </button>
@@ -220,7 +220,7 @@ export default function MonsterEditModal({
           <div className="flex gap-2 p-4 md:p-6 border-t border-border-primary sticky bottom-0 bg-panel-bg">
             <button
               onClick={onCancel}
-              className="flex-1 bg-panel-secondary hover:bg-panel-secondary/80 text-white px-4 py-2 rounded transition font-medium"
+              className="flex-1 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-2 rounded transition font-medium"
             >
               {t("common:actions.cancel")}
             </button>

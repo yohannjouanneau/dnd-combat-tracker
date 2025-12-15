@@ -66,14 +66,14 @@ export default function SaveBar({
         <div className="flex gap-2 flex-shrink-0 w-full md:w-auto justify-end items-center">
           <button
             onClick={toggleTheme}
-            className="bg-panel-secondary hover:bg-panel-secondary/80 text-white p-2 rounded transition"
+            className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           <button
             onClick={onBack}
-            className="bg-panel-secondary hover:bg-panel-secondary/80 text-white px-4 py-2 rounded transition font-medium"
+            className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-2 rounded transition font-medium"
           >
             {t("common:actions.back")}
           </button>

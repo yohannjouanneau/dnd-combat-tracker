@@ -89,7 +89,7 @@ export default function AddCombatantModal({
         <div className="bg-panel-bg rounded-lg border border-border-primary max-w-4xl w-full max-h-[90vh] shadow-xl overflow-hidden flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-border-primary">
-            <h2 className="text-xl md:text-2xl font-bold text-white">
+            <h2 className="text-xl md:text-2xl font-bold text-text-primary">
               {modalTitle}
             </h2>
             <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export default function AddCombatantModal({
               </button>
               <button
                 onClick={onClose}
-                className="text-text-muted hover:text-white transition"
+                className="text-text-muted hover:text-text-primary transition"
               >
                 <X className="w-6 h-6" />
               </button>

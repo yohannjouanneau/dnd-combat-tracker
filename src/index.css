@@ -7,13 +7,13 @@
     /* Light theme - Warmer tones inspired by D&D parchment */
     --color-app-bg: 245 241 230; /* Warm beige background */
     --color-panel-bg: 250 247 240; /* Light parchment */
-    --color-panel-secondary: 240 235 225; /* Darker parchment */
+    --color-panel-secondary: 230 222 210; /* Medium tan for subtle contrast */
     --color-input-bg: 255 253 248; /* Cream white for inputs */
     --color-border-primary: 210 200 185; /* Warm tan border */
     --color-border-secondary: 180 165 145; /* Medium brown border */
     --color-text-primary: 40 35 30; /* Dark brown text */
-    --color-text-secondary: 80 70 60; /* Medium brown text */
-    --color-text-muted: 120 110 95; /* Muted brown text */
+    --color-text-secondary: 65 55 45; /* Darker brown text for better contrast */
+    --color-text-muted: 105 95 80; /* Medium brown text */
   }
 
   html.dark {
