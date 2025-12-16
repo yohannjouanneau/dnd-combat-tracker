@@ -68,10 +68,10 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
     return <div className="p-6 text-text-secondary">{t("common:loading")}</div>;
 
   return (
-    <div className="mx-auto text-white">
-      <div className="bg-app-bg border border-border-primary">
+    <div className="mx-auto text-white h-screen flex flex-col">
+      <div className="bg-app-bg flex flex-col h-full">
         {/* Header Section with Logo and Inputs */}
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 flex-shrink-0">
           <div className="flex flex-col gap-4">
             {/* Logo - centered on mobile */}
             <div className="flex justify-center">
@@ -82,64 +82,65 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
               />
             </div>
 
-            {/* Form inputs */}
-            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
-              <div className="flex-1">
-                <LabeledTextInput
-                  id="newName"
-                  label={t("forms:combat.newName")}
-                  value={name}
-                  placeholder={t("forms:combat.newNamePlaceholder")}
-                  onChange={setName}
-                  onKeyDown={handleKeyPress}
-                />
-              </div>
+            {/* Form Panel */}
+            <div className="bg-panel-bg rounded-lg p-4 border border-border-primary">
+              <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+                <div className="flex-1">
+                  <LabeledTextInput
+                    id="newName"
+                    label={t("forms:combat.newName")}
+                    value={name}
+                    placeholder={t("forms:combat.newNamePlaceholder")}
+                    onChange={setName}
+                    onKeyDown={handleKeyPress}
+                  />
+                </div>
 
-              <div className="flex-1">
-                <LabeledTextInput
-                  id="newDesc"
-                  label={t("forms:combat.newDescription")}
-                  value={description}
-                  placeholder={t("forms:combat.newDescriptionPlaceholder")}
-                  onChange={setDescription}
-                  onKeyDown={handleKeyPress}
-                />
-              </div>
+                <div className="flex-1">
+                  <LabeledTextInput
+                    id="newDesc"
+                    label={t("forms:combat.newDescription")}
+                    value={description}
+                    placeholder={t("forms:combat.newDescriptionPlaceholder")}
+                    onChange={setDescription}
+                    onKeyDown={handleKeyPress}
+                  />
+                </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2 md:items-end">
-                <button
-                  onClick={create}
-                  className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>{t("common:actions.create")}</span>
-                </button>
-                <button
-                  onClick={() => setShowLibrary(true)}
-                  className="flex-1 md:flex-none bg-amber-600 hover:bg-amber-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
-                  title={t("common:actions.library")}
-                >
-                  <BookOpen className="w-5 h-5" />
-                  <span className="hidden sm:inline">Library</span>
-                </button>
-                <button
-                  onClick={() => setShowSettings(true)}
-                  className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-3 md:py-2 rounded transition font-semibold h-[42px] flex items-center justify-center"
-                  title={t("settings:title")}
-                >
-                  <Settings className="w-5 h-5" />
-                </button>
+                {/* Action Buttons */}
+                <div className="flex gap-2 md:items-end">
+                  <button
+                    onClick={create}
+                    className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span>{t("common:actions.create")}</span>
+                  </button>
+                  <button
+                    onClick={() => setShowLibrary(true)}
+                    className="flex-1 md:flex-none bg-amber-600 hover:bg-amber-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
+                    title={t("common:actions.library")}
+                  >
+                    <BookOpen className="w-5 h-5" />
+                    <span className="hidden sm:inline">Library</span>
+                  </button>
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-3 md:py-2 rounded transition font-semibold h-[42px] flex items-center justify-center"
+                    title={t("settings:title")}
+                  >
+                    <Settings className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-border-primary"></div>
-
         {/* Combat List Section */}
-        <CombatList combats={combats} onOpen={onOpen} onDelete={del} />
+        <div className="flex-1 overflow-y-auto">
+          <CombatList combats={combats} onOpen={onOpen} onDelete={del} />
+        </div>
       </div>
 
       {/* Monster Library Modal */}
