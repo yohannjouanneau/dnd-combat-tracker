@@ -165,6 +165,13 @@ function generateActionTags(action: Action): string[] {
     tags.push(`{save: DC ${dcValue} ${dcType}}`);
   }
 
+  // Parse range from description (e.g., "reach 5 ft.", "range 30/120 ft.", "range 150 ft.")
+  const rangeMatch = action.desc.match(/(?:reach|range)\s+([\d/]+)\s*ft\./i);
+  if (rangeMatch) {
+    const range = rangeMatch[1];
+    tags.push(`{range: ${range} ft.}`);
+  }
+
   return tags;
 }
 
@@ -203,8 +210,8 @@ export function formatActionsAsMarkdown(actions?: Action[]): string {
       actionParts.push(" " + tags.join(" "));
     }
 
-    // Add description on new line
-    actionParts.push("\n" + action.desc);
+    // Add description on new line (double newline for proper paragraph break)
+    actionParts.push("  \n" + action.desc);
 
     parts.push(actionParts.join(""));
     parts.push(""); // Empty line between actions

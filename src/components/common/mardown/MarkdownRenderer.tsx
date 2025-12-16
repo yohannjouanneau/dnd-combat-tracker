@@ -12,70 +12,35 @@ type Props = {
 
 
 export default function MarkdownRenderer({ content }: Props) {
-  
-  /**
-   * Process children to detect and render dice notation with icons
-   * @param child - React child element or string
-   * @returns Processed child with dice notation wrapped in styled spans
-   */
-  const processDiceNotation = (child: ReactNode): ReactNode => {
-    if (typeof child === 'string') {
-      // Split by dice notation pattern
-      const parts = child.split(DICE_NOTATION_REGEX);
-      return parts.map((part, index) => {
-        // Check if this part matches dice notation
-        if (DICE_NOTATION_TEST_REGEX.test(part)) {
-          return (
-            <span key={index} className="inline-flex items-center gap-1 text-emerald-400 font-semibold">
-              <Dices className="w-3 h-3 inline" />
-              {part}
-            </span>
-          );
-        }
-        return part;
-      });
-    }
-
-    // Handle arrays (from custom tag processing)
-    if (Array.isArray(child)) {
-      return child.map((c, i) => (
-        <Fragment key={i}>{processDiceNotation(c)}</Fragment>
-      ));
-    }
-
-    return child;
-  };
 
   /**
-   * Process custom tags (e.g., {hit: +5}, {dmg: 2d6}, etc.)
-   * @param child - React child element or string
-   * @returns Processed child with custom tags wrapped in styled spans
+   * Process all children (handles both single child and arrays)
+   * Processes both custom tags and dice notation simultaneously
+   * @param children - React children
+   * @returns Processed children with custom tags and dice notation
    */
-  const processCustomTags = (child: ReactNode): ReactNode => {
-    if (typeof child === 'string') {
-      let segments: (string | ReactNode)[] = [child];
+  const processChildren = (children: ReactNode): ReactNode => {
+    if (typeof children === 'string') {
+      let segments: (string | ReactNode)[] = [children];
 
-      // Process each custom tag
+      // Process custom tags
       EDITOR_TAGS.forEach((tag, tagIndex) => {
         segments = segments.flatMap((segment, segmentIndex) => {
-          if (typeof segment !== 'string') return segment;
+          if (typeof segment !== 'string') return [segment];
+
+          const matches = Array.from(segment.matchAll(tag.pattern));
+          if (matches.length === 0) return [segment];
 
           const result: (string | ReactNode)[] = [];
           let lastIndex = 0;
 
-          // Use matchAll to find all matches with their positions
-          const matches = Array.from(segment.matchAll(tag.pattern));
-
           for (const match of matches) {
             const matchIndex = match.index!;
-            const capturedContent = match[1]; // First capture group
 
-            // Add text before this match
             if (matchIndex > lastIndex) {
               result.push(segment.substring(lastIndex, matchIndex));
             }
 
-            // Add the tagged span
             const Icon = tag.icon;
             result.push(
               <span
@@ -83,45 +48,49 @@ export default function MarkdownRenderer({ content }: Props) {
                 className={`inline-flex items-center gap-1 ${tag.className}`}
               >
                 <Icon className="w-3 h-3 inline" />
-                {capturedContent.trim()}
+                {match[1].trim()}
               </span>
             );
 
             lastIndex = matchIndex + match[0].length;
           }
 
-          // Add remaining text after last match
           if (lastIndex < segment.length) {
             result.push(segment.substring(lastIndex));
           }
 
-          return result.length > 0 ? result : [segment];
+          return result;
         });
+      });
+
+      // Process dice notation
+      segments = segments.flatMap((segment) => {
+        if (typeof segment !== 'string') return [segment];
+
+        const parts = segment.split(DICE_NOTATION_REGEX);
+        return parts.map((part, index) => {
+          if (DICE_NOTATION_TEST_REGEX.test(part)) {
+            return (
+              <span key={`dice-${index}`} className="inline-flex items-center gap-1 text-emerald-400 font-semibold">
+                <Dices className="w-3 h-3 inline" />
+                {part}
+              </span>
+            );
+          }
+          return part;
+        }) as (string | React.JSX.Element)[];
       });
 
       return segments;
     }
 
-    if (Array.isArray(child)) {
-      return child.map((c, i) => (
-        <Fragment key={i}>{processCustomTags(c)}</Fragment>
+    if (Array.isArray(children)) {
+      return children.map((c, i) => (
+        <Fragment key={i}>{processChildren(c)}</Fragment>
       ));
     }
 
-    return child;
-  };
-
-  /**
-   * Process all children (handles both single child and arrays)
-   * Processes custom tags first, then dice notation
-   * @param children - React children
-   * @returns Processed children with custom tags and dice notation
-   */
-  const processChildren = (children: ReactNode): ReactNode => {
-    // First process custom tags
-    const afterTags = processCustomTags(children);
-    // Then process dice notation
-    return processDiceNotation(afterTags);
+    return children;
   };
 
   const components: Components = {
