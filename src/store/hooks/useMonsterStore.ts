@@ -10,7 +10,7 @@ import type { ApiMonster } from "../../api/types";
 import type { CombatantFormStore } from "./useCombatantFormStore";
 import { dataStore } from "../../persistence/storage";
 import { createGraphQLClient } from "../../api/DnD5eGraphQLClient";
-import { getStatModifier, getApiImageUrl } from "../../utils";
+import { getStatModifier, getApiImageUrl, appendFormattedActions } from "../../utils";
 import { useToast } from "../../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 
@@ -129,9 +129,10 @@ export function useMonsterStore({
           : undefined,
         ac: monster.armor_class?.at(0)?.value ?? 0,
         imageUrl: getApiImageUrl(monster),
+        notes: appendFormattedActions(state.newCombatant.notes, monster.actions),
       });
     },
-    [combatantFormStore]
+    [combatantFormStore, state.newCombatant.notes]
   );
 
   const fillFormWithMonsterLibraryData = useCallback(

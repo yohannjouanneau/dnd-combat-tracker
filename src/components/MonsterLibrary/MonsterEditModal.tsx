@@ -5,7 +5,7 @@ import type { SavedMonster, SearchResult } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
-import { getStatModifier, getApiImageUrl, safeParseInt } from "../../utils";
+import { getStatModifier, getApiImageUrl, safeParseInt, appendFormattedActions } from "../../utils";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
 
@@ -61,7 +61,7 @@ export default function MonsterEditModal({
         int: apiMonster.intelligence,
         wis: apiMonster.wisdom,
         cha: apiMonster.charisma,
-        notes: formData.notes ?? "",
+        notes: appendFormattedActions(formData.notes ?? "", apiMonster.actions),
       };
       setFormData(libraryMonster);
     }

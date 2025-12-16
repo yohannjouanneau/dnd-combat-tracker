@@ -1,4 +1,4 @@
-import type { ApiMonster } from "./api/types";
+import type { Action, ApiMonster } from "./api/types";
 import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "./constants";
 import type { NewCombatant } from "./types";
 
@@ -132,4 +132,107 @@ export function generateDefaultNewCombatant() {
     ...DEFAULT_NEW_COMBATANT,
     id: generateId()
   }
+}
+
+/**
+ * Generate custom markdown tags for a monster action
+ * Parses action data and description to extract combat information
+ * @param action - Monster action from D&D 5e API
+ * @returns Array of formatted tag strings (e.g., ["{hit: +5}", "{dmg: 2d6 slashing}"])
+ */
+function generateActionTags(action: Action): string[] {
+  const tags: string[] = [];
+
+  // Attack bonus: {hit: +5}
+  if (action.attack_bonus !== undefined && action.attack_bonus !== null) {
+    const sign = action.attack_bonus >= 0 ? "+" : "";
+    tags.push(`{hit: ${sign}${action.attack_bonus}}`);
+  }
+
+  // Parse damage from description (e.g., "Hit: 17 (2d10 + 6) piercing damage")
+  const damageMatch = action.desc.match(/Hit:\s*\d+\s*\(([^)]+)\)\s*(\w+)\s+damage/i);
+  if (damageMatch) {
+    const dice = damageMatch[1].trim();
+    const type = damageMatch[2].toLowerCase();
+    tags.push(`{dmg: ${dice} ${type}}`);
+  }
+
+  // Parse DC from description (e.g., "DC 17 Dexterity saving throw")
+  const dcMatch = action.desc.match(/DC\s+(\d+)\s+(\w+)\s+saving\s+throw/i);
+  if (dcMatch) {
+    const dcValue = dcMatch[1];
+    const dcType = dcMatch[2].toUpperCase().slice(0, 3); // DEX, STR, CON, etc.
+    tags.push(`{save: DC ${dcValue} ${dcType}}`);
+  }
+
+  return tags;
+}
+
+/**
+ * Format monster actions as markdown with custom tags
+ * Converts API action data into readable markdown with custom tags for attack bonuses,
+ * damage, and saving throws. Tags are automatically rendered with icons by MarkdownRenderer.
+ *
+ * @param actions - Array of monster actions from D&D 5e API
+ * @returns Formatted markdown string with "## Actions" heading and tagged action descriptions
+ *
+ * @example
+ * // Returns:
+ * // ## Actions
+ * //
+ * // **Bite** {hit: +10} {dmg: 2d10+6 piercing}
+ * // Melee Weapon Attack: +10 to hit, reach 10 ft., one target...
+ */
+export function formatActionsAsMarkdown(actions?: Action[]): string {
+  // Return empty string if no actions
+  if (!actions || actions.length === 0) return "";
+
+  // Build markdown with heading
+  const parts: string[] = ["## Actions", ""];
+
+  // Format each action
+  for (const action of actions) {
+    const actionParts: string[] = [];
+
+    // Bold action name
+    actionParts.push(`**${action.name}**`);
+
+    // Add custom tags
+    const tags = generateActionTags(action);
+    if (tags.length > 0) {
+      actionParts.push(" " + tags.join(" "));
+    }
+
+    // Add description on new line
+    actionParts.push("\n" + action.desc);
+
+    parts.push(actionParts.join(""));
+    parts.push(""); // Empty line between actions
+  }
+
+  return parts.join("\n");
+}
+
+/**
+ * Append formatted actions to existing notes
+ * If notes already exist, adds formatted actions after existing content with separator
+ * @param existingNotes - Current notes content (may be empty)
+ * @param actions - Monster actions from D&D 5e API
+ * @returns Combined notes with formatted actions appended
+ */
+export function appendFormattedActions(existingNotes: string | undefined, actions?: Action[]): string {
+  const formattedActions = formatActionsAsMarkdown(actions);
+
+  // If no actions to add, return existing notes
+  if (!formattedActions) {
+    return existingNotes || "";
+  }
+
+  // If no existing notes, just return formatted actions
+  if (!existingNotes || existingNotes.trim() === "") {
+    return formattedActions;
+  }
+
+  // Append with separator
+  return `${existingNotes}\n\n${formattedActions}`;
 }
