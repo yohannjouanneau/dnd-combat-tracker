@@ -14,6 +14,9 @@
     --color-text-primary: 40 35 30; /* Dark brown text */
     --color-text-secondary: 65 55 45; /* Darker brown text for better contrast */
     --color-text-muted: 105 95 80; /* Medium brown text */
+    --color-accent: 156 85 45; /* Deep rust accent */
+    --color-accent-hover: 125 65 35; /* Darker rust accent hover */
+    --color-accent-text: 255 255 255; /* White text on accent */
   }
 
   html.light {
@@ -27,6 +30,9 @@
     --color-text-primary: 40 35 30; /* Dark brown text */
     --color-text-secondary: 65 55 45; /* Darker brown text for better contrast */
     --color-text-muted: 105 95 80; /* Medium brown text */
+    --color-accent: 156 85 45; /* Deep rust accent */
+    --color-accent-hover: 125 65 35; /* Darker rust accent hover */
+    --color-accent-text: 255 255 255; /* White text on accent */
   }
 
   html.dark {
@@ -40,6 +46,9 @@
     --color-text-primary: 241 245 249; /* slate-100 */
     --color-text-secondary: 203 213 225; /* slate-300 */
     --color-text-muted: 148 163 184; /* slate-400 */
+    --color-accent: 99 102 241; /* Vibrant indigo accent */
+    --color-accent-hover: 79 70 229; /* Deeper indigo accent hover */
+    --color-accent-text: 255 255 255; /* White text on accent */
   }
 
   html.forest {
@@ -53,6 +62,9 @@
     --color-text-primary: 30 50 35; /* Deep forest green (almost black) */
     --color-text-secondary: 55 80 60; /* Dark moss green */
     --color-text-muted: 95 120 100; /* Medium moss green */
+    --color-accent: 132 107 41; /* Golden olive accent */
+    --color-accent-hover: 107 87 31; /* Darker golden olive accent hover */
+    --color-accent-text: 255 255 255; /* White text on accent */
   }
 
   /* Future themes can be added here */

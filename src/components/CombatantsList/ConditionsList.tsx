@@ -19,7 +19,7 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
           <button
             key={condition}
             onClick={() => onToggle(condition)}
-            className="px-3 py-1 rounded text-sm bg-orange-600 hover:bg-orange-700 transition flex items-center gap-1"
+            className="px-3 py-1 rounded text-sm bg-accent hover:bg-accent-hover text-accent-text transition flex items-center gap-1"
           >
             {t(`conditions:${condition}`)}
             <X className="w-4 h-4" />
@@ -54,7 +54,7 @@ export default function ConditionsList({ activeConditions, onToggle }: Props) {
                 }}
                 className={`px-3 py-1 rounded text-sm transition ${
                   activeConditions.includes(condition)
-                    ? "bg-orange-600 hover:bg-orange-700"
+                    ? "bg-accent hover:bg-accent-hover text-accent-text"
                     : "bg-panel-secondary hover:bg-panel-secondary/80"
                 }`}
               >
