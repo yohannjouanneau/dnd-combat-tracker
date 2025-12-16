@@ -40,7 +40,7 @@ type Props = {
 };
 
 const BUTTON_MODE_MAP: Record<AddCombatantModalMode, ButtonType[]> = {
-  player: ["savePlayer", "addToLibrary", "addInitGroup"],
+  player: ["savePlayer"],
   group: ["park", "addToLibrary", "addInitGroup"],
   fight: ["fight", "addToLibrary", "addInitGroup"],
 };
@@ -116,6 +116,7 @@ export default function AddCombatantModal({
               stagedFrom={stagedFrom}
               totalCount={totalCount}
               visibleButtons={visibleButtons}
+              disableInitiativeCount={mode === 'player'}
               addToFightChecked={addToFightChecked}
               onAddToFightChange={onAddToFightChange}
               addAnotherChecked={addAnotherChecked}

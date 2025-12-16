@@ -33,7 +33,7 @@ export default function SavedPlayerItem({
   };
   
   return (
-    <div className="bg-panel-secondary rounded-lg border border-border-primary p-3 hover:border-border-secondary transition-colors">
+    <div className="bg-panel-secondary rounded-lg border border-border-primary p-2 hover:border-border-secondary transition-colors">
       <div className="flex items-center gap-3">
         {/* Avatar */}
         <CombatantAvatar

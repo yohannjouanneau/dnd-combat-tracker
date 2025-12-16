@@ -26,6 +26,7 @@ type Props = {
   totalCount: number;
   visibleButtons?: ButtonType[];
   addToFightChecked: boolean;
+  disableInitiativeCount: boolean,
   onAddToFightChange: (checked: boolean) => void;
   addAnotherChecked: boolean;
   onAddAnotherChange: (checked: boolean) => void;
@@ -49,6 +50,7 @@ export default function AddCombatantForm({
   stagedFrom,
   totalCount,
   visibleButtons,
+  disableInitiativeCount,
   addToFightChecked,
   onAddToFightChange,
   addAnotherChecked,
@@ -171,6 +173,7 @@ export default function AddCombatantForm({
               index={index}
               initBonus={newCombatant.initBonus}
               canRemove={newCombatant.initiativeGroups.length > 1}
+              disableCount={disableInitiativeCount}
               onChange={onUpdateInitiativeGroup}
               onRemove={onRemoveInitiativeGroup}
             />

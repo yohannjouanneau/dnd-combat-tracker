@@ -8,6 +8,7 @@ type Props = {
   index: number;
   canRemove: boolean;
   initBonus: number | undefined;
+  disableCount: boolean
   onChange: (id: string, patch: Partial<InitiativeGroup>) => void;
   onRemove: (id: string) => void;
 };
@@ -17,6 +18,7 @@ export default function InitiativeGroupInput({
   index,
   canRemove,
   initBonus,
+  disableCount,
   onChange,
   onRemove,
 }: Props) {
@@ -69,7 +71,8 @@ export default function InitiativeGroupInput({
           onChange={(e) => onChange(group.id, { count: e.target.value })}
           placeholder="1"
           min={1}
-          className="bg-input-bg text-text-primary rounded px-2 py-2 text-sm border border-border-secondary focus:border-blue-500 focus:outline-none flex-1 min-w-0"
+          disabled={disableCount}
+          className="bg-input-bg text-text-primary rounded px-2 py-2 text-sm border border-border-secondary focus:border-blue-500 focus:outline-none flex-1 min-w-0 disabled:opacity-50"
         />
 
         <button
