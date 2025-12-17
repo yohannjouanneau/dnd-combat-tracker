@@ -19,6 +19,10 @@ export const MonsterFragments = {
           desc
           attack_bonus
         }
+        special_abilities {
+          name
+          desc
+        }
         armor_class {
           __typename
           ... on ArmorClassDex {
