@@ -1,4 +1,4 @@
-import type { Action, ApiMonster } from "../api/types";
+import type { Action, ApiMonster, SpecialAbility } from "../api/types";
 
 /**
  * Generate custom markdown tags for a monster action
@@ -95,10 +95,15 @@ export function generateTagsFromText(text: string): string[] {
  * damage, and saving throws. Tags are automatically rendered with icons by MarkdownRenderer.
  *
  * @param monster - Monster data from D&D 5e API
- * @returns Formatted markdown string with "## Actions" heading and tagged action descriptions
+ * @returns Formatted markdown string with sections for special abilities, actions, and conditions
  *
  * @example
  * // Returns:
+ * // ## Special Abilities
+ * //
+ * // **Keen Sight**
+ * // The roc has advantage on Wisdom (Perception) checks that rely on sight.
+ * //
  * // ## Actions
  * //
  * // **Bite** {hit: +10} {dmg: 2d10+6 piercing}
@@ -107,8 +112,28 @@ export function generateTagsFromText(text: string): string[] {
 export function formatActionsAsMarkdown(monster: ApiMonster): string {
   const parts: string[] = [];
 
+  // Add special abilities section FIRST if present
+  if (monster.special_abilities && monster.special_abilities.length > 0) {
+    parts.push("## Special Abilities", "");
+
+    // Format each special ability
+    for (const ability of monster.special_abilities) {
+      // Bold ability name
+      parts.push(`**${ability.name}**`);
+
+      // Add description on new line
+      parts.push(ability.desc);
+      parts.push(""); // Empty line between abilities
+    }
+  }
+
   // Add actions section if present
   if (monster.actions && monster.actions.length > 0) {
+    // Add separator if we already have special abilities
+    if (parts.length > 0) {
+      parts.push(""); // Extra space before new section
+    }
+
     parts.push("## Actions", "");
 
     // Format each action
@@ -134,7 +159,11 @@ export function formatActionsAsMarkdown(monster: ApiMonster): string {
 
   // Add condition immunities section if present
   if (monster.condition_immunities && monster.condition_immunities.length > 0) {
-    parts.push(""); // Empty line before section
+    // Add separator if we already have content
+    if (parts.length > 0) {
+      parts.push(""); // Extra space before new section
+    }
+
     parts.push("## Conditions", "");
 
     // Format each condition separately with its description
