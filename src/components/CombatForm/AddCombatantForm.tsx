@@ -11,7 +11,7 @@ import {
   Dice3,
 } from "lucide-react";
 import CombatantNameWithSearch from "./CombatantNameWithSearch";
-import { isNewCombatantInvalid, safeParseInt } from "../../utils";
+import { isNewCombatantInvalid, safeParseInt } from "../../utils/utils";
 
 type ButtonType =
   | "fight"

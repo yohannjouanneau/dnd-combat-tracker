@@ -7,7 +7,7 @@ import { BookOpen, Plus, Settings } from "lucide-react";
 import CombatList from "../components/CombatsList/CombatList";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
 import SettingsModal from "../components/Settings/SettingsModal";
-import { generateDefaultNewCombatant, generateId } from "../utils";
+import { generateDefaultNewCombatant, generateId } from "../utils/utils";
 import type { CombatStateManager } from "../store/types";
 
 type Props = {

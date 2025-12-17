@@ -5,7 +5,8 @@ import type { SavedMonster, SearchResult } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
-import { getStatModifier, getApiImageUrl, safeParseInt, appendFormattedActions } from "../../utils";
+import { getStatModifier, getApiImageUrl, safeParseInt } from "../../utils/utils";
+import { appendFormattedActions } from "../../utils/monsterNotes";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
 
@@ -39,6 +40,7 @@ export default function MonsterEditModal({
   const handleSearchResult = (searchResult: SearchResult) => {
     if (searchResult.source === "api") {
       const apiMonster = searchResult.monster as ApiMonster;
+      console.log(`DEBUG ==> monster conditions`, apiMonster.condition_immunities);
       const libraryMonster: SavedMonster = {
         id: formData.id,
         createdAt: Date.now(),
@@ -61,7 +63,7 @@ export default function MonsterEditModal({
         int: apiMonster.intelligence,
         wis: apiMonster.wisdom,
         cha: apiMonster.charisma,
-        notes: appendFormattedActions(formData.notes ?? "", apiMonster.actions),
+        notes: appendFormattedActions(formData.notes ?? "", apiMonster),
       };
       setFormData(libraryMonster);
     }

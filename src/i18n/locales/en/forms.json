@@ -175,7 +175,9 @@
         "diceNotation": "Dice notation (green)",
         "hitNotation": "Attack modifier (red)",
         "tip": "💡 Tip: Use blank lines to separate paragraphs"
-      }
+      },
+      "format": "Format",
+      "formatHint": "Format text and add tags"
     }
   }
 }

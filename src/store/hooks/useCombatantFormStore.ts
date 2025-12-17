@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import type { CombatState, NewCombatant, InitiativeGroup } from "../../types";
-import { generateDefaultNewCombatant } from "../../utils";
+import { generateDefaultNewCombatant } from "../../utils/utils";
 
 interface CombatantFormActions {
   updateNewCombatant: (patch: Partial<NewCombatant>) => void;

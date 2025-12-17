@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { getAbilityModifier } from "../../utils";
+import { getAbilityModifier } from "../../utils/utils";
 import type { AbilityScores } from "../../types";
 
 interface Props {

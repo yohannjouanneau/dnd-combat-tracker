@@ -3,7 +3,7 @@ import type {
   CombatantTemplateType,
   SavedCombatantTemplate,
 } from "../types";
-import { safeParse, safeStringify } from "../utils";
+import { safeParse, safeStringify } from "../utils/utils";
 
 export class CombatantTemplateStorageProvider<T extends CombatantTemplateType> {
   private key: string;

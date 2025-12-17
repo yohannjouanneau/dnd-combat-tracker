@@ -10,6 +10,10 @@ export const MonsterFragments = {
         charisma
         hit_points
         image
+        condition_immunities {
+          name
+          desc
+        }
         actions {
           name
           desc

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import type { CombatState, SavedPlayer, NewCombatant, Combatant } from "../../types";
 import { dataStore } from "../../persistence/storage";
-import { generateId } from "../../utils";
+import { generateId } from "../../utils/utils";
 import { useToast } from "../../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 

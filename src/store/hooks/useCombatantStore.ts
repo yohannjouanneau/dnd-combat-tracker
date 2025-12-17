@@ -6,7 +6,7 @@ import type {
   DeathSaves,
   GroupSummary,
 } from "../../types";
-import { indexToLetter } from "../../utils";
+import { indexToLetter } from "../../utils/utils";
 import { getSettings } from "../../hooks/useSettings";
 import { useToast } from "../../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";

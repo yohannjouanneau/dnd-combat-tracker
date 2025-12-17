@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import type { CombatState } from "../types";
-import { generateDefaultNewCombatant } from "../utils";
+import { generateDefaultNewCombatant } from "../utils/utils";
 import type { CombatStateManager } from "./types";
 import { usePlayerStore } from "./hooks/usePlayerStore";
 import { useSyncApi } from "../api/sync/hooks/useSyncApi";

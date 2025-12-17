@@ -177,7 +177,9 @@
         "diceNotation": "Notation de dés (vert)",
         "hitNotation": "Modificateur d'attaque (rouge)",
         "tip": "💡 Astuce : Utilisez des lignes vides pour séparer les paragraphes"
-      }
+      },
+      "format": "Formater",
+      "formatHint": "Format le texte et ajouter des balies"
     }
   }
 }
