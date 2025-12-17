@@ -27,8 +27,6 @@
 
 ![Screenshot 8](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_8.png)
 
-![Screenshot 9](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_9.png)
-
 </details>
 
 [Try it!](https://yohannjouanneau.github.io/dnd-combat-tracker/)

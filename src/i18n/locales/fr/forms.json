@@ -120,7 +120,8 @@
       },
       "validation": {
         "nameRequired": "Le nom du monstre est obligatoire"
-      }
+      },
+      "openInNewTab": "Ouvrir dans un nouvel onglet"
     },
     "listItem": {
       "stats": {
@@ -179,7 +180,7 @@
         "tip": "💡 Astuce : Utilisez des lignes vides pour séparer les paragraphes"
       },
       "format": "Formater",
-      "formatHint": "Format le texte et ajouter des balies"
+      "formatHint": "Formater le texte et ajouter des balises"
     }
   }
 }

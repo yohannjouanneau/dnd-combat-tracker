@@ -7,7 +7,7 @@ type Props = {
   onRemove: (name: string) => void;
 };
 
-export default function GroupBadge({ group, onRemove }: Props) {
+export default function FightingGroupChip({ group, onRemove }: Props) {
   const { t } = useTranslation(["combat", "common"]);
   const confirmDialog = useConfirmationDialog();
   const confirmRemove = async () => {

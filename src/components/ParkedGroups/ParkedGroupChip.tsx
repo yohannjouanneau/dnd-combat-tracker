@@ -56,7 +56,7 @@ export default function ParkedGroupChip({
       </button>
       <button
         onClick={() => onFight(group)}
-        className="text-lime-400 hover:text-lime-300 text-sm"
+        className="text-lime-500 hover:text-lime-400 text-sm"
       >
         {t("forms:parkedGroups:fight")}
       </button>

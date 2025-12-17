@@ -1,4 +1,4 @@
-import { X, Shield, Heart, Hourglass } from "lucide-react";
+import { X, Shield, Heart, Hourglass, ExternalLink } from "lucide-react";
 import type { Combatant } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { AbilityScore } from "../common/AbilityScore";
@@ -39,9 +39,21 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
       </div>
 
       {/* Name */}
-      <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 truncate">
-        {combatant.displayName}
-      </h2>
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <h2 className="text-2xl md:text-3xl font-bold text-center truncate">
+          {combatant.displayName}
+        </h2>
+        {combatant.externalResourceUrl && (
+          <button
+            type="button"
+            onClick={() => window.open(combatant.externalResourceUrl, '_blank', 'noopener,noreferrer')}
+            className="p-2 rounded hover:bg-panel-secondary transition text-text-muted hover:text-text-primary flex-shrink-0"
+            title={t("combat:combatant.details.openInNewTab")}
+          >
+            <ExternalLink className="w-5 h-5" />
+          </button>
+        )}
+      </div>
 
       {/* Stats Row - Horizontal Layout */}
       <div className="flex gap-2 md:gap-4">

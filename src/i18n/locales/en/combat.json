@@ -24,7 +24,8 @@
       "hitPoints":"Hit points",
       "initiative":"Initiative",
       "armorClass":"Armor class",
-      "notes":"Notes"
+      "notes":"Notes",
+      "openInNewTab":"Open in new tab"
     }
   },
   "groups": {

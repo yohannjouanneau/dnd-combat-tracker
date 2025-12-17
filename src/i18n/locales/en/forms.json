@@ -118,7 +118,8 @@
       },
       "validation": {
         "nameRequired": "Monster name is required"
-      }
+      },
+      "openInNewTab": "Open in new tab"
     },
     "listItem": {
       "stats": {

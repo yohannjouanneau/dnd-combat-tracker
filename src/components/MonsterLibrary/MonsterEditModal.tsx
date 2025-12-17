@@ -1,4 +1,4 @@
-import { X, Save } from "lucide-react";
+import { X, Save, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster, SearchResult } from "../../types";
@@ -137,17 +137,28 @@ export default function MonsterEditModal({
                 onChange={(v) => setFormData({ ...formData, imageUrl: v })}
                 placeholder={t("forms:library.edit.placeholders.imageUrl")}
               />
-              <LabeledTextInput
-                id="edit-resouceUrl"
-                label={t("forms:library.edit.fields.externalResourceUrl")}
-                value={formData.externalResourceUrl ?? ""}
-                onChange={(v) =>
-                  setFormData({ ...formData, externalResourceUrl: v })
-                }
-                placeholder={t(
-                  "forms:library.edit.placeholders.externalResourceUrl"
-                )}
-              />
+              <div className="flex gap-2 items-end">
+                <LabeledTextInput
+                  id="edit-resouceUrl"
+                  label={t("forms:library.edit.fields.externalResourceUrl")}
+                  value={formData.externalResourceUrl ?? ""}
+                  onChange={(v) =>
+                    setFormData({ ...formData, externalResourceUrl: v })
+                  }
+                  placeholder={t(
+                    "forms:library.edit.placeholders.externalResourceUrl"
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => window.open(formData.externalResourceUrl, '_blank', 'noopener,noreferrer')}
+                  disabled={!formData.externalResourceUrl?.trim()}
+                  className="p-2 mb-1 rounded hover:bg-panel-bg transition disabled:opacity-30 disabled:cursor-not-allowed text-text-secondary hover:text-text-primary"
+                  title={t("forms:library.edit.openInNewTab")}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Ability Scores Label */}

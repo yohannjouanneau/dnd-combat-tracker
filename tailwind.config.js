@@ -27,6 +27,7 @@ export default {
         'input-bg': withOpacity('--color-input-bg'),
         'border-primary': withOpacity('--color-border-primary'),
         'border-secondary': withOpacity('--color-border-secondary'),
+        'border-inverse': withOpacity('--color-border-inverse'),
         'text-primary': withOpacity('--color-text-primary'),
         'text-secondary': withOpacity('--color-text-secondary'),
         'text-muted': withOpacity('--color-text-muted'),
