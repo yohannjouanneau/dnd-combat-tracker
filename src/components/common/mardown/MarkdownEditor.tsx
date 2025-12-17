@@ -5,11 +5,12 @@ import {
   useCallback,
   useLayoutEffect,
 } from "react";
-import { Eye, Edit3, ChevronDown } from "lucide-react";
+import { Eye, Edit3, ChevronDown, Wand2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import MarkdownHelpTooltip from "./MarkdownHelpTooltip";
 import MarkdownRenderer from "./MarkdownRenderer";
 import { MarkdownEditorTagMenu } from "./MarkdownEditorTagMenu";
+import { formatSRDText } from "../../../utils/monsterNotes";
 
 type Props = {
   value: string;
@@ -77,6 +78,13 @@ export default function MarkdownEditor({
     [onChange, value]
   );
 
+  // Format SRD text
+  const handleFormatSRD = useCallback(() => {
+    const formattedText = formatSRDText(value);
+    onChange(formattedText);
+    textareaRef.current?.focus();
+  }, [onChange, value]);
+
   useLayoutEffect(() => {
     const textarea = textareaRef?.current;
     if (!textarea || !newCursorPos) return;
@@ -125,6 +133,22 @@ export default function MarkdownEditor({
               <MarkdownEditorTagMenu wrapWithTag={wrapWithTag} />
             )}
           </div>
+
+          {/* Format SRD button */}
+          <button
+            type="button"
+            onClick={handleFormatSRD}
+            disabled={isPreview}
+            className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center gap-1.5 ${
+              isPreview
+                ? "text-text-muted cursor-not-allowed"
+                : "bg-panel-secondary text-text-muted hover:text-text-secondary hover:bg-panel-secondary/70"
+            }`}
+            title={t("forms:library.notes.formatHint")}
+          >
+            <Wand2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{t("forms:library.notes.format")}</span>
+          </button>
 
           {/* Write/Preview tabs */}
           <div className="flex gap-1 bg-panel-secondary rounded p-1">

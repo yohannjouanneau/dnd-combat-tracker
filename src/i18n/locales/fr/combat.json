@@ -25,7 +25,8 @@
       "hitPoints":"Point de vie",
       "initiative":"Initiative",
       "armorClass":"Classe d'armure",
-      "notes":"Notes"
+      "notes":"Notes",
+      "openInNewTab":"Ouvrir dans un nouvel onglet"
     }
   },
   "groups": {

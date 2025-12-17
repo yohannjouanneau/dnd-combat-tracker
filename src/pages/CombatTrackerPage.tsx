@@ -20,7 +20,7 @@ import logo from "../assets/logo.png";
 import SaveBar from "../components/SaveBar";
 import { HP_BAR_ID_PREFIX } from "../constants";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
-import { generateId, generateDefaultNewCombatant } from "../utils";
+import { generateId, generateDefaultNewCombatant } from "../utils/utils";
 
 type Props = {
   combatStateManager: CombatStateManager;

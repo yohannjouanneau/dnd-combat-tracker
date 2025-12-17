@@ -118,7 +118,8 @@
       },
       "validation": {
         "nameRequired": "Monster name is required"
-      }
+      },
+      "openInNewTab": "Open in new tab"
     },
     "listItem": {
       "stats": {
@@ -175,7 +176,9 @@
         "diceNotation": "Dice notation (green)",
         "hitNotation": "Attack modifier (red)",
         "tip": "💡 Tip: Use blank lines to separate paragraphs"
-      }
+      },
+      "format": "Format",
+      "formatHint": "Format text and add tags"
     }
   }
 }

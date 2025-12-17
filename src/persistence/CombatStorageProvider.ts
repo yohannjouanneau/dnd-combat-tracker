@@ -1,5 +1,5 @@
 import type { SavedCombat, SavedCombatInput } from "../types";
-import { safeParse, safeStringify } from "../utils";
+import { safeParse, safeStringify } from "../utils/utils";
 
 export class CombatStorageProvider {
   private key: string;

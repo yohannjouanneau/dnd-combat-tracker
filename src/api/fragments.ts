@@ -10,6 +10,15 @@ export const MonsterFragments = {
         charisma
         hit_points
         image
+        condition_immunities {
+          name
+          desc
+        }
+        actions {
+          name
+          desc
+          attack_bonus
+        }
         armor_class {
           __typename
           ... on ArmorClassDex {

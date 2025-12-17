@@ -18,7 +18,7 @@ export default function ColorPicker({ value, onChange }: Props) {
             onClick={() => onChange(preset.value)}
             className={`w-8 h-8 rounded border-2 transition ${
               value === preset.value
-                ? "border-white scale-110"
+                ? "border-border-inverse scale-110"
                 : "border-border-secondary"
             }`}
             style={{ backgroundColor: preset.value }}

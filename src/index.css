@@ -11,6 +11,7 @@
     --color-input-bg: 255 253 248; /* Cream white for inputs */
     --color-border-primary: 210 200 185; /* Warm tan border */
     --color-border-secondary: 180 165 145; /* Medium brown border */
+    --color-border-inverse: 90 75 60; /* Darker warm brown for contrast */
     --color-text-primary: 40 35 30; /* Dark brown text */
     --color-text-secondary: 65 55 45; /* Darker brown text for better contrast */
     --color-text-muted: 105 95 80; /* Medium brown text */
@@ -27,6 +28,7 @@
     --color-input-bg: 255 253 248; /* Cream white for inputs */
     --color-border-primary: 210 200 185; /* Warm tan border */
     --color-border-secondary: 180 165 145; /* Medium brown border */
+    --color-border-inverse: 90 75 60; /* Darker warm brown for contrast */
     --color-text-primary: 40 35 30; /* Dark brown text */
     --color-text-secondary: 65 55 45; /* Darker brown text for better contrast */
     --color-text-muted: 105 95 80; /* Medium brown text */
@@ -43,6 +45,7 @@
     --color-input-bg: 51 65 85; /* slate-700 */
     --color-border-primary: 51 65 85; /* slate-700 */
     --color-border-secondary: 71 85 105; /* slate-600 */
+    --color-border-inverse: 241 245 249; /* Light border for contrast */
     --color-text-primary: 241 245 249; /* slate-100 */
     --color-text-secondary: 203 213 225; /* slate-300 */
     --color-text-muted: 148 163 184; /* slate-400 */
@@ -59,6 +62,7 @@
     --color-input-bg: 248 250 245; /* Almost white with green tint */
     --color-border-primary: 180 195 165; /* Muted olive */
     --color-border-secondary: 140 160 125; /* Medium olive */
+    --color-border-inverse: 65 90 70; /* Darker forest green for contrast */
     --color-text-primary: 30 50 35; /* Deep forest green (almost black) */
     --color-text-secondary: 55 80 60; /* Dark moss green */
     --color-text-muted: 95 120 100; /* Medium moss green */

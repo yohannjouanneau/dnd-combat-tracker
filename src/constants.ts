@@ -254,6 +254,6 @@ export const EDITOR_TAGS: EditorTag[] = [
 ];
 
 // Regex pattern for dice notation (e.g., 2d12+4, 2d12 + 4, 1d6, 3d8-2, 3d8 - 2)
-export const DICE_NOTATION_REGEX = /(\d+d\d+(?:\s*[+-]\s*\d+)?)/i;
+export const DICE_NOTATION_REGEX = /(\d+d\d+(?:\s*[+-]\s*\d+)?)/gi;
 export const DICE_NOTATION_TEST_REGEX = /^\d+d\d+(?:\s*[+-]\s*\d+)?$/i;
 

@@ -1,6 +1,6 @@
-import type { ApiMonster } from "./api/types";
-import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "./constants";
-import type { NewCombatant } from "./types";
+import type { ApiMonster } from "../api/types";
+import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "../constants";
+import type { NewCombatant } from "../types";
 
 export function generateId(): string {
   // Generate a random id: 16 characters, URL-safe
@@ -133,3 +133,4 @@ export function generateDefaultNewCombatant() {
     id: generateId()
   }
 }
+

@@ -2,7 +2,7 @@ import { X, LogOut, RefreshCw, Moon, Sun, Leaf } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import gdriveSignIn from "../../assets/web_neutral_rd_SI@2x.png";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getReadableTimestamp } from "../../utils";
+import { getReadableTimestamp } from "../../utils/utils";
 import { useSettings } from "../../hooks/useSettings";
 import { useTheme } from "../../hooks/useTheme";
 import LanguageSwitcher from "../common/LanguageSwitcher";
