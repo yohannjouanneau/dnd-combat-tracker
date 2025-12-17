@@ -1,4 +1,4 @@
-import type { Action, ApiMonster, SpecialAbility } from "../api/types";
+import type { Action, ApiMonster } from "../api/types";
 
 /**
  * Generate custom markdown tags for a monster action
