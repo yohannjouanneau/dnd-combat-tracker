@@ -126,6 +126,11 @@
         "hp": "HP",
         "ac": "AC"
       },
+      "actions": {
+        "load": "Load to form",
+        "edit": "Edit monster",
+        "delete": "Delete monster"
+      },
       "abilities": {
         "str": "STR",
         "dex": "DEX",

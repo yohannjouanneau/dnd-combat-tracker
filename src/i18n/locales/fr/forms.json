@@ -128,6 +128,11 @@
         "hp": "PV",
         "ac": "CA"
       },
+      "actions": {
+        "load": "Charger dans le formulaire",
+        "edit": "Modifier le monstre",
+        "delete": "Supprimer le monstre"
+      },
       "abilities": {
         "str": "FOR",
         "dex": "DEX",

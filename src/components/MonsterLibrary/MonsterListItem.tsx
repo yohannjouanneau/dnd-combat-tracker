@@ -1,4 +1,4 @@
-import { Sword, Trash2, Edit } from "lucide-react";
+import { FileEdit, Trash2, Edit } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
@@ -116,7 +116,7 @@ export default function MonsterListItem({
               className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
               title={t("library.listItem.actions.load")}
             >
-              <Sword className="w-4 h-4" />
+              <FileEdit className="w-4 h-4" />
             </button>
           )}
 
