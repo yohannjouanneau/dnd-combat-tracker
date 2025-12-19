@@ -22,7 +22,7 @@ export type CombatStateManager = {
   
     // Saved Combats
     loadCombat: (combatId: string) => Promise<void>;
-    saveCombat: (patch: Partial<SavedCombat>) => Promise<void>;
+    saveCombat: () => Promise<void>;
     updateCombat: (name: string, description: string) => void;
     listCombat: () => Promise<SavedCombat[]>;
     createCombat: (input: SavedCombatInput) => Promise<SavedCombat>;

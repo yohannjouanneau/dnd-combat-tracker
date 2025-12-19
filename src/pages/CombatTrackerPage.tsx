@@ -165,12 +165,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const back = async () => {
     // Auto-save if there are unsaved changes
     if (combatStateManager.hasChanges && combatStateManager.state?.combatId) {
-      await combatStateManager.saveCombat({
-        name: combatStateManager.state.combatName,
-        description: combatStateManager.state.combatDescription,
-        data: combatStateManager.state,
-        updatedAt: Date.now(),
-      });
+      await combatStateManager.saveCombat();
     }
 
     // Navigate to combat list
@@ -226,12 +221,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
                 onBack={back}
                 onSave={async () => {
                   if (!combatStateManager.state) return;
-                  await combatStateManager.saveCombat({
-                    name: combatStateManager.state.combatName,
-                    description: combatStateManager.state.combatDescription,
-                    data: combatStateManager.state,
-                    updatedAt: Date.now(),
-                  });
+                  await combatStateManager.saveCombat();
                 }}
                 hasChanges={combatStateManager.hasChanges}
               />

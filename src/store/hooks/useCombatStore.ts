@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 
 interface CombatActions {
   loadCombat: (combatId: string) => Promise<void>;
-  saveCombat: (patch: Partial<SavedCombat>) => Promise<void>;
+  saveCombat: () => Promise<void>;
   updateCombat: (name: string, description: string) => void;
   listCombat: () => Promise<SavedCombat[]>;
   createCombat: (input: SavedCombatInput) => Promise<SavedCombat>;
@@ -70,11 +70,16 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
 
   // Save current combat to storage
   const saveCombat = useCallback(
-    async (patch: Partial<SavedCombat>) => {
+    async () => {
       if (state.combatId) {
         const updatedCombat = await dataStore.updateCombat(
           state.combatId,
-          patch
+          {
+            name: state.combatName,
+            description: state.combatDescription,
+            data: state,
+            updatedAt: Date.now(),
+          }
         );
         setState((prev) => ({
           ...updatedCombat.data,
@@ -86,7 +91,7 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
         toastApi.success(t("common:confirmation.saveCombat.success"));
       }
     },
-    [state.combatId, setState, markAsSaved, toastApi, t]
+    [state, setState, markAsSaved, toastApi, t]
   );
 
   // Update combat metadata (client-side only, no persistence)
