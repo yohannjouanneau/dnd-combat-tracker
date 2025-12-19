@@ -13,6 +13,7 @@ import type {
   SavedPlayer,
   NewCombatant,
   PlayerCombatant,
+  SavedMonster,
 } from "../types";
 import type { CombatStateManager } from "../store/types";
 import SavedPlayersPanel from "../components/CombatForm/SavedPlayerPanel";
@@ -20,6 +21,7 @@ import logo from "../assets/logo.png";
 import SaveBar from "../components/SaveBar";
 import { HP_BAR_ID_PREFIX } from "../constants";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
+import MonsterEditModal from "../components/MonsterLibrary/MonsterEditModal";
 import { generateId, generateDefaultNewCombatant } from "../utils/utils";
 
 type Props = {
@@ -36,6 +38,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     useState<AddCombatantModalMode>("fight");
   const [addToFight, setAddToFight] = useState(false);
   const [addAnOther, setAddAnOther] = useState(false);
+  const [editingMonster, setEditingMonster] = useState<SavedMonster | undefined>();
 
   // Keyboard shortcuts for turn navigation and focus mode
   useEffect(() => {
@@ -178,6 +181,36 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
       combatStateManager.removeGroup(group.name);
     });
   }, [combatStateManager]);
+
+  const handleOpenLibrary = () => {
+    const { templateOrigin } = combatStateManager.state.newCombatant;
+    
+    // Check if we have a monster_library template origin with a valid ID
+    if (templateOrigin.origin === "monster_library" && templateOrigin.id) {
+      // Find the monster in the library
+      const monster = combatStateManager.monsters.find(
+        (m) => m.id === templateOrigin.id
+      );
+      
+      if (monster) {
+        // Open edit modal directly with this monster
+        setEditingMonster(monster);
+        return;
+      }
+    }
+    
+    // Otherwise, open the library modal
+    setShowLibrary(true);
+  };
+
+  const handleUpdateMonster = (updated: SavedMonster) => {
+    combatStateManager.updateMonster(updated.id, updated);
+    setEditingMonster(undefined);
+  };
+
+  const handleCancelEditMonster = () => {
+    setEditingMonster(undefined);
+  };
 
   return (
     <div className="min-h-screen bg-app-bg text-text-primary p-6">
@@ -336,12 +369,25 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onSearchMonsters={combatStateManager.searchWithLibrary}
           onSelectSearchResult={combatStateManager.loadMonsterToForm}
           onAddToLibrary={combatStateManager.addCombatantToLibrary}
-          onOpenLibrary={() => setShowLibrary(true)}
+          onOpenLibrary={handleOpenLibrary}
           addAnotherChecked={addAnOther}
           addToFightChecked={addToFight}
           onAddToFightChange={handleAddToFightChange}
           onAddAnotherChange={handleAddAnotherChange}
         />
+
+        {/* Monster Edit Modal - for direct editing */}
+        {editingMonster && (
+          <MonsterEditModal
+            monster={editingMonster}
+            isCreating={false}
+            onSave={handleUpdateMonster}
+            onCancel={handleCancelEditMonster}
+            onSearchMonsters={(query: string) => {
+              return combatStateManager.searchWithLibrary(query, "api");
+            }}
+          />
+        )}
       </div>
     </div>
   );
