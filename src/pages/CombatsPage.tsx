@@ -153,6 +153,7 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
         onDelete={combatStateManager.removeMonster}
         onUpdate={combatStateManager.updateMonster}
         onSearchMonsters={combatStateManager.searchWithLibrary}
+        isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
       />
 
       {/* Settings Modal */}

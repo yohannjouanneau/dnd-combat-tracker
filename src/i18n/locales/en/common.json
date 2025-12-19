@@ -61,6 +61,10 @@
       "title": "Delete Monster",
       "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
     },
+    "cannotDeleteFromLibrary": {
+      "title": "Cannot Delete Monster",
+      "message": "\"{{name}}\" cannot be deleted because it is currently used in one or more combats. Remove it from all combats first."
+    },
     "addToLibrary": {
       "success": "Added to the library"
     },

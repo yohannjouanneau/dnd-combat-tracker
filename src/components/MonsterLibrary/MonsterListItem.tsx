@@ -11,6 +11,7 @@ type Props = {
   onLoadToForm?: (monster: SavedMonster) => void;
   onEdit?: (monster: SavedMonster) => void;
   onDelete: (id: string) => void;
+  isUsedAsTemplate: (id: string) => Promise<boolean>
 };
 
 export default function MonsterListItem({
@@ -19,18 +20,28 @@ export default function MonsterListItem({
   onLoadToForm,
   onEdit,
   onDelete,
+  isUsedAsTemplate
 }: Props) {
   const { t } = useTranslation(["forms", "common"]);
 
   const confirmDialog = useConfirmationDialog();
   const confirmRemove = async () => {
-    const isConfirmed = await confirmDialog({
+    // Await the async check before using in ternary
+    const isUsed = await isUsedAsTemplate(monster.id);
+
+    const isConfirmed = isUsed ? confirmDialog({
+      title: t("common:confirmation.cannotDeleteFromLibrary.title"),
+      message: t("common:confirmation.cannotDeleteFromLibrary.message", {
+        name: monster.name,
+      }),
+      noConfirmButton: true  // Shows only cancel button
+    }) : confirmDialog({
       title: t("common:confirmation.deleteFromLibrary.title"),
       message: t("common:confirmation.deleteFromLibrary.message", {
         name: monster.name,
       }),
     });
-    if (isConfirmed) {
+    if (await isConfirmed) {
       onDelete(monster.id);
     }
   };

@@ -130,14 +130,13 @@ export function cleanCombatStateForStorage(state: CombatState): CombatState {
  * @param combatant - The combatant to restore
  * @param dataStore - Data store for fetching templates
  * @param parkedGroups - Restored parked groups for parked_group origin lookups
- * @returns Fully restored combatant
- * @throws Error if template is not found
+ * @returns Fully restored combatant or undefined if no template is found
  */
 async function restoreCombatant(
   combatant: Combatant,
   dataStore: DataStore,
   parkedGroups: NewCombatant[] = []
-): Promise<Combatant> {
+): Promise<Combatant | undefined> {
   // If not a reference, return as-is
   if (!combatant.isReference) {
     return combatant;
@@ -158,10 +157,10 @@ async function restoreCombatant(
   }
 
   if (!template) {
-    // Template not found - throw error
-    throw new Error(
+    console.error(
       `Template not found for combatant ${combatant.id}, origin: ${origin.origin}, id: ${origin.id}`
     );
+    return undefined;
   }
 
   // Merge template data with runtime state
@@ -189,13 +188,12 @@ async function restoreCombatant(
  *
  * @param group - The parked group to restore
  * @param dataStore - Data store for fetching templates
- * @returns Fully restored parked group
- * @throws Error if template is not found
+ * @returns Fully restored parked group or undefined if no template is found
  */
 async function restoreParkedGroup(
   group: NewCombatant,
   dataStore: DataStore
-): Promise<NewCombatant> {
+): Promise<NewCombatant | undefined> {
   // If not a reference, return as-is
   if (!group.isReference) {
     return group;
@@ -212,10 +210,10 @@ async function restoreParkedGroup(
   }
 
   if (!template) {
-    // Template not found - throw error
-    throw new Error(
+    console.error(
       `Template not found for parked group, origin: ${origin.origin}, id: ${origin.id}`
     );
+    return undefined
   }
 
   // Return template with templateOrigin and initiative data + color from the reference
@@ -246,14 +244,17 @@ export async function restoreCombatState(
 ): Promise<CombatState | undefined> {
   try {
     // Restore parked groups first (combatants may reference them)
-    const parkedGroups = await Promise.all(
+    const restoredGroups = await Promise.all(
       state.parkedGroups.map((g) => restoreParkedGroup(g, dataStore))
     );
 
+    const parkedGroups = restoredGroups.filter((c) => c !== undefined);
+
     // Then restore combatants (passing restored parked groups for parked_group origin lookups)
-    const combatants = await Promise.all(
+    const restoredCombatants = await Promise.all(
       state.combatants.map((c) => restoreCombatant(c, dataStore, parkedGroups))
     );
+    const combatants = restoredCombatants.filter((c) => c !== undefined);
 
     return {
       ...state,

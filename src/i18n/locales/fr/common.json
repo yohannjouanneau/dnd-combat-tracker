@@ -61,6 +61,10 @@
       "title": "Supprimer le monstre",
       "message": "Êtes-vous sûr de vouloir supprimer « {{name}} » ? Cette action est irréversible."
     },
+    "cannotDeleteFromLibrary": {
+      "title": "Impossible de supprimer le monstre",
+      "message": "« {{name}} » ne peut pas être supprimé car il est actuellement utilisé dans un ou plusieurs combats. Retirez-le d'abord de tous les combats."
+    },
     "addToLibrary": {
       "success": "Ajouté a la bibliothèque"
     },

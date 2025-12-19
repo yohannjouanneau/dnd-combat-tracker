@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { MonsterCombatant, SavedMonster, SearchResult } from "../../types";
 import MonsterListItem from "./MonsterListItem";
 import MonsterEditModal from "./MonsterEditModal";
+import { generateId } from "../../utils/utils";
 
 type Props = {
   isOpen: boolean;
@@ -17,6 +18,7 @@ type Props = {
   ) => void;
   onDelete: (id: string) => void;
   onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
+  isUsedAsTemplate: (id: string) => Promise<boolean>
   
 };
 
@@ -30,12 +32,14 @@ export default function MonsterLibraryModal({
   onCreate,
   onDelete,
   onSearchMonsters,
+  isUsedAsTemplate
 }: Props) {
   const { t } = useTranslation(["common", "forms"]);
 
-  const newMonsterTemplate: SavedMonster = {
-    type: "monster",
-    id: "",
+  const newMonsterTemplate: () => SavedMonster = () => {
+    return {
+      type: "monster",
+    id: generateId(),
     name: "",
     imageUrl: "",
     createdAt: 0,
@@ -43,11 +47,10 @@ export default function MonsterLibraryModal({
     color: "red",
     externalResourceUrl: "",
     initiativeGroups: [],
+    }
   };
 
-  const [editingMonster, setEditingMonster] = useState<
-    SavedMonster | undefined
-  >(undefined);
+  const [editingMonster, setEditingMonster] = useState<SavedMonster|undefined>();
   const [isCreating, setIsCreating] = useState(false);
 
   if (!isOpen) return null;
@@ -70,11 +73,12 @@ export default function MonsterLibraryModal({
     : () => {
         setEditingMonster(undefined);
       };
-  const monster = isCreating ? newMonsterTemplate : editingMonster;
+  const monster = isCreating ? newMonsterTemplate() : editingMonster;
+  
   const editModal =
     isCreating || editingMonster ? (
       <MonsterEditModal
-        monster={monster ?? newMonsterTemplate}
+        monster={monster ?? newMonsterTemplate()}
         onSave={onSave}
         onCancel={onCancel}
         isCreating={isCreating}
@@ -143,6 +147,7 @@ export default function MonsterLibraryModal({
                     onLoadToForm={onLoadToForm}
                     onEdit={setEditingMonster}
                     onDelete={onDelete}
+                    isUsedAsTemplate={isUsedAsTemplate}
                   />
                 ))}
               </div>

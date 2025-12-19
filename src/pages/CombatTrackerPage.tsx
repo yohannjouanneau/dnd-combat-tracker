@@ -162,7 +162,13 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     (group) => group.name === combatStateManager.state.newCombatant.name
   )?.name;
   const stagedFrom = stagedFromParkedGroups ?? stagedPlayer;
-  const back = () => {
+  const back = async () => {
+    // Auto-save if there are unsaved changes
+    if (combatStateManager.hasChanges && combatStateManager.state?.combatId) {
+      await combatStateManager.saveCombat();
+    }
+
+    // Navigate to combat list
     location.hash = "#combats";
   };
 
@@ -215,12 +221,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
                 onBack={back}
                 onSave={async () => {
                   if (!combatStateManager.state) return;
-                  await combatStateManager.saveCombat({
-                    name: combatStateManager.state.combatName,
-                    description: combatStateManager.state.combatDescription,
-                    data: combatStateManager.state,
-                    updatedAt: Date.now(),
-                  });
+                  await combatStateManager.saveCombat();
                 }}
                 hasChanges={combatStateManager.hasChanges}
               />
@@ -314,6 +315,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onSearchMonsters={(query: string) => {
             return combatStateManager.searchWithLibrary(query, "api");
           }}
+          isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
         />
 
         {/* Add Combatant Modal */}
