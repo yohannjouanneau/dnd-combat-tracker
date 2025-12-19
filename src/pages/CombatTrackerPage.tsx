@@ -182,7 +182,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     });
   }, [combatStateManager]);
 
-  const handleOpenLibrary = () => {
+  const handleOpenLibrary = useCallback(() => {
     const { templateOrigin } = combatStateManager.state.newCombatant;
     
     // Check if we have a monster_library template origin with a valid ID
@@ -197,20 +197,32 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         setEditingMonster(monster);
         return;
       }
+      // If monster not found, fall through to open library modal
+      // (monster may have been deleted from library)
     }
     
     // Otherwise, open the library modal
     setShowLibrary(true);
-  };
+  }, [combatStateManager.state.newCombatant, combatStateManager.monsters]);
 
-  const handleUpdateMonster = (updated: SavedMonster) => {
-    combatStateManager.updateMonster(updated.id, updated);
-    setEditingMonster(undefined);
-  };
+  const handleUpdateMonster = useCallback(
+    (updated: SavedMonster) => {
+      combatStateManager.updateMonster(updated.id, updated);
+      setEditingMonster(undefined);
+    },
+    [combatStateManager]
+  );
 
-  const handleCancelEditMonster = () => {
+  const handleCancelEditMonster = useCallback(() => {
     setEditingMonster(undefined);
-  };
+  }, []);
+
+  const handleSearchMonstersForEdit = useCallback(
+    (query: string) => {
+      return combatStateManager.searchWithLibrary(query, "api");
+    },
+    [combatStateManager]
+  );
 
   return (
     <div className="min-h-screen bg-app-bg text-text-primary p-6">
@@ -383,9 +395,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             isCreating={false}
             onSave={handleUpdateMonster}
             onCancel={handleCancelEditMonster}
-            onSearchMonsters={(query: string) => {
-              return combatStateManager.searchWithLibrary(query, "api");
-            }}
+            onSearchMonsters={handleSearchMonstersForEdit}
           />
         )}
       </div>
