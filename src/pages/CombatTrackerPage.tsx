@@ -314,6 +314,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onSearchMonsters={(query: string) => {
             return combatStateManager.searchWithLibrary(query, "api");
           }}
+          isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
         />
 
         {/* Add Combatant Modal */}

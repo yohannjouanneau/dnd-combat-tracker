@@ -1,5 +1,5 @@
-import { X } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   isOpen: boolean;
@@ -7,9 +7,9 @@ type Props = {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  onConfirm: () => void;
+  onConfirm?: () => void;
   onCancel: () => void;
-  variant?: 'danger' | 'warning';
+  variant?: "danger" | "warning";
 };
 
 export default function ConfirmationDialog({
@@ -20,26 +20,37 @@ export default function ConfirmationDialog({
   cancelText,
   onConfirm,
   onCancel,
-  variant = 'danger',
+  variant = "danger",
 }: Props) {
   const { t } = useTranslation(["common"]);
 
   if (!isOpen) return null;
 
-  const confirmButtonClass = variant === 'danger' 
-    ? 'bg-red-600 hover:bg-red-700' 
-    : 'bg-orange-600 hover:bg-orange-700';
+  const confirmButtonClass =
+    variant === "danger"
+      ? "bg-red-600 hover:bg-red-700"
+      : "bg-orange-600 hover:bg-orange-700";
 
-    const confirm = confirmText ?? t("common:confirmation.confirm")
-    const cancel = cancelText ?? t("common:confirmation.cancel")
-    
+  const confirm = confirmText ?? t("common:confirmation.confirm");
+  const cancel = cancelText ?? t("common:confirmation.cancel");
+
+  const confirmButton = onConfirm ? (
+    <button
+      onClick={onConfirm}
+      className={`flex-1 ${confirmButtonClass} text-white px-4 py-2 rounded transition`}
+    >
+      {confirm}
+    </button>
+  ) : null;
 
   return (
     <>
       {/* Backdrop */}
-      <div className="!mt-0 fixed inset-0 bg-black/50 backdrop-blur-sm z-40" onClick={onCancel}/>
+      <div
+        className="!mt-0 fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        onClick={onCancel}
+      />
 
-      
       {/* Dialog */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-panel-bg rounded-lg border border-border-primary max-w-md w-full shadow-xl">
@@ -67,12 +78,7 @@ export default function ConfirmationDialog({
             >
               {cancel}
             </button>
-            <button
-              onClick={onConfirm}
-              className={`flex-1 ${confirmButtonClass} text-white px-4 py-2 rounded transition`}
-            >
-              {confirm}
-            </button>
+            {confirmButton}
           </div>
         </div>
       </div>

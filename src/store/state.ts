@@ -152,6 +152,7 @@ export function useCombatState(): CombatStateManager {
       loadMonsterToForm: monsterStore.actions.loadMonsterToForm,
       searchWithLibrary: monsterStore.actions.searchWithLibrary,
       addCombatantToLibrary: monsterStore.actions.addCombatantToLibrary,
+      isUsedAsTemplate: monsterStore.actions.isUsedAsTemplate,
 
       // Combatants and Turn Management
       addCombatant: combatantStore.actions.addCombatant,
@@ -203,6 +204,7 @@ export function useCombatState(): CombatStateManager {
       monsterStore.actions.removeMonster,
       monsterStore.actions.searchWithLibrary,
       monsterStore.actions.updateMonster,
+      monsterStore.actions.isUsedAsTemplate,
       monsterStore.state.monsters,
       parkedGroupStore.actions.includeParkedGroup,
       parkedGroupStore.actions.removeParkedGroup,

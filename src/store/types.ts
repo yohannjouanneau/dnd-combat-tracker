@@ -60,6 +60,7 @@ export type CombatStateManager = {
       source?: SearchSource
     ) => Promise<SearchResult[]>;
     addCombatantToLibrary: () => Promise<void>;
+    isUsedAsTemplate: (id: string) => Promise<boolean>;
   
     // Utility
     resetState: () => void;

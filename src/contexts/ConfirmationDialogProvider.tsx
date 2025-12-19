@@ -1,4 +1,4 @@
-import {useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import ConfirmationDialog from "../components/common/ConfirmationDialog";
 import { ConfirmDialogContext } from "./ConfirmationDialogContext";
 
@@ -7,6 +7,7 @@ interface Options {
   message: string;
   confirm?: string;
   cancel?: string;
+  noConfirmButton?: boolean;
 }
 
 interface DialogState {
@@ -15,18 +16,21 @@ interface DialogState {
   message: string;
   confirm?: string;
   cancel?: string;
-  onConfirm: () => void;
+  onConfirm?: () => void;
   onCancel: () => void;
 }
 
 export type ConfirmDialog = (options: Options) => Promise<boolean>;
 
-export function ConfirmationDialogProvider({children}: { children: ReactNode } ) {
+export function ConfirmationDialogProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [dialogState, setDialogState] = useState<DialogState>({
     isOpen: false,
     title: "",
     message: "",
-    onConfirm: () => {},
     onCancel: () => {},
   });
 
@@ -35,6 +39,7 @@ export function ConfirmationDialogProvider({children}: { children: ReactNode } )
     message,
     cancel,
     confirm,
+    noConfirmButton = false,
   }: Options): Promise<boolean> => {
     return new Promise((resolve) => {
       setDialogState({
@@ -43,10 +48,12 @@ export function ConfirmationDialogProvider({children}: { children: ReactNode } )
         message,
         cancel,
         confirm,
-        onConfirm: () => {
-          setDialogState((prev) => ({ ...prev, isOpen: false }));
-          resolve(true);
-        },
+        onConfirm: !noConfirmButton
+          ? () => {
+              setDialogState((prev) => ({ ...prev, isOpen: false }));
+              resolve(true);
+            }
+          : undefined,
         onCancel: () => {
           setDialogState((prev) => ({ ...prev, isOpen: false }));
           resolve(false);

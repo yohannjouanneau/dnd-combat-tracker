@@ -26,6 +26,7 @@ interface MonsterStoreActions {
     source?: SearchSource
   ) => Promise<SearchResult[]>;
   addCombatantToLibrary: () => Promise<void>;
+  isUsedAsTemplate: (id: string) => Promise<boolean>
 }
 
 interface MonsterStoreState {
@@ -235,6 +236,41 @@ export function useMonsterStore({
     toastApi.success(t("common:confirmation.addToLibrary.success"));
   }, [state.newCombatant, createMonster, toastApi, t]);
 
+  const isUsedAsTemplate = useCallback(async (id: string): Promise<boolean> => {
+    try {
+      // Fetch all saved combats (optimized data with references)
+      const allCombats = await dataStore.listCombat();
+
+      // Check each combat's combatants and parked groups
+      for (const combat of allCombats) {
+        // Check combatants
+        for (const combatant of combat.data.combatants) {
+          if (
+            combatant.templateOrigin?.origin === "monster_library" &&
+            combatant.templateOrigin.id === id
+          ) {
+            return true; // Early exit on first match
+          }
+        }
+
+        // Check parked groups
+        for (const group of combat.data.parkedGroups) {
+          if (
+            group.templateOrigin?.origin === "monster_library" &&
+            group.templateOrigin.id === id
+          ) {
+            return true; // Early exit on first match
+          }
+        }
+      }
+
+      return false; // No usage found
+    } catch (error) {
+      console.error("Error checking if monster is used as template:", error);
+      return false; // Safe fallback
+    }
+  }, [])
+
   // Load monsters on mount
   useEffect(() => {
     loadMonsters();
@@ -252,6 +288,7 @@ export function useMonsterStore({
       loadMonsterToForm,
       searchWithLibrary,
       addCombatantToLibrary,
+      isUsedAsTemplate,
     },
   };
 }
