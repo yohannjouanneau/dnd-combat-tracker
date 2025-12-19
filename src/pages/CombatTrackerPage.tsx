@@ -162,7 +162,18 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     (group) => group.name === combatStateManager.state.newCombatant.name
   )?.name;
   const stagedFrom = stagedFromParkedGroups ?? stagedPlayer;
-  const back = () => {
+  const back = async () => {
+    // Auto-save if there are unsaved changes
+    if (combatStateManager.hasChanges && combatStateManager.state?.combatId) {
+      await combatStateManager.saveCombat({
+        name: combatStateManager.state.combatName,
+        description: combatStateManager.state.combatDescription,
+        data: combatStateManager.state,
+        updatedAt: Date.now(),
+      });
+    }
+
+    // Navigate to combat list
     location.hash = "#combats";
   };
 
