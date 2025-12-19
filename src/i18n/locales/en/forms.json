@@ -36,7 +36,8 @@
       "savePlayer": "Save",
       "addToLibrary": "Save in library",
       "addInitGroup": "Add init group",
-      "library": "Open the library"
+      "library": "Open library",
+      "libraryWithTemplate": "Open in the library"
     },
     "modalTitle": {
       "player": "Create a player",

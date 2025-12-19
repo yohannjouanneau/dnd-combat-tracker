@@ -1,4 +1,4 @@
-import { FileEdit, Trash2, Edit, ClipboardPaste } from "lucide-react";
+import { Trash2, Edit, ClipboardPaste } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";

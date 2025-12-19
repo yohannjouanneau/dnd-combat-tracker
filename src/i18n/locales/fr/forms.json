@@ -36,7 +36,8 @@
       "savePlayer": "Sauvegarder",
       "addToLibrary": "Sauvegarder dans la bibliothèque",
       "addInitGroup": "Ajouter un groupe d'init",
-      "library": "Ouvrir la bibliothèque"
+      "library": "Ouvrir bibliothèque",
+      "libraryWithTemplate": "Ouvrir dans la bibliothèque"
     },
     "modalTitle": {
       "player": "Créer un joueur",
