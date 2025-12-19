@@ -193,7 +193,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
       );
       
       if (monster) {
-        // Open edit modal directly with this monster
+        // Open library modal in the background and edit modal on top
+        setShowLibrary(true);
         setEditingMonster(monster);
         return;
       }
