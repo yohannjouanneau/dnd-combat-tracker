@@ -75,6 +75,12 @@ export default function AddCombatantModal({
   const visibleButtons = BUTTON_MODE_MAP[mode];
   const titleKey = newCombatant.name ? `${mode}-edit` : mode;
   const modalTitle = t(`forms:combatant.modalTitle.${titleKey}`);
+  
+  // Determine library button title based on template origin
+  const hasMonsterTemplate = newCombatant.templateOrigin?.origin === "monster_library" && newCombatant.templateOrigin?.id;
+  const libraryButtonTitle = hasMonsterTemplate 
+    ? t("forms:combatant.actions.libraryWithTemplate")
+    : t("forms:combatant.actions.library");
 
   return (
     <>
@@ -96,7 +102,7 @@ export default function AddCombatantModal({
               <button
                 onClick={onOpenLibrary}
                 className="bg-amber-600 hover:bg-amber-700 text-white p-2 rounded transition"
-                title={t("forms:combatant.actions.library")}
+                title={libraryButtonTitle}
               >
                 <BookOpen className="w-5 h-5" />
               </button>

@@ -36,7 +36,8 @@
       "savePlayer": "Sauvegarder",
       "addToLibrary": "Sauvegarder dans la bibliothèque",
       "addInitGroup": "Ajouter un groupe d'init",
-      "library": "Ouvrir la bibliothèque"
+      "library": "Ouvrir la bibliothèque",
+      "libraryWithTemplate": "Ouvrir dans la bibliothèque"
     },
     "modalTitle": {
       "player": "Créer un joueur",
@@ -127,6 +128,11 @@
       "stats": {
         "hp": "PV",
         "ac": "CA"
+      },
+      "actions": {
+        "load": "Charger dans le formulaire",
+        "edit": "Modifier le monstre",
+        "delete": "Supprimer le monstre"
       },
       "abilities": {
         "str": "FOR",
