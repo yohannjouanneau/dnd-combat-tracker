@@ -1,5 +1,5 @@
 import type { SyncApi } from "../api/sync/types";
-import type { CombatState, SavedCombat, SavedPlayer, NewCombatant, InitiativeGroup, DeathSaves, SavedCombatInput, SavedMonster, MonsterCombatant, SearchResult, SearchSource, GroupSummary } from "../types";
+import type { CombatState, SavedCombat, SavedPlayer, NewCombatant, InitiativeGroup, DeathSaves, SavedCombatInput, SavedMonster, MonsterCombatant, SearchResult, SearchSource, GroupSummary, TemplateOrigin } from "../types";
 
 export type CombatStateManager = {
     // State
@@ -36,7 +36,7 @@ export type CombatStateManager = {
     getTotalCombatantCount: () => number;
   
     // Combatants and Turn Management
-    addCombatant: (combatant?: NewCombatant) => void;
+    addCombatant: (combatant?: NewCombatant, templateOrigin?: TemplateOrigin) => void;
     removeCombatant: (id: number) => void;
     removeGroup: (name: string) => void;
     updateHP: (id: number, change: number) => void;

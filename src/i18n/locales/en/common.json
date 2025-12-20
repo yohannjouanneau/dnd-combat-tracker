@@ -80,6 +80,18 @@
     "addedToParkedGroup": {
       "success": "Added to parked group"
     },
+    "syncWithUnsavedChanges": {
+      "title": "Unsaved Changes",
+      "message": "You have unsaved changes. Please save your combat before syncing to avoid losing local changes.",
+      "confirm": "Save and Sync",
+      "cancel": "Cancel"
+    },
+    "syncStateMismatch": {
+      "title": "Sync State Changed",
+      "downloadNeeded": "The sync state has changed since your last check. Your Google Drive now has newer data that should be downloaded. Proceeding will download and overwrite your local data.",
+      "confirm": "Continue Sync",
+      "cancel": "Cancel"
+    },
     "confirm": "Confirm",
     "cancel": "Cancel"
   },
@@ -110,6 +122,23 @@
       "syncing": "Synchronizing...",
       "uploadData": "Upload data",
       "downloadData": "Download data"
+    },
+    "sync": {
+      "notConnected": "Connect to Google Drive",
+      "uploadData": "Upload to Google Drive",
+      "downloadAvailable": "Download from Google Drive",
+      "syncing": "Synchronizing...",
+      "checkingRemote": "Checking remote..."
+    }
+  },
+  "toast": {
+    "sync": {
+      "connectSuccess": "Connected to Google Drive",
+      "connectError": "Error connecting to Google Drive: {{error}}",
+      "syncSuccess": "Sync successful",
+      "syncError": "Error syncing data: {{error}}",
+      "logoutSuccess": "Logged out successfully",
+      "logoutError": "Error logging out: {{error}}"
     }
   }
 }

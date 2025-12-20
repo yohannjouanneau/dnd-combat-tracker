@@ -5,6 +5,7 @@ import type {
   NewCombatant,
   DeathSaves,
   GroupSummary,
+  TemplateOrigin,
 } from "../../types";
 import { indexToLetter } from "../../utils/utils";
 import { getSettings } from "../../hooks/useSettings";
@@ -72,7 +73,7 @@ export function useCombatantStore({
 
   // Helper function to prepare combatant list from form
   const prepareCombatantList = useCallback(
-    (prev: CombatState, combatant: NewCombatant) => {
+    (prev: CombatState, combatant: NewCombatant, templateOrigin?: TemplateOrigin) => {
       const nc = combatant;
       if (!nc.name || !nc.hp) return prev.combatants;
       if (nc.initiativeGroups.length === 0) return prev.combatants;
@@ -135,7 +136,7 @@ export function useCombatantStore({
             str: nc.str,
             wis: nc.wis,
             notes: nc.notes,
-            templateOrigin: nc.templateOrigin,
+            templateOrigin: templateOrigin ?? nc.templateOrigin,
           });
           globalIndex++;
         }
@@ -158,11 +159,12 @@ export function useCombatantStore({
   );
 
   const addCombatant = useCallback(
-    (combatant?: NewCombatant) => {
+    (combatant?: NewCombatant, templateOrigin?: TemplateOrigin) => {
       setState((prev) => {
         const updated = prepareCombatantList(
           prev,
-          combatant ?? state.newCombatant
+          combatant ?? state.newCombatant,
+          templateOrigin
         );
         return {
           ...prev,

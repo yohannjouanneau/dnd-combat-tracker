@@ -18,11 +18,12 @@ import type {
 import type { CombatStateManager } from "../store/types";
 import SavedPlayersPanel from "../components/CombatForm/SavedPlayerPanel";
 import logo from "../assets/logo.png";
-import SaveBar from "../components/SaveBar";
 import { HP_BAR_ID_PREFIX } from "../constants";
 import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
 import MonsterEditModal from "../components/MonsterLibrary/MonsterEditModal";
+import SettingsModal from "../components/Settings/SettingsModal";
 import { generateId, generateDefaultNewCombatant } from "../utils/utils";
+import TopBar from "../components/TopBAr";
 
 type Props = {
   combatStateManager: CombatStateManager;
@@ -39,6 +40,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const [addToFight, setAddToFight] = useState(false);
   const [addAnOther, setAddAnOther] = useState(false);
   const [editingMonster, setEditingMonster] = useState<SavedMonster | undefined>();
+  const [showSettings, setShowSettings] = useState(false);
 
   // Keyboard shortcuts for turn navigation and focus mode
   useEffect(() => {
@@ -81,21 +83,21 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     };
   }, [combatants.length, combatStateManager]);
 
-  const handleIncludeParked = (combatant: NewCombatant) => {
+  const handleEditParkedGroup = (combatant: NewCombatant) => {
     combatStateManager.includeParkedGroup(combatant);
     openAddModal("group");
   };
 
-  const includeToFight = (combatant: NewCombatant) => {
-    combatStateManager.addCombatant(combatant);
+  const addParkedGroupToFight = (combatant: NewCombatant) => {
+    combatStateManager.addCombatant(combatant, { id: combatant.id, origin: 'parked_group'});
   };
 
-  const includePlayerToForm = (player: SavedPlayer) => {
+  const handleEditPlayer = (player: SavedPlayer) => {
     combatStateManager.includePlayer(player);
     openAddModal("player");
   };
 
-  const includePlayerToFight = (player: SavedPlayer) => {
+  const addPlayerToFight = (player: SavedPlayer) => {
     const playerCombattant: PlayerCombatant = {
       id: generateId(),
       type: "player",
@@ -255,7 +257,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               />
             </div>
             <div className="flex-1">
-              <SaveBar
+              <TopBar
                 name={combatStateManager.state.combatName ?? ""}
                 description={combatStateManager.state.combatDescription ?? ""}
                 onChange={(patch) =>
@@ -270,6 +272,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
                   await combatStateManager.saveCombat();
                 }}
                 hasChanges={combatStateManager.hasChanges}
+                syncApi={combatStateManager.syncApi}
+                onOpenSettings={() => setShowSettings(true)}
               />
             </div>
           </div>
@@ -277,16 +281,16 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           <div className="grid grid-cols-1 gap-4">
             <SavedPlayersPanel
               savedPlayers={combatStateManager.savedPlayers}
-              onInclude={includePlayerToForm}
-              onFight={includePlayerToFight}
+              onInclude={handleEditPlayer}
+              onFight={addPlayerToFight}
               onRemove={combatStateManager.removePlayer}
               onOpenAddModal={() => openAddModal("player")}
             />
 
             <ParkedGroupsPanel
               parkedGroups={combatStateManager.state.parkedGroups}
-              onInclude={handleIncludeParked}
-              onFight={includeToFight}
+              onInclude={handleEditParkedGroup}
+              onFight={addParkedGroupToFight}
               onRemove={combatStateManager.removeParkedGroup}
               onOpenAddModal={() => openAddModal("group")}
             />
@@ -399,6 +403,13 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             onSearchMonsters={handleSearchMonstersForEdit}
           />
         )}
+
+        {/* Settings Modal */}
+        <SettingsModal
+          isOpen={showSettings}
+          syncApi={combatStateManager.syncApi}
+          onClose={() => setShowSettings(false)}
+        />
       </div>
     </div>
   );

@@ -113,10 +113,8 @@ export class GoogleDriveSyncProvider implements SyncProvider {
       localStorage.getItem(LAST_SYNC_STORAGE_KEY) || "0"
     );
 
-    if (!this.lastRemoteData) {
-      this.lastRemoteData = await this.loadData()
-    }
-
+    this.lastRemoteData = await this.loadData()
+    
     if (!this.lastRemoteData) {
       return false
     }
