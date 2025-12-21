@@ -1,11 +1,11 @@
-import { X, LogOut, RefreshCw, Moon, Sun, Leaf } from "lucide-react";
+import { X, LogOut, Moon, Sun, Leaf } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import gdriveSignIn from "../../assets/web_neutral_rd_SI@2x.png";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { getReadableTimestamp } from "../../utils/utils";
+import { useCallback, useEffect, useState } from "react";
 import { useSettings } from "../../hooks/useSettings";
 import { useTheme } from "../../hooks/useTheme";
 import LanguageSwitcher from "../common/LanguageSwitcher";
+import SyncButton from "../SyncButton";
 import type { SyncApi } from "../../api/sync/types";
 import type { CombatantIdentifierType } from "../../types";
 
@@ -18,40 +18,16 @@ type Props = {
 export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
   const { t } = useTranslation(["common"]);
   const [isReadyToSync, setIsReadyToSync] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState(syncApi.getLastSyncTime());
-  const [hasNewRemoteData, setHasRemoteData] = useState(false);
   const { settings, updateSettings } = useSettings();
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    const checkGoogleAuth = async () => {
-      const authorized = syncApi.isSyncAuthorized();
-      setIsReadyToSync(authorized);
-      if (authorized) {
-        const hasRemote = await syncApi.hasNewRemoteData();
-        setHasRemoteData(hasRemote);
-      }
-    };
-
-    checkGoogleAuth();
+    setIsReadyToSync(syncApi.isSyncAuthorized());
   }, [syncApi]);
 
   const handleConnectGoogle = useCallback(async () => {
     const isAuthenticated = await syncApi.authorizeSync();
     setIsReadyToSync(isAuthenticated);
-    if (isAuthenticated) {
-      const hasRemote = await syncApi.hasNewRemoteData();
-      setHasRemoteData(hasRemote);
-    }
-  }, [syncApi]);
-
-  const handleSyncWithDrive = useCallback(async () => {
-    setIsSyncing(true);
-    await syncApi.synchronise();
-    setLastSyncTime(syncApi.getLastSyncTime());
-    setHasRemoteData(await syncApi.hasNewRemoteData());
-    setIsSyncing(false);
   }, [syncApi]);
 
   const handleLogout = useCallback(async () => {
@@ -65,19 +41,6 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
     },
     [updateSettings]
   );
-
-  const lastSyncText = useMemo(() => {
-    return lastSyncTime ? getReadableTimestamp(lastSyncTime) : "-";
-  }, [lastSyncTime]);
-
-  const syncButtonText = useMemo(() => {
-    const notSyncingText = hasNewRemoteData
-      ? t("common:settings.googleDrive.downloadData")
-      : t("common:settings.googleDrive.uploadData");
-    return isSyncing
-      ? t("common:settings.googleDrive.syncing")
-      : notSyncingText;
-  }, [hasNewRemoteData, isSyncing, t]);
 
   if (!isOpen) return null;
 
@@ -223,16 +186,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
               ) : (
                 <div className="bg-app-bg border-border-primary rounded-lg p-4 space-y-3">
                   {/* Sync with Drive Button */}
-                  <button
-                    onClick={handleSyncWithDrive}
-                    disabled={isSyncing}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white px-4 py-3 rounded font-medium transition flex items-center justify-center gap-3"
-                  >
-                    <RefreshCw
-                      className={`w-5 h-5 ${isSyncing ? "animate-spin" : ""}`}
-                    />
-                    {syncButtonText}
-                  </button>
+                  <SyncButton syncApi={syncApi} variant="full" />
 
                   {/* Logout Button */}
                   <button
@@ -245,18 +199,6 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
                 </div>
               )}
             </div>
-
-            {/* Connected Status */}
-            {isReadyToSync && (
-              <div className="pt-3 border-t border-border-primary">
-                <div className="flex items-center gap-2 text-sm font-normal text-text-primary">
-                  <div className="w-2 h-2 rounded-full"></div>
-                  {t("common:settings.googleDrive.connected", {
-                    lastSync: lastSyncText,
-                  })}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Footer */}

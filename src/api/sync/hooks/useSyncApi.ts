@@ -1,5 +1,6 @@
 import { dataStore } from "../../../persistence/storage";
 import { useToast } from "../../../components/common/Toast/useToast";
+import { useTranslation } from "react-i18next";
 import type { SyncApi } from "../types";
 
 interface UseSyncApiProps {
@@ -8,6 +9,7 @@ interface UseSyncApiProps {
 
 export function useSyncApi(props?: UseSyncApiProps): SyncApi {
   const toastApi = useToast();
+  const { t } = useTranslation(["common"]);
 
   const isSyncAuthorized = () => {
     return dataStore.isSyncAuthorized();
@@ -17,10 +19,10 @@ export function useSyncApi(props?: UseSyncApiProps): SyncApi {
     if (!dataStore.isSyncAuthorized()) {
       try {
         await dataStore.authorizeSync();
-        toastApi.success("Connected to Google Drive");
+        toastApi.success(t("toast.sync.connectSuccess"));
         return true;
       } catch (error) {
-        toastApi.error(`Error while connecting to Google Drive ${error}`);
+        toastApi.error(t("toast.sync.connectError", { error: String(error) }));
         return false;
       }
     }
@@ -40,10 +42,10 @@ export function useSyncApi(props?: UseSyncApiProps): SyncApi {
         await props.onSyncSuccess();
       }
 
-      toastApi.success(`Sync successful`);
+      toastApi.success(t("toast.sync.syncSuccess"));
       return true;
     } catch (error) {
-      toastApi.error(`Error while syncing data ${error}`);
+      toastApi.error(t("toast.sync.syncError", { error: String(error) }));
       return false;
     }
   };
@@ -55,10 +57,10 @@ export function useSyncApi(props?: UseSyncApiProps): SyncApi {
   const logout = async () => {
     try {
       await dataStore.logout();
-      toastApi.success(`Logout successful`);
+      toastApi.success(t("toast.sync.logoutSuccess"));
       return true;
     } catch (error) {
-      toastApi.error(`Error while logging out ${error}`);
+      toastApi.error(t("toast.sync.logoutError", { error: String(error) }));
       return false;
     }
   };

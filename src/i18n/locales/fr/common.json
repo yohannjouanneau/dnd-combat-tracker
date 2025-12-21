@@ -80,6 +80,18 @@
     "addedToParkedGroup": {
       "success": "Ajouté au groupe mis en attente"
     },
+    "syncWithUnsavedChanges": {
+      "title": "Modifications non sauvegardées",
+      "message": "Vous avez des modifications non sauvegardées. Veuillez sauvegarder votre combat avant la synchronisation pour éviter de perdre les modifications locales.",
+      "confirm": "Sauvegarder et synchroniser",
+      "cancel": "Annuler"
+    },
+    "syncStateMismatch": {
+      "title": "État de synchronisation modifié",
+      "downloadNeeded": "L'état de synchronisation a changé depuis votre dernière vérification. Votre Google Drive contient maintenant des données plus récentes qui devraient être téléchargées. Continuer écrasera vos données locales.",
+      "confirm": "Continuer la synchronisation",
+      "cancel": "Annuler"
+    },
     "confirm": "Confirmer",
     "cancel": "Annuler"
   },
@@ -110,6 +122,23 @@
       "syncing": "Synchronisation...",
       "uploadData": "Envoyer les données",
       "downloadData": "Télécharger les données"
+    },
+    "sync": {
+      "notConnected": "Se connecter à Google Drive",
+      "uploadData": "Envoyer vers Google Drive",
+      "downloadAvailable": "Télécharger depuis Google Drive",
+      "syncing": "Synchronisation...",
+      "checkingRemote": "Vérification du serveur..."
+    }
+  },
+  "toast": {
+    "sync": {
+      "connectSuccess": "Connecté à Google Drive",
+      "connectError": "Erreur lors de la connexion à Google Drive : {{error}}",
+      "syncSuccess": "Synchronisation réussie",
+      "syncError": "Erreur lors de la synchronisation : {{error}}",
+      "logoutSuccess": "Déconnexion réussie",
+      "logoutError": "Erreur lors de la déconnexion : {{error}}"
     }
   }
 }

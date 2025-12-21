@@ -68,6 +68,11 @@ export function useCombatState(): CombatStateManager {
       // Reload data after sync to reflect any downloaded changes
       await playerStore.actions.loadPlayers();
       await monsterStore.actions.loadMonsters();
+
+      // Reload current combat if one is loaded
+      if (state.combatId) {
+        await combatStore.actions.loadCombat(state.combatId);
+      }
     },
   });
 
