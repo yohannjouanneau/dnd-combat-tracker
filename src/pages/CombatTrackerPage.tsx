@@ -307,7 +307,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
         <div
           className={`flex gap-2 mb-6 ${
-            isFocusMode ? "sticky top-0 z-10 pt-6" : ""
+            isFocusMode ? "sticky top-0 z-10 pt-6 bg-app-bg" : ""
           }`}
         >
           <div className="flex-1">
