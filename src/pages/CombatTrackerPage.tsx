@@ -23,7 +23,7 @@ import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModa
 import MonsterEditModal from "../components/MonsterLibrary/MonsterEditModal";
 import SettingsModal from "../components/Settings/SettingsModal";
 import { generateId, generateDefaultNewCombatant } from "../utils/utils";
-import TopBar from "../components/TopBAr";
+import TopBar from "../components/TopBar";
 
 type Props = {
   combatStateManager: CombatStateManager;
