@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import type { Combatant, DeathSaves } from "../../types";
 import HpBar from "./HpBar";
@@ -20,6 +20,8 @@ type Props = {
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
   onShowDetail?: () => void;
+  isQuickButtonsOpen?: boolean;
+  onToggleQuickButtons?: (id: number) => void;
 };
 
 export default function CombatantCard({
@@ -32,6 +34,8 @@ export default function CombatantCard({
   onToggleCondition,
   onUpdateInitiative,
   onShowDetail,
+  isQuickButtonsOpen,
+  onToggleQuickButtons,
 }: Props) {
 
   const { t } = useTranslation(["combat", "common"]);
@@ -76,6 +80,10 @@ export default function CombatantCard({
   useEffect(() => {
     setInitValue(combatant.initiative.toString());
   }, [combatant.initiative]);
+
+  const handleToggleQuickButtons = useCallback(() => {
+    onToggleQuickButtons?.(combatant.id);
+  }, [onToggleQuickButtons, combatant.id]);
 
   const handleStartEdit = () => {
     setIsEditingInit(true);
@@ -133,7 +141,7 @@ export default function CombatantCard({
                     onChange={(e) => setInitValue(e.target.value)}
                     onBlur={handleSave}
                     onKeyDown={handleKeyDown}
-                    className="text-2xl md:text-3xl font-bold text-blue-400 bg-input-bg border-2 border-blue-500 rounded px-2 w-16 md:w-20 focus:outline-none"
+                    className="text-2xl md:text-3xl font-bold text-text-muted bg-input-bg border-2 border-border-secondary rounded px-2 w-16 md:w-20 focus:outline-none"
                     autoFocus
                   />
                 ) : (
@@ -141,7 +149,7 @@ export default function CombatantCard({
                     onClick={() => {
                       handleStartEdit();
                     }}
-                    className="text-2xl md:text-3xl font-bold text-blue-400 cursor-pointer hover:text-blue-300 hover:bg-blue-900/20 rounded px-2 transition-colors select-none"
+                    className="text-2xl md:text-3xl font-bold text-text-muted cursor-pointer hover:text-text-muted/80 hover:bg-blue-900/20 rounded px-2 transition-colors select-none"
                     title={t("combat:combatant.editInitiative")}
                   >
                     {combatant.initiative}
@@ -194,7 +202,7 @@ export default function CombatantCard({
                   onClick={() => {
                     onShowDetail();
                   }}
-                  className="text-blue-400 hover:text-blue-300 transition flex-shrink-0 p-1 md:hidden"
+                  className="text-text-secondary hover:text-text-secondary/60 transition flex-shrink-0 p-1 md:hidden"
                   title="View details"
                 >
                   <Eye className="w-5 h-5" />
@@ -221,6 +229,8 @@ export default function CombatantCard({
           maxHp={combatant.maxHp ?? 0}
           isActive={isActive}
           onDelta={(d) => onDeltaHp(combatant.id, d)}
+          isQuickButtonsOpen={isQuickButtonsOpen}
+          onToggleQuickButtons={handleToggleQuickButtons}
         />
       </div>
       {isDying && (

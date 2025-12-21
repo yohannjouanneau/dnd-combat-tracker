@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Combatant, DeathSaves } from "../../types";
 import CombatantsList from "../CombatantsList/CombatantsList";
 import CombatantDetailPanel from "../CombatantDetailPanel/CombatantDetailPanel";
@@ -27,12 +27,22 @@ export default function MobileCombatLayout({
   onUpdateInitiative,
 }: Props) {
   const [showDetail, setShowDetail] = useState(false);
+  const [openQuickButtonsId, setOpenQuickButtonsId] = useState<number | null>(null);
   const activeCombatant = combatants[currentTurn] ?? null;
 
   // Auto-close detail when turn changes
   useEffect(() => {
     setShowDetail(false);
   }, [currentTurn]);
+
+  // Auto-close QuickButtons when turn changes
+  useEffect(() => {
+    setOpenQuickButtonsId(null);
+  }, [currentTurn]);
+
+  const handleToggleQuickButtons = useCallback((id: number) => {
+    setOpenQuickButtonsId(prev => prev === id ? null : id);
+  }, []);
 
   return (
     <div className="overflow-hidden">
@@ -54,6 +64,8 @@ export default function MobileCombatLayout({
             onToggleCondition={onToggleCondition}
             onUpdateInitiative={onUpdateInitiative}
             isFocusMode={isFocusMode}
+            openQuickButtonsId={openQuickButtonsId}
+            onToggleQuickButtons={handleToggleQuickButtons}
           />
         </div>
 
