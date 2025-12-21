@@ -8,12 +8,13 @@ type Props = {
   maxHp: number;
   isActive?: boolean;
   onDelta: (delta: number) => void;
+  isQuickButtonsOpen?: boolean;
+  onToggleQuickButtons?: () => void;
 };
 
-export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
+export default function HpBar({inputId, hp, maxHp, isActive, onDelta, isQuickButtonsOpen, onToggleQuickButtons }: Props) {
   const { t } = useTranslation('combat');
   const [inputValue, setInputValue] = useState('');
-  const [showQuickButtons, setShowQuickButtons] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const pct = (hp / maxHp) * 100;
 
@@ -27,9 +28,12 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
   // Auto-expand quick buttons when combatant becomes active (mobile only)
   useEffect(() => {
     if (isActive && window.innerWidth < 768) {
-      setShowQuickButtons(true);
+      onToggleQuickButtons?.();
     }
-  }, [isActive]);
+  }, [isActive, onToggleQuickButtons]);
+
+  // Use derived state for showQuickButtons
+  const showQuickButtons = isQuickButtonsOpen ?? false;
 
   const handleApply = () => {
     const value = parseInt(inputValue);
@@ -59,8 +63,8 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta }: Props) {
         </span>
         
         <button
-          onClick={() => setShowQuickButtons(!showQuickButtons)}
-          className="md:hidden text-purple-400 hover:text-purple-300 transition flex items-center gap-1 text-sm px-2 py-1 rounded hover:bg-panel-secondary"
+          onClick={onToggleQuickButtons}
+          className="md:hidden text-text-secondary active:text-text-secondary/80 transition flex items-center gap-1 text-sm px-2 py-1 rounded"
         >
           {showQuickButtons ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           {t('combat:hpBar.quick')}

@@ -12,6 +12,8 @@ type Props = {
   onUpdateInitiative: (id: number, newInitiative: number) => void;
   onShowDetail?: () => void;
   isFocusMode?: boolean;
+  openQuickButtonsId?: number | null;
+  onToggleQuickButtons?: (id: number) => void;
 };
 
 export default function CombatantsList({
@@ -25,6 +27,8 @@ export default function CombatantsList({
   onUpdateInitiative,
   onShowDetail,
   isFocusMode = false,
+  openQuickButtonsId,
+  onToggleQuickButtons,
 }: Props) {
   return (
     <div
@@ -44,6 +48,8 @@ export default function CombatantsList({
           onToggleCondition={onToggleCondition}
           onUpdateInitiative={onUpdateInitiative}
           onShowDetail={onShowDetail}
+          isQuickButtonsOpen={openQuickButtonsId === c.id}
+          onToggleQuickButtons={onToggleQuickButtons}
         />
       ))}
     </div>
