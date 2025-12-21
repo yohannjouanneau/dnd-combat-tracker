@@ -177,7 +177,7 @@ export default function CombatantCard({
                     className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition flex-shrink-0"
                     title="Open external resource"
                   >
-                    <ExternalLink className="w-3 h-3 md:w-4 md:h-4" />
+                    <ExternalLink className="w-3 h-3 md:w-5 md:h-5" />
                   </a>
                 )}
                 <div className="flex items-center gap-1">
