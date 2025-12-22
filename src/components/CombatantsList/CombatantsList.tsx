@@ -35,7 +35,7 @@ export default function CombatantsList({
       className={`space-y-4 pr-2 scrollbar-thin scrollbar-thumb-border-secondary scrollbar-track-panel-bg ${
         isFocusMode ? "overflow-y-auto" : ""
       }`}
-      style={isFocusMode ? { maxHeight: 'calc(100vh - 48px)' } : undefined}
+      style={isFocusMode ? { maxHeight: 'calc(100vh - 36px)' } : undefined}
     >
       {combatants.map((c, index) => (
         <CombatantCard

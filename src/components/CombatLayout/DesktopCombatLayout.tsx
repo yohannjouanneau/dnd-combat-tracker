@@ -49,7 +49,7 @@ export default function DesktopCombatLayout({
       {activeCombatant && isFocusMode && (
         <div 
           className="flex-1 overflow-y-auto"
-          style={{ maxHeight: 'calc(100vh - 48px)' }}
+          style={{ maxHeight: 'calc(100vh - 36px)' }}
         >
           <CombatantDetailPanel combatant={activeCombatant} />
         </div>
