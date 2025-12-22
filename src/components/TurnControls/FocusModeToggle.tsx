@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Expand, Maximize2, Minimize2, Shrink } from "lucide-react";
+import { Maximize2, Minimize2 } from "lucide-react";
 
 type Props = {
   isFocusMode: boolean;
