@@ -47,7 +47,10 @@ export default function DesktopCombatLayout({
 
       {/* Right side: Detail panel - only render if active combatant exists AND in focus mode */}
       {activeCombatant && isFocusMode && (
-        <div className="flex-1 max-h-[calc(100vh-180px)] overflow-y-auto">
+        <div 
+          className="flex-1 overflow-y-auto"
+          style={{ maxHeight: 'calc(100vh - 36px)' }}
+        >
           <CombatantDetailPanel combatant={activeCombatant} />
         </div>
       )}

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Eye, EyeOff } from "lucide-react";
+import { Expand, Maximize2, Minimize2, Shrink } from "lucide-react";
 
 type Props = {
   isFocusMode: boolean;
@@ -13,16 +13,18 @@ export default function FocusModeToggle({ isFocusMode, onToggle }: Props) {
     ? `${t("combat:focusMode.exit")} ${t("combat:focusMode.keyHint")}`
     : `${t("combat:focusMode.enter")} ${t("combat:focusMode.keyHint")}`;
 
+  const buttonColor = isFocusMode ? 'bg-panel-secondary' : 'bg-panel-bg' 
+
   return (
     <button
       onClick={onToggle}
-      className={`bg-panel-bg rounded-lg px-4 py-4 border border-border-primary flex items-center justify-center transition hover:bg-panel-secondary text-yellow-400`}
+      className={`${buttonColor} hover:bg-panel-secondary transition rounded-lg px-4 py-4 border border-border-primary flex items-center justify-center`}
       title={title}
     >
       {isFocusMode ? (
-        <EyeOff className="w-5 h-5" />
+        <Minimize2 className="w-5 h-5" />
       ) : (
-        <Eye className="w-5 h-5" />
+        <Maximize2 className="w-5 h-5" />
       )}
     </button>
   );
