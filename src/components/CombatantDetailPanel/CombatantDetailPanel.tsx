@@ -14,7 +14,7 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
   const { t } = useTranslation(["combat"]);
   return (
     <div
-      className="bg-panel-bg rounded-lg p-4 md:p-6 border-2 border-border-primary relative overflow-y-auto scrollbar-thin scrollbar-thumb-border-secondary scrollbar-track-panel-bg h-full"
+      className={`bg-panel-bg rounded-lg p-4 md:p-6 border-2 border-border-primary relative ${onClose ? 'overflow-y-auto scrollbar-thin scrollbar-thumb-border-secondary scrollbar-track-panel-bg' : ''}`}
       style={{ borderLeftWidth: "6px", borderLeftColor: combatant.color }}
     >
       {/* Close button - Mobile only */}

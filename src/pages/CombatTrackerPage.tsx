@@ -228,8 +228,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   );
 
   return (
-    <div className="min-h-screen bg-app-bg text-text-primary p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className={`bg-app-bg text-text-primary ${isFocusMode ? 'h-screen overflow-hidden flex flex-col px-6 pt-2 pb-6 md:pt-6 md:pb-2' : 'min-h-screen p-6'}`}>
+      <div className={`${isFocusMode ? 'flex-1 flex flex-col overflow-y-hidden w-full' : 'max-w-6xl mx-auto'}`}>
         {/* Wrapper with transition for hidden elements */}
         <div
           className={`transition-all duration-500 ease-in-out ${
@@ -306,8 +306,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         </div>
 
         <div
-          className={`flex gap-2 mb-6 ${
-            isFocusMode ? "sticky top-0 z-10 pt-6 bg-app-bg" : ""
+          className={`flex gap-2 ${
+            isFocusMode
+              ? "sticky bottom-0 left-0 right-0 md:top-0 z-10 order-last md:order-first flex-shrink-0 bg-app-bg px-3 md:px-0 pt-6 md:pt-3 pb-2 md:pb-0 shadow-[0_-2px_12px_rgba(0,0,0,0.15)] md:shadow-[0_2px_12px_rgba(0,0,0,0.15)]"
+              : "mb-6"
           }`}
         >
           <div className="flex-1">
@@ -324,17 +326,19 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           </div>
         </div>
 
-        <CombatLayout
-          combatants={combatants}
-          currentTurn={combatStateManager.state.currentTurn}
-          isFocusMode={isFocusMode}
-          onRemove={combatStateManager.removeCombatant}
-          onDeltaHp={combatStateManager.updateHP}
-          onDeathSaves={combatStateManager.updateDeathSave}
-          onToggleConcentration={combatStateManager.toggleConcentration}
-          onToggleCondition={combatStateManager.toggleCondition}
-          onUpdateInitiative={combatStateManager.updateInitiative}
-        />
+        <div className={isFocusMode ? "flex-1 overflow-y-auto order-first md:order-last" : ""}>
+          <CombatLayout
+            combatants={combatants}
+            currentTurn={combatStateManager.state.currentTurn}
+            isFocusMode={isFocusMode}
+            onRemove={combatStateManager.removeCombatant}
+            onDeltaHp={combatStateManager.updateHP}
+            onDeathSaves={combatStateManager.updateDeathSave}
+            onToggleConcentration={combatStateManager.toggleConcentration}
+            onToggleCondition={combatStateManager.toggleCondition}
+            onUpdateInitiative={combatStateManager.updateInitiative}
+          />
+        </div>
 
         {combatants.length === 0 && (
           <div className="text-center text-text-muted py-12">

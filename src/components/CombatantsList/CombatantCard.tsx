@@ -64,7 +64,8 @@ export default function CombatantCard({
     if (isActive && cardRef.current) {
       cardRef.current.scrollIntoView({
         behavior: "smooth",
-        block: "nearest",
+        block: "center",
+        inline: "nearest",
       });
     }
   }, [isActive]);
@@ -167,10 +168,6 @@ export default function CombatantCard({
               </div>
               <div className="flex flex-wrap gap-x-3 md:gap-x-4 gap-y-1 text-xs md:text-sm text-text-muted">
                 <div className="flex items-center gap-1">
-                  <div
-                    className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: combatant.color }}
-                  />
                   <span className="truncate">{combatant.name}</span>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">

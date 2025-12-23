@@ -45,14 +45,14 @@ export default function MobileCombatLayout({
   }, []);
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden h-full">
       <div
-        className={`flex transition-all duration-500 ease-in-out ${
+        className={`flex h-full transition-all duration-500 ease-in-out ${
           showDetail ? "-translate-x-full" : "translate-x-0"
         }`}
       >
         {/* Slide 1: CombatantsList */}
-        <div className="w-full flex-shrink-0">
+        <div className="w-full flex-shrink-0 h-full">
           <CombatantsList
             combatants={combatants}
             currentTurn={currentTurn}
@@ -70,12 +70,14 @@ export default function MobileCombatLayout({
         </div>
 
         {/* Slide 2: Detail panel */}
-        <div className="w-full flex-shrink-0">
+        <div className="w-full flex-shrink-0 flex flex-col overflow-y-auto">
           {activeCombatant && (
-            <CombatantDetailPanel
-              combatant={activeCombatant}
-              onClose={() => setShowDetail(false)}
-            />
+            <div className="my-auto w-full">
+              <CombatantDetailPanel
+                combatant={activeCombatant}
+                onClose={() => setShowDetail(false)}
+              />
+            </div>
           )}
         </div>
       </div>
