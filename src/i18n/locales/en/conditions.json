@@ -13,8 +13,7 @@
   "restrained": "Restrained",
   "stunned": "Stunned",
   "unconscious": "Unconscious",
-  "concentration": "Concentration",
-  "concentrating": "✓ Concentrating",
+  "concentrating": "Concentrating",
   "addCondition": "Add Condition",
   "hideConditions": "Hide",
   "availableConditions": "Available Conditions"

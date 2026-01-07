@@ -36,6 +36,7 @@ export const DEFAULT_NEW_COMBATANT: Omit<NewCombatant, 'id'> = {
 
 // Condition keys for translation - use these with t('conditions:key')
 export const DEFAULT_CONDITIONS_KEYS = [
+  "concentrating",
   "blinded",
   "charmed",
   "deafened",
@@ -51,10 +52,6 @@ export const DEFAULT_CONDITIONS_KEYS = [
   "stunned",
   "unconscious",
 ];
-
-// Legacy export for backward compatibility
-// Use getTranslatedConditions() instead for translated labels
-export const DEFAULT_CONDITIONS = DEFAULT_CONDITIONS_KEYS;
 
 // Helper function to get translated conditions
 // Usage: const conditions = getTranslatedConditions(t);

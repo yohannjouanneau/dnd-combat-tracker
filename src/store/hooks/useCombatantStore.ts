@@ -20,7 +20,6 @@ interface CombatantActions {
   updateHP: (id: number, change: number) => void;
   updateInitiative: (id: number, newInitiative: number) => void;
   toggleCondition: (id: number, condition: string) => void;
-  toggleConcentration: (id: number) => void;
   updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
   nextTurn: () => void;
   prevTurn: () => void;
@@ -123,7 +122,6 @@ export function useCombatantStore({
             maxHp: effectiveMaxHp,
             ac: nc.ac ? nc.ac : 10,
             conditions: [],
-            concentration: false,
             deathSaves: { successes: 0, failures: 0 },
             color: nc.color,
             groupIndex: globalIndex,
@@ -283,18 +281,6 @@ export function useCombatantStore({
     [setState]
   );
 
-  const toggleConcentration = useCallback(
-    (id: number) => {
-      setState((prev) => ({
-        ...prev,
-        combatants: prev.combatants.map((c) =>
-          c.id === id ? { ...c, concentration: !c.concentration } : c
-        ),
-      }));
-    },
-    [setState]
-  );
-
   const updateDeathSave = useCallback(
     (id: number, type: keyof DeathSaves, value: number) => {
       setState((prev) => ({
@@ -371,7 +357,6 @@ export function useCombatantStore({
       updateHP,
       updateInitiative,
       toggleCondition,
-      toggleConcentration,
       updateDeathSave,
       nextTurn,
       prevTurn,

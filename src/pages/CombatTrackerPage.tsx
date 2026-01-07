@@ -334,7 +334,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             onRemove={combatStateManager.removeCombatant}
             onDeltaHp={combatStateManager.updateHP}
             onDeathSaves={combatStateManager.updateDeathSave}
-            onToggleConcentration={combatStateManager.toggleConcentration}
             onToggleCondition={combatStateManager.toggleCondition}
             onUpdateInitiative={combatStateManager.updateInitiative}
           />
