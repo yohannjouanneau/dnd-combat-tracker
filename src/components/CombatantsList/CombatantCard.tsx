@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import type { Combatant, DeathSaves } from "../../types";
 import HpBar from "./HpBar";
 import DeathSavesComp from "./DeathSaves";
-import ConcentrationToggle from "./ConcentrationToggle";
 import ConditionsList from "./ConditionsList";
 import { Shield, Trash2, ExternalLink, Eye } from "lucide-react";
 import CombatantAvatar from "../common/CombatantAvatar";
@@ -16,7 +15,6 @@ type Props = {
   onRemove: (id: number) => void;
   onDeltaHp: (id: number, delta: number) => void;
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
-  onToggleConcentration: (id: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
   onShowDetail?: () => void;
@@ -30,7 +28,6 @@ export default function CombatantCard({
   onRemove,
   onDeltaHp,
   onDeathSaves,
-  onToggleConcentration,
   onToggleCondition,
   onUpdateInitiative,
   onShowDetail,
@@ -185,12 +182,6 @@ export default function CombatantCard({
                     <ExternalLink className="w-3 h-3 md:w-5 md:h-5" />
                   </a>
                 )}
-                <div className="flex items-center gap-1">
-                  <ConcentrationToggle
-                    active={combatant.concentration}
-                    onToggle={() => onToggleConcentration(combatant.id)}
-                  />
-                </div>
               </div>
             </div>
             <div className="flex gap-2">

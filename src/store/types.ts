@@ -42,7 +42,6 @@ export type CombatStateManager = {
     updateHP: (id: number, change: number) => void;
     updateInitiative: (id: number, newInitiative: number) => void;
     toggleCondition: (id: number, condition: string) => void;
-    toggleConcentration: (id: number) => void;
     updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
     nextTurn: () => void;
     prevTurn: () => void;

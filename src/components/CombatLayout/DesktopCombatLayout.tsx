@@ -10,7 +10,6 @@ type Props = {
   onRemove: (id: number) => void;
   onDeltaHp: (id: number, delta: number) => void;
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
-  onToggleConcentration: (id: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
 };
@@ -22,7 +21,6 @@ export default function DesktopCombatLayout({
   onRemove,
   onDeltaHp,
   onDeathSaves,
-  onToggleConcentration,
   onToggleCondition,
   onUpdateInitiative,
 }: Props) {
@@ -38,7 +36,6 @@ export default function DesktopCombatLayout({
           onRemove={onRemove}
           onDeltaHp={onDeltaHp}
           onDeathSaves={onDeathSaves}
-          onToggleConcentration={onToggleConcentration}
           onToggleCondition={onToggleCondition}
           onUpdateInitiative={onUpdateInitiative}
           isFocusMode={isFocusMode}

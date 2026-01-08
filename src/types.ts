@@ -58,7 +58,6 @@ export type Combatant = {
   displayName: string;
   initiative: number;
   conditions: string[];
-  concentration: boolean;
   deathSaves: DeathSaves;
   groupIndex: number;
   templateOrigin: TemplateOrigin;

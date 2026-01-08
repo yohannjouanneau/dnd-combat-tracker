@@ -51,7 +51,6 @@ function optimizeCombatant(combatant: Combatant): Combatant {
       groupIndex: combatant.groupIndex,
       hp: combatant.hp,
       conditions: combatant.conditions,
-      concentration: combatant.concentration,
       deathSaves: combatant.deathSaves,
       isReference: true,
     } as Combatant;
@@ -172,7 +171,6 @@ async function restoreCombatant(
     groupIndex: combatant.groupIndex,
     hp: combatant.hp ?? template.hp,
     conditions: combatant.conditions,
-    concentration: combatant.concentration,
     deathSaves: combatant.deathSaves,
     templateOrigin: combatant.templateOrigin,
   };
