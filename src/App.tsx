@@ -40,6 +40,18 @@ function App() {
     route
   ]);
 
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (combatStateManager.hasChanges && combatStateManager.state?.combatId) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [combatStateManager.hasChanges, combatStateManager.state?.combatId]);
+
   const open = (id: string) => {
     location.hash = `#play/${id}`;
   };
