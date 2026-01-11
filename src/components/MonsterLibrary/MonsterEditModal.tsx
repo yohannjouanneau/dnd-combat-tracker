@@ -40,7 +40,6 @@ export default function MonsterEditModal({
   const handleSearchResult = (searchResult: SearchResult) => {
     if (searchResult.source === "api") {
       const apiMonster = searchResult.monster as ApiMonster;
-      console.log(`DEBUG ==> monster conditions`, apiMonster.condition_immunities);
       const libraryMonster: SavedMonster = {
         id: formData.id,
         createdAt: Date.now(),
@@ -117,7 +116,7 @@ export default function MonsterEditModal({
                 label={t("forms:library.edit.fields.hp")}
                 value={formData.hp?.toString() ?? ""}
                 onChange={(v) =>
-                  setFormData({ ...formData, hp: safeParseInt(v) })
+                  setFormData({ ...formData, hp: safeParseInt(v), maxHp: safeParseInt(v) })
                 }
                 placeholder="50"
               />
