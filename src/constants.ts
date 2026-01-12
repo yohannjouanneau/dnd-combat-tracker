@@ -254,3 +254,28 @@ export const EDITOR_TAGS: EditorTag[] = [
 export const DICE_NOTATION_REGEX = /(\d+d\d+(?:\s*[+-]\s*\d+)?)/gi;
 export const DICE_NOTATION_TEST_REGEX = /^\d+d\d+(?:\s*[+-]\s*\d+)?$/i;
 
+// ============================================================
+// Markdown Rendering Configuration
+// ============================================================
+
+// Base64 Link Protection
+// These constants are used to encode/decode markdown links inside custom tags
+// to prevent the markdown parser from extracting them before our plugin runs.
+// Example: {spell: [Fireball](url)} → {spell: MDLINK<base64>ENDLINK}
+export const MARKDOWN_LINK_PROTECTION_PREFIX = 'MDLINK';
+export const MARKDOWN_LINK_PROTECTION_SUFFIX = 'ENDLINK';
+export const MARKDOWN_LINK_PROTECTION_REGEX = /MDLINK([A-Za-z0-9+/=]+)ENDLINK/g;
+
+// Regex to detect custom tags containing markdown links
+// Matches: {spell: [Fireball](url)}, {dmg: [text](url) more text}
+export const MARKDOWN_LINK_IN_TAG_REGEX = /\{([a-z]+):\s*\[([^\]]+)\]\(([^)]+)\)([^}]*)\}/gi;
+
+// Encoding prefixes for processed content in AST nodes
+// These prefixes identify custom tags and dice notation in inlineCode nodes
+export const CUSTOM_TAG_PREFIX = 'CUSTOMTAG';
+export const DICE_NOTATION_PREFIX = 'DICE';
+export const TAG_COMPONENT_SEPARATOR = '::';
+
+// Regex to parse markdown link notation [text](url) within tag content
+export const MARKDOWN_LINK_NOTATION_REGEX = /^\[([^\]]+)\]\(([^)]+)\)$/;
+
