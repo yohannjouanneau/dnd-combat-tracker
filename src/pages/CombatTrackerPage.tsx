@@ -41,6 +41,22 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const [addAnOther, setAddAnOther] = useState(false);
   const [editingMonster, setEditingMonster] = useState<SavedMonster | undefined>();
   const [showSettings, setShowSettings] = useState(false);
+  const [shouldScrollToActive, setShouldScrollToActive] = useState(false);
+
+  // Wrapper functions for turn navigation with scroll flag
+  const handleNextTurn = useCallback(() => {
+    setShouldScrollToActive(true);
+    combatStateManager.nextTurn();
+  }, [combatStateManager]);
+
+  const handlePrevTurn = useCallback(() => {
+    setShouldScrollToActive(true);
+    combatStateManager.prevTurn();
+  }, [combatStateManager]);
+
+  const handleClearScrollFlag = useCallback(() => {
+    setShouldScrollToActive(false);
+  }, []);
 
   // Keyboard shortcuts for turn navigation and focus mode
   useEffect(() => {
@@ -59,7 +75,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
       if (event.key === "ArrowRight") {
         event.preventDefault();
-        combatStateManager.nextTurn();
+        handleNextTurn();
       } else if (event.key === "ArrowLeft") {
         // Block previous turn if on first combatant of round 1
         const isAtStart =
@@ -67,7 +83,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           combatStateManager.state.currentTurn === 0;
         if (!isAtStart) {
           event.preventDefault();
-          combatStateManager.prevTurn();
+          handlePrevTurn();
         }
       } else if (event.key === "f" || event.key === "F") {
         // Toggle focus mode with F key
@@ -81,7 +97,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [combatants.length, combatStateManager]);
+  }, [combatants.length, combatStateManager, handleNextTurn, handlePrevTurn]);
 
   const handleEditParkedGroup = (combatant: NewCombatant) => {
     combatStateManager.includeParkedGroup(combatant);
@@ -318,8 +334,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               currentTurn={combatStateManager.state.currentTurn}
               isFocusMode={isFocusMode}
               combatantCount={combatants.length}
-              onPrev={combatStateManager.prevTurn}
-              onNext={combatStateManager.nextTurn}
+              onPrev={handlePrevTurn}
+              onNext={handleNextTurn}
               onToggleFocus={() => setIsFocusMode((prev) => !prev)}
               onOpenAddModal={() => openAddModal("fight")}
             />
@@ -330,6 +346,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           <CombatLayout
             combatants={combatants}
             currentTurn={combatStateManager.state.currentTurn}
+            shouldScrollToActive={shouldScrollToActive}
+            onClearScrollFlag={handleClearScrollFlag}
             isFocusMode={isFocusMode}
             onRemove={combatStateManager.removeCombatant}
             onDeltaHp={combatStateManager.updateHP}

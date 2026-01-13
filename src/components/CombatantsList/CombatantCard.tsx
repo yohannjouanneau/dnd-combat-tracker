@@ -12,6 +12,8 @@ import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 type Props = {
   combatant: Combatant;
   isActive: boolean;
+  shouldScroll: boolean;
+  onScrollComplete: () => void;
   onRemove: (id: number) => void;
   onDeltaHp: (id: number, delta: number) => void;
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
@@ -25,6 +27,8 @@ type Props = {
 export default function CombatantCard({
   combatant,
   isActive,
+  shouldScroll,
+  onScrollComplete,
   onRemove,
   onDeltaHp,
   onDeathSaves,
@@ -56,16 +60,17 @@ export default function CombatantCard({
   const [initValue, setInitValue] = useState(combatant.initiative.toString());
   const isDying = combatant.hp === 0;
 
-  // Scroll into view when this card becomes active
+  // Scroll into view only when explicitly requested
   useEffect(() => {
-    if (isActive && cardRef.current) {
+    if (shouldScroll && cardRef.current) {
       cardRef.current.scrollIntoView({
         behavior: "smooth",
         block: "center",
         inline: "nearest",
       });
+      onScrollComplete();
     }
-  }, [isActive]);
+  }, [shouldScroll, onScrollComplete]);
 
   // Auto-select text when entering edit mode
   useEffect(() => {

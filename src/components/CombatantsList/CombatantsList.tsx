@@ -4,6 +4,8 @@ import CombatantCard from "./CombatantCard";
 type Props = {
   combatants: Combatant[];
   currentTurn: number;
+  shouldScrollToActive: boolean;
+  onClearScrollFlag: () => void;
   onRemove: (id: number) => void;
   onDeltaHp: (id: number, delta: number) => void;
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
@@ -18,6 +20,8 @@ type Props = {
 export default function CombatantsList({
   combatants,
   currentTurn,
+  shouldScrollToActive,
+  onClearScrollFlag,
   onRemove,
   onDeltaHp,
   onDeathSaves,
@@ -39,6 +43,8 @@ export default function CombatantsList({
           key={c.id}
           combatant={c}
           isActive={index === currentTurn}
+          shouldScroll={index === currentTurn && shouldScrollToActive}
+          onScrollComplete={onClearScrollFlag}
           onRemove={onRemove}
           onDeltaHp={onDeltaHp}
           onDeathSaves={onDeathSaves}

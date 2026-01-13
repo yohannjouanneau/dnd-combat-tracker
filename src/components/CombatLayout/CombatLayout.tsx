@@ -6,6 +6,8 @@ import { useMediaQuery } from "../../hooks/useMediaQuery";
 type Props = {
   combatants: Combatant[];
   currentTurn: number;
+  shouldScrollToActive: boolean;
+  onClearScrollFlag: () => void;
   isFocusMode: boolean;
   onRemove: (id: number) => void;
   onDeltaHp: (id: number, delta: number) => void;
@@ -16,6 +18,8 @@ type Props = {
 export default function CombatLayout({
   combatants,
   currentTurn,
+  shouldScrollToActive,
+  onClearScrollFlag,
   isFocusMode,
   onRemove,
   onDeltaHp,
@@ -30,6 +34,8 @@ export default function CombatLayout({
       <DesktopCombatLayout
         combatants={combatants}
         currentTurn={currentTurn}
+        shouldScrollToActive={shouldScrollToActive}
+        onClearScrollFlag={onClearScrollFlag}
         isFocusMode={isFocusMode}
         onRemove={onRemove}
         onDeltaHp={onDeltaHp}
@@ -44,6 +50,8 @@ export default function CombatLayout({
     <MobileCombatLayout
       combatants={combatants}
       currentTurn={currentTurn}
+      shouldScrollToActive={shouldScrollToActive}
+      onClearScrollFlag={onClearScrollFlag}
       isFocusMode={isFocusMode}
       onRemove={onRemove}
       onDeltaHp={onDeltaHp}
