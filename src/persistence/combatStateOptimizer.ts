@@ -10,12 +10,11 @@ import type { DataStore } from "./storage";
 // Optimization functions
 
 /**
- * Optimizes a combatant for storage by removing template fields for library/parked references.
+ * Optimizes a combatant for storage by removing unchanged template fields for library/parked references.
  *
- * For combatants from libraries or parked groups, returns a lightweight reference object
- * containing only runtime state fields (hp, conditions, initiative, etc.) and a
- * templateOrigin pointer. Template fields (name, ac, maxHp, ability scores, presentation)
- * are omitted to save storage space.
+ * For combatants from libraries or parked groups, fetches the original template and computes a delta,
+ * storing only the fields that differ from the template. This preserves user edits while
+ * minimizing storage space.
  *
  * For combatants with origin "no_template", returns the full combatant unchanged.
  *
@@ -23,10 +22,16 @@ import type { DataStore } from "./storage";
  * restoreCombatant() before accessing template fields.
  *
  * @param combatant - The combatant to optimize
- * @returns Optimized combatant (may be a reference)
+ * @param dataStore - Data store for fetching templates to compute deltas
+ * @param parkedGroups - Parked groups for parked_group origin lookups
+ * @returns Optimized combatant (may be a reference with only changed fields)
  * @see restoreCombatant
  */
-function optimizeCombatant(combatant: Combatant): Combatant {
+async function optimizeCombatant(
+  combatant: Combatant,
+  dataStore: DataStore,
+  parkedGroups: NewCombatant[] = []
+): Promise<Combatant> {
   const origin = combatant.templateOrigin?.origin;
 
   // Keep full data for no_template
@@ -34,12 +39,27 @@ function optimizeCombatant(combatant: Combatant): Combatant {
     return combatant;
   }
 
-  // For library/parked references, keep only templateOrigin + runtime state
+  // For library/parked references, fetch template and compute delta
   if (
     origin === "monster_library" ||
     origin === "player_library" ||
     origin === "parked_group"
   ) {
+    // Fetch original template to compare
+    let template: SavedPlayer | SavedMonster | NewCombatant | undefined;
+    if (origin === "player_library") {
+      template = await dataStore.getPlayer(combatant.templateOrigin.id);
+    } else if (origin === "monster_library") {
+      template = await dataStore.getMonster(combatant.templateOrigin.id);
+    } else if (origin === "parked_group") {
+      template = parkedGroups.find(
+        (pg) => pg.id === combatant.templateOrigin.id
+      );
+    }
+
+    // Compute changed fields (only if template exists)
+    const overrides = template ? getChangedFormFields(combatant, template) : {};
+
     // Type assertion is safe here because we're intentionally creating
     // a partial object with isReference=true as a storage optimization.
     // The object will be restored to full Combatant via restoreCombatant().
@@ -53,44 +73,38 @@ function optimizeCombatant(combatant: Combatant): Combatant {
       conditions: combatant.conditions,
       deathSaves: combatant.deathSaves,
       isReference: true,
+      ...overrides,
     } as Combatant;
   }
 
   return combatant;
 }
 
-const COMPARABLE_FIELDS = [
+const COMPARABLE_FORM_FIELDS = [
   "name",
   "hp",
   "maxHp",
   "ac",
   "imageUrl",
   "externalResourceUrl",
-  "notes",
-  "str",
-  "dex",
-  "con",
-  "int",
-  "wis",
-  "cha",
 ] as const;
 
 /**
- * Computes the fields that differ between a parked group and its template.
+ * Computes the fields that differ between a combatant/parked group and its template.
  *
- * @param group - The parked group with potential edits
- * @param template - The original template from the library
+ * @param entity - The combatant or parked group with potential edits
+ * @param template - The original template from the library or parked groups
  * @returns An object containing only the fields that differ
  */
-function getChangedFields(
-  group: NewCombatant,
-  template: SavedPlayer | SavedMonster
+function getChangedFormFields(
+  entity: NewCombatant | Combatant,
+  template: SavedPlayer | SavedMonster | NewCombatant
 ): Partial<NewCombatant> {
   const overrides: Partial<NewCombatant> = {};
 
-  for (const field of COMPARABLE_FIELDS) {
-    if (group[field] !== template[field]) {
-      (overrides as Record<string, unknown>)[field] = group[field];
+  for (const field of COMPARABLE_FORM_FIELDS) {
+    if (entity[field] !== template[field]) {
+      (overrides as Record<string, unknown>)[field] = entity[field];
     }
   }
 
@@ -134,7 +148,7 @@ async function optimizeParkedGroup(
         : await dataStore.getMonster(group.templateOrigin.id);
 
     // Compute changed fields (only if template exists)
-    const overrides = template ? getChangedFields(group, template) : {};
+    const overrides = template ? getChangedFormFields(group, template) : {};
 
     // Type assertion is safe here because we're intentionally creating
     // a partial object with isReference=true as a storage optimization.
@@ -168,7 +182,11 @@ export async function cleanCombatStateForStorage(
 ): Promise<CombatState> {
   return {
     ...state,
-    combatants: state.combatants.map(optimizeCombatant),
+    combatants: await Promise.all(
+      state.combatants.map((c) =>
+        optimizeCombatant(c, dataStore, state.parkedGroups)
+      )
+    ),
     parkedGroups: await Promise.all(
       state.parkedGroups.map((g) => optimizeParkedGroup(g, dataStore))
     ),
@@ -181,7 +199,8 @@ export async function cleanCombatStateForStorage(
  * Restores a combatant reference to a full combatant by fetching template data.
  *
  * If the combatant is a reference (isReference=true), fetches the template from
- * the appropriate library and merges it with runtime state.
+ * the appropriate library and merges it with runtime state. Combatant overrides (user edits)
+ * take precedence over template values.
  *
  * If not a reference, returns the combatant unchanged.
  *
@@ -221,17 +240,18 @@ async function restoreCombatant(
     return undefined;
   }
 
-  // Merge template data with runtime state
+  // Extract combatant data without isReference (we don't want to persist it in the restored object)
+  // combatantData contains user overrides that take precedence over template values
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { isReference: _isRef, ...combatantData } = combatant;
+
+  // Return template merged with combatant overrides (user edits take precedence)
   return {
-    ...template,
-    id: combatant.id,
-    displayName: combatant.displayName,
-    initiative: combatant.initiative,
-    groupIndex: combatant.groupIndex,
+    ...template, // Template provides base values
+    ...combatantData, // Combatant overrides (only changed fields stored) take precedence
     hp: combatant.hp ?? template.hp,
     conditions: combatant.conditions,
     deathSaves: combatant.deathSaves,
-    templateOrigin: combatant.templateOrigin,
   };
 }
 
