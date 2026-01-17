@@ -111,7 +111,7 @@ export class DataStore {
     };
   }
   async createCombat(input: SavedCombatInput) {
-    const optimizedData = cleanCombatStateForStorage(input.data);
+    const optimizedData = await cleanCombatStateForStorage(input.data, this);
 
     const savedCombat = await this.combatProvider.create({
       ...input,
@@ -125,7 +125,7 @@ export class DataStore {
   }
   async updateCombat(id: string, patch: Partial<SavedCombat>) {
     if (patch.data) {
-      const optimizedData = cleanCombatStateForStorage(patch.data);
+      const optimizedData = await cleanCombatStateForStorage(patch.data, this);
       const optimizedPatch = {
         ...patch,
         data: optimizedData,
