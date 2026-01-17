@@ -59,11 +59,50 @@ function optimizeCombatant(combatant: Combatant): Combatant {
   return combatant;
 }
 
+const COMPARABLE_FIELDS = [
+  "name",
+  "hp",
+  "maxHp",
+  "ac",
+  "imageUrl",
+  "externalResourceUrl",
+  "notes",
+  "str",
+  "dex",
+  "con",
+  "int",
+  "wis",
+  "cha",
+] as const;
+
 /**
- * Optimizes a parked group for storage by removing template fields for library references.
+ * Computes the fields that differ between a parked group and its template.
  *
- * For parked groups from libraries, returns a lightweight reference object
- * containing only templateOrigin, initiative data, and color.
+ * @param group - The parked group with potential edits
+ * @param template - The original template from the library
+ * @returns An object containing only the fields that differ
+ */
+function getChangedFields(
+  group: NewCombatant,
+  template: SavedPlayer | SavedMonster
+): Partial<NewCombatant> {
+  const overrides: Partial<NewCombatant> = {};
+
+  for (const field of COMPARABLE_FIELDS) {
+    if (group[field] !== template[field]) {
+      (overrides as Record<string, unknown>)[field] = group[field];
+    }
+  }
+
+  return overrides;
+}
+
+/**
+ * Optimizes a parked group for storage by removing unchanged template fields for library references.
+ *
+ * For parked groups from libraries, fetches the original template and computes a delta,
+ * storing only the fields that differ from the template. This preserves user edits while
+ * minimizing storage space.
  *
  * For parked groups with origin "no_template" or "parked_group", returns the full group unchanged.
  *
@@ -71,10 +110,14 @@ function optimizeCombatant(combatant: Combatant): Combatant {
  * restoreParkedGroup() before accessing template fields.
  *
  * @param group - The parked group to optimize
- * @returns Optimized parked group (may be a reference)
+ * @param dataStore - Data store for fetching templates to compute deltas
+ * @returns Optimized parked group (may be a reference with only changed fields)
  * @see restoreParkedGroup
  */
-function optimizeParkedGroup(group: NewCombatant): NewCombatant {
+async function optimizeParkedGroup(
+  group: NewCombatant,
+  dataStore: DataStore
+): Promise<NewCombatant> {
   const origin = group.templateOrigin?.origin;
 
   // Keep full data for no_template and parked_group
@@ -82,8 +125,17 @@ function optimizeParkedGroup(group: NewCombatant): NewCombatant {
     return group;
   }
 
-  // For library references, keep templateOrigin + initiative data + color
+  // For library references, fetch template and compute delta
   if (origin === "player_library" || origin === "monster_library") {
+    // Fetch original template to compare
+    const template =
+      origin === "player_library"
+        ? await dataStore.getPlayer(group.templateOrigin.id)
+        : await dataStore.getMonster(group.templateOrigin.id);
+
+    // Compute changed fields (only if template exists)
+    const overrides = template ? getChangedFields(group, template) : {};
+
     // Type assertion is safe here because we're intentionally creating
     // a partial object with isReference=true as a storage optimization.
     // The object will be restored to full NewCombatant via restoreParkedGroup().
@@ -94,6 +146,7 @@ function optimizeParkedGroup(group: NewCombatant): NewCombatant {
       initBonus: group.initBonus,
       color: group.color,
       isReference: true,
+      ...overrides,
     } as NewCombatant;
   }
 
@@ -104,15 +157,21 @@ function optimizeParkedGroup(group: NewCombatant): NewCombatant {
  * Prepares combat state for storage by optimizing combatants and parked groups.
  *
  * @param state - The combat state to optimize
+ * @param dataStore - Data store for fetching templates to compute deltas
  * @returns Optimized combat state ready for storage
  * @see optimizeCombatant
  * @see optimizeParkedGroup
  */
-export function cleanCombatStateForStorage(state: CombatState): CombatState {
+export async function cleanCombatStateForStorage(
+  state: CombatState,
+  dataStore: DataStore
+): Promise<CombatState> {
   return {
     ...state,
     combatants: state.combatants.map(optimizeCombatant),
-    parkedGroups: state.parkedGroups.map(optimizeParkedGroup),
+    parkedGroups: await Promise.all(
+      state.parkedGroups.map((g) => optimizeParkedGroup(g, dataStore))
+    ),
   };
 }
 
@@ -180,7 +239,8 @@ async function restoreCombatant(
  * Restores a parked group reference to a full template by fetching from libraries.
  *
  * If the parked group is a reference (isReference=true), fetches the template from
- * the appropriate library and merges it with saved initiative data and color.
+ * the appropriate library and merges it with saved data. Group overrides (user edits)
+ * take precedence over template values.
  *
  * If not a reference, returns the parked group unchanged.
  *
@@ -211,17 +271,19 @@ async function restoreParkedGroup(
     console.error(
       `Template not found for parked group, origin: ${origin.origin}, id: ${origin.id}`
     );
-    return undefined
+    return undefined;
   }
 
-  // Return template with templateOrigin and initiative data + color from the reference
+  // Extract groupData without isReference (we don't want to persist it in the restored object)
+  // groupData contains user overrides that take precedence over template values
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { isReference: _isRef, ...groupData } = group;
+
+  // Return template merged with group overrides (user edits take precedence)
   return {
-    ...template,
-    id: group.id,
-    templateOrigin: origin,
-    initiativeGroups: group.initiativeGroups,
+    ...template, // Template provides base values
+    ...groupData, // Group overrides (only changed fields stored) take precedence
     initBonus: group.initBonus ?? template.initBonus ?? 0,
-    color: group.color,
   };
 }
 
