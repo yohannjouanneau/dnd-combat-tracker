@@ -301,6 +301,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               onFight={addPlayerToFight}
               onRemove={combatStateManager.removePlayer}
               onOpenAddModal={() => openAddModal("player")}
+              onUpdateInitiative={combatStateManager.updatePlayerInitiative}
             />
 
             <ParkedGroupsPanel

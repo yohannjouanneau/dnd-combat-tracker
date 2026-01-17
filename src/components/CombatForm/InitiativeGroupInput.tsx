@@ -31,8 +31,12 @@ export default function InitiativeGroupInput({
   }, [initBonus, group.id, onChange]);
 
   useEffect(() => {
-    rollInitiative();
-  }, [rollInitiative]);
+    // Only auto-roll if initiative is empty (not when loading saved player)
+    if (!group.initiative) {
+      rollInitiative();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex flex-col gap-2 p-2 bg-panel-secondary rounded border border-border-secondary">

@@ -8,13 +8,14 @@ import { useTranslation } from "react-i18next";
 interface PlayerActions {
   loadPlayers: () => Promise<void>;
   removePlayer: (id: string) => Promise<void>;
-  includePlayer: (player: SavedPlayer) => void;
+  includePlayer: (player: SavedPlayer) => Promise<void>;
   addPlayerFromForm: () => Promise<void>;
   savePlayerFromForm: (params: {
     isFightModeEnabled: boolean;
     prepareCombatantList: (prev: CombatState, nc: NewCombatant) => Combatant[];
     resetForm: () => Partial<CombatState>;
   }) => Promise<void>;
+  updatePlayerInitiative: (id: string, initiative: number) => Promise<void>;
 }
 
 interface PlayerState {
@@ -64,23 +65,25 @@ export function usePlayerStore({
 
   // Include player into form by updating parent's combatState
   const includePlayer = useCallback(
-    (player: SavedPlayer) => {
+    async (player: SavedPlayer) => {
+      // Read fresh player data directly from dataStore to avoid stale React state
+      const freshPlayer = await dataStore.getPlayer(player.id) ?? player;
       updateState({
         newCombatant: {
           id: generateId(),
           type: "player",
-          name: player.name,
-          initiativeGroups: player.initiativeGroups,
-          hp: player.hp,
-          maxHp: player.maxHp,
-          ac: player.ac,
-          color: player.color,
-          imageUrl: player.imageUrl,
-          initBonus: player.initBonus,
-          externalResourceUrl: player.externalResourceUrl,
+          name: freshPlayer.name,
+          initiativeGroups: freshPlayer.initiativeGroups,
+          hp: freshPlayer.hp,
+          maxHp: freshPlayer.maxHp,
+          ac: freshPlayer.ac,
+          color: freshPlayer.color,
+          imageUrl: freshPlayer.imageUrl,
+          initBonus: freshPlayer.initBonus,
+          externalResourceUrl: freshPlayer.externalResourceUrl,
           templateOrigin: {
             origin: "player_library",
-            id: player.id,
+            id: freshPlayer.id,
           },
         },
       });
@@ -201,6 +204,27 @@ export function usePlayerStore({
     [combatState, savedPlayers, loadPlayers, toastApi, t, updateState]
   );
 
+  // Update player initiative
+  const updatePlayerInitiative = useCallback(
+    async (id: string, initiative: number) => {
+      // Find existing player to preserve initiative group ID
+      const player = savedPlayers.find((p) => p.id === id);
+      const existingGroup = player?.initiativeGroups[0];
+
+      await dataStore.updatePlayer(id, {
+        initiativeGroups: [
+          {
+            id: existingGroup?.id ?? generateId(),
+            initiative: String(initiative),
+            count: existingGroup?.count ?? "1",
+          },
+        ],
+      });
+      await loadPlayers();
+    },
+    [loadPlayers, savedPlayers]
+  );
+
   return {
     state: {
       savedPlayers,
@@ -211,6 +235,7 @@ export function usePlayerStore({
       includePlayer,
       addPlayerFromForm,
       savePlayerFromForm,
+      updatePlayerInitiative,
     },
   };
 }

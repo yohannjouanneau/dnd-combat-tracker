@@ -127,6 +127,7 @@ export function useCombatState(): CombatStateManager {
       includePlayer: playerStore.actions.includePlayer,
       savedPlayers: playerStore.state.savedPlayers,
       loadPlayers: playerStore.actions.loadPlayers,
+      updatePlayerInitiative: playerStore.actions.updatePlayerInitiative,
 
       // Saved combats
       loadCombat: combatStore.actions.loadCombat,
@@ -214,6 +215,7 @@ export function useCombatState(): CombatStateManager {
       playerStore.actions.includePlayer,
       playerStore.actions.loadPlayers,
       playerStore.actions.removePlayer,
+      playerStore.actions.updatePlayerInitiative,
       playerStore.state.savedPlayers,
       resetState,
       savePlayerFromForm,
