@@ -21,7 +21,7 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta, isQuickBut
   // Auto-focus input when combatant becomes active (desktop only)
   useEffect(() => {
     if (isActive && inputRef.current && window.innerWidth >= 768) {
-      inputRef.current.focus();
+      inputRef.current.focus({ preventScroll: true });
     }
   }, [isActive]);
 

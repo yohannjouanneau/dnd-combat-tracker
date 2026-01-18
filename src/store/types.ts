@@ -14,6 +14,7 @@ export type CombatStateManager = {
     includePlayer: (player: SavedPlayer) => void;
     savedPlayers: SavedPlayer[];
     loadPlayers: () => Promise<void>;
+    updatePlayerInitiative: (id: string, initiative: number) => Promise<void>;
 
     // Parked Groups
     addParkedGroupFromForm: (isFightModeEnabled: boolean) => void;

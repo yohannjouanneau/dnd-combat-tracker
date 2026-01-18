@@ -5,10 +5,11 @@ import SavedPlayerItem from "./SavedPlayerItem";
 
 type Props = {
   savedPlayers: SavedPlayer[];
-  onInclude: (player: SavedPlayer) => void;
+  onInclude: (player: SavedPlayer) => Promise<void>;
   onFight: (player: SavedPlayer) => void;
   onRemove: (id: string) => void;
   onOpenAddModal: () => void;
+  onUpdateInitiative: (id: string, initiative: number) => Promise<void>;
 };
 
 export default function SavedPlayersPanel({
@@ -17,6 +18,7 @@ export default function SavedPlayersPanel({
   onFight,
   onRemove,
   onOpenAddModal,
+  onUpdateInitiative,
 }: Props) {
   const { t } = useTranslation("forms");
 
@@ -52,6 +54,7 @@ export default function SavedPlayersPanel({
               onInclude={onInclude}
               onFight={onFight}
               onRemove={onRemove}
+              onUpdateInitiative={onUpdateInitiative}
             />
           ))}
         </div>

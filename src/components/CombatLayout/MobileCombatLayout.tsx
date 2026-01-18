@@ -6,6 +6,8 @@ import CombatantDetailPanel from "../CombatantDetailPanel/CombatantDetailPanel";
 type Props = {
   combatants: Combatant[];
   currentTurn: number;
+  shouldScrollToActive: boolean;
+  onClearScrollFlag: () => void;
   isFocusMode: boolean;
   onRemove: (id: number) => void;
   onDeltaHp: (id: number, delta: number) => void;
@@ -17,6 +19,8 @@ type Props = {
 export default function MobileCombatLayout({
   combatants,
   currentTurn,
+  shouldScrollToActive,
+  onClearScrollFlag,
   isFocusMode,
   onRemove,
   onDeltaHp,
@@ -54,6 +58,8 @@ export default function MobileCombatLayout({
           <CombatantsList
             combatants={combatants}
             currentTurn={currentTurn}
+            shouldScrollToActive={shouldScrollToActive}
+            onClearScrollFlag={onClearScrollFlag}
             onShowDetail={() => setShowDetail(true)}
             onRemove={onRemove}
             onDeltaHp={onDeltaHp}
