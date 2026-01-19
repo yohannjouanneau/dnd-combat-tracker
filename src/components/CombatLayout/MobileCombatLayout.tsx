@@ -14,6 +14,10 @@ type Props = {
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
+  selectedCombatantId: number | null;
+  onSelectCombatant: (id: number) => void;
+  showDetail: boolean;
+  onCloseDetail: () => void;
 };
 
 export default function MobileCombatLayout({
@@ -27,15 +31,16 @@ export default function MobileCombatLayout({
   onDeathSaves,
   onToggleCondition,
   onUpdateInitiative,
+  selectedCombatantId,
+  onSelectCombatant,
+  showDetail,
+  onCloseDetail,
 }: Props) {
-  const [showDetail, setShowDetail] = useState(false);
   const [openQuickButtonsId, setOpenQuickButtonsId] = useState<number | null>(null);
-  const activeCombatant = combatants[currentTurn] ?? null;
 
-  // Auto-close detail when turn changes
-  useEffect(() => {
-    setShowDetail(false);
-  }, [currentTurn]);
+  const selectedCombatant = selectedCombatantId !== null
+    ? combatants.find(c => c.id === selectedCombatantId) ?? null
+    : null;
 
   // Auto-close QuickButtons when turn changes
   useEffect(() => {
@@ -60,7 +65,6 @@ export default function MobileCombatLayout({
             currentTurn={currentTurn}
             shouldScrollToActive={shouldScrollToActive}
             onClearScrollFlag={onClearScrollFlag}
-            onShowDetail={() => setShowDetail(true)}
             onRemove={onRemove}
             onDeltaHp={onDeltaHp}
             onDeathSaves={onDeathSaves}
@@ -69,16 +73,18 @@ export default function MobileCombatLayout({
             isFocusMode={isFocusMode}
             openQuickButtonsId={openQuickButtonsId}
             onToggleQuickButtons={handleToggleQuickButtons}
+            selectedCombatantId={selectedCombatantId}
+            onSelectCombatant={onSelectCombatant}
           />
         </div>
 
         {/* Slide 2: Detail panel */}
         <div className="w-full flex-shrink-0 flex flex-col overflow-y-auto">
-          {activeCombatant && (
+          {selectedCombatant && (
             <div className="my-auto w-full">
               <CombatantDetailPanel
-                combatant={activeCombatant}
-                onClose={() => setShowDetail(false)}
+                combatant={selectedCombatant}
+                onClose={onCloseDetail}
               />
             </div>
           )}

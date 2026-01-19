@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { getHpColorClass } from '../../utils/utils';
 
 type Props = {
   inputId: string;
@@ -74,7 +75,7 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta, isQuickBut
       {/* HP Progress Bar */}
       <div className="w-full bg-panel-secondary rounded-full h-3 overflow-hidden mb-3">
         <div
-          className={`h-full transition-all ${pct > 50 ? 'bg-green-500' : pct > 25 ? 'bg-yellow-500' : 'bg-red-500'}`}
+          className={`h-full transition-all ${getHpColorClass(hp, maxHp, 'bg')}`}
           style={{ width: `${pct}%` }}
         />
       </div>

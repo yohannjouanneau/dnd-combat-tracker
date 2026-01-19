@@ -134,3 +134,18 @@ export function generateDefaultNewCombatant() {
   }
 }
 
+/**
+ * Returns a color class based on HP percentage
+ * - > 50%: green
+ * - 26-50%: yellow
+ * - ≤ 25%: red
+ *
+ * Tailwind safelist: bg-green-500 bg-yellow-500 bg-red-500 text-green-400 text-yellow-400 text-red-400
+ */
+export function getHpColorClass(hp: number, maxHp: number, type: 'bg' | 'text' = 'text'): string {
+  const pct = maxHp > 0 ? (hp / maxHp) * 100 : 0;
+  const color = pct > 50 ? 'green' : pct > 25 ? 'yellow' : 'red';
+  const shade = type === 'bg' ? '500' : '400';
+  return `${type}-${color}-${shade}`;
+}
+
