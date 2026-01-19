@@ -5,7 +5,7 @@ import SavedPlayerItem from "./SavedPlayerItem";
 
 type Props = {
   savedPlayers: SavedPlayer[];
-  onInclude: (player: SavedPlayer) => Promise<void>;
+  onInclude: (player: SavedPlayer) => void;
   onFight: (player: SavedPlayer) => void;
   onRemove: (id: string) => void;
   onOpenAddModal: () => void;

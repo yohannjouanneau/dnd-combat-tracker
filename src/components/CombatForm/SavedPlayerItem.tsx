@@ -7,7 +7,7 @@ import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 
 type Props = {
   player: SavedPlayer;
-  onInclude: (player: SavedPlayer) => Promise<void>;
+  onInclude: (player: SavedPlayer) => void;
   onFight: (player: SavedPlayer) => void;
   onRemove: (id: string) => void;
   onUpdateInitiative: (id: string, initiative: number) => Promise<void>;
