@@ -11,10 +11,11 @@ type Props = {
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
-  onShowDetail?: () => void;
   isFocusMode?: boolean;
   openQuickButtonsId?: number | null;
   onToggleQuickButtons?: (id: number) => void;
+  selectedCombatantId?: number | null;
+  onSelectCombatant?: (id: number) => void;
 };
 
 export default function CombatantsList({
@@ -27,10 +28,11 @@ export default function CombatantsList({
   onDeathSaves,
   onToggleCondition,
   onUpdateInitiative,
-  onShowDetail,
   isFocusMode = false,
   openQuickButtonsId,
   onToggleQuickButtons,
+  selectedCombatantId,
+  onSelectCombatant,
 }: Props) {
   return (
     <div
@@ -43,6 +45,8 @@ export default function CombatantsList({
           key={c.id}
           combatant={c}
           isActive={index === currentTurn}
+          isSelected={c.id === selectedCombatantId}
+          showEyeButton={isFocusMode}
           shouldScroll={index === currentTurn && shouldScrollToActive}
           onScrollComplete={onClearScrollFlag}
           onRemove={onRemove}
@@ -50,7 +54,7 @@ export default function CombatantsList({
           onDeathSaves={onDeathSaves}
           onToggleCondition={onToggleCondition}
           onUpdateInitiative={onUpdateInitiative}
-          onShowDetail={onShowDetail}
+          onShowDetail={onSelectCombatant ? () => onSelectCombatant(c.id) : undefined}
           isQuickButtonsOpen={openQuickButtonsId === c.id}
           onToggleQuickButtons={onToggleQuickButtons}
         />

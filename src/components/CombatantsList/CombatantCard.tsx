@@ -12,6 +12,8 @@ import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 type Props = {
   combatant: Combatant;
   isActive: boolean;
+  isSelected?: boolean;
+  showEyeButton?: boolean;
   shouldScroll: boolean;
   onScrollComplete: () => void;
   onRemove: (id: number) => void;
@@ -27,6 +29,8 @@ type Props = {
 export default function CombatantCard({
   combatant,
   isActive,
+  isSelected = false,
+  showEyeButton = false,
   shouldScroll,
   onScrollComplete,
   onRemove,
@@ -112,12 +116,17 @@ export default function CombatantCard({
     }
   };
 
+  // Selection visual only shows when selected but NOT active (active takes priority)
+  const showSelectionVisual = isSelected && !isActive;
+
   return (
     <div
       ref={cardRef}
       className={`bg-panel-bg rounded-lg p-4 md:p-6 border-2 transition ${
         isActive
           ? "border-yellow-500 shadow-lg shadow-yellow-500/20"
+          : showSelectionVisual
+          ? "border-selection shadow-lg shadow-selection/20"
           : "border-border-primary"
       }`}
       style={{ borderLeftWidth: "6px", borderLeftColor: combatant.color }}
@@ -190,12 +199,16 @@ export default function CombatantCard({
               </div>
             </div>
             <div className="flex gap-2">
-              {isActive && onShowDetail && (
+              {showEyeButton && onShowDetail && (
                 <button
                   onClick={() => {
                     onShowDetail();
                   }}
-                  className="text-text-secondary hover:text-text-secondary/60 transition flex-shrink-0 p-1 md:hidden"
+                  className={`transition flex-shrink-0 p-1 ${
+                    isSelected
+                      ? "text-selection hover:text-selection/60"
+                      : "text-text-secondary hover:text-text-secondary/60"
+                  }`}
                   title="View details"
                 >
                   <Eye className="w-5 h-5" />

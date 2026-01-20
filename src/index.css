@@ -18,6 +18,7 @@
     --color-accent: 156 85 45; /* Deep rust accent */
     --color-accent-hover: 125 65 35; /* Darker rust accent hover */
     --color-accent-text: 255 255 255; /* White text on accent */
+    --color-selection: 160 100 60; /* Deep terracotta selection */
   }
 
   html.light {
@@ -35,6 +36,7 @@
     --color-accent: 156 85 45; /* Deep rust accent */
     --color-accent-hover: 125 65 35; /* Darker rust accent hover */
     --color-accent-text: 255 255 255; /* White text on accent */
+    --color-selection: 160 100 60; /* Deep terracotta selection */
   }
 
   html.dark {
@@ -52,6 +54,7 @@
     --color-accent: 99 102 241; /* Vibrant indigo accent */
     --color-accent-hover: 79 70 229; /* Deeper indigo accent hover */
     --color-accent-text: 255 255 255; /* White text on accent */
+    --color-selection: 129 140 248; /* Bright indigo selection */
   }
 
   html.forest {
@@ -69,6 +72,7 @@
     --color-accent: 132 107 41; /* Golden olive accent */
     --color-accent-hover: 107 87 31; /* Darker golden olive accent hover */
     --color-accent-text: 255 255 255; /* White text on accent */
+    --color-selection: 60 120 70; /* Deep forest green selection */
   }
 
   /* Future themes can be added here */

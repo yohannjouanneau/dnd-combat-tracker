@@ -34,6 +34,7 @@ export default {
         'accent': withOpacity('--color-accent'),
         'accent-hover': withOpacity('--color-accent-hover'),
         'accent-text': withOpacity('--color-accent-text'),
+        'selection': withOpacity('--color-selection'),
       },
     },
   },
