@@ -1,5 +1,5 @@
 import type { SyncApi } from "../api/sync/types";
-import type { CombatState, SavedCombat, SavedPlayer, NewCombatant, InitiativeGroup, DeathSaves, SavedCombatInput, SavedMonster, MonsterCombatant, SearchResult, SearchSource, GroupSummary, TemplateOrigin } from "../types";
+import type { CombatState, SavedCombat, SavedPlayer, NewCombatant, InitiativeGroup, DeathSaves, SavedCombatInput, SavedMonster, MonsterCombatant, PlayerCombatant, SearchResult, SearchSource, GroupSummary, TemplateOrigin } from "../types";
 
 export type CombatStateManager = {
     // State
@@ -15,6 +15,9 @@ export type CombatStateManager = {
     savedPlayers: SavedPlayer[];
     loadPlayers: () => Promise<void>;
     updatePlayerInitiative: (id: string, initiative: number) => Promise<void>;
+    createPlayer: (player: PlayerCombatant) => Promise<void>;
+    updatePlayer: (id: string, player: SavedPlayer) => Promise<void>;
+    isPlayerUsedAsTemplate: (id: string) => Promise<boolean>;
 
     // Parked Groups
     addParkedGroupFromForm: (isFightModeEnabled: boolean) => void;

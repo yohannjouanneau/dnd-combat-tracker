@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import type { CombatState, SavedPlayer, NewCombatant, Combatant } from "../../types";
+import type { CombatState, SavedPlayer, NewCombatant, Combatant, PlayerCombatant } from "../../types";
 import { dataStore } from "../../persistence/storage";
 import { generateId } from "../../utils/utils";
 import { useToast } from "../../components/common/Toast/useToast";
@@ -16,6 +16,9 @@ interface PlayerActions {
     resetForm: () => Partial<CombatState>;
   }) => Promise<void>;
   updatePlayerInitiative: (id: string, initiative: number) => Promise<void>;
+  createPlayer: (player: PlayerCombatant) => Promise<void>;
+  updatePlayer: (id: string, player: SavedPlayer) => Promise<void>;
+  isPlayerUsedAsTemplate: (id: string) => Promise<boolean>;
 }
 
 interface PlayerState {
@@ -225,6 +228,53 @@ export function usePlayerStore({
     [loadPlayers, savedPlayers]
   );
 
+  // Create a new player from the library
+  const createPlayer = useCallback(
+    async (player: PlayerCombatant) => {
+      await dataStore.createPlayer(player);
+      await loadPlayers();
+    },
+    [loadPlayers]
+  );
+
+  // Update an existing player from the library
+  const updatePlayer = useCallback(
+    async (id: string, player: SavedPlayer) => {
+      await dataStore.updatePlayer(id, player);
+      await loadPlayers();
+    },
+    [loadPlayers]
+  );
+
+  // Check if a player is used as a template in any saved combat
+  const isPlayerUsedAsTemplate = useCallback(async (id: string): Promise<boolean> => {
+    try {
+      const allCombats = await dataStore.listCombat();
+      for (const combat of allCombats) {
+        for (const combatant of combat.data.combatants) {
+          if (
+            combatant.templateOrigin?.origin === "player_library" &&
+            combatant.templateOrigin.id === id
+          ) {
+            return true;
+          }
+        }
+        for (const group of combat.data.parkedGroups) {
+          if (
+            group.templateOrigin?.origin === "player_library" &&
+            group.templateOrigin.id === id
+          ) {
+            return true;
+          }
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking if player is used as template:", error);
+      return false;
+    }
+  }, []);
+
   return {
     state: {
       savedPlayers,
@@ -236,6 +286,9 @@ export function usePlayerStore({
       addPlayerFromForm,
       savePlayerFromForm,
       updatePlayerInitiative,
+      createPlayer,
+      updatePlayer,
+      isPlayerUsedAsTemplate,
     },
   };
 }

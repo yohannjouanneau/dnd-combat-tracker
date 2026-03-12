@@ -225,8 +225,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   }, [combatStateManager.state.newCombatant, combatStateManager.monsters]);
 
   const handleUpdateMonster = useCallback(
-    (updated: SavedMonster) => {
-      combatStateManager.updateMonster(updated.id, updated);
+    (updated: SavedMonster | SavedPlayer) => {
+      combatStateManager.updateMonster(updated.id, updated as SavedMonster);
       setEditingMonster(undefined);
     },
     [combatStateManager]
@@ -369,6 +369,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         <MonsterLibraryModal
           isOpen={showLibrary}
           monsters={combatStateManager.monsters}
+          players={combatStateManager.savedPlayers}
           canLoadToForm={true}
           onClose={() => {
             setShowLibrary(false);
@@ -384,10 +385,14 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onCreate={combatStateManager.createMonster}
           onDelete={combatStateManager.removeMonster}
           onUpdate={combatStateManager.updateMonster}
+          onCreatePlayer={combatStateManager.createPlayer}
+          onUpdatePlayer={combatStateManager.updatePlayer}
+          onDeletePlayer={combatStateManager.removePlayer}
           onSearchMonsters={(query: string) => {
             return combatStateManager.searchWithLibrary(query, "api");
           }}
           isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
+          isPlayerUsedAsTemplate={combatStateManager.isPlayerUsedAsTemplate}
         />
 
         {/* Add Combatant Modal */}

@@ -89,14 +89,27 @@
   },
   "library": {
     "title": "Bibliothèque",
+    "filter": {
+      "all": "Tous",
+      "monsters": "Monstres",
+      "players": "Joueurs"
+    },
     "emptyListTitle": "Aucun monstre dans votre bibliothèque pour le moment.",
     "emptyListMessage": "Sauvegardez des monstres depuis le formulaire de combat pour créer votre collection !",
+    "emptyListTitlePlayers": "Aucun joueur dans votre bibliothèque pour le moment.",
+    "emptyListMessagePlayers": "Créez des joueurs pour les réutiliser dans plusieurs combats !",
+    "emptyListTitleAll": "Votre bibliothèque est vide.",
+    "emptyListMessageAll": "Sauvegardez des monstres ou créez des joueurs pour construire votre collection !",
     "new": "Nouveau",
     "newHint": "Ajouter un monstre",
+    "newPlayer": "Nouveau joueur",
+    "newPlayerHint": "Ajouter un joueur",
     "edit": {
       "title": {
         "create": "Créer un nouveau monstre",
-        "edit": "Modifier le monstre : {{name}}"
+        "edit": "Modifier le monstre : {{name}}",
+        "createPlayer": "Créer un nouveau joueur",
+        "editPlayer": "Modifier le joueur : {{name}}"
       },
       "sections": {
         "abilityScores": "Caractéristiques"
@@ -116,11 +129,13 @@
       },
       "placeholders": {
         "name": "Tapez pour rechercher des monstres...",
+        "namePlayer": "Nom du joueur...",
         "imageUrl": "https://exemple.com/image.png",
         "externalResourceUrl": "https://monsitedndfavoris.co"
       },
       "validation": {
-        "nameRequired": "Le nom du monstre est obligatoire"
+        "nameRequired": "Le nom du monstre est obligatoire",
+        "nameRequiredPlayer": "Le nom du joueur est obligatoire"
       },
       "openInNewTab": "Ouvrir dans un nouvel onglet"
     },
@@ -132,7 +147,9 @@
       "actions": {
         "load": "Charger dans le formulaire",
         "edit": "Modifier le monstre",
-        "delete": "Supprimer le monstre"
+        "delete": "Supprimer le monstre",
+        "editPlayer": "Modifier le joueur",
+        "deletePlayer": "Supprimer le joueur"
       },
       "abilities": {
         "str": "FOR",

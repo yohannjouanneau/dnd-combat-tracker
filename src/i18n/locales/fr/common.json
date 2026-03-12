@@ -65,6 +65,14 @@
       "title": "Impossible de supprimer le monstre",
       "message": "« {{name}} » ne peut pas être supprimé car il est actuellement utilisé dans un ou plusieurs combats. Retirez-le d'abord de tous les combats."
     },
+    "deletePlayerFromLibrary": {
+      "title": "Supprimer le joueur",
+      "message": "Êtes-vous sûr de vouloir supprimer « {{name}} » ? Cette action est irréversible."
+    },
+    "cannotDeletePlayerFromLibrary": {
+      "title": "Impossible de supprimer le joueur",
+      "message": "« {{name}} » ne peut pas être supprimé car il est actuellement utilisé dans un ou plusieurs combats. Retirez-le d'abord de tous les combats."
+    },
     "addToLibrary": {
       "success": "Ajouté a la bibliothèque"
     },

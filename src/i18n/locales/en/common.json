@@ -65,6 +65,14 @@
       "title": "Cannot Delete Monster",
       "message": "\"{{name}}\" cannot be deleted because it is currently used in one or more combats. Remove it from all combats first."
     },
+    "deletePlayerFromLibrary": {
+      "title": "Delete Player",
+      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    },
+    "cannotDeletePlayerFromLibrary": {
+      "title": "Cannot Delete Player",
+      "message": "\"{{name}}\" cannot be deleted because it is currently used in one or more combats. Remove it from all combats first."
+    },
     "addToLibrary": {
       "success": "Added to the library"
     },
