@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Edit, Sword, Trash2 } from "lucide-react";
+import { Edit, Sword, UserMinus } from "lucide-react";
 import type { SavedPlayer } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { useTranslation } from "react-i18next";
@@ -13,7 +13,7 @@ type Props = {
   onUpdateInitiative: (id: string, initiative: number) => Promise<void>;
 };
 
-export default function SavedPlayerItem({
+export default function PlayerItem({
   player,
   onInclude,
   onFight,
@@ -126,23 +126,23 @@ export default function SavedPlayerItem({
           <button
             onClick={() => onInclude(player)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center transition min-w-[44px]"
-            title={t("forms:savedPlayers:editTooltip")}
+            title={t("forms:players:editTooltip")}
           >
             <Edit className="w-4 h-4" />
           </button>
           <button
             onClick={() => onFight(player)}
             className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center transition min-w-[44px]"
-            title={t("forms:savedPlayers:fightTooltip")}
+            title={t("forms:players:fightTooltip")}
           >
             <Sword className="w-4 h-4" />
           </button>
           <button
             onClick={() => confirmRemove()}
             className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition min-w-[44px] flex items-center justify-center"
-            title={t("forms:savedPlayers:deleteTooltip")}
+            title={t("forms:players:deleteTooltip")}
           >
-            <Trash2 className="w-4 h-4" />
+            <UserMinus className="w-4 h-4" />
           </button>
         </div>
       </div>

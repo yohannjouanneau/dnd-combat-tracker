@@ -1,4 +1,4 @@
-import { Trash2, Edit, ClipboardPaste } from "lucide-react";
+import { Trash2, Edit, ClipboardPaste, Sword } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster, SavedPlayer } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
@@ -11,16 +11,20 @@ type Props = {
   onLoadToForm?: (monster: SavedMonster) => void;
   onEdit?: (monster: SavedMonster | SavedPlayer) => void;
   onDelete: (id: string) => void;
-  isUsedAsTemplate: (id: string) => Promise<boolean>
+  isUsedAsTemplate: (id: string) => Promise<boolean>;
+  onAddToFight?: (player: SavedPlayer) => void;
+  onToggleAutoAdd?: (player: SavedPlayer) => void;
 };
 
-export default function MonsterListItem({
+export default function LibraryListItem({
   monster,
   canLoadToForm = false,
   onLoadToForm,
   onEdit,
   onDelete,
-  isUsedAsTemplate
+  isUsedAsTemplate,
+  onAddToFight,
+  onToggleAutoAdd,
 }: Props) {
   const { t } = useTranslation(["forms", "common"]);
   const isPlayer = monster.type === "player";
@@ -130,6 +134,17 @@ export default function MonsterListItem({
             </button>
           )}
 
+          {/* Add Player to Fight Button */}
+          {isPlayer && onAddToFight && (
+            <button
+              onClick={() => onAddToFight(monster as SavedPlayer)}
+              className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+              title={t("library.listItem.actions.addPlayerToFight")}
+            >
+              <Sword className="w-4 h-4" />
+            </button>
+          )}
+
           {/* Delete Button */}
           <button
             onClick={() => confirmRemove()}
@@ -139,6 +154,21 @@ export default function MonsterListItem({
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
+
+        {/* Auto-add checkbox (players only) */}
+        {isPlayer && onToggleAutoAdd && (
+          <label
+            className="flex items-center gap-1.5 text-xs text-text-muted cursor-pointer flex-shrink-0"
+            title={t("library.listItem.actions.autoAddToCombat")}
+          >
+            <input
+              type="checkbox"
+              checked={(monster as SavedPlayer).autoAddToCombat ?? false}
+              onChange={() => onToggleAutoAdd(monster as SavedPlayer)}
+              className="w-4 h-4 rounded border-border-secondary bg-input-bg text-purple-600 focus:ring-purple-600 focus:ring-offset-panel-bg cursor-pointer"
+            />
+          </label>
+        )}
       </div>
     </div>
   );

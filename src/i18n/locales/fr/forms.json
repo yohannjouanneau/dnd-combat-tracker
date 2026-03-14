@@ -53,9 +53,9 @@
     "searchResults_plural": "{{count}} résultats trouvés",
     "noResults": "Aucun monstre trouvé pour \"{{query}}\""
   },
-  "savedPlayers": {
-    "title": "Joueurs sauvegardés",
-    "empty": "Sauvegardez des joueurs pour les réutiliser dans plusieurs combats",
+  "players": {
+    "title": "Joueurs",
+    "empty": "Ajoutez des joueurs à ce combat depuis la bibliothèque",
     "editTooltip": "Charger dans le formulaire",
     "edit": "Modifier",
     "fightTooltip": "Ajouter au combat",
@@ -100,10 +100,24 @@
     "emptyListMessagePlayers": "Créez des joueurs pour les réutiliser dans plusieurs combats !",
     "emptyListTitleAll": "Votre bibliothèque est vide.",
     "emptyListMessageAll": "Sauvegardez des monstres ou créez des joueurs pour construire votre collection !",
-    "new": "Nouveau",
+    "new": "Nouveau monstre",
     "newHint": "Ajouter un monstre",
     "newPlayer": "Nouveau joueur",
     "newPlayerHint": "Ajouter un joueur",
+    "addAll": "Tout ajouter",
+    "addAllHint": "Ajouter tous les joueurs au combat actuel",
+    "autoAddHeader": "Ajout auto",
+    "noSearchResultsTitle": "Aucun résultat pour \"{{query}}\"",
+    "noSearchResultsMessage": "Essayez un autre terme de recherche.",
+    "searchPlaceholder": "Rechercher...",
+    "sort": {
+      "name": "Nom",
+      "hp": "PV",
+      "ac": "CA",
+      "createdAt": "Date d'ajout",
+      "asc": "Tri croissant",
+      "desc": "Tri décroissant"
+    },
     "edit": {
       "title": {
         "create": "Créer un nouveau monstre",
@@ -149,7 +163,9 @@
         "edit": "Modifier le monstre",
         "delete": "Supprimer le monstre",
         "editPlayer": "Modifier le joueur",
-        "deletePlayer": "Supprimer le joueur"
+        "deletePlayer": "Supprimer le joueur",
+        "addPlayerToFight": "Ajouter au combat",
+        "autoAddToCombat": "Ajouter automatiquement aux nouveaux combats"
       },
       "abilities": {
         "str": "FOR",

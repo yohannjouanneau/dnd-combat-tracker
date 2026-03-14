@@ -50,8 +50,8 @@
       "message": "Êtes-vous sûr de vouloir retirer {{name}} des groupes en attente ?"
     },
     "removePlayer": {
-      "title": "Supprimer le joueur",
-      "message": "Êtes-vous sûr de vouloir supprimer {{name}} des joueurs enregistrés ?"
+      "title": "Retirer du combat",
+      "message": "Retirer {{name}} du combat actuel ?"
     },
     "deleteCombat": {
       "title": "Supprimer le combat",

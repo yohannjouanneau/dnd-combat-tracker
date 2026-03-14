@@ -16,21 +16,19 @@ const getInitialState = (): CombatState => ({
   round: 1,
   parkedGroups: [],
   newCombatant: generateDefaultNewCombatant(),
+  linkedPlayerIds: [],
 });
 
 export function useCombatState(): CombatStateManager {
   const [state, setState] = useState<CombatState>(getInitialState());
 
   // Helper to update state from child hooks
-  const updateState = useCallback((patch: Partial<CombatState>) => {
-    setState((prev) => ({ ...prev, ...patch }));
+  const updateState = useCallback((patch: Partial<CombatState> | ((prev: CombatState) => Partial<CombatState>)) => {
+    setState((prev) => ({ ...prev, ...(typeof patch === 'function' ? patch(prev) : patch) }));
   }, []);
 
   // Initialize player state hook early (needs to be before it's used in synchronise)
-  const playerStore = usePlayerStore({
-    combatState: state,
-    updateState,
-  });
+  const playerStore = usePlayerStore({ updateState });
 
   // Initialize parked group store
   const parkedGroupStore = useParkedGroupStore({
@@ -92,18 +90,6 @@ export function useCombatState(): CombatStateManager {
     ]
   );
 
-  // Player Management - wrapper that calls store orchestration action
-  const savePlayerFromForm = useCallback(
-    async (isFightModeEnabled: boolean) => {
-      await playerStore.actions.savePlayerFromForm({
-        isFightModeEnabled,
-        prepareCombatantList: combatantStore.actions.prepareCombatantList,
-        resetForm: combatantFormStore.actions.resetForm,
-      });
-    },
-    [playerStore.actions, combatantStore.actions, combatantFormStore.actions]
-  );
-
   const resetState = useCallback(() => {
     setState(getInitialState());
   }, []);
@@ -122,10 +108,13 @@ export function useCombatState(): CombatStateManager {
       syncApi,
 
       // Player Management
-      savePlayerFromForm, // wrapper function
       removePlayer: playerStore.actions.removePlayer,
-      includePlayer: playerStore.actions.includePlayer,
       savedPlayers: playerStore.state.savedPlayers,
+      linkedPlayers: playerStore.state.savedPlayers.filter(
+        (p) => state.linkedPlayerIds?.includes(p.id) ?? false
+      ),
+      linkPlayer: playerStore.actions.linkPlayer,
+      unlinkPlayer: playerStore.actions.unlinkPlayer,
       loadPlayers: playerStore.actions.loadPlayers,
       updatePlayerInitiative: playerStore.actions.updatePlayerInitiative,
       createPlayer: playerStore.actions.createPlayer,
@@ -215,7 +204,8 @@ export function useCombatState(): CombatStateManager {
       monsterStore.state.monsters,
       parkedGroupStore.actions.includeParkedGroup,
       parkedGroupStore.actions.removeParkedGroup,
-      playerStore.actions.includePlayer,
+      playerStore.actions.linkPlayer,
+      playerStore.actions.unlinkPlayer,
       playerStore.actions.loadPlayers,
       playerStore.actions.removePlayer,
       playerStore.actions.updatePlayerInitiative,
@@ -224,7 +214,6 @@ export function useCombatState(): CombatStateManager {
       playerStore.actions.isPlayerUsedAsTemplate,
       playerStore.state.savedPlayers,
       resetState,
-      savePlayerFromForm,
       state,
       syncApi,
     ]

@@ -1,6 +1,6 @@
 import type { ApiMonster } from "../api/types";
 import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "../constants";
-import type { NewCombatant } from "../types";
+import type { Combatant, NewCombatant, SavedPlayer } from "../types";
 
 export function generateId(): string {
   // Generate a random id: 16 characters, URL-safe
@@ -8,6 +8,14 @@ export function generateId(): string {
     .map(() => Math.random().toString(36).slice(2))
     .join("")
     .slice(0, 16);
+}
+
+// Monotonically incrementing counter for combatant numeric IDs.
+// Using Date.now() as base ensures no collision with IDs stored in previous sessions.
+let _combatantIdCounter = Date.now();
+
+export function generateCombatantId(): number {
+  return ++_combatantIdCounter;
 }
 
 export function safeParse<T>(raw: string | null): T[] {
@@ -132,6 +140,53 @@ export function generateDefaultNewCombatant() {
     ...DEFAULT_NEW_COMBATANT,
     id: generateId()
   }
+}
+
+/**
+ * Builds an array of Combatant objects from a list of SavedPlayers,
+ * used when auto-adding players at new combat creation time.
+ * Mirrors the core logic of prepareCombatantList in useCombatantStore.
+ */
+export function buildPlayerCombatantsForFight(players: SavedPlayer[]): Combatant[] {
+  const result: Combatant[] = [];
+
+  for (const player of players) {
+    if (!player.name || !player.hp) continue;
+    const groups = player.initiativeGroups;
+    if (groups.length === 0) continue;
+
+    const totalCount = groups.reduce((sum, g) => sum + (parseInt(g.count) || 0), 0);
+    if (totalCount === 0) continue;
+
+    let globalIndex = 0;
+    for (const group of groups) {
+      const count = parseInt(group.count) || 1;
+      for (let i = 0; i < count; i++) {
+        const displayName = totalCount > 1
+          ? `${player.name} ${indexToLetter(globalIndex)}`
+          : player.name;
+        result.push({
+          id: generateCombatantId(),
+          name: player.name,
+          displayName,
+          initiative: parseInt(group.initiative) || 0,
+          conditions: [],
+          deathSaves: { successes: 0, failures: 0 },
+          groupIndex: globalIndex,
+          templateOrigin: { origin: "player_library", id: player.id },
+          color: player.color,
+          hp: player.hp,
+          maxHp: player.maxHp ?? player.hp,
+          ac: player.ac,
+          imageUrl: player.imageUrl,
+          externalResourceUrl: player.externalResourceUrl,
+        });
+        globalIndex++;
+      }
+    }
+  }
+
+  return result.sort((a, b) => b.initiative - a.initiative);
 }
 
 /**

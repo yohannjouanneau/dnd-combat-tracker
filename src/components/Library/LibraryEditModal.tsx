@@ -19,7 +19,7 @@ type Props = {
   onCancel: () => void;
 };
 
-export default function MonsterEditModal({
+export default function LibraryEditModal({
   monster,
   isCreating,
   templateType = "monster",

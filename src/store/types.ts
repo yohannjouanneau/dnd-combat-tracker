@@ -9,10 +9,11 @@ export type CombatStateManager = {
     syncApi: SyncApi;
 
     // Player Management
-    savePlayerFromForm: (isFightModeEnabled: boolean) => Promise<void>;
     removePlayer: (id: string) => Promise<void>;
-    includePlayer: (player: SavedPlayer) => void;
     savedPlayers: SavedPlayer[];
+    linkedPlayers: SavedPlayer[];
+    linkPlayer: (id: string) => void;
+    unlinkPlayer: (id: string) => void;
     loadPlayers: () => Promise<void>;
     updatePlayerInitiative: (id: string, initiative: number) => Promise<void>;
     createPlayer: (player: PlayerCombatant) => Promise<void>;

@@ -53,9 +53,9 @@
     "searchResults_plural": "{{count}} results found",
     "noResults": "No monsters found for \"{{query}}\""
   },
-  "savedPlayers": {
-    "title": "Saved Players",
-    "empty": "Save players to use across combats",
+  "players": {
+    "title": "Players",
+    "empty": "Add players to this combat via the library",
     "editTooltip": "Load into form",
     "fightTooltip": "Add to combat",
     "deleteTooltip": "Delete player",
@@ -64,7 +64,8 @@
     "delete": "Delete",
     "groups": "{{count}} groups, {{total}} total",
     "singleGroup": "{{count}} combatant",
-    "singleGroup_plural": "{{count}} combatants"
+    "singleGroup_plural": "{{count}} combatants",
+    "addNew": "Add a player"
   },
   "parkedGroups": {
     "title": "Parked groups",
@@ -98,10 +99,24 @@
     "emptyListMessagePlayers": "Create players to reuse them across combats!",
     "emptyListTitleAll": "Your library is empty.",
     "emptyListMessageAll": "Save monsters or create players to build your collection!",
-    "new": "New",
+    "new": "New monster",
     "newHint": "Add a monster",
     "newPlayer": "New Player",
     "newPlayerHint": "Add a player",
+    "addAll": "Add all",
+    "addAllHint": "Add all players to current combat",
+    "autoAddHeader": "Auto-add",
+    "noSearchResultsTitle": "No results for \"{{query}}\"",
+    "noSearchResultsMessage": "Try a different search term.",
+    "searchPlaceholder": "Search...",
+    "sort": {
+      "name": "Name",
+      "hp": "HP",
+      "ac": "AC",
+      "createdAt": "Date added",
+      "asc": "Sort ascending",
+      "desc": "Sort descending"
+    },
     "edit": {
       "title": {
         "create": "Create New Monster",
@@ -147,7 +162,9 @@
         "edit": "Edit monster",
         "delete": "Delete monster",
         "editPlayer": "Edit player",
-        "deletePlayer": "Delete player"
+        "deletePlayer": "Delete player",
+        "addPlayerToFight": "Add to combat",
+        "autoAddToCombat": "Auto-add to new combats"
       },
       "abilities": {
         "str": "STR",

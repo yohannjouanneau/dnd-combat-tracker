@@ -3,12 +3,11 @@ import { useTranslation } from "react-i18next";
 import type { InitiativeGroup, NewCombatant, SearchResult } from "../../types";
 import AddCombatantForm from "./AddCombatantForm";
 
-export type AddCombatantModalMode = "player" | "group" | "fight";
+export type AddCombatantModalMode = "group" | "fight";
 
 type ButtonType =
   | "fight"
   | "park"
-  | "savePlayer"
   | "addToLibrary"
   | "addInitGroup";
 
@@ -26,7 +25,6 @@ type Props = {
   onChange: (patch: Partial<NewCombatant>) => void;
   onSubmit: () => void;
   onAddGroup: () => void;
-  onSaveAsPlayer: () => void;
   onAddInitiativeGroup: () => void;
   onRemoveInitiativeGroup: (id: string) => void;
   onUpdateInitiativeGroup: (
@@ -40,7 +38,6 @@ type Props = {
 };
 
 const BUTTON_MODE_MAP: Record<AddCombatantModalMode, ButtonType[]> = {
-  player: ["savePlayer"],
   group: ["park", "addToLibrary", "addInitGroup"],
   fight: ["fight", "addToLibrary", "addInitGroup"],
 };
@@ -59,7 +56,6 @@ export default function AddCombatantModal({
   onChange,
   onSubmit,
   onAddGroup,
-  onSaveAsPlayer,
   onAddInitiativeGroup,
   onRemoveInitiativeGroup,
   onUpdateInitiativeGroup,
@@ -122,7 +118,7 @@ export default function AddCombatantModal({
               stagedFrom={stagedFrom}
               totalCount={totalCount}
               visibleButtons={visibleButtons}
-              disableInitiativeCount={mode === 'player'}
+              disableInitiativeCount={false}
               addToFightChecked={addToFightChecked}
               onAddToFightChange={onAddToFightChange}
               addAnotherChecked={addAnotherChecked}
@@ -130,7 +126,6 @@ export default function AddCombatantModal({
               onChange={onChange}
               onSubmit={onSubmit}
               onAddGroup={onAddGroup}
-              onSaveAsPlayer={onSaveAsPlayer}
               onAddInitiativeGroup={onAddInitiativeGroup}
               onRemoveInitiativeGroup={onRemoveInitiativeGroup}
               onUpdateInitiativeGroup={onUpdateInitiativeGroup}

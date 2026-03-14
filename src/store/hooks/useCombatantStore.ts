@@ -7,7 +7,7 @@ import type {
   GroupSummary,
   TemplateOrigin,
 } from "../../types";
-import { indexToLetter } from "../../utils/utils";
+import { indexToLetter, generateCombatantId } from "../../utils/utils";
 import { getSettings } from "../../hooks/useSettings";
 import { useToast } from "../../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
@@ -98,7 +98,6 @@ export function useCombatantStore({
           ? Math.max(...existingGroupMembers.map((c) => c.groupIndex))
           : -1;
 
-      const baseId = Date.now();
       let globalIndex = maxGroupIndex + 1;
       const newCombatants: Combatant[] = [];
 
@@ -114,7 +113,7 @@ export function useCombatantStore({
             ? String(globalIndex + 1)
             : indexToLetter(globalIndex);
           newCombatants.push({
-            id: baseId + globalIndex,
+            id: generateCombatantId(),
             name: nc.name,
             displayName: totalCount > 1 ? `${nc.name} ${identifier}` : nc.name,
             initiative: parseFloat(group.initiative),

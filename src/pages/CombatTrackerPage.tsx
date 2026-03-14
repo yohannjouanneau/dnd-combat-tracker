@@ -16,11 +16,11 @@ import type {
   SavedMonster,
 } from "../types";
 import type { CombatStateManager } from "../store/types";
-import SavedPlayersPanel from "../components/CombatForm/SavedPlayerPanel";
+import PlayerPanel from "../components/CombatForm/PlayerPanel";
 import logo from "../assets/logo.png";
 import { HP_BAR_ID_PREFIX } from "../constants";
-import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
-import MonsterEditModal from "../components/MonsterLibrary/MonsterEditModal";
+import LibraryModal from "../components/Library/LibraryModal";
+import LibraryEditModal from "../components/Library/LibraryEditModal";
 import SettingsModal from "../components/Settings/SettingsModal";
 import { generateId, generateDefaultNewCombatant } from "../utils/utils";
 import TopBar from "../components/TopBar";
@@ -34,6 +34,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const combatants = combatStateManager.state.combatants;
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
+  const [libraryInitialFilter, setLibraryInitialFilter] = useState<"monsters" | "players">("monsters");
+  const [editingPlayer, setEditingPlayer] = useState<SavedPlayer | undefined>();
   const [showAddModal, setShowAddModal] = useState(false);
   const [addModalMode, setAddModalMode] =
     useState<AddCombatantModalMode>("fight");
@@ -108,10 +110,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     combatStateManager.addCombatant(combatant, { id: combatant.id, origin: 'parked_group'});
   };
 
-  const handleEditPlayer = (player: SavedPlayer) => {
-    combatStateManager.includePlayer(player);
-    openAddModal("player");
-  };
+  const handleEditPlayer = (player: SavedPlayer) => setEditingPlayer(player);
 
   const addPlayerToFight = (player: SavedPlayer) => {
     const playerCombattant: PlayerCombatant = {
@@ -127,6 +126,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
       initBonus: player.initBonus,
       externalResourceUrl: player.externalResourceUrl,
     };
+    combatStateManager.linkPlayer(player.id);
     combatStateManager.addCombatant({
       ...playerCombattant,
       templateOrigin: {
@@ -161,9 +161,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     switch (addModalMode) {
       case "fight":
         combatStateManager.addCombatant();
-        break;
-      case "player":
-        await combatStateManager.savePlayerFromForm(addToFight);
         break;
       case "group":
         combatStateManager.addParkedGroupFromForm(addToFight);
@@ -295,15 +292,26 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            <SavedPlayersPanel
-              savedPlayers={combatStateManager.savedPlayers}
+            <PlayerPanel
+              players={combatStateManager.linkedPlayers}
               onInclude={handleEditPlayer}
               onFight={addPlayerToFight}
-              onRemove={combatStateManager.removePlayer}
-              onOpenAddModal={() => openAddModal("player")}
+              onRemove={(playerId) => {
+                combatStateManager.state.combatants
+                  .filter(
+                    (c) =>
+                      c.templateOrigin?.origin === "player_library" &&
+                      c.templateOrigin?.id === playerId
+                  )
+                  .forEach((c) => combatStateManager.removeCombatant(c.id));
+                combatStateManager.unlinkPlayer(playerId);
+              }}
+              onOpenAddModal={() => {
+                setLibraryInitialFilter("players");
+                setShowLibrary(true);
+              }}
               onUpdateInitiative={combatStateManager.updatePlayerInitiative}
             />
-
             <ParkedGroupsPanel
               parkedGroups={combatStateManager.state.parkedGroups}
               onInclude={handleEditParkedGroup}
@@ -366,13 +374,19 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
         )}
 
         {/* Monster Library Modal */}
-        <MonsterLibraryModal
+        <LibraryModal
           isOpen={showLibrary}
           monsters={combatStateManager.monsters}
           players={combatStateManager.savedPlayers}
           canLoadToForm={true}
+          initialFilter={libraryInitialFilter}
+          onAddPlayerToFight={addPlayerToFight}
+          onToggleAutoAdd={(player) =>
+            combatStateManager.updatePlayer(player.id, { ...player, autoAddToCombat: !player.autoAddToCombat })
+          }
           onClose={() => {
             setShowLibrary(false);
+            setLibraryInitialFilter("monsters");
           }}
           onLoadToForm={(monster) => {
             combatStateManager.loadMonsterToForm({
@@ -406,7 +420,6 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onChange={combatStateManager.updateNewCombatant}
           onSubmit={handleModalSubmit}
           onAddGroup={handleModalSubmit}
-          onSaveAsPlayer={handleModalSubmit}
           onAddInitiativeGroup={combatStateManager.addInitiativeGroup}
           onRemoveInitiativeGroup={combatStateManager.removeInitiativeGroup}
           onUpdateInitiativeGroup={combatStateManager.updateInitiativeGroup}
@@ -422,12 +435,26 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
         {/* Monster Edit Modal - for direct editing */}
         {editingMonster && (
-          <MonsterEditModal
+          <LibraryEditModal
             monster={editingMonster}
             isCreating={false}
             onSave={handleUpdateMonster}
             onCancel={handleCancelEditMonster}
             onSearchMonsters={handleSearchMonstersForEdit}
+          />
+        )}
+
+        {/* Player Edit Modal - opened directly from SavedPlayersPanel */}
+        {editingPlayer && (
+          <LibraryEditModal
+            monster={editingPlayer}
+            isCreating={false}
+            templateType="player"
+            onSave={(updated) => {
+              combatStateManager.updatePlayer(updated.id, updated as SavedPlayer);
+              setEditingPlayer(undefined);
+            }}
+            onCancel={() => setEditingPlayer(undefined)}
           />
         )}
 
