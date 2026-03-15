@@ -5,9 +5,9 @@ import LabeledTextInput from "../components/common/LabeledTextInput";
 import logo from "../assets/logo.png";
 import { BookOpen, Plus, Settings } from "lucide-react";
 import CombatList from "../components/CombatsList/CombatList";
-import MonsterLibraryModal from "../components/MonsterLibrary/MonsterLibraryModal";
+import LibraryModal from "../components/Library/LibraryModal";
 import SettingsModal from "../components/Settings/SettingsModal";
-import { generateDefaultNewCombatant, generateId } from "../utils/utils";
+import { buildPlayerCombatantsForFight, generateDefaultNewCombatant, generateId } from "../utils/utils";
 import type { CombatStateManager } from "../store/types";
 
 type Props = {
@@ -33,8 +33,11 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
 
   const create = useCallback(async () => {
     if (!name.trim()) return;
+    const autoPlayers = combatStateManager.savedPlayers.filter(p => p.autoAddToCombat);
+    const autoCombatants = buildPlayerCombatantsForFight(autoPlayers);
     const emptyState: CombatState = {
-      combatants: [],
+      combatants: autoCombatants,
+      linkedPlayerIds: autoPlayers.map(p => p.id),
       currentTurn: 0,
       round: 1,
       parkedGroups: [],
@@ -144,16 +147,24 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
       </div>
 
       {/* Monster Library Modal */}
-      <MonsterLibraryModal
+      <LibraryModal
         isOpen={showLibrary}
         monsters={combatStateManager.monsters}
+        players={combatStateManager.savedPlayers}
         canLoadToForm={false}
         onClose={() => setShowLibrary(false)}
         onCreate={combatStateManager.createMonster}
         onDelete={combatStateManager.removeMonster}
         onUpdate={combatStateManager.updateMonster}
+        onCreatePlayer={combatStateManager.createPlayer}
+        onUpdatePlayer={combatStateManager.updatePlayer}
+        onDeletePlayer={combatStateManager.removePlayer}
+        onToggleAutoAdd={(player) =>
+          combatStateManager.updatePlayer(player.id, { ...player, autoAddToCombat: !player.autoAddToCombat })
+        }
         onSearchMonsters={combatStateManager.searchWithLibrary}
         isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
+        isPlayerUsedAsTemplate={combatStateManager.isPlayerUsedAsTemplate}
       />
 
       {/* Settings Modal */}

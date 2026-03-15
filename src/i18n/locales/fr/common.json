@@ -50,8 +50,8 @@
       "message": "Êtes-vous sûr de vouloir retirer {{name}} des groupes en attente ?"
     },
     "removePlayer": {
-      "title": "Supprimer le joueur",
-      "message": "Êtes-vous sûr de vouloir supprimer {{name}} des joueurs enregistrés ?"
+      "title": "Retirer du combat",
+      "message": "Retirer {{name}} du combat actuel ?"
     },
     "deleteCombat": {
       "title": "Supprimer le combat",
@@ -63,6 +63,14 @@
     },
     "cannotDeleteFromLibrary": {
       "title": "Impossible de supprimer le monstre",
+      "message": "« {{name}} » ne peut pas être supprimé car il est actuellement utilisé dans un ou plusieurs combats. Retirez-le d'abord de tous les combats."
+    },
+    "deletePlayerFromLibrary": {
+      "title": "Supprimer le joueur",
+      "message": "Êtes-vous sûr de vouloir supprimer « {{name}} » ? Cette action est irréversible."
+    },
+    "cannotDeletePlayerFromLibrary": {
+      "title": "Impossible de supprimer le joueur",
       "message": "« {{name}} » ne peut pas être supprimé car il est actuellement utilisé dans un ou plusieurs combats. Retirez-le d'abord de tous les combats."
     },
     "addToLibrary": {

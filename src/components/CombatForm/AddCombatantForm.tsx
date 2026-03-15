@@ -16,7 +16,6 @@ import { isNewCombatantInvalid, safeParseInt } from "../../utils/utils";
 type ButtonType =
   | "fight"
   | "park"
-  | "savePlayer"
   | "addToLibrary"
   | "addInitGroup";
 
@@ -33,7 +32,6 @@ type Props = {
   onChange: (patch: Partial<NewCombatant>) => void;
   onSubmit: () => void;
   onAddGroup: () => void;
-  onSaveAsPlayer: () => void;
   onAddInitiativeGroup: () => void;
   onRemoveInitiativeGroup: (id: string) => void;
   onUpdateInitiativeGroup: (
@@ -58,7 +56,6 @@ export default function AddCombatantForm({
   onChange,
   onSubmit,
   onAddGroup,
-  onSaveAsPlayer,
   onAddInitiativeGroup,
   onRemoveInitiativeGroup,
   onUpdateInitiativeGroup,
@@ -181,8 +178,8 @@ export default function AddCombatantForm({
         </div>
       </div>
 
-      {/* Add to Fight Checkbox - Only show in player/group modes */}
-      {(isButtonVisible("savePlayer") || isButtonVisible("park")) && (
+      {/* Add to Fight Checkbox - Only show in group mode */}
+      {isButtonVisible("park") && (
         <div className="mb-4">
           <label className="flex items-center gap-2 text-text-secondary cursor-pointer">
             <input
@@ -237,19 +234,6 @@ export default function AddCombatantForm({
             <CircleParking className="w-5 h-5" />
             <span className="hidden md:inline">
               {t("forms:combatant.actions.park")}
-            </span>
-          </button>
-        )}
-        {isButtonVisible("savePlayer") && (
-          <button
-            onClick={onSaveAsPlayer}
-            className="disabled:pointer-events-none disabled:opacity-50 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
-            title={t("forms:combatant.actions.savePlayer")}
-            disabled={isNewCombatantInvalid(newCombatant)}
-          >
-            <Save className="w-5 h-5" />
-            <span className="hidden md:inline">
-              {t("forms:combatant.actions.savePlayer")}
             </span>
           </button>
         )}

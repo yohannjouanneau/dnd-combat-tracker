@@ -1,7 +1,7 @@
 import { X, Save, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { SavedMonster, SearchResult } from "../../types";
+import type { SavedMonster, SavedPlayer, SearchResult } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
@@ -11,27 +11,33 @@ import { DEFAULT_COLOR_PRESET } from "../../constants";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
 
 type Props = {
-  monster: SavedMonster;
+  monster: SavedMonster | SavedPlayer;
   isCreating: boolean;
-  onSave: (updated: SavedMonster) => void;
-  onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
+  templateType?: "monster" | "player";
+  onSave: (updated: SavedMonster | SavedPlayer) => void;
+  onSearchMonsters?: (searchName: string) => Promise<SearchResult[]>;
   onCancel: () => void;
 };
 
-export default function MonsterEditModal({
+export default function LibraryEditModal({
   monster,
   isCreating,
+  templateType = "monster",
   onSave,
   onCancel,
   onSearchMonsters,
 }: Props) {
   const { t } = useTranslation(["common", "forms"]);
   const [formData, setFormData] = useState(monster);
+  const isPlayer = templateType === "player";
 
   const handleSave = () => {
     // Validation: ensure required fields are filled
     if (!formData.name.trim()) {
-      alert(t("forms:library.edit.validation.nameRequired"));
+      alert(isPlayer
+        ? t("forms:library.edit.validation.nameRequiredPlayer")
+        : t("forms:library.edit.validation.nameRequired")
+      );
       return;
     }
     onSave(formData);
@@ -69,8 +75,8 @@ export default function MonsterEditModal({
   };
 
   const title = isCreating
-    ? t("forms:library.edit.title.create")
-    : t("forms:library.edit.title.edit", { name: monster.name });
+    ? t(isPlayer ? "forms:library.edit.title.createPlayer" : "forms:library.edit.title.create")
+    : t(isPlayer ? "forms:library.edit.title.editPlayer" : "forms:library.edit.title.edit", { name: monster.name });
 
   const updateNotes = (notes: string) => {
     setFormData({ ...formData, notes: notes });
@@ -102,15 +108,25 @@ export default function MonsterEditModal({
           <div className="p-4 md:p-6 space-y-4">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <CombatantNameWithSearch
-                id="combatantName"
-                label={t("forms:combatant.name")}
-                value={formData.name}
-                placeholder={t("forms:library.edit.placeholders.name")}
-                onChange={(v) => setFormData({ ...formData, name: v })}
-                onSearch={onSearchMonsters}
-                onSelectResult={handleSearchResult}
-              />
+              {isPlayer ? (
+                <LabeledTextInput
+                  id="combatantName"
+                  label={t("forms:library.edit.fields.name")}
+                  value={formData.name}
+                  placeholder={t("forms:library.edit.placeholders.namePlayer")}
+                  onChange={(v) => setFormData({ ...formData, name: v })}
+                />
+              ) : (
+                <CombatantNameWithSearch
+                  id="combatantName"
+                  label={t("forms:combatant.name")}
+                  value={formData.name}
+                  placeholder={t("forms:library.edit.placeholders.name")}
+                  onChange={(v) => setFormData({ ...formData, name: v })}
+                  onSearch={onSearchMonsters ?? (() => Promise.resolve([]))}
+                  onSelectResult={handleSearchResult}
+                />
+              )}
               <LabeledTextInput
                 id="edit-hp"
                 label={t("forms:library.edit.fields.hp")}

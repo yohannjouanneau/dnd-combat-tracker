@@ -91,7 +91,7 @@ export type CombatantTemplate<T extends CombatantTemplateType> = {
   InitiativeData;
 
 export type SavedCombatantTemplate<T extends CombatantTemplateType> =
-  CombatantTemplate<T> & TimestampedEntity;
+  CombatantTemplate<T> & TimestampedEntity & { autoAddToCombat?: boolean };
 
 export type SavedPlayer = SavedCombatantTemplate<"player">;
 export type SavedMonster = SavedCombatantTemplate<"monster">;
@@ -143,6 +143,7 @@ export type CombatState = {
   parkedGroups: NewCombatant[];
   newCombatant: NewCombatant;
   lastSavedSnapshot?: string;
+  linkedPlayerIds?: string[];
 };
 
 // Note: Combatant and NewCombatant now have isReference flag for optimization

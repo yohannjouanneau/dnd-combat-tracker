@@ -50,8 +50,8 @@
       "message": "Are you sure you want to remove {{name}} from parked groups?"
     },
     "removePlayer": {
-      "title": "Delete Player",
-      "message": "Are you sure you want to delete {{name}} from saved players?"
+      "title": "Remove from Combat",
+      "message": "Remove {{name}} from the current combat?"
     },
     "deleteCombat": {
       "title": "Delete Combat",
@@ -63,6 +63,14 @@
     },
     "cannotDeleteFromLibrary": {
       "title": "Cannot Delete Monster",
+      "message": "\"{{name}}\" cannot be deleted because it is currently used in one or more combats. Remove it from all combats first."
+    },
+    "deletePlayerFromLibrary": {
+      "title": "Delete Player",
+      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    },
+    "cannotDeletePlayerFromLibrary": {
+      "title": "Cannot Delete Player",
       "message": "\"{{name}}\" cannot be deleted because it is currently used in one or more combats. Remove it from all combats first."
     },
     "addToLibrary": {

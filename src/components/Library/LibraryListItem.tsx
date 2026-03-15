@@ -1,45 +1,59 @@
-import { Trash2, Edit, ClipboardPaste } from "lucide-react";
+import { Trash2, Edit, ClipboardPaste, Sword } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { SavedMonster } from "../../types";
+import type { SavedMonster, SavedPlayer } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 import { AbilityScore } from "../common/AbilityScore";
 
 type Props = {
-  monster: SavedMonster;
+  monster: SavedMonster | SavedPlayer;
   canLoadToForm?: boolean;
   onLoadToForm?: (monster: SavedMonster) => void;
-  onEdit?: (monster: SavedMonster) => void;
+  onEdit?: (monster: SavedMonster | SavedPlayer) => void;
   onDelete: (id: string) => void;
-  isUsedAsTemplate: (id: string) => Promise<boolean>
+  isUsedAsTemplate: (id: string) => Promise<boolean>;
+  onAddToFight?: (player: SavedPlayer) => void;
+  onToggleAutoAdd?: (player: SavedPlayer) => void;
 };
 
-export default function MonsterListItem({
+export default function LibraryListItem({
   monster,
   canLoadToForm = false,
   onLoadToForm,
   onEdit,
   onDelete,
-  isUsedAsTemplate
+  isUsedAsTemplate,
+  onAddToFight,
+  onToggleAutoAdd,
 }: Props) {
   const { t } = useTranslation(["forms", "common"]);
+  const isPlayer = monster.type === "player";
 
   const confirmDialog = useConfirmationDialog();
   const confirmRemove = async () => {
     // Await the async check before using in ternary
     const isUsed = await isUsedAsTemplate(monster.id);
 
+    const cannotDeleteTitle = isPlayer
+      ? t("common:confirmation.cannotDeletePlayerFromLibrary.title")
+      : t("common:confirmation.cannotDeleteFromLibrary.title");
+    const cannotDeleteMessage = isPlayer
+      ? t("common:confirmation.cannotDeletePlayerFromLibrary.message", { name: monster.name })
+      : t("common:confirmation.cannotDeleteFromLibrary.message", { name: monster.name });
+    const deleteTitle = isPlayer
+      ? t("common:confirmation.deletePlayerFromLibrary.title")
+      : t("common:confirmation.deleteFromLibrary.title");
+    const deleteMessage = isPlayer
+      ? t("common:confirmation.deletePlayerFromLibrary.message", { name: monster.name })
+      : t("common:confirmation.deleteFromLibrary.message", { name: monster.name });
+
     const isConfirmed = isUsed ? confirmDialog({
-      title: t("common:confirmation.cannotDeleteFromLibrary.title"),
-      message: t("common:confirmation.cannotDeleteFromLibrary.message", {
-        name: monster.name,
-      }),
+      title: cannotDeleteTitle,
+      message: cannotDeleteMessage,
       noConfirmButton: true  // Shows only cancel button
     }) : confirmDialog({
-      title: t("common:confirmation.deleteFromLibrary.title"),
-      message: t("common:confirmation.deleteFromLibrary.message", {
-        name: monster.name,
-      }),
+      title: deleteTitle,
+      message: deleteMessage,
     });
     if (await isConfirmed) {
       onDelete(monster.id);
@@ -103,16 +117,16 @@ export default function MonsterListItem({
             <button
               onClick={() => onEdit(monster)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
-              title={t("library.listItem.actions.edit")}
+              title={isPlayer ? t("library.listItem.actions.editPlayer") : t("library.listItem.actions.edit")}
             >
               <Edit className="w-4 h-4" />
             </button>
           )}
 
           {/* Load to Form Button */}
-          {canLoadToForm && onLoadToForm && (
+          {canLoadToForm && onLoadToForm && !isPlayer && (
             <button
-              onClick={() => onLoadToForm(monster)}
+              onClick={() => onLoadToForm(monster as SavedMonster)}
               className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
               title={t("library.listItem.actions.load")}
             >
@@ -120,15 +134,41 @@ export default function MonsterListItem({
             </button>
           )}
 
+          {/* Add Player to Fight Button */}
+          {isPlayer && onAddToFight && (
+            <button
+              onClick={() => onAddToFight(monster as SavedPlayer)}
+              className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+              title={t("library.listItem.actions.addPlayerToFight")}
+            >
+              <Sword className="w-4 h-4" />
+            </button>
+          )}
+
           {/* Delete Button */}
           <button
             onClick={() => confirmRemove()}
             className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
-            title={t("library.listItem.actions.delete")}
+            title={isPlayer ? t("library.listItem.actions.deletePlayer") : t("library.listItem.actions.delete")}
           >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
+
+        {/* Auto-add checkbox (players only) */}
+        {isPlayer && onToggleAutoAdd && (
+          <label
+            className="flex items-center gap-1.5 text-xs text-text-muted cursor-pointer flex-shrink-0"
+            title={t("library.listItem.actions.autoAddToCombat")}
+          >
+            <input
+              type="checkbox"
+              checked={(monster as SavedPlayer).autoAddToCombat ?? false}
+              onChange={() => onToggleAutoAdd(monster as SavedPlayer)}
+              className="w-4 h-4 rounded border-border-secondary bg-input-bg text-purple-600 focus:ring-purple-600 focus:ring-offset-panel-bg cursor-pointer"
+            />
+          </label>
+        )}
       </div>
     </div>
   );

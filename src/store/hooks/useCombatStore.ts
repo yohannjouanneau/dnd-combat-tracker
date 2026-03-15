@@ -36,6 +36,7 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
       parkedGroups: combatState.parkedGroups,
       currentTurn: combatState.currentTurn,
       round: combatState.round,
+      linkedPlayerIds: combatState.linkedPlayerIds ?? [],
     });
   }, []);
 
