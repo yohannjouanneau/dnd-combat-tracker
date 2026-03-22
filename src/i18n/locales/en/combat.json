@@ -24,8 +24,10 @@
       "hitPoints":"Hit points",
       "initiative":"Initiative",
       "armorClass":"Armor class",
-      "notes":"Notes",
-      "openInNewTab":"Open in new tab"
+      "notes":"Library notes",
+      "openInNewTab":"Open in new tab",
+      "combatNotes":"Combat notes",
+      "combatNotesPlaceholder":"Add notes for this combatant..."
     }
   },
   "groups": {

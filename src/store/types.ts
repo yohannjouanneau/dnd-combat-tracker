@@ -48,6 +48,7 @@ export type CombatStateManager = {
     updateInitiative: (id: number, newInitiative: number) => void;
     toggleCondition: (id: number, condition: string) => void;
     updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
+    updateCombatantNotes: (id: number, notes: string) => void;
     nextTurn: () => void;
     prevTurn: () => void;
     getUniqueGroups: () => GroupSummary[];

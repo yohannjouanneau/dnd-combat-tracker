@@ -363,6 +363,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             onDeathSaves={combatStateManager.updateDeathSave}
             onToggleCondition={combatStateManager.toggleCondition}
             onUpdateInitiative={combatStateManager.updateInitiative}
+            onUpdateNotes={combatStateManager.updateCombatantNotes}
           />
         </div>
 

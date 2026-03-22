@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Loader2, Globe, BookOpen } from "lucide-react";
 import { useCallback, useState, useEffect, useRef, useMemo } from "react";
 import type { SearchResult } from "../../types";
+import { useDebounce } from "../../hooks/useDebounce";
 
 type Props = {
   id: string;
@@ -27,7 +28,6 @@ export default function CombatantNameWithSearch({
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setSearching] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
-  const debounceTimerRef = useRef<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const justSelectedRef = useRef(false);
@@ -48,12 +48,14 @@ export default function CombatantNameWithSearch({
     }
   }, [isSearching, onSearch]);
 
-  // Debounce effect - auto-trigger search on value change
-  useEffect(() => {
-    if (debounceTimerRef.current) {
-      window.clearTimeout(debounceTimerRef.current);
+  const debouncedSearch = useDebounce((query: string) => {
+    if (onSearch && query) {
+      performSearch(query);
     }
+  }, 500);
 
+  // Auto-trigger search on value change
+  useEffect(() => {
     if (!value.trim()) {
       setSearchResults([]);
       setShowResults(false);
@@ -67,18 +69,8 @@ export default function CombatantNameWithSearch({
       return;
     }
 
-    debounceTimerRef.current = window.setTimeout(() => {
-      if (onSearch && value.trim()) {
-        performSearch(value.trim());
-      }
-    }, 500);
-
-    return () => {
-      if (debounceTimerRef.current) {
-        window.clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, [value, onSearch, performSearch]);
+    debouncedSearch(value.trim());
+  }, [value, debouncedSearch]);
 
   const handleSelectResult = useCallback((result: SearchResult) => {
     justSelectedRef.current = true; // Mark that we just selected

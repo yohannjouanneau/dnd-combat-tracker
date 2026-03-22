@@ -1,18 +1,42 @@
 import { X, Shield, Heart, Hourglass, ExternalLink } from "lucide-react";
+import { useState, useEffect } from "react";
 import type { Combatant } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { AbilityScore } from "../common/AbilityScore";
 import { useTranslation } from "react-i18next";
 import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
 import { getHpColorClass } from "../../utils/utils";
+import { useDebounce } from "../../hooks/useDebounce";
+
+const MAX_NOTES_LENGTH = 500;
+const NOTES_DEBOUNCE_MS = 400;
 
 type Props = {
   combatant: Combatant;
   onClose?: () => void;
+  onUpdateNotes: (id: number, notes: string) => void;
 };
 
-export default function CombatantDetailPanel({ combatant, onClose }: Props) {
+export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes }: Props) {
   const { t } = useTranslation(["combat"]);
+  const [localNotes, setLocalNotes] = useState(combatant.combatNotes ?? "");
+
+  const debouncedUpdateNotes = useDebounce(
+    (value: string) => onUpdateNotes(combatant.id, value),
+    NOTES_DEBOUNCE_MS
+  );
+
+  // Sync local notes when switching to a different combatant
+  useEffect(() => {
+    setLocalNotes(combatant.combatNotes ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combatant.id]);
+
+  const handleNotesChange = (value: string) => {
+    setLocalNotes(value);
+    debouncedUpdateNotes(value);
+  };
+
   return (
     <div
       className={`bg-panel-bg rounded-lg p-4 md:p-6 border-2 border-border-primary relative ${onClose ? 'overflow-y-auto scrollbar-thin scrollbar-thumb-border-secondary scrollbar-track-panel-bg' : ''}`}
@@ -107,7 +131,7 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
         />
       </div>
 
-      {/* Notes Section */}
+      {/* Notes Section (read-only, from template) */}
       {combatant.notes && (
         <div className="mt-6">
           <h3 className="text-sm font-semibold text-text-muted mb-2">
@@ -118,6 +142,24 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
           </div>
         </div>
       )}
+
+      {/* Combat Notes (editable, fight-specific) */}
+      <div className="mt-6">
+        <h3 className="text-sm font-semibold text-text-muted mb-2">
+          {t("combat:combatant.details.combatNotes")}
+        </h3>
+        <textarea
+          className="w-full bg-panel-secondary rounded-lg p-3 text-sm text-text-primary resize-none focus:outline-none focus:ring-1 focus:ring-border-primary"
+          rows={4}
+          maxLength={MAX_NOTES_LENGTH}
+          placeholder={t("combat:combatant.details.combatNotesPlaceholder")}
+          value={localNotes}
+          onChange={(e) => handleNotesChange(e.target.value)}
+        />
+        <div className="text-xs text-text-muted text-right mt-1">
+          {localNotes.length} / {MAX_NOTES_LENGTH}
+        </div>
+      </div>
     </div>
   );
 }

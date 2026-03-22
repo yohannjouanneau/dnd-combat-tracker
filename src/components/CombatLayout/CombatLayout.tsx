@@ -15,6 +15,7 @@ type Props = {
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
+  onUpdateNotes: (id: number, notes: string) => void;
 };
 export default function CombatLayout({
   combatants,
@@ -27,21 +28,23 @@ export default function CombatLayout({
   onDeathSaves,
   onToggleCondition,
   onUpdateInitiative,
+  onUpdateNotes,
 }: Props) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [selectedCombatantId, setSelectedCombatantId] = useState<number | null>(null);
   const [showMobileDetail, setShowMobileDetail] = useState(false);
 
   const activeCombatant = combatants[currentTurn] ?? null;
+  const activeCombatantId = activeCombatant?.id ?? null;
 
   // Auto-select new active combatant when turn changes
   useEffect(() => {
-    if (activeCombatant && isFocusMode) {
-      setSelectedCombatantId(activeCombatant.id);
+    if (activeCombatantId !== null && isFocusMode) {
+      setSelectedCombatantId(activeCombatantId);
     }
     // Close mobile detail panel on turn change
     setShowMobileDetail(false);
-  }, [currentTurn, activeCombatant, isFocusMode]);
+  }, [currentTurn, activeCombatantId, isFocusMode]);
 
   // Reset selection when focus mode is disabled
   useEffect(() => {
@@ -77,6 +80,7 @@ export default function CombatLayout({
         onDeathSaves={onDeathSaves}
         onToggleCondition={onToggleCondition}
         onUpdateInitiative={onUpdateInitiative}
+        onUpdateNotes={onUpdateNotes}
         selectedCombatantId={selectedCombatantId}
         onSelectCombatant={handleSelectCombatant}
       />
@@ -95,6 +99,7 @@ export default function CombatLayout({
       onDeathSaves={onDeathSaves}
       onToggleCondition={onToggleCondition}
       onUpdateInitiative={onUpdateInitiative}
+      onUpdateNotes={onUpdateNotes}
       selectedCombatantId={selectedCombatantId}
       onSelectCombatant={handleMobileSelectCombatant}
       showDetail={showMobileDetail}
