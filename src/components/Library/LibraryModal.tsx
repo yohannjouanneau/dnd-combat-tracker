@@ -258,13 +258,14 @@ export default function LibraryModal({
           </div>
 
           {/* Filter Tabs + Search/Sort */}
-          <div className="flex items-end justify-between px-4 md:px-6 pt-3 border-b border-border-primary pb-0">
-            <div className="flex gap-1">
+          <div className="px-4 md:px-6 pt-3 border-b border-border-primary pb-0">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex gap-1 w-full sm:w-auto">
               {(["monsters", "players"] as FilterType[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => handleSetFilter(tab)}
-                  className={`px-4 py-2 text-sm font-medium rounded-t transition-colors border-b-2 -mb-px ${
+                  className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-t transition-colors border-b-2 -mb-px ${
                     filter === tab
                       ? "border-amber-400 text-amber-400"
                       : "border-transparent text-text-muted hover:text-text-primary"
@@ -278,15 +279,15 @@ export default function LibraryModal({
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2 pb-2">
-              <div className="relative">
+            <div className="flex items-center gap-2 pt-2 pb-2 sm:pt-0 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-none">
                 <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder={t("forms:library.searchPlaceholder")}
-                  className="pl-7 pr-2 py-1 text-sm bg-input-bg border border-border-secondary rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:border-amber-400 w-28 md:w-40"
+                  className="pl-7 pr-2 py-1 text-sm bg-input-bg border border-border-secondary rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:border-amber-400 w-full sm:w-28 md:w-40"
                 />
               </div>
               <select
@@ -306,6 +307,7 @@ export default function LibraryModal({
               >
                 {sortDir === "asc" ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
               </button>
+            </div>
             </div>
           </div>
 
