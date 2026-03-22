@@ -260,12 +260,12 @@ export default function LibraryModal({
           {/* Filter Tabs + Search/Sort */}
           <div className="px-4 md:px-6 pt-3 border-b border-border-primary pb-0">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex gap-1">
+            <div className="flex gap-1 w-full sm:w-auto">
               {(["monsters", "players"] as FilterType[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => handleSetFilter(tab)}
-                  className={`px-4 py-2 text-sm font-medium rounded-t transition-colors border-b-2 -mb-px ${
+                  className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-t transition-colors border-b-2 -mb-px ${
                     filter === tab
                       ? "border-amber-400 text-amber-400"
                       : "border-transparent text-text-muted hover:text-text-primary"
