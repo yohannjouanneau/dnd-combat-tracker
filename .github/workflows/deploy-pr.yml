@@ -13,43 +13,77 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
   pull-requests: write
 
 concurrency:
-  group: "pr-preview-${{ github.event.pull_request.number || inputs.pr_number }}"
-  cancel-in-progress: true
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   deploy-preview:
     if: github.event.action != 'closed'
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
+      - name: Set PR number
+        id: pr
+        run: echo "number=${{ github.event.pull_request.number || inputs.pr_number }}" >> $GITHUB_OUTPUT
+
+      - name: Checkout main branch
         uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || format('refs/pull/{0}/head', inputs.pr_number) }}
+          path: pr
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: |
+            main/package-lock.json
+            pr/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
+      - name: Build main site
+        working-directory: main
         env:
           VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number || inputs.pr_number }}
-          npm run build -- --base=/dnd-combat-tracker/pr-${PR_NUMBER}/
+          npm ci
+          npm run build
+
+      - name: Build PR preview
+        working-directory: pr
+        env:
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+        run: |
+          npm ci
+          npm run build -- --base=/dnd-combat-tracker/pr-${{ steps.pr.outputs.number }}/
+
+      - name: Combine main site and PR preview
+        run: |
+          mkdir -p main/dist/pr-${{ steps.pr.outputs.number }}
+          cp -r pr/dist/. main/dist/pr-${{ steps.pr.outputs.number }}/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './main/dist'
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: dist
-          target-folder: pr-${{ github.event.pull_request.number || inputs.pr_number }}
-          clean: true
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: Comment preview URL on PR
         if: github.event_name == 'pull_request'
@@ -90,21 +124,34 @@ jobs:
   cleanup-preview:
     if: github.event.action == 'closed'
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout gh-pages branch
+      - name: Checkout main branch
         uses: actions/checkout@v4
         with:
-          ref: gh-pages
+          ref: main
 
-      - name: Remove PR preview directory
-        run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          if [ -d "pr-${PR_NUMBER}" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git rm -rf "pr-${PR_NUMBER}"
-            git commit -m "Remove PR ${PR_NUMBER} preview"
-            git push
-          else
-            echo "No preview directory found for PR ${PR_NUMBER}, skipping cleanup."
-          fi
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build main site
+        env:
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
