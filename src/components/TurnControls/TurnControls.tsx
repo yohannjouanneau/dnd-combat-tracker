@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import FocusModeToggle from "./FocusModeToggle";
+import CombatTimer from "./CombatTimer";
 
 type Props = {
   round: number;
@@ -11,6 +12,7 @@ type Props = {
   onNext: () => void;
   onToggleFocus: () => void;
   onOpenAddModal: () => void;
+  onTimerRunningChange?: (isRunning: boolean) => void;
 };
 
 export default function TurnControls({
@@ -22,6 +24,7 @@ export default function TurnControls({
   onNext,
   onToggleFocus,
   onOpenAddModal,
+  onTimerRunningChange,
 }: Props) {
   const { t } = useTranslation("combat");
   const isAtStart = round === 1 && currentTurn === 0;
@@ -31,10 +34,18 @@ export default function TurnControls({
       : t("combat:turn.notStarted", { number: round });
   return (
     <div className="bg-panel-bg rounded-lg p-3 md:p-4 mb-3 border border-border-primary flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
-      <div className="text-xl md:text-2xl font-bold text-center md:text-left">
+      {/* Round info - left on desktop, top on mobile */}
+      <div className="text-xl md:text-2xl font-bold text-center md:text-left md:flex-1">
         {roundCountText}
       </div>
-      <div className="flex gap-2">
+
+      {/* Timer - center */}
+      <div className="flex justify-center">
+        <CombatTimer onRunningChange={onTimerRunningChange} />
+      </div>
+
+      {/* Controls - right on desktop, bottom on mobile */}
+      <div className="flex gap-2 md:flex-1 md:justify-end">
         <button
           onClick={onPrev}
           disabled={isAtStart || combatantCount === 0}

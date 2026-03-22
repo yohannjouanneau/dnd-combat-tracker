@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import ConfirmationDialog from "../components/common/ConfirmationDialog";
 import { Sword } from "lucide-react";
 import ParkedGroupsPanel from "../components/ParkedGroups/ParkedGroupsPanel";
 import AddCombatantModal, {
@@ -44,6 +45,9 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const [editingMonster, setEditingMonster] = useState<SavedMonster | undefined>();
   const [showSettings, setShowSettings] = useState(false);
   const [shouldScrollToActive, setShouldScrollToActive] = useState(false);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const pendingBackRef = useRef(false);
 
   // Wrapper functions for turn navigation with scroll flag
   const handleNextTurn = useCallback(() => {
@@ -180,15 +184,22 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     (group) => group.name === combatStateManager.state.newCombatant.name
   )?.name;
   const stagedFrom = stagedFromParkedGroups ?? stagedPlayer;
-  const back = async () => {
+  const doBack = useCallback(async () => {
     // Auto-save if there are unsaved changes
     if (combatStateManager.hasChanges && combatStateManager.state?.combatId) {
       await combatStateManager.saveCombat();
     }
-
-    // Navigate to combat list
     location.hash = "#combats";
-  };
+  }, [combatStateManager]);
+
+  const back = useCallback(async () => {
+    if (isTimerRunning) {
+      pendingBackRef.current = true;
+      setShowExitConfirm(true);
+    } else {
+      await doBack();
+    }
+  }, [isTimerRunning, doBack]);
 
   const handleClearAll = useCallback(() => {
     const groups = combatStateManager.getUniqueGroups();
@@ -347,6 +358,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               onNext={handleNextTurn}
               onToggleFocus={() => setIsFocusMode((prev) => !prev)}
               onOpenAddModal={() => openAddModal("fight")}
+              onTimerRunningChange={setIsTimerRunning}
             />
           </div>
         </div>
@@ -464,6 +476,25 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           isOpen={showSettings}
           syncApi={combatStateManager.syncApi}
           onClose={() => setShowSettings(false)}
+        />
+
+        {/* Exit confirmation when timer is running */}
+        <ConfirmationDialog
+          isOpen={showExitConfirm}
+          title={t("combat:timer.exitTitle")}
+          message={t("combat:timer.exitMessage")}
+          variant="warning"
+          onConfirm={async () => {
+            setShowExitConfirm(false);
+            if (pendingBackRef.current) {
+              pendingBackRef.current = false;
+              await doBack();
+            }
+          }}
+          onCancel={() => {
+            setShowExitConfirm(false);
+            pendingBackRef.current = false;
+          }}
         />
       </div>
     </div>

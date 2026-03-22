@@ -7,7 +7,14 @@
     "next": "Next Turn",
     "previous": "Previous Turn",
     "previousShort": "Previous",
-    "nextShort": "Next"
+    "nextShort": "Next",
+    "addToFight": "Add combatant"
+  },
+  "timer": {
+    "start": "Start timer",
+    "stop": "Stop timer",
+    "exitTitle": "Timer is running",
+    "exitMessage": "The combat timer is still running. Are you sure you want to leave?"
   },
   "combatant": {
     "name": "Name",
