@@ -258,7 +258,8 @@ export default function LibraryModal({
           </div>
 
           {/* Filter Tabs + Search/Sort */}
-          <div className="flex items-end justify-between px-4 md:px-6 pt-3 border-b border-border-primary pb-0">
+          <div className="px-4 md:px-6 pt-3 border-b border-border-primary pb-0">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
             <div className="flex gap-1">
               {(["monsters", "players"] as FilterType[]).map((tab) => (
                 <button
@@ -278,7 +279,7 @@ export default function LibraryModal({
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2 pb-2">
+            <div className="flex items-center gap-2 pt-2 pb-2 sm:pt-0">
               <div className="relative">
                 <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none" />
                 <input
@@ -306,6 +307,7 @@ export default function LibraryModal({
               >
                 {sortDir === "asc" ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
               </button>
+            </div>
             </div>
           </div>
 
