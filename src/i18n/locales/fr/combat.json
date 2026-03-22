@@ -28,7 +28,17 @@
       "notes":"Notes de bibliothèque",
       "openInNewTab":"Ouvrir dans un nouvel onglet",
       "combatNotes":"Notes de combat",
-      "combatNotesPlaceholder":"Ajoutez des notes pour ce combattant..."
+      "combatNotesPlaceholder":"Ajoutez des notes pour ce combattant...",
+      "derivedStats":"Statistiques dérivées",
+      "proficiencyBonus":"Bonus de maîtrise",
+      "level":"Niveau {{level}}",
+      "spellSaveDC":"DD des sorts",
+      "spellAttackBonus":"Attaque de sort",
+      "passive": {
+        "perception":"Perception passive",
+        "insight":"Intuition passive",
+        "investigation":"Investigation passive"
+      }
     }
   },
   "groups": {

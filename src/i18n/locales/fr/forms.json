@@ -126,7 +126,9 @@
         "editPlayer": "Modifier le joueur : {{name}}"
       },
       "sections": {
-        "abilityScores": "Caractéristiques"
+        "abilityScores": "Caractéristiques",
+        "proficiencySpellcasting": "Maîtrise & Sorts",
+        "skillProficiencies": "Compétences maîtrisées"
       },
       "fields": {
         "name": "Nom *",
@@ -139,7 +141,24 @@
         "con": "Constitution (CON)",
         "int": "Intelligence (INT)",
         "wis": "Sagesse (SAG)",
-        "cha": "Charisme (CHA)"
+        "cha": "Charisme (CHA)",
+        "level": "Niveau (optionnel)",
+        "proficiencyBonus": "Bonus de maîtrise",
+        "spellcastingAbility": "Caractéristique de sort (optionnel)",
+        "skill": "Compétence",
+        "proficient": "Maîtrisé",
+        "expertise": "Expertise"
+      },
+      "skills": {
+        "perception": "Perception",
+        "insight": "Intuition",
+        "investigation": "Investigation"
+      },
+      "spellcastingOptions": {
+        "none": "Aucune",
+        "int": "Intelligence",
+        "wis": "Sagesse",
+        "cha": "Charisme"
       },
       "placeholders": {
         "name": "Tapez pour rechercher des monstres...",

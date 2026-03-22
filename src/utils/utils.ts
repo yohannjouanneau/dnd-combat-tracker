@@ -1,6 +1,6 @@
 import type { ApiMonster } from "../api/types";
 import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "../constants";
-import type { Combatant, NewCombatant, SavedPlayer } from "../types";
+import type { Combatant, NewCombatant, SavedPlayer, SkillProficiency } from "../types";
 
 export function generateId(): string {
   // Generate a random id: 16 characters, URL-safe
@@ -33,6 +33,44 @@ export function safeStringify<T>(data: T[]): string {
   } catch {
     return "[]";
   }
+}
+
+export function getProficiencyBonusFromLevel(level: number): number {
+  return Math.ceil(level / 4) + 1;
+}
+
+export function getEffectiveProficiencyBonus(level?: number, proficiencyBonus?: number): number | undefined {
+  if (level && level >= 1 && level <= 20) return getProficiencyBonusFromLevel(level);
+  if (proficiencyBonus !== undefined && proficiencyBonus > 0) return proficiencyBonus;
+  return undefined;
+}
+
+export function getPassiveScore(
+  abilityScore: number | undefined,
+  profBonus: number,
+  proficiency?: SkillProficiency
+): number {
+  const mod = getStatModifier(abilityScore) ?? 0;
+  const profMod = proficiency?.expertise
+    ? profBonus * 2
+    : proficiency?.proficient
+      ? profBonus
+      : 0;
+  return 10 + mod + profMod;
+}
+
+export function getSpellSaveDC(
+  spellcastingScore: number | undefined,
+  profBonus: number
+): number {
+  return 8 + profBonus + (getStatModifier(spellcastingScore) ?? 0);
+}
+
+export function getSpellAttackBonus(
+  spellcastingScore: number | undefined,
+  profBonus: number
+): number {
+  return profBonus + (getStatModifier(spellcastingScore) ?? 0);
 }
 
 export function getStatModifier(stat?: number) {
@@ -180,6 +218,12 @@ export function buildPlayerCombatantsForFight(players: SavedPlayer[]): Combatant
           ac: player.ac,
           imageUrl: player.imageUrl,
           externalResourceUrl: player.externalResourceUrl,
+          level: player.level,
+          proficiencyBonus: player.proficiencyBonus,
+          spellcastingAbility: player.spellcastingAbility,
+          perceptionProficiency: player.perceptionProficiency,
+          insightProficiency: player.insightProficiency,
+          investigationProficiency: player.investigationProficiency,
         });
         globalIndex++;
       }

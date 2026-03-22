@@ -5,7 +5,7 @@ import CombatantAvatar from "../common/CombatantAvatar";
 import { AbilityScore } from "../common/AbilityScore";
 import { useTranslation } from "react-i18next";
 import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
-import { getHpColorClass } from "../../utils/utils";
+import { getHpColorClass, getEffectiveProficiencyBonus, getPassiveScore, getSpellSaveDC, getSpellAttackBonus } from "../../utils/utils";
 import { useDebounce } from "../../hooks/useDebounce";
 
 const MAX_NOTES_LENGTH = 500;
@@ -18,7 +18,11 @@ type Props = {
 };
 
 export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes }: Props) {
-  const { t } = useTranslation(["combat"]);
+  const { t } = useTranslation(["combat", "forms"]);
+  const profBonus = getEffectiveProficiencyBonus(combatant.level, combatant.proficiencyBonus);
+  const spellcastingScore = combatant.spellcastingAbility
+    ? ({ int: combatant.int, wis: combatant.wis, cha: combatant.cha })[combatant.spellcastingAbility]
+    : undefined;
   const [localNotes, setLocalNotes] = useState(combatant.combatNotes ?? "");
 
   const debouncedUpdateNotes = useDebounce(
@@ -130,6 +134,75 @@ export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes
           }}
         />
       </div>
+
+      {/* Derived Stats Section */}
+      {profBonus !== undefined && (
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold text-text-muted mb-3">
+            {t("combat:combatant.details.derivedStats")}
+          </h3>
+
+          {/* Proficiency Bonus */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs text-text-muted uppercase tracking-wider">
+              {t("combat:combatant.details.proficiencyBonus")}
+            </span>
+            <span className="bg-panel-secondary rounded px-3 py-1 text-sm font-bold text-blue-400">
+              +{profBonus}
+            </span>
+            {combatant.level && (
+              <span className="text-xs text-text-muted">
+                {t("combat:combatant.details.level", { level: combatant.level })}
+              </span>
+            )}
+          </div>
+
+          {/* Passive Checks */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {(["perception", "insight", "investigation"] as const).map((skill) => {
+              const profKey = `${skill}Proficiency` as "perceptionProficiency" | "insightProficiency" | "investigationProficiency";
+              const abilityMap = { perception: combatant.wis, insight: combatant.wis, investigation: combatant.int };
+              const score = getPassiveScore(abilityMap[skill], profBonus, combatant[profKey]);
+              const isProficient = combatant[profKey]?.proficient;
+              const hasExpertise = combatant[profKey]?.expertise;
+              return (
+                <div key={skill} className="bg-panel-secondary rounded-lg p-2 flex flex-col items-center">
+                  <div className="text-xs text-text-muted mb-1 text-center leading-tight">
+                    {t(`combat:combatant.details.passive.${skill}`)}
+                    {hasExpertise && <span className="ml-1 text-yellow-400">★★</span>}
+                    {isProficient && !hasExpertise && <span className="ml-1 text-blue-400">★</span>}
+                  </div>
+                  <div className="text-xl font-bold text-text-primary">{score}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Spell DC + Spell Attack Bonus */}
+          {combatant.spellcastingAbility && (
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-panel-secondary rounded-lg p-2 flex flex-col items-center">
+                <div className="text-xs text-text-muted mb-1">
+                  {t("combat:combatant.details.spellSaveDC")}
+                </div>
+                <div className="text-xl font-bold text-purple-400">
+                  {getSpellSaveDC(spellcastingScore, profBonus)}
+                </div>
+              </div>
+              <div className="bg-panel-secondary rounded-lg p-2 flex flex-col items-center">
+                <div className="text-xs text-text-muted mb-1">
+                  {t("combat:combatant.details.spellAttackBonus")}
+                </div>
+                <div className="text-xl font-bold text-purple-400">
+                  {getSpellAttackBonus(spellcastingScore, profBonus) >= 0
+                    ? `+${getSpellAttackBonus(spellcastingScore, profBonus)}`
+                    : getSpellAttackBonus(spellcastingScore, profBonus)}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Notes Section (read-only, from template) */}
       {combatant.notes && (

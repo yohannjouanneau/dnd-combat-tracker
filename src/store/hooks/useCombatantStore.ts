@@ -134,6 +134,12 @@ export function useCombatantStore({
             str: nc.str,
             wis: nc.wis,
             notes: nc.notes,
+            level: nc.level,
+            proficiencyBonus: nc.proficiencyBonus,
+            spellcastingAbility: nc.spellcastingAbility,
+            perceptionProficiency: nc.perceptionProficiency,
+            insightProficiency: nc.insightProficiency,
+            investigationProficiency: nc.investigationProficiency,
             templateOrigin: templateOrigin ?? nc.templateOrigin,
           });
           globalIndex++;

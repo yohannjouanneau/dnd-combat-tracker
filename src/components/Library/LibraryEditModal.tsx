@@ -1,11 +1,11 @@
 import { X, Save, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { SavedMonster, SavedPlayer, SearchResult } from "../../types";
+import type { SavedMonster, SavedPlayer, SearchResult, SpellcastingAbility } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
-import { getStatModifier, getApiImageUrl, safeParseInt } from "../../utils/utils";
+import { getStatModifier, getApiImageUrl, safeParseInt, getProficiencyBonusFromLevel } from "../../utils/utils";
 import { appendFormattedActions } from "../../utils/monsterNotes";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
@@ -68,6 +68,7 @@ export default function LibraryEditModal({
         int: apiMonster.intelligence,
         wis: apiMonster.wisdom,
         cha: apiMonster.charisma,
+        proficiencyBonus: apiMonster.proficiency_bonus,
         notes: appendFormattedActions(formData.notes ?? "", apiMonster),
       };
       setFormData(libraryMonster);
@@ -238,6 +239,110 @@ export default function LibraryEditModal({
                 placeholder="10"
               />
             </div>
+            {/* Proficiency & Spellcasting Label */}
+            <div className="text-sm font-semibold text-text-secondary pt-2">
+              {t("forms:library.edit.sections.proficiencySpellcasting")}
+            </div>
+
+            {/* Level + Proficiency Bonus */}
+            <div className="grid grid-cols-2 gap-4">
+              <LabeledTextInput
+                id="edit-level"
+                label={t("forms:library.edit.fields.level")}
+                value={formData.level?.toString() ?? ""}
+                onChange={(v) => {
+                  const level = safeParseInt(v);
+                  const profBonus = level ? getProficiencyBonusFromLevel(level) : formData.proficiencyBonus;
+                  setFormData({ ...formData, level, proficiencyBonus: profBonus });
+                }}
+                placeholder="5"
+              />
+              <LabeledTextInput
+                id="edit-proficiencyBonus"
+                label={t("forms:library.edit.fields.proficiencyBonus")}
+                value={formData.proficiencyBonus?.toString() ?? ""}
+                onChange={(v) =>
+                  setFormData({ ...formData, proficiencyBonus: safeParseInt(v) })
+                }
+                placeholder="2"
+              />
+            </div>
+
+            {/* Spellcasting Ability */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-text-muted uppercase tracking-wider">
+                {t("forms:library.edit.fields.spellcastingAbility")}
+              </label>
+              <select
+                className="bg-panel-secondary border border-border-primary rounded px-3 py-2 text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-border-primary"
+                value={formData.spellcastingAbility ?? ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    spellcastingAbility: (e.target.value as SpellcastingAbility) || undefined,
+                  })
+                }
+              >
+                <option value="">{t("forms:library.edit.spellcastingOptions.none")}</option>
+                <option value="int">{t("forms:library.edit.spellcastingOptions.int")}</option>
+                <option value="wis">{t("forms:library.edit.spellcastingOptions.wis")}</option>
+                <option value="cha">{t("forms:library.edit.spellcastingOptions.cha")}</option>
+              </select>
+            </div>
+
+            {/* Skill Proficiencies */}
+            <div className="flex flex-col gap-2">
+              <div className="text-xs font-medium text-text-muted uppercase tracking-wider">
+                {t("forms:library.edit.sections.skillProficiencies")}
+              </div>
+              <div className="bg-panel-secondary rounded-lg p-3 space-y-2">
+                {/* Header row */}
+                <div className="grid grid-cols-3 gap-2 text-xs text-text-muted font-medium pb-1 border-b border-border-primary">
+                  <span>{t("forms:library.edit.fields.skill")}</span>
+                  <span className="text-center">{t("forms:library.edit.fields.proficient")}</span>
+                  <span className="text-center">{t("forms:library.edit.fields.expertise")}</span>
+                </div>
+                {(["perception", "insight", "investigation"] as const).map((skill) => {
+                  const key = `${skill}Proficiency` as "perceptionProficiency" | "insightProficiency" | "investigationProficiency";
+                  const prof = formData[key];
+                  return (
+                    <div key={skill} className="grid grid-cols-3 gap-2 items-center">
+                      <span className="text-sm text-text-primary">
+                        {t(`forms:library.edit.skills.${skill}`)}
+                      </span>
+                      <div className="flex justify-center">
+                        <input
+                          type="checkbox"
+                          checked={prof?.proficient ?? false}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              [key]: { proficient: e.target.checked, expertise: e.target.checked ? prof?.expertise : false },
+                            })
+                          }
+                          className="w-4 h-4 accent-blue-500 cursor-pointer"
+                        />
+                      </div>
+                      <div className="flex justify-center">
+                        <input
+                          type="checkbox"
+                          checked={prof?.expertise ?? false}
+                          disabled={!prof?.proficient}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              [key]: { ...prof, proficient: true, expertise: e.target.checked },
+                            })
+                          }
+                          className="w-4 h-4 accent-blue-500 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <MarkdownEditor
               value={formData.notes ?? ""}
               onChange={updateNotes}
