@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, RotateCcw } from "lucide-react";
 
 type Props = {
   onRunningChange?: (isRunning: boolean) => void;
@@ -41,6 +41,10 @@ export default function CombatTimer({ onRunningChange }: Props) {
   }, [isRunning]);
 
   const toggleTimer = () => setIsRunning((prev) => !prev);
+  const resetTimer = () => {
+    setIsRunning(false);
+    setSeconds(0);
+  };
 
   return (
     <div className="flex items-center justify-center gap-2">
@@ -61,6 +65,13 @@ export default function CombatTimer({ onRunningChange }: Props) {
         ) : (
           <Play className="w-4 h-4" />
         )}
+      </button>
+      <button
+        onClick={resetTimer}
+        className="p-2 rounded transition bg-panel-secondary active:bg-panel-secondary/80 md:hover:bg-panel-secondary/80 text-text-primary"
+        title={t("combat:timer.reset")}
+      >
+        <RotateCcw className="w-4 h-4" />
       </button>
     </div>
   );

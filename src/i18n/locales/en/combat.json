@@ -13,6 +13,7 @@
   "timer": {
     "start": "Start timer",
     "stop": "Stop timer",
+    "reset": "Reset timer",
     "exitTitle": "Timer is running",
     "exitMessage": "The combat timer is still running. Are you sure you want to leave?"
   },

@@ -41,6 +41,7 @@
   "timer": {
     "start": "Démarrer le minuteur",
     "stop": "Arrêter le minuteur",
+    "reset": "Réinitialiser le minuteur",
     "exitTitle": "Le minuteur est en cours",
     "exitMessage": "Le minuteur de combat est toujours en cours. Êtes-vous sûr de vouloir quitter ?"
   },
