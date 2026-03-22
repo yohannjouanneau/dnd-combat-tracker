@@ -19,15 +19,15 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "pr-preview-${{ github.event.pull_request.number || inputs.pr_number }}"
+  cancel-in-progress: true
 
 jobs:
   deploy-preview:
     if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
+      name: pr-preview
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Set PR number
@@ -125,7 +125,7 @@ jobs:
     if: github.event.action == 'closed'
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
+      name: pr-preview
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout main branch
