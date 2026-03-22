@@ -33,9 +33,9 @@ export default function TurnControls({
       ? t("combat:turn.round", { number: round })
       : t("combat:turn.notStarted", { number: round });
   return (
-    <div className="bg-panel-bg rounded-lg p-3 md:p-4 mb-3 border border-border-primary flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
+    <div className="bg-panel-bg rounded-lg p-3 md:p-4 mb-3 border border-border-primary flex flex-col md:grid md:grid-cols-3 items-stretch md:items-center gap-3">
       {/* Round info - left on desktop, top on mobile */}
-      <div className="text-xl md:text-2xl font-bold text-center md:text-left md:flex-1">
+      <div className="text-xl md:text-2xl font-bold text-center md:text-left">
         {roundCountText}
       </div>
 
@@ -45,7 +45,7 @@ export default function TurnControls({
       </div>
 
       {/* Controls - right on desktop, bottom on mobile */}
-      <div className="flex gap-2 md:flex-1 md:justify-end">
+      <div className="flex gap-2 md:justify-end">
         <button
           onClick={onPrev}
           disabled={isAtStart || combatantCount === 0}
