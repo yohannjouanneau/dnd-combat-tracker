@@ -279,15 +279,15 @@ export default function LibraryModal({
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2 pt-2 pb-2 sm:pt-0">
-              <div className="relative">
+            <div className="flex items-center gap-2 pt-2 pb-2 sm:pt-0 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-none">
                 <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder={t("forms:library.searchPlaceholder")}
-                  className="pl-7 pr-2 py-1 text-sm bg-input-bg border border-border-secondary rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:border-amber-400 w-28 md:w-40"
+                  className="pl-7 pr-2 py-1 text-sm bg-input-bg border border-border-secondary rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:border-amber-400 w-full sm:w-28 md:w-40"
                 />
               </div>
               <select
