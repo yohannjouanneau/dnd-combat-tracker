@@ -21,6 +21,7 @@ interface CombatantActions {
   updateInitiative: (id: number, newInitiative: number) => void;
   toggleCondition: (id: number, condition: string) => void;
   updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
+  updateCombatantNotes: (id: number, notes: string) => void;
   nextTurn: () => void;
   prevTurn: () => void;
   prepareCombatantList: (
@@ -301,6 +302,18 @@ export function useCombatantStore({
     [setState]
   );
 
+  const updateCombatantNotes = useCallback(
+    (id: number, notes: string) => {
+      setState((prev) => ({
+        ...prev,
+        combatants: prev.combatants.map((c) =>
+          c.id === id ? { ...c, notes } : c
+        ),
+      }));
+    },
+    [setState]
+  );
+
   const nextTurn = useCallback(() => {
     setState((prev) => {
       if (prev.combatants.length === 0) return prev;
@@ -357,6 +370,7 @@ export function useCombatantStore({
       updateInitiative,
       toggleCondition,
       updateDeathSave,
+      updateCombatantNotes,
       nextTurn,
       prevTurn,
       prepareCombatantList,

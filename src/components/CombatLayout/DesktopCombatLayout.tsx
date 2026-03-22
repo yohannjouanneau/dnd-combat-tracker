@@ -14,6 +14,7 @@ type Props = {
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
+  onUpdateNotes: (id: number, notes: string) => void;
   selectedCombatantId: number | null;
   onSelectCombatant: (id: number) => void;
 };
@@ -29,6 +30,7 @@ export default function DesktopCombatLayout({
   onDeathSaves,
   onToggleCondition,
   onUpdateInitiative,
+  onUpdateNotes,
   selectedCombatantId,
   onSelectCombatant,
 }: Props) {
@@ -60,7 +62,7 @@ export default function DesktopCombatLayout({
       {selectedCombatant && isFocusMode && (
         <div className="flex-1 flex flex-col overflow-y-auto">
           <div className="my-auto w-full">
-            <CombatantDetailPanel combatant={selectedCombatant} />
+            <CombatantDetailPanel combatant={selectedCombatant} onUpdateNotes={onUpdateNotes} />
           </div>
         </div>
       )}

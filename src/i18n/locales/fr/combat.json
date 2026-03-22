@@ -26,7 +26,9 @@
       "initiative":"Initiative",
       "armorClass":"Classe d'armure",
       "notes":"Notes",
-      "openInNewTab":"Ouvrir dans un nouvel onglet"
+      "openInNewTab":"Ouvrir dans un nouvel onglet",
+      "combatNotes":"Notes de combat",
+      "combatNotesPlaceholder":"Ajoutez des notes pour ce combattant..."
     }
   },
   "groups": {

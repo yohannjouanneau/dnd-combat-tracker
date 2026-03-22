@@ -25,7 +25,9 @@
       "initiative":"Initiative",
       "armorClass":"Armor class",
       "notes":"Notes",
-      "openInNewTab":"Open in new tab"
+      "openInNewTab":"Open in new tab",
+      "combatNotes":"Combat notes",
+      "combatNotesPlaceholder":"Add notes for this combatant..."
     }
   },
   "groups": {

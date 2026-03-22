@@ -15,6 +15,7 @@ type Props = {
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
+  onUpdateNotes: (id: number, notes: string) => void;
 };
 export default function CombatLayout({
   combatants,
@@ -27,6 +28,7 @@ export default function CombatLayout({
   onDeathSaves,
   onToggleCondition,
   onUpdateInitiative,
+  onUpdateNotes,
 }: Props) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [selectedCombatantId, setSelectedCombatantId] = useState<number | null>(null);
@@ -77,6 +79,7 @@ export default function CombatLayout({
         onDeathSaves={onDeathSaves}
         onToggleCondition={onToggleCondition}
         onUpdateInitiative={onUpdateInitiative}
+        onUpdateNotes={onUpdateNotes}
         selectedCombatantId={selectedCombatantId}
         onSelectCombatant={handleSelectCombatant}
       />
@@ -95,6 +98,7 @@ export default function CombatLayout({
       onDeathSaves={onDeathSaves}
       onToggleCondition={onToggleCondition}
       onUpdateInitiative={onUpdateInitiative}
+      onUpdateNotes={onUpdateNotes}
       selectedCombatantId={selectedCombatantId}
       onSelectCombatant={handleMobileSelectCombatant}
       showDetail={showMobileDetail}

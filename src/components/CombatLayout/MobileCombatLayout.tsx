@@ -14,6 +14,7 @@ type Props = {
   onDeathSaves: (id: number, type: keyof DeathSaves, value: number) => void;
   onToggleCondition: (id: number, condition: string) => void;
   onUpdateInitiative: (id: number, newInitiative: number) => void;
+  onUpdateNotes: (id: number, notes: string) => void;
   selectedCombatantId: number | null;
   onSelectCombatant: (id: number) => void;
   showDetail: boolean;
@@ -31,6 +32,7 @@ export default function MobileCombatLayout({
   onDeathSaves,
   onToggleCondition,
   onUpdateInitiative,
+  onUpdateNotes,
   selectedCombatantId,
   onSelectCombatant,
   showDetail,
@@ -85,6 +87,7 @@ export default function MobileCombatLayout({
               <CombatantDetailPanel
                 combatant={selectedCombatant}
                 onClose={onCloseDetail}
+                onUpdateNotes={onUpdateNotes}
               />
             </div>
           )}

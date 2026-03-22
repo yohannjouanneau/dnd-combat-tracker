@@ -1,18 +1,40 @@
 import { X, Shield, Heart, Hourglass, ExternalLink } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import type { Combatant } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { AbilityScore } from "../common/AbilityScore";
 import { useTranslation } from "react-i18next";
-import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
 import { getHpColorClass } from "../../utils/utils";
+
+const MAX_NOTES_LENGTH = 500;
+const NOTES_DEBOUNCE_MS = 400;
 
 type Props = {
   combatant: Combatant;
   onClose?: () => void;
+  onUpdateNotes: (id: number, notes: string) => void;
 };
 
-export default function CombatantDetailPanel({ combatant, onClose }: Props) {
+export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes }: Props) {
   const { t } = useTranslation(["combat"]);
+  const [localNotes, setLocalNotes] = useState(combatant.notes ?? "");
+  const debounceTimerRef = useRef<number | null>(null);
+
+  // Sync local notes when the selected combatant changes
+  useEffect(() => {
+    setLocalNotes(combatant.notes ?? "");
+  }, [combatant.id, combatant.notes]);
+
+  const handleNotesChange = (value: string) => {
+    setLocalNotes(value);
+    if (debounceTimerRef.current) {
+      window.clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = window.setTimeout(() => {
+      onUpdateNotes(combatant.id, value);
+    }, NOTES_DEBOUNCE_MS);
+  };
+
   return (
     <div
       className={`bg-panel-bg rounded-lg p-4 md:p-6 border-2 border-border-primary relative ${onClose ? 'overflow-y-auto scrollbar-thin scrollbar-thumb-border-secondary scrollbar-track-panel-bg' : ''}`}
@@ -107,17 +129,23 @@ export default function CombatantDetailPanel({ combatant, onClose }: Props) {
         />
       </div>
 
-      {/* Notes Section */}
-      {combatant.notes && (
-        <div className="mt-6">
-          <h3 className="text-sm font-semibold text-text-muted mb-2">
-            {t("combat:combatant.details.notes")}
-          </h3>
-          <div className="bg-panel-secondary rounded-lg p-4">
-            <MarkdownRenderer content={combatant.notes} />
-          </div>
+      {/* Combat Notes */}
+      <div className="mt-6">
+        <h3 className="text-sm font-semibold text-text-muted mb-2">
+          {t("combat:combatant.details.combatNotes")}
+        </h3>
+        <textarea
+          className="w-full bg-panel-secondary rounded-lg p-3 text-sm text-text-primary resize-none focus:outline-none focus:ring-1 focus:ring-border-primary"
+          rows={4}
+          maxLength={MAX_NOTES_LENGTH}
+          placeholder={t("combat:combatant.details.combatNotesPlaceholder")}
+          value={localNotes}
+          onChange={(e) => handleNotesChange(e.target.value)}
+        />
+        <div className="text-xs text-text-muted text-right mt-1">
+          {localNotes.length} / {MAX_NOTES_LENGTH}
         </div>
-      )}
+      </div>
     </div>
   );
 }
