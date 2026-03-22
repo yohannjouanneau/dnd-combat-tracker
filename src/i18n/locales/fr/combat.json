@@ -25,7 +25,7 @@
       "hitPoints":"Point de vie",
       "initiative":"Initiative",
       "armorClass":"Classe d'armure",
-      "notes":"Notes",
+      "notes":"Notes de bibliothèque",
       "openInNewTab":"Ouvrir dans un nouvel onglet",
       "combatNotes":"Notes de combat",
       "combatNotesPlaceholder":"Ajoutez des notes pour ce combattant..."
