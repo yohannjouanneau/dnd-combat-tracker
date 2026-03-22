@@ -26,10 +26,11 @@ export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes
     NOTES_DEBOUNCE_MS
   );
 
-  // Sync local notes when the selected combatant changes
+  // Sync local notes when switching to a different combatant
   useEffect(() => {
     setLocalNotes(combatant.combatNotes ?? "");
-  }, [combatant.id, combatant.combatNotes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combatant.id]);
 
   const handleNotesChange = (value: string) => {
     setLocalNotes(value);

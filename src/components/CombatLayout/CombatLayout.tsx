@@ -35,15 +35,16 @@ export default function CombatLayout({
   const [showMobileDetail, setShowMobileDetail] = useState(false);
 
   const activeCombatant = combatants[currentTurn] ?? null;
+  const activeCombatantId = activeCombatant?.id ?? null;
 
   // Auto-select new active combatant when turn changes
   useEffect(() => {
-    if (activeCombatant && isFocusMode) {
-      setSelectedCombatantId(activeCombatant.id);
+    if (activeCombatantId !== null && isFocusMode) {
+      setSelectedCombatantId(activeCombatantId);
     }
     // Close mobile detail panel on turn change
     setShowMobileDetail(false);
-  }, [currentTurn, activeCombatant, isFocusMode]);
+  }, [currentTurn, activeCombatantId, isFocusMode]);
 
   // Reset selection when focus mode is disabled
   useEffect(() => {
