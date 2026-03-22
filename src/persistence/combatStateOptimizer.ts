@@ -73,6 +73,7 @@ async function optimizeCombatant(
       conditions: combatant.conditions,
       deathSaves: combatant.deathSaves,
       isReference: true,
+      ...(combatant.combatNotes !== undefined ? { combatNotes: combatant.combatNotes } : {}),
       ...overrides,
     } as Combatant;
   }

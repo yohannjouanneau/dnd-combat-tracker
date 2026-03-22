@@ -303,11 +303,11 @@ export function useCombatantStore({
   );
 
   const updateCombatantNotes = useCallback(
-    (id: number, notes: string) => {
+    (id: number, combatNotes: string) => {
       setState((prev) => ({
         ...prev,
         combatants: prev.combatants.map((c) =>
-          c.id === id ? { ...c, notes } : c
+          c.id === id ? { ...c, combatNotes } : c
         ),
       }));
     },

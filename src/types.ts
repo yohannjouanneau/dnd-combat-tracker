@@ -62,6 +62,7 @@ export type Combatant = {
   groupIndex: number;
   templateOrigin: TemplateOrigin;
   isReference?: boolean;
+  combatNotes?: string;
 } & Presentation &
   CombatStats &
   AbilityScores;

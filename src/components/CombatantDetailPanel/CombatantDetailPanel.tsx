@@ -4,6 +4,7 @@ import type { Combatant } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { AbilityScore } from "../common/AbilityScore";
 import { useTranslation } from "react-i18next";
+import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
 import { getHpColorClass } from "../../utils/utils";
 
 const MAX_NOTES_LENGTH = 500;
@@ -17,13 +18,13 @@ type Props = {
 
 export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes }: Props) {
   const { t } = useTranslation(["combat"]);
-  const [localNotes, setLocalNotes] = useState(combatant.notes ?? "");
+  const [localNotes, setLocalNotes] = useState(combatant.combatNotes ?? "");
   const debounceTimerRef = useRef<number | null>(null);
 
   // Sync local notes when the selected combatant changes
   useEffect(() => {
-    setLocalNotes(combatant.notes ?? "");
-  }, [combatant.id, combatant.notes]);
+    setLocalNotes(combatant.combatNotes ?? "");
+  }, [combatant.id, combatant.combatNotes]);
 
   const handleNotesChange = (value: string) => {
     setLocalNotes(value);
@@ -129,7 +130,19 @@ export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes
         />
       </div>
 
-      {/* Combat Notes */}
+      {/* Notes Section (read-only, from template) */}
+      {combatant.notes && (
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold text-text-muted mb-2">
+            {t("combat:combatant.details.notes")}
+          </h3>
+          <div className="bg-panel-secondary rounded-lg p-4">
+            <MarkdownRenderer content={combatant.notes} />
+          </div>
+        </div>
+      )}
+
+      {/* Combat Notes (editable, fight-specific) */}
       <div className="mt-6">
         <h3 className="text-sm font-semibold text-text-muted mb-2">
           {t("combat:combatant.details.combatNotes")}
