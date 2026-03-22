@@ -1,11 +1,12 @@
 import { X, Shield, Heart, Hourglass, ExternalLink } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import type { Combatant } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { AbilityScore } from "../common/AbilityScore";
 import { useTranslation } from "react-i18next";
 import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
 import { getHpColorClass } from "../../utils/utils";
+import { useDebounce } from "../../hooks/useDebounce";
 
 const MAX_NOTES_LENGTH = 500;
 const NOTES_DEBOUNCE_MS = 400;
@@ -19,7 +20,11 @@ type Props = {
 export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes }: Props) {
   const { t } = useTranslation(["combat"]);
   const [localNotes, setLocalNotes] = useState(combatant.combatNotes ?? "");
-  const debounceTimerRef = useRef<number | null>(null);
+
+  const debouncedUpdateNotes = useDebounce(
+    (value: string) => onUpdateNotes(combatant.id, value),
+    NOTES_DEBOUNCE_MS
+  );
 
   // Sync local notes when the selected combatant changes
   useEffect(() => {
@@ -28,12 +33,7 @@ export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes
 
   const handleNotesChange = (value: string) => {
     setLocalNotes(value);
-    if (debounceTimerRef.current) {
-      window.clearTimeout(debounceTimerRef.current);
-    }
-    debounceTimerRef.current = window.setTimeout(() => {
-      onUpdateNotes(combatant.id, value);
-    }, NOTES_DEBOUNCE_MS);
+    debouncedUpdateNotes(value);
   };
 
   return (
