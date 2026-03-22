@@ -35,17 +35,17 @@ export default function TurnControls({
   return (
     <div className="bg-panel-bg rounded-lg p-3 md:p-4 mb-3 border border-border-primary flex flex-col md:grid md:grid-cols-3 items-stretch md:items-center gap-3 md:gap-6">
       {/* Round info - left on desktop, top on mobile */}
-      <div className="text-xl md:text-2xl font-bold text-center md:text-left">
+      <div className="min-w-0 text-xl md:text-2xl font-bold text-center md:text-left">
         {roundCountText}
       </div>
 
       {/* Timer - center */}
-      <div className="flex justify-center">
+      <div className="min-w-0 flex justify-center">
         <CombatTimer onRunningChange={onTimerRunningChange} />
       </div>
 
       {/* Controls - right on desktop, bottom on mobile */}
-      <div className="flex gap-2 md:justify-end">
+      <div className="min-w-0 flex gap-2 md:justify-end">
         <button
           onClick={onPrev}
           disabled={isAtStart || combatantCount === 0}

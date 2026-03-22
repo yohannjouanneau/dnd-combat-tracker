@@ -48,7 +48,7 @@ export default function CombatTimer({ onRunningChange }: Props) {
 
   return (
     <div className="flex items-center justify-center gap-2">
-      <span className="font-mono text-lg md:text-xl font-bold text-text-primary tabular-nums tracking-widest">
+      <span className="font-mono text-lg md:text-xl font-bold text-text-primary tabular-nums tracking-wide">
         {formatTime(seconds)}
       </span>
       <button
