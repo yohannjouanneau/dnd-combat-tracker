@@ -1,7 +1,7 @@
 import { X, Save, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { SavedMonster, SavedPlayer, SearchResult, SpellcastingAbility } from "../../types";
+import type { SavedMonster, SavedPlayer, SearchResult, SkillProficiency, SpellcastingAbility } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
@@ -9,6 +9,7 @@ import { getStatModifier, getApiImageUrl, safeParseInt, getProficiencyBonusFromL
 import { appendFormattedActions } from "../../utils/monsterNotes";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
+import SkillProficienciesEditor from "./SkillProficienciesEditor";
 
 type Props = {
   monster: SavedMonster | SavedPlayer;
@@ -291,57 +292,18 @@ export default function LibraryEditModal({
             </div>
 
             {/* Skill Proficiencies */}
-            <div className="flex flex-col gap-2">
-              <div className="text-xs font-medium text-text-muted uppercase tracking-wider">
-                {t("forms:library.edit.sections.skillProficiencies")}
-              </div>
-              <div className="bg-panel-secondary rounded-lg p-3 space-y-2">
-                {/* Header row */}
-                <div className="grid grid-cols-3 gap-2 text-xs text-text-muted font-medium pb-1 border-b border-border-primary">
-                  <span>{t("forms:library.edit.fields.skill")}</span>
-                  <span className="text-center">{t("forms:library.edit.fields.proficient")}</span>
-                  <span className="text-center">{t("forms:library.edit.fields.expertise")}</span>
-                </div>
-                {(["perception", "insight", "investigation"] as const).map((skill) => {
-                  const key = `${skill}Proficiency` as "perceptionProficiency" | "insightProficiency" | "investigationProficiency";
-                  const prof = formData[key];
-                  return (
-                    <div key={skill} className="grid grid-cols-3 gap-2 items-center">
-                      <span className="text-sm text-text-primary">
-                        {t(`forms:library.edit.skills.${skill}`)}
-                      </span>
-                      <div className="flex justify-center">
-                        <input
-                          type="checkbox"
-                          checked={prof?.proficient ?? false}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              [key]: { proficient: e.target.checked, expertise: e.target.checked ? prof?.expertise : false },
-                            })
-                          }
-                          className="w-4 h-4 accent-blue-500 cursor-pointer"
-                        />
-                      </div>
-                      <div className="flex justify-center">
-                        <input
-                          type="checkbox"
-                          checked={prof?.expertise ?? false}
-                          disabled={!prof?.proficient}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              [key]: { ...prof, proficient: true, expertise: e.target.checked },
-                            })
-                          }
-                          className="w-4 h-4 accent-blue-500 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <SkillProficienciesEditor
+              perceptionProficiency={formData.perceptionProficiency}
+              insightProficiency={formData.insightProficiency}
+              investigationProficiency={formData.investigationProficiency}
+              proficiencyBonus={formData.proficiencyBonus}
+              level={formData.level}
+              wis={formData.wis}
+              int={formData.int}
+              onChange={(key, value: SkillProficiency) =>
+                setFormData({ ...formData, [key]: value })
+              }
+            />
 
             <MarkdownEditor
               value={formData.notes ?? ""}
