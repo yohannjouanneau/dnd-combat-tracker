@@ -5,7 +5,7 @@ import type { SavedMonster, SavedPlayer, SearchResult, SkillProficiency } from "
 import LabeledTextInput from "../common/LabeledTextInput";
 import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
-import { getStatModifier, getApiImageUrl, safeParseInt, getProficiencyBonusFromLevel } from "../../utils/utils";
+import { getStatModifier, getApiImageUrl, safeParseInt } from "../../utils/utils";
 import { appendFormattedActions } from "../../utils/monsterNotes";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
@@ -240,35 +240,6 @@ export default function LibraryEditModal({
                 placeholder="10"
               />
             </div>
-            {/* Proficiency & Spellcasting Label */}
-            <div className="text-sm font-semibold text-text-secondary pt-2">
-              {t("forms:library.edit.sections.proficiencySpellcasting")}
-            </div>
-
-            {/* Level + Proficiency Bonus */}
-            <div className="grid grid-cols-2 gap-4">
-              <LabeledTextInput
-                id="edit-level"
-                label={t("forms:library.edit.fields.level")}
-                value={formData.level?.toString() ?? ""}
-                onChange={(v) => {
-                  const level = safeParseInt(v);
-                  const profBonus = level ? getProficiencyBonusFromLevel(level) : formData.proficiencyBonus;
-                  setFormData({ ...formData, level, proficiencyBonus: profBonus });
-                }}
-                placeholder="5"
-              />
-              <LabeledTextInput
-                id="edit-proficiencyBonus"
-                label={t("forms:library.edit.fields.proficiencyBonus")}
-                value={formData.proficiencyBonus?.toString() ?? ""}
-                onChange={(v) =>
-                  setFormData({ ...formData, proficiencyBonus: safeParseInt(v) })
-                }
-                placeholder="2"
-              />
-            </div>
-
             {/* Skill Proficiencies + Spellcasting */}
             <SkillProficienciesEditor
               perceptionProficiency={formData.perceptionProficiency}
@@ -284,6 +255,12 @@ export default function LibraryEditModal({
               }
               onSpellcastingAbilityChange={(value) =>
                 setFormData({ ...formData, spellcastingAbility: value })
+              }
+              onLevelChange={(level, proficiencyBonus) =>
+                setFormData({ ...formData, level, proficiencyBonus })
+              }
+              onProficiencyBonusChange={(proficiencyBonus) =>
+                setFormData({ ...formData, proficiencyBonus })
               }
             />
 

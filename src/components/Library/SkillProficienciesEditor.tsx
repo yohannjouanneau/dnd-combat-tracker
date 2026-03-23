@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import type { SkillProficiency, SpellcastingAbility } from "../../types";
-import { getEffectiveProficiencyBonus, getPassiveScore } from "../../utils/utils";
+import { getEffectiveProficiencyBonus, getPassiveScore, getProficiencyBonusFromLevel, safeParseInt } from "../../utils/utils";
+import LabeledTextInput from "../common/LabeledTextInput";
 
 type SkillKey = "perceptionProficiency" | "insightProficiency" | "investigationProficiency";
 
@@ -15,6 +16,8 @@ type Props = {
   spellcastingAbility?: SpellcastingAbility;
   onChange: (key: SkillKey, value: SkillProficiency) => void;
   onSpellcastingAbilityChange: (value: SpellcastingAbility | undefined) => void;
+  onLevelChange: (level: number | undefined, profBonus: number | undefined) => void;
+  onProficiencyBonusChange: (bonus: number | undefined) => void;
 };
 
 const SKILLS: { key: SkillKey; abilityKey: "wis" | "int" }[] = [
@@ -34,6 +37,8 @@ export default function SkillProficienciesEditor({
   spellcastingAbility,
   onChange,
   onSpellcastingAbilityChange,
+  onLevelChange,
+  onProficiencyBonusChange,
 }: Props) {
   const { t } = useTranslation(["forms", "combat"]);
 
@@ -62,6 +67,33 @@ export default function SkillProficienciesEditor({
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Section Header */}
+      <div className="text-sm font-semibold text-text-secondary pt-2">
+        {t("forms:library.edit.sections.proficiencySpellcasting")}
+      </div>
+
+      {/* Level + Proficiency Bonus */}
+      <div className="grid grid-cols-2 gap-4">
+        <LabeledTextInput
+          id="edit-level"
+          label={t("forms:library.edit.fields.level")}
+          value={level?.toString() ?? ""}
+          onChange={(v) => {
+            const newLevel = safeParseInt(v);
+            const newProfBonus = newLevel ? getProficiencyBonusFromLevel(newLevel) : proficiencyBonus;
+            onLevelChange(newLevel, newProfBonus);
+          }}
+          placeholder="5"
+        />
+        <LabeledTextInput
+          id="edit-proficiencyBonus"
+          label={t("forms:library.edit.fields.proficiencyBonus")}
+          value={proficiencyBonus?.toString() ?? ""}
+          onChange={(v) => onProficiencyBonusChange(safeParseInt(v))}
+          placeholder="2"
+        />
+      </div>
+
       {/* Spellcasting Ability */}
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-text-muted uppercase tracking-wider">
