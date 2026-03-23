@@ -55,8 +55,8 @@ export default function SkillProficienciesEditor({
   };
 
   const spellcastingScore = spellcastingAbility === "int" ? int : spellcastingAbility === "wis" ? wis : cha;
-  const spellSaveDC = spellcastingAbility != null ? getSpellSaveDC(effectiveProfBonus, spellcastingScore) : undefined;
-  const spellAttackBonus = spellcastingAbility != null ? getSpellAttackBonus(effectiveProfBonus, spellcastingScore) : undefined;
+  const spellSaveDC = spellcastingAbility != null && spellcastingScore != null ? getSpellSaveDC(effectiveProfBonus, spellcastingScore) : undefined;
+  const spellAttackBonus = spellcastingAbility != null && spellcastingScore != null ? getSpellAttackBonus(effectiveProfBonus, spellcastingScore) : undefined;
 
   const skillLabels: Record<SkillKey, string> = {
     perceptionProficiency: t("forms:library.edit.skills.perception"),
