@@ -1,7 +1,7 @@
 import { X, Save, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { SavedMonster, SavedPlayer, SearchResult, SkillProficiency, SpellcastingAbility } from "../../types";
+import type { SavedMonster, SavedPlayer, SearchResult, SkillProficiency } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
@@ -240,25 +240,6 @@ export default function LibraryEditModal({
                 placeholder="10"
               />
             </div>
-            {/* Spellcasting Ability */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-text-muted uppercase tracking-wider">
-                {t("forms:library.edit.fields.spellcastingAbility")}
-              </label>
-              <select
-                className="bg-panel-secondary border border-border-primary rounded px-3 py-2 text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-border-primary"
-                value={formData.spellcastingAbility ?? ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, spellcastingAbility: (e.target.value as SpellcastingAbility) || undefined })
-                }
-              >
-                <option value="">{t("forms:library.edit.spellcastingOptions.none")}</option>
-                <option value="int">{t("forms:library.edit.spellcastingOptions.int")}</option>
-                <option value="wis">{t("forms:library.edit.spellcastingOptions.wis")}</option>
-                <option value="cha">{t("forms:library.edit.spellcastingOptions.cha")}</option>
-              </select>
-            </div>
-
             {/* Skill Proficiencies */}
             <SkillProficienciesEditor
               perceptionProficiency={formData.perceptionProficiency}
@@ -278,6 +259,9 @@ export default function LibraryEditModal({
               }
               onProficiencyBonusChange={(proficiencyBonus) =>
                 setFormData({ ...formData, proficiencyBonus })
+              }
+              onSpellcastingAbilityChange={(spellcastingAbility) =>
+                setFormData({ ...formData, spellcastingAbility })
               }
             />
 

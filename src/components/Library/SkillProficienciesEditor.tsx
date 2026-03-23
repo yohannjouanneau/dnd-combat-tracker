@@ -18,6 +18,7 @@ type Props = {
   onChange: (key: SkillKey, value: SkillProficiency) => void;
   onLevelChange: (level: number | undefined, profBonus: number | undefined) => void;
   onProficiencyBonusChange: (bonus: number | undefined) => void;
+  onSpellcastingAbilityChange: (ability: SpellcastingAbility | undefined) => void;
 };
 
 const SKILLS: { key: SkillKey; abilityKey: "wis" | "int" }[] = [
@@ -39,6 +40,7 @@ export default function SkillProficienciesEditor({
   onChange,
   onLevelChange,
   onProficiencyBonusChange,
+  onSpellcastingAbilityChange,
 }: Props) {
   const { t } = useTranslation(["forms", "combat"]);
 
@@ -95,6 +97,25 @@ export default function SkillProficienciesEditor({
           onChange={(v) => onProficiencyBonusChange(safeParseInt(v))}
           placeholder="2"
         />
+      </div>
+
+      {/* Spellcasting Ability title — outside panel */}
+      <div className="text-xs font-medium text-text-muted uppercase tracking-wider">
+        {t("forms:library.edit.fields.spellcastingAbility")}
+      </div>
+
+      {/* Spellcasting Ability select — inside its own panel */}
+      <div className="bg-panel-secondary rounded-lg p-3">
+        <select
+          className="w-full bg-transparent border border-border-primary rounded px-3 py-2 text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-border-primary"
+          value={spellcastingAbility ?? ""}
+          onChange={(e) => onSpellcastingAbilityChange((e.target.value as SpellcastingAbility) || undefined)}
+        >
+          <option value="">{t("forms:library.edit.spellcastingOptions.none")}</option>
+          <option value="int">{t("forms:library.edit.spellcastingOptions.int")}</option>
+          <option value="wis">{t("forms:library.edit.spellcastingOptions.wis")}</option>
+          <option value="cha">{t("forms:library.edit.spellcastingOptions.cha")}</option>
+        </select>
       </div>
 
       <div className="text-xs font-medium text-text-muted uppercase tracking-wider">
