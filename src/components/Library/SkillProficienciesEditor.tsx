@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import type { SkillProficiency } from "../../types";
+import type { SkillProficiency, SpellcastingAbility } from "../../types";
 import { getEffectiveProficiencyBonus, getPassiveScore } from "../../utils/utils";
 
 type SkillKey = "perceptionProficiency" | "insightProficiency" | "investigationProficiency";
@@ -12,7 +12,9 @@ type Props = {
   level?: number;
   wis?: number;
   int?: number;
+  spellcastingAbility?: SpellcastingAbility;
   onChange: (key: SkillKey, value: SkillProficiency) => void;
+  onSpellcastingAbilityChange: (value: SpellcastingAbility | undefined) => void;
 };
 
 const SKILLS: { key: SkillKey; abilityKey: "wis" | "int" }[] = [
@@ -29,7 +31,9 @@ export default function SkillProficienciesEditor({
   level,
   wis,
   int,
+  spellcastingAbility,
   onChange,
+  onSpellcastingAbilityChange,
 }: Props) {
   const { t } = useTranslation(["forms", "combat"]);
 
@@ -58,6 +62,25 @@ export default function SkillProficienciesEditor({
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Spellcasting Ability */}
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-text-muted uppercase tracking-wider">
+          {t("forms:library.edit.fields.spellcastingAbility")}
+        </label>
+        <select
+          className="bg-panel-secondary border border-border-primary rounded px-3 py-2 text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-border-primary"
+          value={spellcastingAbility ?? ""}
+          onChange={(e) =>
+            onSpellcastingAbilityChange((e.target.value as SpellcastingAbility) || undefined)
+          }
+        >
+          <option value="">{t("forms:library.edit.spellcastingOptions.none")}</option>
+          <option value="int">{t("forms:library.edit.spellcastingOptions.int")}</option>
+          <option value="wis">{t("forms:library.edit.spellcastingOptions.wis")}</option>
+          <option value="cha">{t("forms:library.edit.spellcastingOptions.cha")}</option>
+        </select>
+      </div>
+
       <div className="text-xs font-medium text-text-muted uppercase tracking-wider">
         {t("forms:library.edit.sections.skillProficiencies")}
       </div>
