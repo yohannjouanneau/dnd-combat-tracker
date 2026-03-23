@@ -95,7 +95,7 @@ export default function SkillProficienciesEditor({
       </div>
 
       {/* Spellcasting Ability */}
-      <div className="flex flex-col gap-1">
+      <div className="bg-panel-secondary rounded-lg p-3 flex flex-col gap-1">
         <label className="text-xs font-medium text-text-muted uppercase tracking-wider">
           {t("forms:library.edit.fields.spellcastingAbility")}
         </label>
@@ -155,16 +155,16 @@ export default function SkillProficienciesEditor({
             </div>
           );
         })}
+      </div>
 
-        {/* Passive stats preview */}
-        <div className="pt-2 mt-1 border-t border-border-primary flex flex-wrap gap-x-4 gap-y-1">
-          {SKILLS.map(({ key }) => (
-            <span key={key} className="text-xs text-text-muted">
-              <span className="text-text-secondary">{passiveLabels[key]}:</span>{" "}
-              <span className="font-semibold text-text-primary">{passiveScores[key]}</span>
-            </span>
-          ))}
-        </div>
+      {/* Passive stats preview */}
+      <div className="bg-panel-secondary rounded-lg p-3 flex flex-wrap gap-x-4 gap-y-1">
+        {SKILLS.map(({ key }) => (
+          <span key={key} className="text-xs text-text-muted">
+            <span className="text-text-secondary">{passiveLabels[key]}:</span>{" "}
+            <span className="font-semibold text-text-primary">{passiveScores[key]}</span>
+          </span>
+        ))}
       </div>
     </div>
   );
