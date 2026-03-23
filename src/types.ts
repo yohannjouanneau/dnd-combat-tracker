@@ -9,6 +9,22 @@ export type TimestampedEntity = {
   updatedAt: number;
 };
 
+export type SkillProficiency = {
+  proficient: boolean;
+  expertise?: boolean;
+};
+
+export type SpellcastingAbility = "int" | "wis" | "cha";
+
+export type ProficiencyData = {
+  level?: number;
+  proficiencyBonus?: number;
+  spellcastingAbility?: SpellcastingAbility;
+  perceptionProficiency?: SkillProficiency;
+  insightProficiency?: SkillProficiency;
+  investigationProficiency?: SkillProficiency;
+};
+
 // Base ability scores (used in multiple places)
 export type AbilityScores = {
   str?: number; // Strength
@@ -65,7 +81,8 @@ export type Combatant = {
   combatNotes?: string;
 } & Presentation &
   CombatStats &
-  AbilityScores;
+  AbilityScores &
+  Partial<ProficiencyData>;
 
 export type InitiativeGroup = {
   id: string;
@@ -89,7 +106,8 @@ export type CombatantTemplate<T extends CombatantTemplateType> = {
 } & CombatStats &
   Presentation &
   Partial<AbilityScores> &
-  InitiativeData;
+  InitiativeData &
+  Partial<ProficiencyData>;
 
 export type SavedCombatantTemplate<T extends CombatantTemplateType> =
   CombatantTemplate<T> & TimestampedEntity & { autoAddToCombat?: boolean };

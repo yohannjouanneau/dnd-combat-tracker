@@ -125,7 +125,9 @@
         "editPlayer": "Edit Player: {{name}}"
       },
       "sections": {
-        "abilityScores": "Ability Scores"
+        "abilityScores": "Ability Scores",
+        "proficiencySpellcasting": "Proficiency & Spellcasting",
+        "skillProficiencies": "Skill Proficiencies"
       },
       "fields": {
         "name": "Name *",
@@ -138,7 +140,24 @@
         "con": "Constitution (CON)",
         "int": "Intelligence (INT)",
         "wis": "Wisdom (WIS)",
-        "cha": "Charisma (CHA)"
+        "cha": "Charisma (CHA)",
+        "level": "Level (optional)",
+        "proficiencyBonus": "Proficiency Bonus",
+        "spellcastingAbility": "Spellcasting Ability (optional)",
+        "skill": "Skill",
+        "proficient": "Proficient",
+        "expertise": "Expertise"
+      },
+      "skills": {
+        "perception": "Perception",
+        "insight": "Insight",
+        "investigation": "Investigation"
+      },
+      "spellcastingOptions": {
+        "none": "None",
+        "int": "Intelligence",
+        "wis": "Wisdom",
+        "cha": "Charisma"
       },
       "placeholders": {
         "name": "Type to search monsters...",

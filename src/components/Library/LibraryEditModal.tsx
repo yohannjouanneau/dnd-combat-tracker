@@ -1,7 +1,7 @@
 import { X, Save, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { SavedMonster, SavedPlayer, SearchResult } from "../../types";
+import type { SavedMonster, SavedPlayer, SearchResult, SkillProficiency } from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
@@ -9,6 +9,7 @@ import { getStatModifier, getApiImageUrl, safeParseInt } from "../../utils/utils
 import { appendFormattedActions } from "../../utils/monsterNotes";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
+import SkillProficienciesEditor from "./SkillProficienciesEditor";
 
 type Props = {
   monster: SavedMonster | SavedPlayer;
@@ -68,6 +69,7 @@ export default function LibraryEditModal({
         int: apiMonster.intelligence,
         wis: apiMonster.wisdom,
         cha: apiMonster.charisma,
+        proficiencyBonus: apiMonster.proficiency_bonus,
         notes: appendFormattedActions(formData.notes ?? "", apiMonster),
       };
       setFormData(libraryMonster);
@@ -238,6 +240,31 @@ export default function LibraryEditModal({
                 placeholder="10"
               />
             </div>
+            {/* Skill Proficiencies */}
+            <SkillProficienciesEditor
+              perceptionProficiency={formData.perceptionProficiency}
+              insightProficiency={formData.insightProficiency}
+              investigationProficiency={formData.investigationProficiency}
+              proficiencyBonus={formData.proficiencyBonus}
+              level={formData.level}
+              wis={formData.wis}
+              int={formData.int}
+              cha={formData.cha}
+              spellcastingAbility={formData.spellcastingAbility}
+              onChange={(key, value: SkillProficiency) =>
+                setFormData({ ...formData, [key]: value })
+              }
+              onLevelChange={(level, proficiencyBonus) =>
+                setFormData({ ...formData, level, proficiencyBonus })
+              }
+              onProficiencyBonusChange={(proficiencyBonus) =>
+                setFormData({ ...formData, proficiencyBonus })
+              }
+              onSpellcastingAbilityChange={(spellcastingAbility) =>
+                setFormData({ ...formData, spellcastingAbility })
+              }
+            />
+
             <MarkdownEditor
               value={formData.notes ?? ""}
               onChange={updateNotes}

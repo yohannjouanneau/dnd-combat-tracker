@@ -35,7 +35,17 @@
       "notes":"Library notes",
       "openInNewTab":"Open in new tab",
       "combatNotes":"Combat notes",
-      "combatNotesPlaceholder":"Add notes for this combatant..."
+      "combatNotesPlaceholder":"Add notes for this combatant...",
+      "derivedStats":"Derived Stats",
+      "proficiencyBonus":"Proficiency Bonus",
+      "level":"Level {{level}}",
+      "spellSaveDC":"Spell Save DC",
+      "spellAttackBonus":"Spell Attack",
+      "passive": {
+        "perception":"Passive Perception",
+        "insight":"Passive Insight",
+        "investigation":"Passive Investigation"
+      }
     }
   },
   "groups": {

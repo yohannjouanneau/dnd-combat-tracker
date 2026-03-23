@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
 import { getHpColorClass } from "../../utils/utils";
 import { useDebounce } from "../../hooks/useDebounce";
+import DerivedStatsPanel from "./DerivedStatsPanel";
 
 const MAX_NOTES_LENGTH = 500;
 const NOTES_DEBOUNCE_MS = 400;
@@ -18,7 +19,7 @@ type Props = {
 };
 
 export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes }: Props) {
-  const { t } = useTranslation(["combat"]);
+  const { t } = useTranslation(["combat", "forms"]);
   const [localNotes, setLocalNotes] = useState(combatant.combatNotes ?? "");
 
   const debouncedUpdateNotes = useDebounce(
@@ -130,6 +131,9 @@ export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes
           }}
         />
       </div>
+
+      {/* Derived Stats Section */}
+      <DerivedStatsPanel combatant={combatant} />
 
       {/* Notes Section (read-only, from template) */}
       {combatant.notes && (
