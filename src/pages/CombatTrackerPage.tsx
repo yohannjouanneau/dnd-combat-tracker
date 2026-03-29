@@ -18,7 +18,6 @@ import type {
 } from "../types";
 import type { CombatStateManager } from "../store/types";
 import PlayerPanel from "../components/CombatForm/PlayerPanel";
-import logo from "../assets/logo.png";
 import { HP_BAR_ID_PREFIX } from "../constants";
 import LibraryModal from "../components/Library/LibraryModal";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
@@ -262,45 +261,25 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               : "max-h-[5000px] opacity-100"
           }`}
         >
-          {/* Logo - Mobile only, centered at top */}
-          <div className="flex justify-center mb-4 md:hidden">
-            <img
-              src={logo}
-              alt="D&D Combat Tracker Logo"
-              className="h-20 rounded-xl"
-            />
-          </div>
-
-          <div className="flex items-center gap-3 mb-8">
-            {/* Logo - Desktop only */}
-            <div className="hidden md:flex md:mb-6">
-              <img
-                src={logo}
-                alt="D&D Combat Tracker Logo"
-                className="md:h-24 rounded-xl"
-              />
-            </div>
-            <div className="flex-1">
-              <TopBar
-                name={combatStateManager.state.combatName ?? ""}
-                description={combatStateManager.state.combatDescription ?? ""}
-                onChange={(patch) =>
-                  combatStateManager.updateCombat(
-                    patch.name ?? "",
-                    patch.description ?? ""
-                  )
-                }
-                onBack={back}
-                onSave={async () => {
-                  if (!combatStateManager.state) return;
-                  await combatStateManager.saveCombat();
-                }}
-                hasChanges={combatStateManager.hasChanges}
-                syncApi={combatStateManager.syncApi}
-                onOpenSettings={() => setShowSettings(true)}
-              />
-            </div>
-          </div>
+          <TopBar
+            logo
+            name={combatStateManager.state.combatName ?? ""}
+            description={combatStateManager.state.combatDescription ?? ""}
+            onChange={(patch) =>
+              combatStateManager.updateCombat(
+                patch.name ?? "",
+                patch.description ?? ""
+              )
+            }
+            onBack={back}
+            onSave={async () => {
+              if (!combatStateManager.state) return;
+              await combatStateManager.saveCombat();
+            }}
+            hasChanges={combatStateManager.hasChanges}
+            syncApi={combatStateManager.syncApi}
+            onOpenSettings={() => setShowSettings(true)}
+          />
 
           <div className="grid grid-cols-1 gap-4">
             <PlayerPanel

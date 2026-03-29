@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Plus, Library, Check, X } from "lucide-react";
+import { Plus, Library } from "lucide-react";
+import TopBar from "../components/TopBar";
 import type { CombatStateManager } from "../store/types";
 import type { SavedCombat } from "../types";
 import type { BuildingBlock, BuildingBlockInput, Campaign } from "../types/campaign";
@@ -40,18 +41,25 @@ export default function CampaignDetailPage({
   const [modalState, setModalState] = useState<ModalState>({ kind: "closed" });
   const [savedCombats, setSavedCombats] = useState<SavedCombat[]>([]);
   const [editingNpc, setEditingNpc] = useState<SavedPlayer | SavedMonster | null>(null);
-  const [editingName, setEditingName] = useState(false);
-  const [nameInput, setNameInput] = useState("");
-  const [editingDesc, setEditingDesc] = useState(false);
-  const [descInput, setDescInput] = useState("");
-
-  useEffect(() => {
-    combatStateManager.listCombat().then(setSavedCombats);
-  }, [combatStateManager]);
 
   const campaign: Campaign | undefined = combatStateManager.campaigns.find(
     (c) => c.id === campaignId
   );
+
+  const [localName, setLocalName] = useState(campaign?.name ?? "");
+  const [localDesc, setLocalDesc] = useState(campaign?.description ?? "");
+  const [metaHasChanges, setMetaHasChanges] = useState(false);
+
+  useEffect(() => {
+    if (!metaHasChanges) {
+      setLocalName(campaign?.name ?? "");
+      setLocalDesc(campaign?.description ?? "");
+    }
+  }, [campaign, metaHasChanges]);
+
+  useEffect(() => {
+    combatStateManager.listCombat().then(setSavedCombats);
+  }, [combatStateManager]);
 
   // Block IDs in this campaign
   const blockIdsInCampaign = useMemo(
@@ -161,6 +169,20 @@ export default function CampaignDetailPage({
     [campaignBlocks, combatStateManager, onOpenCombat]
   );
 
+  const handleMetaChange = useCallback(
+    (patch: { name?: string; description?: string }) => {
+      if (patch.name !== undefined) setLocalName(patch.name);
+      if (patch.description !== undefined) setLocalDesc(patch.description);
+      setMetaHasChanges(true);
+    },
+    []
+  );
+
+  const handleSaveMeta = useCallback(async () => {
+    await saveCampaignMeta(localName, localDesc);
+    setMetaHasChanges(false);
+  }, [localName, localDesc, saveCampaignMeta]);
+
   if (!campaign) {
     return (
       <div className="p-6 text-text-secondary">
@@ -171,85 +193,18 @@ export default function CampaignDetailPage({
 
   return (
     <div className="mx-auto text-white min-h-screen flex flex-col bg-app-bg">
-      {/* Top bar */}
-      <div className="flex items-center gap-3 p-4 border-b border-border-primary flex-shrink-0">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {t("campaigns:detail.backToCampaigns")}
-        </button>
-
-        <div className="flex-1 min-w-0">
-          {editingName ? (
-            <div className="flex items-center gap-2">
-              <input
-                autoFocus
-                type="text"
-                value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    saveCampaignMeta(nameInput, campaign.description);
-                    setEditingName(false);
-                  }
-                  if (e.key === "Escape") setEditingName(false);
-                }}
-                className="bg-input-bg text-text-primary rounded px-2 py-1 border border-border-secondary focus:border-blue-500 focus:outline-none text-lg font-semibold"
-              />
-              <button onClick={() => { saveCampaignMeta(nameInput, campaign.description); setEditingName(false); }} className="text-green-400 hover:text-green-300">
-                <Check className="w-4 h-4" />
-              </button>
-              <button onClick={() => setEditingName(false)} className="text-text-muted hover:text-text-primary">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => { setNameInput(campaign.name); setEditingName(true); }}
-              className="text-lg font-semibold text-text-primary hover:text-blue-400 transition text-left truncate max-w-full block"
-              title="Click to edit"
-            >
-              {campaign.name}
-            </button>
-          )}
-
-          {editingDesc ? (
-            <div className="flex items-center gap-2 mt-1">
-              <input
-                autoFocus
-                type="text"
-                value={descInput}
-                onChange={(e) => setDescInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    saveCampaignMeta(campaign.name, descInput);
-                    setEditingDesc(false);
-                  }
-                  if (e.key === "Escape") setEditingDesc(false);
-                }}
-                className="flex-1 bg-input-bg text-text-primary rounded px-2 py-1 border border-border-secondary focus:border-blue-500 focus:outline-none text-sm"
-              />
-              <button onClick={() => { saveCampaignMeta(campaign.name, descInput); setEditingDesc(false); }} className="text-green-400 hover:text-green-300">
-                <Check className="w-4 h-4" />
-              </button>
-              <button onClick={() => setEditingDesc(false)} className="text-text-muted hover:text-text-primary">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => { setDescInput(campaign.description); setEditingDesc(true); }}
-              className="text-sm text-text-muted hover:text-text-secondary transition text-left block"
-              title="Click to edit"
-            >
-              {campaign.description || <span className="italic opacity-50">Add a description…</span>}
-            </button>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="p-4 md:p-6 flex-shrink-0">
+        <TopBar
+          logo
+          name={localName}
+          description={localDesc}
+          onChange={handleMetaChange}
+          onBack={onBack}
+          onSave={handleSaveMeta}
+          hasChanges={metaHasChanges}
+          nameLabel={t("campaigns:list.new")}
+        />
+        <div className="flex justify-end gap-2 mb-4">
           <button
             onClick={() => setModalState({ kind: "library" })}
             className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm transition"
@@ -260,7 +215,7 @@ export default function CampaignDetailPage({
           </button>
           <button
             onClick={() => setModalState({ kind: "create" })}
-            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm transition"
+            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">{t("campaigns:detail.addBlock")}</span>
