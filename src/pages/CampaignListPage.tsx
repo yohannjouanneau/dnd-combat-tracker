@@ -1,13 +1,12 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, BookOpen, FolderOpen, Plus, Settings } from "lucide-react";
+import { ArrowLeft, BookOpen, FolderOpen, Plus } from "lucide-react";
 import logo from "../assets/logo.png";
 import type { CombatStateManager } from "../store/types";
 import { generateId } from "../utils/utils";
 import { useToast } from "../components/common/Toast/useToast";
 import CampaignCard from "../components/Campaign/CampaignCard";
 import LibraryModal from "../components/Library/LibraryModal";
-import SettingsModal from "../components/Settings/SettingsModal";
 
 type Props = {
   onOpen: (id: string) => void;
@@ -21,7 +20,6 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [showLibrary, setShowLibrary] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
 
   const create = useCallback(async () => {
     if (!name.trim()) return;
@@ -72,7 +70,7 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
               className="flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition self-start"
             >
               <ArrowLeft className="w-4 h-4" />
-              {t("campaigns:list.backToCombats")}
+              {t("common:actions.backToHome")}
             </button>
 
             {/* Create form */}
@@ -125,12 +123,6 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
                   >
                     <BookOpen className="w-5 h-5" />
                     <span className="hidden sm:inline">Library</span>
-                  </button>
-                  <button
-                    onClick={() => setShowSettings(true)}
-                    className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-3 md:py-2 rounded transition font-semibold h-[42px] flex items-center justify-center"
-                  >
-                    <Settings className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -188,11 +180,6 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
         isPlayerUsedAsTemplate={combatStateManager.isPlayerUsedAsTemplate}
       />
 
-      <SettingsModal
-        isOpen={showSettings}
-        syncApi={combatStateManager.syncApi}
-        onClose={() => setShowSettings(false)}
-      />
     </div>
   );
 }

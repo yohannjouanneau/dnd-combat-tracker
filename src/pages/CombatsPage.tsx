@@ -3,26 +3,25 @@ import { useTranslation } from "react-i18next";
 import type { SavedCombat, CombatState } from "../types";
 import LabeledTextInput from "../components/common/LabeledTextInput";
 import logo from "../assets/logo.png";
-import { BookOpen, Map, Plus, Settings } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus } from "lucide-react";
 import CombatList from "../components/CombatsList/CombatList";
 import LibraryModal from "../components/Library/LibraryModal";
-import SettingsModal from "../components/Settings/SettingsModal";
 import { buildPlayerCombatantsForFight, generateDefaultNewCombatant, generateId } from "../utils/utils";
 import type { CombatStateManager } from "../store/types";
 
 type Props = {
   onOpen: (id: string) => void;
+  onBack: () => void;
   combatStateManager: CombatStateManager;
 };
 
-export default function CombatsPage({ onOpen, combatStateManager }: Props) {
-  const { t } = useTranslation(["forms", "common", "campaigns"]);
+export default function CombatsPage({ onOpen, onBack, combatStateManager }: Props) {
+  const { t } = useTranslation(["forms", "common"]);
   const [combats, setCombats] = useState<SavedCombat[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(true);
   const [showLibrary, setShowLibrary] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   
   useEffect(() => {
     combatStateManager.listCombat().then((c) => {
@@ -85,6 +84,15 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
               />
             </div>
 
+            {/* Back to landing */}
+            <button
+              onClick={onBack}
+              className="flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition self-start"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              {t("common:actions.backToHome")}
+            </button>
+
             {/* Form Panel */}
             <div className="bg-panel-bg rounded-lg p-4 border border-border-primary">
               <div className="flex flex-col md:flex-row gap-3 md:gap-4">
@@ -127,21 +135,6 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
                     <BookOpen className="w-5 h-5" />
                     <span className="hidden sm:inline">Library</span>
                   </button>
-                  <button
-                    onClick={() => { location.hash = "#campaigns"; }}
-                    className="flex-1 md:flex-none bg-purple-700 hover:bg-purple-800 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
-                    title={t("campaigns:list.openCampaigns")}
-                  >
-                    <Map className="w-5 h-5" />
-                    <span className="hidden sm:inline">{t("campaigns:list.openCampaigns")}</span>
-                  </button>
-                  <button
-                    onClick={() => setShowSettings(true)}
-                    className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-3 md:py-2 rounded transition font-semibold h-[42px] flex items-center justify-center"
-                    title={t("settings:title")}
-                  >
-                    <Settings className="w-5 h-5" />
-                  </button>
                 </div>
               </div>
             </div>
@@ -180,12 +173,6 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
         isPlayerUsedAsTemplate={combatStateManager.isPlayerUsedAsTemplate}
       />
 
-      {/* Settings Modal */}
-      <SettingsModal
-        isOpen={showSettings}
-        syncApi={combatStateManager.syncApi}
-        onClose={() => setShowSettings(false)}
-      />
     </div>
   );
 }

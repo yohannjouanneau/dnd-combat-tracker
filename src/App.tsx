@@ -4,16 +4,17 @@ import CombatTrackerPage from "./pages/CombatTrackerPage";
 import CombatsPage from "./pages/CombatsPage";
 import CampaignListPage from "./pages/CampaignListPage";
 import CampaignDetailPage from "./pages/CampaignDetailPage";
+import LandingPage from "./pages/LandingPage";
 import { useCombatState } from "./store/state";
 
 function App() {
-  const [route, setRoute] = useState<string>(location.hash || "#combats");
+  const [route, setRoute] = useState<string>(location.hash || "");
   const [isLoading, setIsLoading] = useState(false);
   const combatStateManager = useCombatState();
 
   useEffect(() => {
     const onHash = () => {
-      setRoute(location.hash || "#combats");
+      setRoute(location.hash || "");
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
@@ -80,7 +81,7 @@ function App() {
     return (
       <CampaignListPage
         onOpen={openCampaign}
-        onBackToCombats={() => { location.hash = "#combats"; }}
+        onBackToCombats={() => { location.hash = ""; }}
         combatStateManager={combatStateManager}
       />
     );
@@ -98,9 +99,20 @@ function App() {
     );
   }
 
-  // Default: combats list
+  // Combats list
+  if (route === "#combats") {
+    return (
+      <CombatsPage onOpen={openCombat} onBack={() => { location.hash = ""; }} combatStateManager={combatStateManager} />
+    );
+  }
+
+  // Default: landing page
   return (
-    <CombatsPage onOpen={openCombat} combatStateManager={combatStateManager} />
+    <LandingPage
+      onOpenCombats={() => { location.hash = "#combats"; }}
+      onOpenCampaigns={() => { location.hash = "#campaigns"; }}
+      syncApi={combatStateManager.syncApi}
+    />
   );
 }
 
