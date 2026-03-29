@@ -7,7 +7,7 @@ import type { BuildingBlock, BuildingBlockType } from "../../types/campaign";
 const TYPE_ICONS: Record<BuildingBlockType, string> = {
   environment: "🌍",
   room: "🚪",
-  npc: "🧙",
+  character: "🧙",
   combat: "⚔️",
   object: "📦",
 };
@@ -64,10 +64,12 @@ export default function BlockTreeNode({
   const hasChildren = children.length > 0;
 
   const combatFeature = block.specialFeature?.type === "combat" ? block.specialFeature : null;
-  const linkedNpcId = block.specialFeature?.type === "npc" ? block.specialFeature.linkedNpcId : undefined;
-  const linkedNpc = linkedNpcId
-    ? (savedPlayers.find((p) => p.id === linkedNpcId) ?? savedMonsters.find((m) => m.id === linkedNpcId))
-    : undefined;
+  const linkedNpcIds = block.specialFeature?.type === "character" ? block.specialFeature.linkedNpcIds : [];
+  const linkedNpcs = linkedNpcIds
+    .map(id => savedPlayers.find(p => p.id === id) ?? savedMonsters.find(m => m.id === id))
+    .filter((n): n is NonNullable<typeof n> => Boolean(n));
+  const firstNpc = linkedNpcs[0];
+  const extraNpcCount = linkedNpcs.length - 1;
 
   const isDragged = dragCallbacks?.draggedId === block.id;
   const dropPos = dragCallbacks?.dropTarget?.targetId === block.id && !isDragged
@@ -178,14 +180,15 @@ export default function BlockTreeNode({
                 </button>
               )}
 
-              {linkedNpc && (
+              {firstNpc && (
                 <button
-                  onClick={(e) => { e.stopPropagation(); onOpenNpc?.(linkedNpc.id); }}
+                  onClick={(e) => { e.stopPropagation(); onOpenNpc?.(firstNpc.id); }}
                   className="flex-shrink-0 flex items-center gap-1 text-xs bg-purple-900/30 text-purple-400 hover:bg-purple-900/50 px-2 py-1 rounded transition"
-                  title={linkedNpc.name}
+                  title={firstNpc.name}
                 >
                   <UserCircle className="w-3 h-3" />
-                  <span className="hidden sm:inline max-w-24 truncate">{linkedNpc.name}</span>
+                  <span className="hidden sm:inline max-w-24 truncate">{firstNpc.name}</span>
+                  {extraNpcCount > 0 && <span>+{extraNpcCount}</span>}
                 </button>
               )}
 

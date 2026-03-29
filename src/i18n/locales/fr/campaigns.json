@@ -20,7 +20,7 @@
     "types": {
       "environment": "Environnement",
       "room": "Salle",
-      "npc": "PNJ",
+      "character": "Personnage",
       "combat": "Combat",
       "object": "Objet"
     },
@@ -60,11 +60,11 @@
       "addItem": "Ajouter un objet",
       "itemPlaceholder": "Nom ou description de l'objet"
     },
-    "npcFeature": {
-      "linkedNpc": "PNJ lié",
+    "characterFeature": {
+      "linkedNpcs": "Personnages liés",
       "unlinked": "— Aucun —",
-      "openNpc": "Ouvrir le PNJ",
-      "searchPlaceholder": "Rechercher un PNJ…"
+      "openNpc": "Ouvrir le personnage",
+      "searchPlaceholder": "Rechercher un personnage…"
     }
   },
   "delete": {

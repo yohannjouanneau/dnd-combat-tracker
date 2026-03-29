@@ -20,7 +20,7 @@
     "types": {
       "environment": "Environment",
       "room": "Room",
-      "npc": "NPC",
+      "character": "Character",
       "combat": "Combat",
       "object": "Object"
     },
@@ -60,11 +60,11 @@
       "addItem": "Add item",
       "itemPlaceholder": "Item name or description"
     },
-    "npcFeature": {
-      "linkedNpc": "Linked NPC",
+    "characterFeature": {
+      "linkedNpcs": "Linked Characters",
       "unlinked": "— None —",
-      "openNpc": "Open NPC",
-      "searchPlaceholder": "Search NPC…"
+      "openNpc": "Open Character",
+      "searchPlaceholder": "Search character…"
     }
   },
   "delete": {

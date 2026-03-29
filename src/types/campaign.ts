@@ -1,6 +1,6 @@
 import type { TimestampedEntity } from "../types";
 
-export type BuildingBlockType = "environment" | "room" | "npc" | "combat" | "object";
+export type BuildingBlockType = "environment" | "room" | "character" | "combat" | "object";
 
 export interface Outcome {
   id: string;
@@ -19,7 +19,7 @@ export interface StatCheck {
 
 export type SpecialFeature =
   | { type: "combat"; combatId: string | null }
-  | { type: "npc"; linkedNpcId?: string }
+  | { type: "character"; linkedNpcIds: string[] }
   | { type: "loot"; items: string[] };
 
 export interface BuildingBlock extends TimestampedEntity {

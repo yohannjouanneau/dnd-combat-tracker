@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { BuildingBlock, BuildingBlockInput, Campaign, CampaignInput, CanvasNode } from "../../types/campaign";
+import type { BuildingBlock, BuildingBlockInput, BuildingBlockType, Campaign, CampaignInput, CanvasNode } from "../../types/campaign";
 import { dataStore } from "../../persistence/storage";
 
 export function useCampaignStore() {
@@ -13,7 +13,20 @@ export function useCampaignStore() {
 
   const loadBlocks = useCallback(async () => {
     const list = await dataStore.listBlock();
-    setBlocks(list);
+    // Migrate legacy "npc" blocks to "character"
+    const toMigrate = list.filter(b => (b.type as string) === "npc");
+    for (const b of toMigrate) {
+      const sf = b.specialFeature as any;
+      await dataStore.updateBlock(b.id, {
+        type: "character" as BuildingBlockType,
+        specialFeature: {
+          type: "character",
+          linkedNpcIds: sf?.linkedNpcId ? [sf.linkedNpcId] : [],
+        },
+      });
+    }
+    const final = toMigrate.length > 0 ? await dataStore.listBlock() : list;
+    setBlocks(final);
   }, []);
 
   useEffect(() => {

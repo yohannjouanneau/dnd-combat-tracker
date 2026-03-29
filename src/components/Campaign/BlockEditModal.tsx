@@ -21,12 +21,12 @@ interface Props {
   onOpenCombat?: (combatId: string) => void;
 }
 
-const BLOCK_TYPES: BuildingBlockType[] = ["environment", "room", "npc", "combat", "object"];
+const BLOCK_TYPES: BuildingBlockType[] = ["environment", "room", "character", "combat", "object"];
 
 function getDefaultSpecialFeature(type: BuildingBlockType): SpecialFeature | undefined {
   if (type === "combat") return { type: "combat", combatId: null };
   if (type === "object") return { type: "loot", items: [] };
-  if (type === "npc") return { type: "npc" };
+  if (type === "character") return { type: "character", linkedNpcIds: [] };
   return undefined;
 }
 
@@ -248,25 +248,48 @@ export default function BlockEditModal({ block, allBlocks, savedCombats, savedPl
             </div>
           )}
 
-          {/* Special Feature — NPC: player or monster picker */}
-          {formData.type === "npc" && (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-text-secondary">
-                {t("campaigns:block.npcFeature.linkedNpc")}
-              </label>
-              <SearchSelect
-                items={[
-                  ...savedPlayers.map(p => ({ id: p.id, label: p.name, group: "Players" })),
-                  ...savedMonsters.map(m => ({ id: m.id, label: m.name, group: "Monsters" })),
-                ]}
-                value={formData.specialFeature?.type === "npc" ? formData.specialFeature.linkedNpcId : undefined}
-                placeholder={t("campaigns:block.npcFeature.searchPlaceholder")}
-                onChange={(id) => setFormData(prev => ({ ...prev, specialFeature: { type: "npc", linkedNpcId: id } }))}
-                onOpenSelected={onOpenNpc}
-                openSelectedTitle={t("campaigns:block.npcFeature.openNpc")}
-              />
-            </div>
-          )}
+          {/* Special Feature — Character: multiple player/monster links */}
+          {formData.type === "character" && (() => {
+            const linkedIds: string[] = formData.specialFeature?.type === "character"
+              ? formData.specialFeature.linkedNpcIds
+              : [];
+            const allNpcs = [
+              ...savedPlayers.map(p => ({ id: p.id, label: p.name, group: "Players" })),
+              ...savedMonsters.map(m => ({ id: m.id, label: m.name, group: "Monsters" })),
+            ];
+            const setIds = (ids: string[]) =>
+              setFormData(prev => ({ ...prev, specialFeature: { type: "character", linkedNpcIds: ids } }));
+
+            return (
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-text-secondary">
+                  {t("campaigns:block.characterFeature.linkedNpcs")}
+                </label>
+                {linkedIds.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {linkedIds.map(id => {
+                      const npc = savedPlayers.find(p => p.id === id) ?? savedMonsters.find(m => m.id === id);
+                      if (!npc) return null;
+                      return (
+                        <span key={id} className="flex items-center gap-1 bg-purple-900/30 text-purple-400 border border-purple-800/50 rounded px-2 py-0.5 text-sm">
+                          <button type="button" onClick={() => onOpenNpc?.(id)} className="hover:underline">{npc.name}</button>
+                          <button type="button" onClick={() => setIds(linkedIds.filter(i => i !== id))} className="hover:text-red-400 transition ml-0.5">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+                <SearchSelect
+                  items={allNpcs.filter(n => !linkedIds.includes(n.id))}
+                  value={undefined}
+                  placeholder={t("campaigns:block.characterFeature.searchPlaceholder")}
+                  onChange={(id) => { if (id) setIds([...linkedIds, id]); }}
+                />
+              </div>
+            );
+          })()}
         </div>
 
         {/* Footer */}

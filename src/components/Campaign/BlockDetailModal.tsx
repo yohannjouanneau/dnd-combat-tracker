@@ -8,7 +8,7 @@ import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
 const TYPE_ICONS: Record<BuildingBlockType, string> = {
   environment: "🌍",
   room: "🚪",
-  npc: "🧙",
+  character: "🧙",
   combat: "⚔️",
   object: "📦",
 };
@@ -46,11 +46,11 @@ export default function BlockDetailModal({
     .map((id) => allBlocks.find((b) => b.id === id))
     .filter((b): b is BuildingBlock => Boolean(b));
 
-  const linkedNpcId =
-    block.specialFeature?.type === "npc" ? block.specialFeature.linkedNpcId : undefined;
-  const linkedNpc = linkedNpcId
-    ? (savedPlayers.find((p) => p.id === linkedNpcId) ?? savedMonsters.find((m) => m.id === linkedNpcId))
-    : undefined;
+  const linkedNpcIds =
+    block.specialFeature?.type === "character" ? block.specialFeature.linkedNpcIds : [];
+  const linkedNpcs = linkedNpcIds
+    .map(id => savedPlayers.find(p => p.id === id) ?? savedMonsters.find(m => m.id === id))
+    .filter((n): n is NonNullable<typeof n> => Boolean(n));
 
   const combatFeature =
     block.specialFeature?.type === "combat" ? block.specialFeature : null;
@@ -140,18 +140,23 @@ export default function BlockDetailModal({
             </div>
           )}
 
-          {linkedNpc && (
-            <div className="bg-panel-bg rounded-lg border border-border-primary p-3 flex items-center justify-between gap-3">
+          {linkedNpcs.length > 0 && (
+            <div className="bg-panel-bg rounded-lg border border-border-primary p-3 flex flex-col gap-2">
               <span className="text-sm text-text-secondary font-medium">
-                {t("campaigns:block.npcFeature.linkedNpc")}
+                {t("campaigns:block.characterFeature.linkedNpcs")}
               </span>
-              <button
-                onClick={() => onOpenNpc?.(linkedNpc.id)}
-                className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm transition"
-              >
-                <UserCircle className="w-4 h-4" />
-                {linkedNpc.name}
-              </button>
+              <div className="flex flex-wrap gap-1.5">
+                {linkedNpcs.map(npc => (
+                  <button
+                    key={npc.id}
+                    onClick={() => onOpenNpc?.(npc.id)}
+                    className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm transition"
+                  >
+                    <UserCircle className="w-4 h-4" />
+                    {npc.name}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 

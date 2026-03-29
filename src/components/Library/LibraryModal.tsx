@@ -12,7 +12,7 @@ import { DEFAULT_COLOR_PRESET } from "../../constants";
 const BLOCK_TYPE_ICONS: Record<BuildingBlockType, string> = {
   environment: "🌍",
   room: "🚪",
-  npc: "🧙",
+  character: "🧙",
   combat: "⚔️",
   object: "📦",
 };
