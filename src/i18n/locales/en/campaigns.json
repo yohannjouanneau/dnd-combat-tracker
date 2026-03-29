@@ -22,8 +22,17 @@
       "room": "Room",
       "character": "Character",
       "combat": "Combat",
-      "object": "Object",
+      "loot": "Loot",
       "scene": "Scene"
+    },
+    "blockType": {
+      "new": "New type",
+      "namePlaceholder": "Type name",
+      "features": "Features",
+      "featureCharacters": "Characters",
+      "featureCombat": "Combat",
+      "featureLoot": "Loot",
+      "create": "Create type"
     },
     "new": "New Block",
     "edit": "Edit Block",

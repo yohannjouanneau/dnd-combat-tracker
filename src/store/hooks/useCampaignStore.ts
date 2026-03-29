@@ -1,38 +1,83 @@
 import { useCallback, useEffect, useState } from "react";
-import type { BuildingBlock, BuildingBlockInput, BuildingBlockType, Campaign, CampaignInput, CanvasNode } from "../../types/campaign";
+import type { BlockFeatureData, BlockTypeDef, BuildingBlock, BuildingBlockInput, Campaign, CampaignInput, CanvasNode } from "../../types/campaign";
+import { BUILT_IN_BLOCK_TYPES } from "../../constants";
 import { dataStore } from "../../persistence/storage";
 
 export function useCampaignStore() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [blocks, setBlocks] = useState<BuildingBlock[]>([]);
+  const [blockTypes, setBlockTypes] = useState<BlockTypeDef[]>(BUILT_IN_BLOCK_TYPES);
 
   const loadCampaigns = useCallback(async () => {
     const list = await dataStore.listCampaign();
     setCampaigns(list);
   }, []);
 
+  const loadBlockTypes = useCallback(async () => {
+    const custom = await dataStore.listBlockTypes();
+    setBlockTypes([...BUILT_IN_BLOCK_TYPES, ...custom]);
+  }, []);
+
   const loadBlocks = useCallback(async () => {
     const list = await dataStore.listBlock();
-    // Migrate legacy "npc" blocks to "character"
-    const toMigrate = list.filter(b => (b.type as string) === "npc");
+
+    type LegacyBlock = {
+      id: string;
+      typeId?: string;
+      type?: string;
+      specialFeature?: {
+        type?: string;
+        combatId?: string | null;
+        linkedNpcIds?: string[];
+        linkedNpcId?: string;
+        items?: string[];
+      };
+    };
+
+    // Migrate legacy blocks that still have old shape (type + specialFeature instead of typeId + featureData)
+    const toMigrate = (list as LegacyBlock[]).filter((b) => b.typeId == null);
     for (const b of toMigrate) {
-      const sf = b.specialFeature as any;
-      await dataStore.updateBlock(b.id, {
-        type: "character" as BuildingBlockType,
-        specialFeature: {
-          type: "character",
-          linkedNpcIds: sf?.linkedNpcId ? [sf.linkedNpcId] : [],
-        },
-      });
+      const oldType: string = b.type ?? "environment";
+      const typeId =
+        oldType === "npc" ? "character" :
+        oldType === "object" ? "loot" :
+        oldType;
+
+      const sf = b.specialFeature;
+      let featureData: BlockFeatureData | undefined;
+      if (sf) {
+        if (sf.type === "combat") featureData = { combatId: sf.combatId };
+        else if (sf.type === "character") featureData = { linkedNpcIds: sf.linkedNpcIds ?? [] };
+        else if (sf.type === "loot") featureData = { items: sf.items ?? [] };
+        else if (sf.type === "scene") featureData = { linkedNpcIds: sf.linkedNpcIds ?? [], combatId: sf.combatId, items: sf.items ?? [] };
+        else if (sf.linkedNpcId) featureData = { linkedNpcIds: [sf.linkedNpcId] };
+      }
+
+      await dataStore.updateBlock(b.id, { typeId, featureData } as Partial<BuildingBlock>);
     }
+
     const final = toMigrate.length > 0 ? await dataStore.listBlock() : list;
     setBlocks(final);
   }, []);
 
   useEffect(() => {
     loadCampaigns();
+    loadBlockTypes();
     loadBlocks();
-  }, [loadCampaigns, loadBlocks]);
+  }, [loadCampaigns, loadBlockTypes, loadBlocks]);
+
+  const createBlockType = useCallback(async (input: Omit<BlockTypeDef, "isBuiltIn">): Promise<BlockTypeDef> => {
+    const created = await dataStore.createBlockType(input);
+    setBlockTypes((prev) => [...prev, created]);
+    return created;
+  }, []);
+
+  const deleteBlockType = useCallback(async (id: string): Promise<void> => {
+    const type = blockTypes.find((t) => t.id === id);
+    if (type?.isBuiltIn) return; // guard: cannot delete built-ins
+    await dataStore.deleteBlockType(id);
+    setBlockTypes((prev) => prev.filter((t) => t.id !== id));
+  }, [blockTypes]);
 
   const createCampaign = useCallback(async (input: CampaignInput): Promise<Campaign> => {
     const created = await dataStore.createCampaign(input);
@@ -83,7 +128,6 @@ export function useCampaignStore() {
     if (!campaign) return;
     const updatedNodes = campaign.nodes.filter((n) => n.blockId !== blockId);
 
-    // Also remove blockId from parent's children in each block of this campaign
     const blockIdsInCampaign = updatedNodes.map((n) => n.blockId);
     for (const nodeBlockId of blockIdsInCampaign) {
       const block = blocks.find((b) => b.id === nodeBlockId);
@@ -98,8 +142,6 @@ export function useCampaignStore() {
     setCampaigns((prev) => prev.map((c) => (c.id === campaignId ? updated : c)));
   }, [blocks, updateBlock]);
 
-  // Expose a stable helper to add a child link between blocks
-  // (used by CampaignDetailPage when creating a child block)
   const _addChildToBlock = useCallback(async (parentId: string, childId: string): Promise<void> => {
     const parent = blocks.find((b) => b.id === parentId);
     if (!parent || parent.children.includes(childId)) return;
@@ -111,19 +153,21 @@ export function useCampaignStore() {
     if (!campaign) return;
     const nodeMap = new Map(campaign.nodes.map((n) => [n.blockId, n]));
     const reordered = orderedBlockIds.map((id) => nodeMap.get(id)).filter((n): n is CanvasNode => Boolean(n));
-    // Append any nodes not in orderedBlockIds at the end (safety)
     const reorderedSet = new Set(orderedBlockIds);
     campaign.nodes.filter((n) => !reorderedSet.has(n.blockId)).forEach((n) => reordered.push(n));
     const updated = await dataStore.updateCampaign(campaignId, { nodes: reordered });
     setCampaigns((prev) => prev.map((c) => (c.id === campaignId ? updated : c)));
   }, []);
 
-  // Attach helper to the returned object so CampaignDetailPage can call it
   const storeActions = {
     campaigns,
     blocks,
+    blockTypes,
     loadCampaigns,
     loadBlocks,
+    loadBlockTypes,
+    createBlockType,
+    deleteBlockType,
     createCampaign,
     updateCampaignMeta,
     deleteCampaign,
@@ -139,5 +183,4 @@ export function useCampaignStore() {
   return storeActions;
 }
 
-// Re-export type with addChildToBlock included
 export type CampaignStore = ReturnType<typeof useCampaignStore>;

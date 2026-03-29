@@ -1,6 +1,6 @@
 import type { SyncApi } from "../api/sync/types";
 import type { CombatState, SavedCombat, SavedPlayer, NewCombatant, InitiativeGroup, DeathSaves, SavedCombatInput, SavedMonster, MonsterCombatant, PlayerCombatant, SearchResult, SearchSource, GroupSummary, TemplateOrigin } from "../types";
-import type { BuildingBlock, BuildingBlockInput, Campaign, CampaignInput } from "../types/campaign";
+import type { BlockTypeDef, BuildingBlock, BuildingBlockInput, Campaign, CampaignInput } from "../types/campaign";
 
 export type CombatStateManager = {
     // State
@@ -77,8 +77,12 @@ export type CombatStateManager = {
     // Campaign Manager
     campaigns: Campaign[];
     blocks: BuildingBlock[];
+    blockTypes: BlockTypeDef[];
     loadCampaigns: () => Promise<void>;
     loadBlocks: () => Promise<void>;
+    loadBlockTypes: () => Promise<void>;
+    createBlockType: (input: Omit<BlockTypeDef, "isBuiltIn">) => Promise<BlockTypeDef>;
+    deleteBlockType: (id: string) => Promise<void>;
     createCampaign: (input: CampaignInput) => Promise<Campaign>;
     updateCampaignMeta: (id: string, name: string, description: string) => Promise<void>;
     deleteCampaign: (id: string) => Promise<void>;

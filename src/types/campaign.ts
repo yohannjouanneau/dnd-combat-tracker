@@ -1,6 +1,21 @@
 import type { TimestampedEntity } from "../types";
 
-export type BuildingBlockType = "environment" | "room" | "character" | "combat" | "object" | "scene";
+export type BlockFeatureKey = "characters" | "combat" | "loot";
+
+export interface BlockTypeDef {
+  id: string;
+  name: string;   // i18n key for built-ins, user string for custom
+  icon: string;
+  features: BlockFeatureKey[];
+  isBuiltIn: boolean;
+}
+
+/** Unified feature data — replaces the old SpecialFeature discriminated union */
+export interface BlockFeatureData {
+  linkedNpcIds?: string[];    // "characters" feature
+  combatId?: string | null;   // "combat" feature
+  items?: string[];           // "loot" feature
+}
 
 export interface Outcome {
   id: string;
@@ -17,21 +32,15 @@ export interface StatCheck {
   outcomes: Outcome[];
 }
 
-export type SpecialFeature =
-  | { type: "combat"; combatId: string | null }
-  | { type: "character"; linkedNpcIds: string[] }
-  | { type: "loot"; items: string[] }
-  | { type: "scene"; linkedNpcIds: string[]; combatId: string | null; items: string[] };
-
 export interface BuildingBlock extends TimestampedEntity {
   id: string;
-  type: BuildingBlockType;
+  typeId: string;           // reference to BlockTypeDef.id
   icon?: string;
   name: string;
   description: string;
   children: string[];
   statChecks: StatCheck[];
-  specialFeature?: SpecialFeature;
+  featureData?: BlockFeatureData;
   tags?: string[];
 }
 

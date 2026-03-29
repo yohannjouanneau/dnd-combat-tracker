@@ -5,9 +5,9 @@ import type { BuildingBlock } from "../../types/campaign";
 const TYPE_COLORS: Record<string, string> = {
   environment: "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30",
   room: "text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30",
-  npc: "text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30",
+  character: "text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30",
   combat: "text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30",
-  object: "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30",
+  loot: "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30",
 };
 
 interface Props {
@@ -29,8 +29,8 @@ export default function BlockCard({ block, onEdit, onDelete, onAdd }: Props) {
           <span className="font-semibold text-base text-text-primary truncate">
             {block.name || <span className="italic text-text-muted">Unnamed</span>}
           </span>
-          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${TYPE_COLORS[block.type] ?? "text-text-muted bg-panel-secondary"}`}>
-            {t(`campaigns:block.types.${block.type}`)}
+          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${TYPE_COLORS[block.typeId] ?? "text-text-muted bg-panel-secondary"}`}>
+            {block.typeId}
           </span>
           {block.tags && block.tags.slice(0, 2).map((tag) => (
             <span key={tag} className="text-xs text-text-muted bg-panel-secondary rounded px-1.5 py-0.5">

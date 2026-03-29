@@ -1,6 +1,7 @@
 import type { SyncProvider } from "../api/sync/SyncProvider";
 import { GoogleDriveSyncProvider } from "../api/sync/gdrive/GoogleDriveSyncProvider";
 import {
+  BLOCK_TYPE_STORAGE_KEY,
   BUILDING_BLOCK_STORAGE_KEY,
   CAMPAIGN_STORAGE_KEY,
   COMBAT_STORAGE_KEY,
@@ -13,10 +14,11 @@ import type {
   SavedCombat,
   SavedCombatInput,
 } from "../types";
-import type { BuildingBlock, BuildingBlockInput, Campaign, CampaignInput } from "../types/campaign";
+import type { BlockTypeDef, BuildingBlock, BuildingBlockInput, Campaign, CampaignInput } from "../types/campaign";
 import { CombatStorageProvider } from "./CombatStorageProvider";
 import { CombatantTemplateStorageProvider } from "./CombatantTemplateStorageProvider";
 import { BuildingBlockStorageProvider } from "./BuildingBlockStorageProvider";
+import { BlockTypeStorageProvider } from "./BlockTypeStorageProvider";
 import { CampaignStorageProvider } from "./CampaignStorageProvider";
 import {
   cleanCombatStateForStorage,
@@ -28,6 +30,7 @@ export class DataStore {
   private playerProvider: CombatantTemplateStorageProvider<"player">;
   private monsterProvider: CombatantTemplateStorageProvider<"monster">;
   private blockProvider: BuildingBlockStorageProvider;
+  private blockTypeProvider: BlockTypeStorageProvider;
   private campaignProvider: CampaignStorageProvider;
   private syncProvider: SyncProvider;
 
@@ -45,6 +48,9 @@ export class DataStore {
     blockProvider: BuildingBlockStorageProvider = new BuildingBlockStorageProvider(
       BUILDING_BLOCK_STORAGE_KEY
     ),
+    blockTypeProvider: BlockTypeStorageProvider = new BlockTypeStorageProvider(
+      BLOCK_TYPE_STORAGE_KEY
+    ),
     campaignProvider: CampaignStorageProvider = new CampaignStorageProvider(
       CAMPAIGN_STORAGE_KEY
     )
@@ -53,6 +59,7 @@ export class DataStore {
     this.playerProvider = playerProvider;
     this.monsterProvider = monsterProvider;
     this.blockProvider = blockProvider;
+    this.blockTypeProvider = blockTypeProvider;
     this.campaignProvider = campaignProvider;
     this.syncProvider = new GoogleDriveSyncProvider(clientId);
   }
@@ -211,6 +218,20 @@ export class DataStore {
   }
   deleteBlock(id: string): Promise<void> {
     return this.blockProvider.delete(id);
+  }
+
+  // Block type methods
+  listBlockTypes(): Promise<BlockTypeDef[]> {
+    return this.blockTypeProvider.list();
+  }
+  createBlockType(input: Omit<BlockTypeDef, "isBuiltIn">): Promise<BlockTypeDef> {
+    return this.blockTypeProvider.create(input);
+  }
+  updateBlockType(id: string, patch: Partial<BlockTypeDef>): Promise<BlockTypeDef> {
+    return this.blockTypeProvider.update(id, patch);
+  }
+  deleteBlockType(id: string): Promise<void> {
+    return this.blockTypeProvider.delete(id);
   }
 
   // Campaign methods

@@ -182,8 +182,9 @@ export default function CampaignDetailPage({
           newCombatant: generateDefaultNewCombatant(),
         },
       });
+      const currentBlock = campaignBlocks.find((b) => b.id === blockId);
       await combatStateManager.updateBlock(blockId, {
-        specialFeature: { type: "combat", combatId: newCombat.id },
+        featureData: { ...(currentBlock?.featureData ?? {}), combatId: newCombat.id },
       });
       onOpenCombat(newCombat.id);
     },
@@ -322,6 +323,7 @@ export default function CampaignDetailPage({
                 key={block.id}
                 block={block}
                 allBlocks={campaignBlocks}
+                blockTypes={combatStateManager.blockTypes}
                 savedPlayers={combatStateManager.savedPlayers}
                 savedMonsters={combatStateManager.monsters}
                 depth={0}
@@ -352,6 +354,7 @@ export default function CampaignDetailPage({
         <BlockDetailModal
           block={modalState.block}
           allBlocks={campaignBlocks}
+          blockTypes={combatStateManager.blockTypes}
           savedPlayers={combatStateManager.savedPlayers}
           savedMonsters={combatStateManager.monsters}
           onClose={() => setModalState({ kind: "closed" })}
@@ -371,12 +374,15 @@ export default function CampaignDetailPage({
         <BlockEditModal
           block={modalState.kind === "edit" ? modalState.block : undefined}
           allBlocks={combatStateManager.blocks}
+          blockTypes={combatStateManager.blockTypes}
           savedCombats={savedCombats}
           savedPlayers={combatStateManager.savedPlayers}
           savedMonsters={combatStateManager.monsters}
           isCreating={modalState.kind !== "edit"}
           onSave={handleSaveBlock}
           onCancel={() => setModalState({ kind: "closed" })}
+          onCreateBlockType={combatStateManager.createBlockType}
+          onDeleteBlockType={combatStateManager.deleteBlockType}
           onOpenNpc={handleOpenNpc}
           onOpenCombat={(combatId) => { setModalState({ kind: "closed" }); onOpenCombat(combatId); }}
         />
@@ -388,6 +394,7 @@ export default function CampaignDetailPage({
         monsters={combatStateManager.monsters}
         players={combatStateManager.savedPlayers}
         blocks={libraryBlocksNotInCampaign}
+        blockTypes={combatStateManager.blockTypes}
         savedCombats={savedCombats}
         initialFilter="blocks"
         onClose={() => setModalState({ kind: "closed" })}
@@ -404,6 +411,8 @@ export default function CampaignDetailPage({
         }}
         onUpdateBlock={combatStateManager.updateBlock}
         onDeleteBlock={combatStateManager.deleteBlock}
+        onCreateBlockType={combatStateManager.createBlockType}
+        onDeleteBlockType={combatStateManager.deleteBlockType}
         onAddBlock={(block) => {
           handleAddFromLibrary(block.id);
           setModalState({ kind: "closed" });

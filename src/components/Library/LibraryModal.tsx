@@ -2,21 +2,12 @@ import { X, BookOpen, Plus, Users, Swords, Search, ArrowUp, ArrowDown, Edit2, Tr
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import type { MonsterCombatant, PlayerCombatant, SavedCombat, SavedMonster, SavedPlayer, SearchResult } from "../../types";
-import type { BuildingBlock, BuildingBlockInput, BuildingBlockType } from "../../types/campaign";
+import type { BlockTypeDef, BuildingBlock, BuildingBlockInput } from "../../types/campaign";
 import LibraryListItem from "./LibraryListItem";
 import LibraryEditModal from "./LibraryEditModal";
 import BlockEditModal from "../Campaign/BlockEditModal";
 import { generateId } from "../../utils/utils";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
-
-const BLOCK_TYPE_ICONS: Record<BuildingBlockType, string> = {
-  environment: "🌍",
-  room: "🚪",
-  character: "🧙",
-  combat: "⚔️",
-  object: "📦",
-  scene: "🎭",
-};
 
 type FilterType = "monsters" | "players" | "blocks";
 
@@ -25,6 +16,7 @@ type Props = {
   monsters: SavedMonster[];
   players?: SavedPlayer[];
   blocks?: BuildingBlock[];
+  blockTypes?: BlockTypeDef[];
   savedCombats?: SavedCombat[];
   canLoadToForm?: boolean;
   onClose: () => void;
@@ -38,6 +30,8 @@ type Props = {
   onCreateBlock?: (input: BuildingBlockInput) => Promise<BuildingBlock>;
   onUpdateBlock?: (id: string, patch: Partial<BuildingBlock>) => Promise<BuildingBlock>;
   onDeleteBlock?: (id: string) => Promise<void>;
+  onCreateBlockType?: (input: Omit<BlockTypeDef, "isBuiltIn">) => Promise<BlockTypeDef>;
+  onDeleteBlockType?: (id: string) => Promise<void>;
   onAddBlock?: (block: BuildingBlock) => void;
   onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
   isUsedAsTemplate: (id: string) => Promise<boolean>;
@@ -52,6 +46,7 @@ export default function LibraryModal({
   monsters,
   players = [],
   blocks = [],
+  blockTypes = [],
   savedCombats = [],
   canLoadToForm = false,
   onClose,
@@ -65,6 +60,8 @@ export default function LibraryModal({
   onCreateBlock,
   onUpdateBlock,
   onDeleteBlock,
+  onCreateBlockType,
+  onDeleteBlockType,
   onAddBlock,
   onSearchMonsters,
   isUsedAsTemplate,
@@ -400,10 +397,15 @@ export default function LibraryModal({
                     onToggleAutoAdd={onToggleAutoAdd}
                   />
                 ))}
-                {filteredBlocks.map((block) => (
+                {filteredBlocks.map((block) => {
+                  const blockTypeDef = blockTypes.find((bt) => bt.id === block.typeId);
+                  const blockTypeName = blockTypeDef
+                    ? (blockTypeDef.isBuiltIn ? t(`campaigns:block.types.${blockTypeDef.id}`) : blockTypeDef.name)
+                    : block.typeId;
+                  return (
                   <div key={block.id} className="bg-panel-secondary rounded-lg border border-border-primary p-3 hover:border-border-secondary transition-colors">
                     <div className="flex items-center gap-3">
-                      <span className="text-xl flex-shrink-0">{block.icon ?? BLOCK_TYPE_ICONS[block.type]}</span>
+                      <span className="text-xl flex-shrink-0">{block.icon ?? blockTypeDef?.icon ?? "📦"}</span>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-base font-bold text-text-primary truncate">
                           {block.name || <span className="italic font-normal text-text-muted">Unnamed</span>}
@@ -415,7 +417,7 @@ export default function LibraryModal({
                         )}
                       </div>
                       <span className="text-xs text-text-muted px-1.5 py-0.5 rounded border border-border-secondary hidden sm:inline-block flex-shrink-0">
-                        {t(`campaigns:block.types.${block.type}`)}
+                        {blockTypeName}
                       </span>
                       <div className="flex gap-2 flex-shrink-0">
                         {onAddBlock && (
@@ -446,7 +448,8 @@ export default function LibraryModal({
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -467,6 +470,7 @@ export default function LibraryModal({
         <BlockEditModal
           block={editingBlock}
           allBlocks={blocks}
+          blockTypes={blockTypes}
           savedCombats={savedCombats}
           savedPlayers={players}
           savedMonsters={monsters}
@@ -481,6 +485,8 @@ export default function LibraryModal({
             }
           }}
           onCancel={() => { setIsCreatingBlock(false); setEditingBlock(undefined); }}
+          onCreateBlockType={onCreateBlockType ?? (() => Promise.resolve({ id: "", name: "", icon: "", features: [], isBuiltIn: false }))}
+          onDeleteBlockType={onDeleteBlockType}
         />
       )}
     </>

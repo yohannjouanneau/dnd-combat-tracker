@@ -22,8 +22,17 @@
       "room": "Salle",
       "character": "Personnage",
       "combat": "Combat",
-      "object": "Objet",
+      "loot": "Butin",
       "scene": "Scène"
+    },
+    "blockType": {
+      "new": "Nouveau type",
+      "namePlaceholder": "Nom du type",
+      "features": "Fonctionnalités",
+      "featureCharacters": "Personnages",
+      "featureCombat": "Combat",
+      "featureLoot": "Butin",
+      "create": "Créer le type"
     },
     "new": "Nouveau bloc",
     "edit": "Modifier le bloc",

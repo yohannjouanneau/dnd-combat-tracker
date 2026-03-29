@@ -2,16 +2,7 @@ import { ChevronDown, ChevronRight, Edit2, GripVertical, Plus, Swords, Trash2, U
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster, SavedPlayer } from "../../types";
-import type { BuildingBlock, BuildingBlockType } from "../../types/campaign";
-
-const TYPE_ICONS: Record<BuildingBlockType, string> = {
-  environment: "🌍",
-  room: "🚪",
-  character: "🧙",
-  combat: "⚔️",
-  object: "📦",
-  scene: "🎭",
-};
+import type { BlockTypeDef, BuildingBlock } from "../../types/campaign";
 
 export interface DragCallbacks {
   onDragStart: (blockId: string) => void;
@@ -25,6 +16,7 @@ export interface DragCallbacks {
 interface Props {
   block: BuildingBlock;
   allBlocks: BuildingBlock[];
+  blockTypes: BlockTypeDef[];
   savedPlayers: SavedPlayer[];
   savedMonsters: SavedMonster[];
   depth: number;
@@ -42,6 +34,7 @@ interface Props {
 export default function BlockTreeNode({
   block,
   allBlocks,
+  blockTypes,
   savedPlayers,
   savedMonsters,
   depth,
@@ -58,26 +51,30 @@ export default function BlockTreeNode({
   const { t } = useTranslation(["campaigns", "common"]);
   const [expanded, setExpanded] = useState(depth === 0);
 
+  const typeDef = blockTypes.find((tp) => tp.id === block.typeId);
+  const displayIcon = block.icon ?? typeDef?.icon ?? "📦";
+  const typeName = typeDef
+    ? (typeDef.isBuiltIn ? t(`campaigns:block.types.${typeDef.id}`) : typeDef.name)
+    : block.typeId;
+
+  const hasCharacters = typeDef?.features.includes("characters") ?? false;
+  const hasCombat = typeDef?.features.includes("combat") ?? false;
+  const hasLoot = typeDef?.features.includes("loot") ?? false;
+
   const children = block.children
     .map((id) => allBlocks.find((b) => b.id === id))
     .filter((b): b is BuildingBlock => Boolean(b));
 
   const hasChildren = children.length > 0;
 
-  const combatFeature =
-    block.specialFeature?.type === "combat" ? block.specialFeature :
-    block.specialFeature?.type === "scene" ? { type: "combat" as const, combatId: block.specialFeature.combatId } :
-    null;
-  const linkedNpcIds =
-    block.specialFeature?.type === "character" ? block.specialFeature.linkedNpcIds :
-    block.specialFeature?.type === "scene" ? block.specialFeature.linkedNpcIds :
-    [];
+  const combatId = hasCombat ? (block.featureData?.combatId ?? null) : null;
+  const linkedNpcIds = hasCharacters ? (block.featureData?.linkedNpcIds ?? []) : [];
   const linkedNpcs = linkedNpcIds
-    .map(id => savedPlayers.find(p => p.id === id) ?? savedMonsters.find(m => m.id === id))
+    .map((id) => savedPlayers.find((p) => p.id === id) ?? savedMonsters.find((m) => m.id === id))
     .filter((n): n is NonNullable<typeof n> => Boolean(n));
   const firstNpc = linkedNpcs[0];
   const extraNpcCount = linkedNpcs.length - 1;
-  const sceneLootCount = block.specialFeature?.type === "scene" ? block.specialFeature.items.filter(Boolean).length : 0;
+  const lootCount = hasLoot ? (block.featureData?.items ?? []).filter(Boolean).length : 0;
 
   const isDragged = dragCallbacks?.draggedId === block.id;
   const dropPos = dragCallbacks?.dropTarget?.targetId === block.id && !isDragged
@@ -130,7 +127,7 @@ export default function BlockTreeNode({
           ) : (
             <button
               className="flex-shrink-0 text-text-muted hover:text-text-primary transition w-5"
-              onClick={(e) => { e.stopPropagation(); hasChildren && setExpanded((v) => !v); }}
+              onClick={(e) => { e.stopPropagation(); if (hasChildren) setExpanded((v) => !v); }}
             >
               {hasChildren
                 ? expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
@@ -139,7 +136,7 @@ export default function BlockTreeNode({
           )}
 
           {/* Type icon */}
-          <span className="text-base flex-shrink-0">{block.icon ?? TYPE_ICONS[block.type]}</span>
+          <span className="text-base flex-shrink-0">{displayIcon}</span>
 
           {/* Name + description */}
           <div className="flex-1 min-w-0">
@@ -156,7 +153,7 @@ export default function BlockTreeNode({
           {!reorderMode && (
             <>
               <span className="text-xs text-text-muted hidden sm:inline-block px-1.5 py-0.5 rounded border border-border-secondary">
-                {t(`campaigns:block.types.${block.type}`)}
+                {typeName}
               </span>
 
               {block.tags && block.tags.length > 0 && (
@@ -175,15 +172,15 @@ export default function BlockTreeNode({
                 </span>
               )}
 
-              {combatFeature && (
+              {hasCombat && (
                 <button
-                  onClick={(e) => { e.stopPropagation(); combatFeature.combatId ? onOpenCombat?.(combatFeature.combatId) : onCreateCombat?.(block.id); }}
+                  onClick={(e) => { e.stopPropagation(); if (combatId) { onOpenCombat?.(combatId); } else { onCreateCombat?.(block.id); } }}
                   className="flex-shrink-0 flex items-center gap-1 text-xs bg-red-900/30 text-red-400 hover:bg-red-900/50 px-2 py-1 rounded transition"
-                  title={combatFeature.combatId ? t("campaigns:block.combatFeature.openCombat") : t("campaigns:block.combatFeature.createCombat")}
+                  title={combatId ? t("campaigns:block.combatFeature.openCombat") : t("campaigns:block.combatFeature.createCombat")}
                 >
                   <Swords className="w-3 h-3" />
                   <span className="hidden sm:inline">
-                    {combatFeature.combatId ? t("campaigns:block.combatFeature.openCombat") : t("campaigns:block.combatFeature.createCombat")}
+                    {combatId ? t("campaigns:block.combatFeature.openCombat") : t("campaigns:block.combatFeature.createCombat")}
                   </span>
                 </button>
               )}
@@ -200,9 +197,9 @@ export default function BlockTreeNode({
                 </button>
               )}
 
-              {sceneLootCount > 0 && (
+              {lootCount > 0 && (
                 <span className="flex-shrink-0 flex items-center gap-1 text-xs text-text-muted px-2 py-1 rounded border border-border-secondary">
-                  📦 {sceneLootCount}
+                  📦 {lootCount}
                 </span>
               )}
 
@@ -235,6 +232,7 @@ export default function BlockTreeNode({
               key={child.id}
               block={child}
               allBlocks={allBlocks}
+              blockTypes={blockTypes}
               savedPlayers={savedPlayers}
               savedMonsters={savedMonsters}
               depth={depth + 1}

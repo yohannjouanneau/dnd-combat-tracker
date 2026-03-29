@@ -2,23 +2,20 @@ import { ChevronDown, ChevronRight, Edit2, Swords, UserCircle, X } from "lucide-
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster, SavedPlayer } from "../../types";
-import type { BuildingBlock, BuildingBlockType } from "../../types/campaign";
+import type { BlockTypeDef, BuildingBlock } from "../../types/campaign";
 import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
 import StatsBlock from "../common/StatsBlock";
 import { getStatModifier } from "../../utils/utils";
 
-const TYPE_ICONS: Record<BuildingBlockType, string> = {
-  environment: "🌍",
-  room: "🚪",
-  character: "🧙",
-  combat: "⚔️",
-  object: "📦",
-  scene: "🎭",
-};
+function getTypeName(type: BlockTypeDef | undefined, id: string, t: (key: string) => string): string {
+  if (!type) return id;
+  return type.isBuiltIn ? t(`campaigns:block.types.${type.id}`) : type.name;
+}
 
 interface Props {
   block: BuildingBlock;
   allBlocks: BuildingBlock[];
+  blockTypes: BlockTypeDef[];
   savedPlayers: SavedPlayer[];
   savedMonsters: SavedMonster[];
   onClose: () => void;
@@ -30,6 +27,7 @@ interface Props {
 export default function BlockDetailModal({
   block,
   allBlocks,
+  blockTypes,
   savedPlayers,
   savedMonsters,
   onClose,
@@ -43,31 +41,25 @@ export default function BlockDetailModal({
   const toggleCheck = (id: string) =>
     setExpandedChecks((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  const typeDef = blockTypes.find((tp) => tp.id === block.typeId);
+  const displayIcon = block.icon ?? typeDef?.icon ?? "📦";
+  const hasCharacters = typeDef?.features.includes("characters") ?? false;
+  const hasCombat = typeDef?.features.includes("combat") ?? false;
+  const hasLoot = typeDef?.features.includes("loot") ?? false;
+
   const children = block.children
     .map((id) => allBlocks.find((b) => b.id === id))
     .filter((b): b is BuildingBlock => Boolean(b));
 
-  const linkedNpcIds =
-    block.specialFeature?.type === "character" ? block.specialFeature.linkedNpcIds :
-    block.specialFeature?.type === "scene" ? block.specialFeature.linkedNpcIds :
-    [];
+  const linkedNpcIds = hasCharacters ? (block.featureData?.linkedNpcIds ?? []) : [];
   const linkedNpcs = linkedNpcIds
-    .map(id => savedPlayers.find(p => p.id === id) ?? savedMonsters.find(m => m.id === id))
+    .map((id) => savedPlayers.find((p) => p.id === id) ?? savedMonsters.find((m) => m.id === id))
     .filter((n): n is NonNullable<typeof n> => Boolean(n));
 
   const [selectedNpcId, setSelectedNpcId] = useState<string | undefined>(() => linkedNpcs[0]?.id);
 
-  const combatFeature =
-    block.specialFeature?.type === "combat" ? block.specialFeature :
-    block.specialFeature?.type === "scene" ? { type: "combat" as const, combatId: block.specialFeature.combatId } :
-    null;
-
-  const lootItems =
-    block.specialFeature?.type === "loot" ? block.specialFeature.items.filter(Boolean) :
-    block.specialFeature?.type === "scene" ? block.specialFeature.items.filter(Boolean) :
-    null;
-
-  const sceneFeature = block.specialFeature?.type === "scene" ? block.specialFeature : null;
+  const combatId = hasCombat ? (block.featureData?.combatId ?? null) : null;
+  const lootItems = hasLoot ? (block.featureData?.items ?? []).filter(Boolean) : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto py-8 px-4">
@@ -75,13 +67,13 @@ export default function BlockDetailModal({
 
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-border-primary">
-          <span className="text-xl flex-shrink-0">{block.icon ?? TYPE_ICONS[block.type]}</span>
+          <span className="text-xl flex-shrink-0">{displayIcon}</span>
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-bold text-text-primary truncate">
               {block.name || <span className="italic text-text-muted font-normal">Unnamed</span>}
             </h2>
             <span className="text-xs text-text-muted px-1.5 py-0.5 rounded border border-border-secondary">
-              {t(`campaigns:block.types.${block.type}`)}
+              {getTypeName(typeDef, block.typeId, t)}
             </span>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -129,15 +121,15 @@ export default function BlockDetailModal({
             )}
           </div>
 
-          {/* Special Feature */}
-          {combatFeature && (
+          {/* Combat feature */}
+          {hasCombat && (
             <div className="bg-panel-bg rounded-lg border border-border-primary p-3 flex items-center justify-between gap-3">
               <span className="text-sm text-text-secondary font-medium">
                 {t("campaigns:block.combatFeature.linked")}
               </span>
-              {combatFeature.combatId ? (
+              {combatId ? (
                 <button
-                  onClick={() => onOpenCombat?.(combatFeature.combatId!)}
+                  onClick={() => onOpenCombat?.(combatId)}
                   className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm transition"
                 >
                   <Swords className="w-4 h-4" />
@@ -151,15 +143,16 @@ export default function BlockDetailModal({
             </div>
           )}
 
-          {linkedNpcs.length > 0 && (() => {
-            const selectedNpc = linkedNpcs.find(n => n.id === selectedNpcId);
+          {/* Characters feature */}
+          {hasCharacters && linkedNpcs.length > 0 && (() => {
+            const selectedNpc = linkedNpcs.find((n) => n.id === selectedNpcId);
             return (
               <div className="bg-panel-bg rounded-lg border border-border-primary p-3 flex flex-col gap-3">
                 <span className="text-sm text-text-secondary font-medium">
                   {t("campaigns:block.characterFeature.linkedNpcs")}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
-                  {linkedNpcs.map(npc => (
+                  {linkedNpcs.map((npc) => (
                     <button
                       key={npc.id}
                       onClick={() => setSelectedNpcId(npc.id)}
@@ -206,7 +199,8 @@ export default function BlockDetailModal({
             );
           })()}
 
-          {lootItems && lootItems.length > 0 && (
+          {/* Loot feature */}
+          {hasLoot && lootItems && lootItems.length > 0 && (
             <div className="bg-panel-bg rounded-lg border border-border-primary p-3">
               <p className="text-sm font-medium text-text-secondary mb-2">
                 {t("campaigns:block.lootFeature.items")}
@@ -259,6 +253,7 @@ export default function BlockDetailModal({
                           const linked = outcome.linkedBlockId
                             ? allBlocks.find((b) => b.id === outcome.linkedBlockId)
                             : undefined;
+                          const linkedTypeDef = linked ? blockTypes.find((tp) => tp.id === linked.typeId) : undefined;
                           return (
                             <div key={outcome.id} className="bg-panel-bg rounded p-2 space-y-1">
                               <p className="text-xs font-semibold text-text-primary">{outcome.label}</p>
@@ -270,7 +265,7 @@ export default function BlockDetailModal({
                                   onClick={() => onOpenBlock?.(linked.id)}
                                   className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition"
                                 >
-                                  <span>{linked.icon ?? TYPE_ICONS[linked.type]}</span>
+                                  <span>{linked.icon ?? linkedTypeDef?.icon ?? "📦"}</span>
                                   {linked.name}
                                 </button>
                               )}
@@ -292,16 +287,19 @@ export default function BlockDetailModal({
                 {t("campaigns:block.children")}
               </p>
               <div className="flex flex-wrap gap-2">
-                {children.map((child) => (
-                  <button
-                    key={child.id}
-                    onClick={() => onOpenBlock?.(child.id)}
-                    className="flex items-center gap-1.5 text-sm bg-panel-secondary hover:bg-panel-secondary/80 border border-border-secondary rounded px-2.5 py-1.5 text-text-primary transition"
-                  >
-                    <span>{child.icon ?? TYPE_ICONS[child.type]}</span>
-                    {child.name || <span className="italic text-text-muted">Unnamed</span>}
-                  </button>
-                ))}
+                {children.map((child) => {
+                  const childTypeDef = blockTypes.find((tp) => tp.id === child.typeId);
+                  return (
+                    <button
+                      key={child.id}
+                      onClick={() => onOpenBlock?.(child.id)}
+                      className="flex items-center gap-1.5 text-sm bg-panel-secondary hover:bg-panel-secondary/80 border border-border-secondary rounded px-2.5 py-1.5 text-text-primary transition"
+                    >
+                      <span>{child.icon ?? childTypeDef?.icon ?? "📦"}</span>
+                      {child.name || <span className="italic text-text-muted">Unnamed</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
