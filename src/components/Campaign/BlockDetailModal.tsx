@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import type { SavedMonster, SavedPlayer } from "../../types";
 import type { BuildingBlock, BuildingBlockType } from "../../types/campaign";
 import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
+import StatsBlock from "../common/StatsBlock";
+import { getStatModifier } from "../../utils/utils";
 
 const TYPE_ICONS: Record<BuildingBlockType, string> = {
   environment: "🌍",
@@ -21,7 +23,6 @@ interface Props {
   onClose: () => void;
   onEdit: (block: BuildingBlock) => void;
   onOpenCombat?: (combatId: string) => void;
-  onOpenNpc?: (npcId: string) => void;
   onOpenBlock?: (blockId: string) => void;
 }
 
@@ -33,7 +34,6 @@ export default function BlockDetailModal({
   onClose,
   onEdit,
   onOpenCombat,
-  onOpenNpc,
   onOpenBlock,
 }: Props) {
   const { t } = useTranslation(["campaigns", "common"]);
@@ -51,6 +51,8 @@ export default function BlockDetailModal({
   const linkedNpcs = linkedNpcIds
     .map(id => savedPlayers.find(p => p.id === id) ?? savedMonsters.find(m => m.id === id))
     .filter((n): n is NonNullable<typeof n> => Boolean(n));
+
+  const [selectedNpcId, setSelectedNpcId] = useState<string | undefined>(() => linkedNpcs[0]?.id);
 
   const combatFeature =
     block.specialFeature?.type === "combat" ? block.specialFeature : null;
@@ -140,25 +142,60 @@ export default function BlockDetailModal({
             </div>
           )}
 
-          {linkedNpcs.length > 0 && (
-            <div className="bg-panel-bg rounded-lg border border-border-primary p-3 flex flex-col gap-2">
-              <span className="text-sm text-text-secondary font-medium">
-                {t("campaigns:block.characterFeature.linkedNpcs")}
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {linkedNpcs.map(npc => (
-                  <button
-                    key={npc.id}
-                    onClick={() => onOpenNpc?.(npc.id)}
-                    className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm transition"
-                  >
-                    <UserCircle className="w-4 h-4" />
-                    {npc.name}
-                  </button>
-                ))}
+          {linkedNpcs.length > 0 && (() => {
+            const selectedNpc = linkedNpcs.find(n => n.id === selectedNpcId);
+            return (
+              <div className="bg-panel-bg rounded-lg border border-border-primary p-3 flex flex-col gap-3">
+                <span className="text-sm text-text-secondary font-medium">
+                  {t("campaigns:block.characterFeature.linkedNpcs")}
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {linkedNpcs.map(npc => (
+                    <button
+                      key={npc.id}
+                      onClick={() => setSelectedNpcId(npc.id)}
+                      className={[
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded text-sm transition",
+                        npc.id === selectedNpcId
+                          ? "bg-purple-600 text-white"
+                          : "bg-purple-900/30 text-purple-400 hover:bg-purple-900/50",
+                      ].join(" ")}
+                    >
+                      <UserCircle className="w-4 h-4" />
+                      {npc.name}
+                    </button>
+                  ))}
+                </div>
+                {selectedNpc && (
+                  <div className="border-t border-border-secondary pt-3 space-y-4">
+                    <StatsBlock
+                      mode="compact"
+                      hp={selectedNpc.hp}
+                      maxHp={selectedNpc.maxHp}
+                      ac={selectedNpc.ac}
+                      initiative={selectedNpc.initBonus ?? getStatModifier(selectedNpc.dex)}
+                      scores={{
+                        str: selectedNpc.str,
+                        dex: selectedNpc.dex,
+                        con: selectedNpc.con,
+                        int: selectedNpc.int,
+                        wis: selectedNpc.wis,
+                        cha: selectedNpc.cha,
+                      }}
+                      derivedStats={selectedNpc}
+                    />
+                    {selectedNpc.notes ? (
+                      <div className="prose prose-invert prose-sm max-w-none text-text-primary">
+                        <MarkdownRenderer content={selectedNpc.notes} />
+                      </div>
+                    ) : (
+                      <p className="text-sm text-text-muted italic">{t("common:noData")}</p>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {lootItems && lootItems.length > 0 && (
             <div className="bg-panel-bg rounded-lg border border-border-primary p-3">
@@ -202,7 +239,7 @@ export default function BlockDetailModal({
                           {check.skill}
                         </span>
                       )}
-                      <span className="text-xs font-mono bg-amber-600/20 text-amber-400 px-1.5 py-0.5 rounded">
+                      <span className="text-xs text-text-muted px-1.5 py-0.5 rounded border border-border-secondary">
                         {t("campaigns:block.difficulty")} {check.difficulty}
                       </span>
                     </button>

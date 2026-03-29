@@ -1,13 +1,11 @@
-import { X, Shield, Heart, Hourglass, ExternalLink } from "lucide-react";
+import { X, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { Combatant } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
-import { AbilityScore } from "../common/AbilityScore";
 import { useTranslation } from "react-i18next";
 import MarkdownRenderer from "../common/mardown/MarkdownRenderer";
-import { getHpColorClass } from "../../utils/utils";
 import { useDebounce } from "../../hooks/useDebounce";
-import DerivedStatsPanel from "./DerivedStatsPanel";
+import StatsBlock from "../common/StatsBlock";
 
 const MAX_NOTES_LENGTH = 500;
 const NOTES_DEBOUNCE_MS = 400;
@@ -81,59 +79,22 @@ export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes
         )}
       </div>
 
-      {/* Stats Row - Horizontal Layout */}
-      <div className="flex gap-2 md:gap-4">
-        {/* HP */}
-        <div className="bg-panel-secondary rounded-lg p-2 md:p-4 flex-1 flex flex-col items-center">
-          <div className="text-xs md:text-sm text-text-muted mb-1 flex items-center gap-1 md:gap-2">
-            <Heart className="w-3 h-3 md:w-4 md:h-4" />
-            {t("combat:combatant.details.hitPoints")}
-          </div>
-          <div className={`text-2xl md:text-3xl font-bold ${getHpColorClass(combatant.hp ?? 0, combatant.maxHp ?? 1)}`}>
-            {combatant.hp ?? 0} / {combatant.maxHp ?? 0}
-          </div>
-        </div>
-
-        {/* AC */}
-        <div className="bg-panel-secondary rounded-lg p-2 md:p-4 flex-1 flex flex-col items-center">
-          <div className="text-xs md:text-sm text-text-muted mb-1 flex items-center gap-1 md:gap-2">
-            <Shield className="w-3 h-3 md:w-4 md:h-4" />
-            {t("combat:combatant.details.armorClass")}
-          </div>
-          <div className="text-2xl md:text-3xl font-bold text-blue-400">
-            {combatant.ac ?? 0}
-          </div>
-        </div>
-
-        {/* Initiative */}
-        <div className="bg-panel-secondary rounded-lg p-2 md:p-4 flex-1 flex flex-col items-center">
-          <div className="text-xs md:text-sm text-text-muted mb-1 flex items-center gap-1 md:gap-2">
-            <Hourglass className="w-3 h-3 md:w-4 md:h-4" />
-            {t("combat:combatant.details.initiative")}
-          </div>
-          <div className="text-2xl md:text-3xl font-bold text-blue-400">
-            {combatant.initiative}
-          </div>
-        </div>
-      </div>
-
-      {/* Ability Scores */}
-      <div className="mt-6">
-        <AbilityScore
-          type="combatant_details"
-          scores={{
-            str: combatant.str,
-            dex: combatant.dex,
-            con: combatant.con,
-            int: combatant.int,
-            wis: combatant.wis,
-            cha: combatant.cha,
-          }}
-        />
-      </div>
-
-      {/* Derived Stats Section */}
-      <DerivedStatsPanel combatant={combatant} />
+      {/* Stats + Ability Scores + Derived Stats */}
+      <StatsBlock
+        hp={combatant.hp}
+        maxHp={combatant.maxHp}
+        ac={combatant.ac}
+        initiative={combatant.initiative}
+        scores={{
+          str: combatant.str,
+          dex: combatant.dex,
+          con: combatant.con,
+          int: combatant.int,
+          wis: combatant.wis,
+          cha: combatant.cha,
+        }}
+        derivedStats={combatant}
+      />
 
       {/* Notes Section (read-only, from template) */}
       {combatant.notes && (

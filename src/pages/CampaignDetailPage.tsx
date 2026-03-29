@@ -357,7 +357,6 @@ export default function CampaignDetailPage({
           onClose={() => setModalState({ kind: "closed" })}
           onEdit={(b) => setModalState({ kind: "edit", block: b })}
           onOpenCombat={(id) => { setModalState({ kind: "closed" }); onOpenCombat(id); }}
-          onOpenNpc={handleOpenNpc}
           onOpenBlock={(blockId) => {
             const b = campaignBlocks.find((x) => x.id === blockId);
             if (b) setModalState({ kind: "view", block: b });
