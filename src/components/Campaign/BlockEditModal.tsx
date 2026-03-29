@@ -152,6 +152,39 @@ export default function BlockEditModal({ block, allBlocks, savedCombats, savedPl
             />
           </div>
 
+          {/* Child Blocks */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm text-text-secondary">{t("campaigns:block.children")}</label>
+            {formData.children.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {formData.children.map((childId) => {
+                  const child = allBlocks.find(b => b.id === childId);
+                  return (
+                    <span key={childId} className="flex items-center gap-1 bg-input-bg border border-border-secondary rounded px-2 py-1 text-sm text-text-primary">
+                      {child?.name || childId}
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, children: prev.children.filter(id => id !== childId) }))}
+                        className="text-text-muted hover:text-text-primary transition ml-1"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+            <SearchSelect
+              items={allBlocks
+                .filter(b => b.id !== formData.id && !formData.children.includes(b.id))
+                .map(b => ({ id: b.id, label: b.name || "Unnamed" }))}
+              placeholder={t("campaigns:block.addChild")}
+              onChange={(id) => {
+                if (id) setFormData(prev => ({ ...prev, children: [...prev.children, id] }));
+              }}
+            />
+          </div>
+
           {/* Stat Checks */}
           <StatCheckSection
             statChecks={formData.statChecks}
