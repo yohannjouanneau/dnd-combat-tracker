@@ -252,7 +252,7 @@ export default function CampaignDetailPage({
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={() => setModalState({ kind: "library" })}
-            className="flex items-center gap-1 bg-panel-secondary hover:bg-panel-secondary/80 px-3 py-2 rounded text-sm transition"
+            className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm transition"
             title={t("campaigns:detail.addFromLibrary")}
           >
             <Library className="w-4 h-4" />

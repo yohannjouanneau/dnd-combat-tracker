@@ -50,6 +50,7 @@
       "unlinked": "Aucun combat lié",
       "openCombat": "Ouvrir le combat",
       "createCombat": "Créer un combat",
+      "searchPlaceholder": "Rechercher un combat…",
       "unlinkCombat": "Délier"
     },
     "lootFeature": {
@@ -60,7 +61,8 @@
     "npcFeature": {
       "linkedNpc": "PNJ lié",
       "unlinked": "— Aucun —",
-      "openNpc": "Ouvrir le PNJ"
+      "openNpc": "Ouvrir le PNJ",
+      "searchPlaceholder": "Rechercher un PNJ…"
     }
   },
   "delete": {

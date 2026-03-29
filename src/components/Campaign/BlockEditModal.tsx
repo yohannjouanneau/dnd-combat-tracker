@@ -1,4 +1,4 @@
-import { ExternalLink, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedCombat, SavedMonster, SavedPlayer } from "../../types";
@@ -6,6 +6,7 @@ import type { BuildingBlock, BuildingBlockInput, BuildingBlockType, SpecialFeatu
 import { generateId } from "../../utils/utils";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
 import StatCheckSection from "./StatCheckSection";
+import SearchSelect from "../common/SearchSelect";
 
 interface Props {
   block?: BuildingBlock;
@@ -164,39 +165,14 @@ export default function BlockEditModal({ block, allBlocks, savedCombats, savedPl
               <label className="text-sm font-medium text-text-secondary">
                 {t("campaigns:block.combatFeature.linked")}
               </label>
-              <div className="flex gap-2 items-center">
-                <select
-                  value={
-                    formData.specialFeature?.type === "combat"
-                      ? (formData.specialFeature.combatId ?? "")
-                      : ""
-                  }
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      specialFeature: { type: "combat", combatId: e.target.value || null },
-                    }))
-                  }
-                  className="flex-1 bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="">{t("campaigns:block.combatFeature.unlinked")}</option>
-                  {savedCombats.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-                {formData.specialFeature?.type === "combat" && formData.specialFeature.combatId && (
-                  <button
-                    type="button"
-                    onClick={() => onOpenCombat?.((formData.specialFeature as { type: "combat"; combatId: string }).combatId)}
-                    className="p-2 rounded bg-panel-secondary hover:bg-red-100 dark:hover:bg-red-900/30 text-text-secondary hover:text-red-600 dark:hover:text-red-400 transition"
-                    title={t("campaigns:block.combatFeature.openCombat")}
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+              <SearchSelect
+                items={savedCombats.map(c => ({ id: c.id, label: c.name, icon: "⚔️" }))}
+                value={formData.specialFeature?.type === "combat" ? (formData.specialFeature.combatId ?? undefined) : undefined}
+                placeholder={t("campaigns:block.combatFeature.searchPlaceholder")}
+                onChange={(id) => setFormData(prev => ({ ...prev, specialFeature: { type: "combat", combatId: id ?? null } }))}
+                onOpenSelected={onOpenCombat}
+                openSelectedTitle={t("campaigns:block.combatFeature.openCombat")}
+              />
             </div>
           )}
 
@@ -245,48 +221,17 @@ export default function BlockEditModal({ block, allBlocks, savedCombats, savedPl
               <label className="text-sm font-medium text-text-secondary">
                 {t("campaigns:block.npcFeature.linkedNpc")}
               </label>
-              <div className="flex gap-2 items-center">
-                <select
-                  value={
-                    formData.specialFeature?.type === "npc"
-                      ? (formData.specialFeature.linkedNpcId ?? "")
-                      : ""
-                  }
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      specialFeature: { type: "npc", linkedNpcId: e.target.value || undefined },
-                    }))
-                  }
-                  className="flex-1 bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="">{t("campaigns:block.npcFeature.unlinked")}</option>
-                  {savedPlayers.length > 0 && (
-                    <optgroup label="Players">
-                      {savedPlayers.map((p) => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
-                      ))}
-                    </optgroup>
-                  )}
-                  {savedMonsters.length > 0 && (
-                    <optgroup label="Monsters">
-                      {savedMonsters.map((m) => (
-                        <option key={m.id} value={m.id}>{m.name}</option>
-                      ))}
-                    </optgroup>
-                  )}
-                </select>
-                {formData.specialFeature?.type === "npc" && formData.specialFeature.linkedNpcId && (
-                  <button
-                    type="button"
-                    onClick={() => onOpenNpc?.(formData.specialFeature!.type === "npc" ? (formData.specialFeature as { type: "npc"; linkedNpcId?: string }).linkedNpcId! : "")}
-                    className="p-2 rounded bg-panel-secondary hover:bg-purple-100 dark:hover:bg-purple-900/30 text-text-secondary hover:text-purple-600 dark:hover:text-purple-400 transition"
-                    title={t("campaigns:block.npcFeature.openNpc")}
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+              <SearchSelect
+                items={[
+                  ...savedPlayers.map(p => ({ id: p.id, label: p.name, group: "Players" })),
+                  ...savedMonsters.map(m => ({ id: m.id, label: m.name, group: "Monsters" })),
+                ]}
+                value={formData.specialFeature?.type === "npc" ? formData.specialFeature.linkedNpcId : undefined}
+                placeholder={t("campaigns:block.npcFeature.searchPlaceholder")}
+                onChange={(id) => setFormData(prev => ({ ...prev, specialFeature: { type: "npc", linkedNpcId: id } }))}
+                onOpenSelected={onOpenNpc}
+                openSelectedTitle={t("campaigns:block.npcFeature.openNpc")}
+              />
             </div>
           )}
         </div>

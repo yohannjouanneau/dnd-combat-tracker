@@ -50,6 +50,7 @@
       "unlinked": "No combat linked yet",
       "openCombat": "Open Combat",
       "createCombat": "Create Combat",
+      "searchPlaceholder": "Search combat…",
       "unlinkCombat": "Unlink"
     },
     "lootFeature": {
@@ -60,7 +61,8 @@
     "npcFeature": {
       "linkedNpc": "Linked NPC",
       "unlinked": "— None —",
-      "openNpc": "Open NPC"
+      "openNpc": "Open NPC",
+      "searchPlaceholder": "Search NPC…"
     }
   },
   "delete": {
