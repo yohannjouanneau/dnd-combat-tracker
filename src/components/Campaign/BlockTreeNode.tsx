@@ -10,6 +10,7 @@ const TYPE_ICONS: Record<BuildingBlockType, string> = {
   character: "🧙",
   combat: "⚔️",
   object: "📦",
+  scene: "🎭",
 };
 
 export interface DragCallbacks {
@@ -63,13 +64,20 @@ export default function BlockTreeNode({
 
   const hasChildren = children.length > 0;
 
-  const combatFeature = block.specialFeature?.type === "combat" ? block.specialFeature : null;
-  const linkedNpcIds = block.specialFeature?.type === "character" ? block.specialFeature.linkedNpcIds : [];
+  const combatFeature =
+    block.specialFeature?.type === "combat" ? block.specialFeature :
+    block.specialFeature?.type === "scene" ? { type: "combat" as const, combatId: block.specialFeature.combatId } :
+    null;
+  const linkedNpcIds =
+    block.specialFeature?.type === "character" ? block.specialFeature.linkedNpcIds :
+    block.specialFeature?.type === "scene" ? block.specialFeature.linkedNpcIds :
+    [];
   const linkedNpcs = linkedNpcIds
     .map(id => savedPlayers.find(p => p.id === id) ?? savedMonsters.find(m => m.id === id))
     .filter((n): n is NonNullable<typeof n> => Boolean(n));
   const firstNpc = linkedNpcs[0];
   const extraNpcCount = linkedNpcs.length - 1;
+  const sceneLootCount = block.specialFeature?.type === "scene" ? block.specialFeature.items.filter(Boolean).length : 0;
 
   const isDragged = dragCallbacks?.draggedId === block.id;
   const dropPos = dragCallbacks?.dropTarget?.targetId === block.id && !isDragged
@@ -131,7 +139,7 @@ export default function BlockTreeNode({
           )}
 
           {/* Type icon */}
-          <span className="text-base flex-shrink-0">{TYPE_ICONS[block.type]}</span>
+          <span className="text-base flex-shrink-0">{block.icon ?? TYPE_ICONS[block.type]}</span>
 
           {/* Name + description */}
           <div className="flex-1 min-w-0">
@@ -190,6 +198,12 @@ export default function BlockTreeNode({
                   <span className="hidden sm:inline max-w-24 truncate">{firstNpc.name}</span>
                   {extraNpcCount > 0 && <span>+{extraNpcCount}</span>}
                 </button>
+              )}
+
+              {sceneLootCount > 0 && (
+                <span className="flex-shrink-0 flex items-center gap-1 text-xs text-text-muted px-2 py-1 rounded border border-border-secondary">
+                  📦 {sceneLootCount}
+                </span>
               )}
 
               <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>

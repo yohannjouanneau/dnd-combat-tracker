@@ -13,6 +13,7 @@ const TYPE_ICONS: Record<BuildingBlockType, string> = {
   character: "🧙",
   combat: "⚔️",
   object: "📦",
+  scene: "🎭",
 };
 
 interface Props {
@@ -47,7 +48,9 @@ export default function BlockDetailModal({
     .filter((b): b is BuildingBlock => Boolean(b));
 
   const linkedNpcIds =
-    block.specialFeature?.type === "character" ? block.specialFeature.linkedNpcIds : [];
+    block.specialFeature?.type === "character" ? block.specialFeature.linkedNpcIds :
+    block.specialFeature?.type === "scene" ? block.specialFeature.linkedNpcIds :
+    [];
   const linkedNpcs = linkedNpcIds
     .map(id => savedPlayers.find(p => p.id === id) ?? savedMonsters.find(m => m.id === id))
     .filter((n): n is NonNullable<typeof n> => Boolean(n));
@@ -55,10 +58,16 @@ export default function BlockDetailModal({
   const [selectedNpcId, setSelectedNpcId] = useState<string | undefined>(() => linkedNpcs[0]?.id);
 
   const combatFeature =
-    block.specialFeature?.type === "combat" ? block.specialFeature : null;
+    block.specialFeature?.type === "combat" ? block.specialFeature :
+    block.specialFeature?.type === "scene" ? { type: "combat" as const, combatId: block.specialFeature.combatId } :
+    null;
 
   const lootItems =
-    block.specialFeature?.type === "loot" ? block.specialFeature.items.filter(Boolean) : null;
+    block.specialFeature?.type === "loot" ? block.specialFeature.items.filter(Boolean) :
+    block.specialFeature?.type === "scene" ? block.specialFeature.items.filter(Boolean) :
+    null;
+
+  const sceneFeature = block.specialFeature?.type === "scene" ? block.specialFeature : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto py-8 px-4">
@@ -66,7 +75,7 @@ export default function BlockDetailModal({
 
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-border-primary">
-          <span className="text-xl flex-shrink-0">{TYPE_ICONS[block.type]}</span>
+          <span className="text-xl flex-shrink-0">{block.icon ?? TYPE_ICONS[block.type]}</span>
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-bold text-text-primary truncate">
               {block.name || <span className="italic text-text-muted font-normal">Unnamed</span>}
@@ -261,7 +270,7 @@ export default function BlockDetailModal({
                                   onClick={() => onOpenBlock?.(linked.id)}
                                   className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition"
                                 >
-                                  <span>{TYPE_ICONS[linked.type]}</span>
+                                  <span>{linked.icon ?? TYPE_ICONS[linked.type]}</span>
                                   {linked.name}
                                 </button>
                               )}
@@ -289,7 +298,7 @@ export default function BlockDetailModal({
                     onClick={() => onOpenBlock?.(child.id)}
                     className="flex items-center gap-1.5 text-sm bg-panel-secondary hover:bg-panel-secondary/80 border border-border-secondary rounded px-2.5 py-1.5 text-text-primary transition"
                   >
-                    <span>{TYPE_ICONS[child.type]}</span>
+                    <span>{child.icon ?? TYPE_ICONS[child.type]}</span>
                     {child.name || <span className="italic text-text-muted">Unnamed</span>}
                   </button>
                 ))}

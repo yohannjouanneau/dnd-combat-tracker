@@ -22,7 +22,8 @@
       "room": "Salle",
       "character": "Personnage",
       "combat": "Combat",
-      "object": "Objet"
+      "object": "Objet",
+      "scene": "Scène"
     },
     "new": "Nouveau bloc",
     "edit": "Modifier le bloc",
@@ -46,6 +47,8 @@
     "outcomeLabelPlaceholder": "ex. Succès",
     "outcomeDescription": "Description",
     "linkedBlock": "Lien vers un bloc",
+    "icon": "Icône",
+    "iconReset": "Réinitialiser",
     "specialFeature": "Fonctionnalité spéciale",
     "combatFeature": {
       "linked": "Combat lié",

@@ -278,6 +278,7 @@ export const CUSTOM_TAG_PREFIX = 'CUSTOMTAG';
 export const DICE_NOTATION_PREFIX = 'DICE';
 export const TAG_COMPONENT_SEPARATOR = '::';
 
+
 // Regex to parse markdown link notation [text](url) within tag content
 export const MARKDOWN_LINK_NOTATION_REGEX = /^\[([^\]]+)\]\(([^)]+)\)$/;
 

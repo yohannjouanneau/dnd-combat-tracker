@@ -7,6 +7,7 @@ import { generateId } from "../../utils/utils";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
 import StatCheckSection from "./StatCheckSection";
 import SearchSelect from "../common/SearchSelect";
+import IconPicker from "../common/IconPicker";
 
 interface Props {
   block?: BuildingBlock;
@@ -21,12 +22,22 @@ interface Props {
   onOpenCombat?: (combatId: string) => void;
 }
 
-const BLOCK_TYPES: BuildingBlockType[] = ["environment", "room", "character", "combat", "object"];
+const BLOCK_TYPES: BuildingBlockType[] = ["environment", "room", "character", "combat", "object", "scene"];
+
+const TYPE_ICONS: Record<BuildingBlockType, string> = {
+  environment: "🌍",
+  room: "🚪",
+  character: "🧙",
+  combat: "⚔️",
+  object: "📦",
+  scene: "🎭",
+};
 
 function getDefaultSpecialFeature(type: BuildingBlockType): SpecialFeature | undefined {
   if (type === "combat") return { type: "combat", combatId: null };
   if (type === "object") return { type: "loot", items: [] };
   if (type === "character") return { type: "character", linkedNpcIds: [] };
+  if (type === "scene") return { type: "scene", linkedNpcIds: [], combatId: null, items: [] };
   return undefined;
 }
 
@@ -88,6 +99,28 @@ export default function BlockEditModal({ block, allBlocks, savedCombats, savedPl
     setFormData((prev) => ({ ...prev, statChecks }));
   };
 
+  // Helpers for scene/character NPC linking
+  const getNpcLinkedIds = (): string[] => {
+    const sf = formData.specialFeature;
+    if (sf?.type === "character") return sf.linkedNpcIds;
+    if (sf?.type === "scene") return sf.linkedNpcIds;
+    return [];
+  };
+
+  const setNpcLinkedIds = (ids: string[]) => {
+    const sf = formData.specialFeature;
+    if (sf?.type === "character") {
+      setFormData(prev => ({ ...prev, specialFeature: { type: "character", linkedNpcIds: ids } }));
+    } else if (sf?.type === "scene") {
+      setFormData(prev => ({ ...prev, specialFeature: { ...sf, linkedNpcIds: ids } }));
+    }
+  };
+
+  const allNpcs = [
+    ...savedPlayers.map(p => ({ id: p.id, label: p.name, group: "Players" })),
+    ...savedMonsters.map(m => ({ id: m.id, label: m.name, group: "Monsters" })),
+  ];
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto py-8 px-4">
       <div className="w-full max-w-2xl bg-app-bg rounded-xl border border-border-primary shadow-xl">
@@ -103,6 +136,17 @@ export default function BlockEditModal({ block, allBlocks, savedCombats, savedPl
 
         {/* Body */}
         <div className="p-4 space-y-4">
+          {/* Icon picker */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm text-text-secondary">{t("campaigns:block.icon")}</label>
+            <IconPicker
+              value={formData.icon}
+              defaultIcon={TYPE_ICONS[formData.type]}
+              onChange={(icon) => setFormData(prev => ({ ...prev, icon }))}
+              onClear={() => setFormData(prev => ({ ...prev, icon: undefined }))}
+            />
+          </div>
+
           {/* Name + Type row */}
           <div className="flex gap-3">
             <div className="flex-1 flex flex-col gap-1">
@@ -209,6 +253,7 @@ export default function BlockEditModal({ block, allBlocks, savedCombats, savedPl
             </div>
           )}
 
+          {/* Special Feature — Object / Loot */}
           {formData.type === "object" && (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
@@ -249,17 +294,8 @@ export default function BlockEditModal({ block, allBlocks, savedCombats, savedPl
           )}
 
           {/* Special Feature — Character: multiple player/monster links */}
-          {formData.type === "character" && (() => {
-            const linkedIds: string[] = formData.specialFeature?.type === "character"
-              ? formData.specialFeature.linkedNpcIds
-              : [];
-            const allNpcs = [
-              ...savedPlayers.map(p => ({ id: p.id, label: p.name, group: "Players" })),
-              ...savedMonsters.map(m => ({ id: m.id, label: m.name, group: "Monsters" })),
-            ];
-            const setIds = (ids: string[]) =>
-              setFormData(prev => ({ ...prev, specialFeature: { type: "character", linkedNpcIds: ids } }));
-
+          {(formData.type === "character" || formData.type === "scene") && (() => {
+            const linkedIds = getNpcLinkedIds();
             return (
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-text-secondary">
@@ -273,7 +309,7 @@ export default function BlockEditModal({ block, allBlocks, savedCombats, savedPl
                       return (
                         <span key={id} className="flex items-center gap-1 bg-purple-900/30 text-purple-400 border border-purple-800/50 rounded px-2 py-0.5 text-sm">
                           <button type="button" onClick={() => onOpenNpc?.(id)} className="hover:underline">{npc.name}</button>
-                          <button type="button" onClick={() => setIds(linkedIds.filter(i => i !== id))} className="hover:text-red-400 transition ml-0.5">
+                          <button type="button" onClick={() => setNpcLinkedIds(linkedIds.filter(i => i !== id))} className="hover:text-red-400 transition ml-0.5">
                             <X className="w-3 h-3" />
                           </button>
                         </span>
@@ -285,11 +321,71 @@ export default function BlockEditModal({ block, allBlocks, savedCombats, savedPl
                   items={allNpcs.filter(n => !linkedIds.includes(n.id))}
                   value={undefined}
                   placeholder={t("campaigns:block.characterFeature.searchPlaceholder")}
-                  onChange={(id) => { if (id) setIds([...linkedIds, id]); }}
+                  onChange={(id) => { if (id) setNpcLinkedIds([...linkedIds, id]); }}
                 />
               </div>
             );
           })()}
+
+          {/* Special Feature — Scene: combat link */}
+          {formData.type === "scene" && (
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-text-secondary">
+                {t("campaigns:block.combatFeature.linked")}
+              </label>
+              <SearchSelect
+                items={savedCombats.map(c => ({ id: c.id, label: c.name, icon: "⚔️" }))}
+                value={formData.specialFeature?.type === "scene" ? (formData.specialFeature.combatId ?? undefined) : undefined}
+                placeholder={t("campaigns:block.combatFeature.searchPlaceholder")}
+                onChange={(id) => {
+                  if (formData.specialFeature?.type === "scene") {
+                    setFormData(prev => ({ ...prev, specialFeature: { ...formData.specialFeature as Extract<typeof formData.specialFeature, { type: "scene" }>, combatId: id ?? null } }));
+                  }
+                }}
+                onOpenSelected={onOpenCombat}
+                openSelectedTitle={t("campaigns:block.combatFeature.openCombat")}
+              />
+            </div>
+          )}
+
+          {/* Special Feature — Scene: loot items */}
+          {formData.type === "scene" && (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-text-secondary">
+                  {t("campaigns:block.lootFeature.items")}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (formData.specialFeature?.type === "scene") {
+                      setFormData(prev => ({ ...prev, specialFeature: { ...formData.specialFeature as Extract<typeof formData.specialFeature, { type: "scene" }>, items: [...(formData.specialFeature as Extract<typeof formData.specialFeature, { type: "scene" }>).items, ""] } }));
+                    }
+                  }}
+                  className="text-xs text-blue-400 hover:text-blue-300 transition"
+                >
+                  + {t("campaigns:block.lootFeature.addItem")}
+                </button>
+              </div>
+              {(formData.specialFeature?.type === "scene" ? formData.specialFeature.items : []).map(
+                (item, idx) => (
+                  <input
+                    key={idx}
+                    type="text"
+                    value={item}
+                    placeholder={t("campaigns:block.lootFeature.itemPlaceholder")}
+                    onChange={(e) => {
+                      if (formData.specialFeature?.type !== "scene") return;
+                      const items = [...formData.specialFeature.items];
+                      items[idx] = e.target.value;
+                      setFormData(prev => ({ ...prev, specialFeature: { ...formData.specialFeature as Extract<typeof formData.specialFeature, { type: "scene" }>, items } }));
+                    }}
+                    className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none text-sm"
+                  />
+                )
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}

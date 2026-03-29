@@ -15,6 +15,7 @@ const BLOCK_TYPE_ICONS: Record<BuildingBlockType, string> = {
   character: "🧙",
   combat: "⚔️",
   object: "📦",
+  scene: "🎭",
 };
 
 type FilterType = "monsters" | "players" | "blocks";
@@ -402,7 +403,7 @@ export default function LibraryModal({
                 {filteredBlocks.map((block) => (
                   <div key={block.id} className="bg-panel-secondary rounded-lg border border-border-primary p-3 hover:border-border-secondary transition-colors">
                     <div className="flex items-center gap-3">
-                      <span className="text-xl flex-shrink-0">{BLOCK_TYPE_ICONS[block.type]}</span>
+                      <span className="text-xl flex-shrink-0">{block.icon ?? BLOCK_TYPE_ICONS[block.type]}</span>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-base font-bold text-text-primary truncate">
                           {block.name || <span className="italic font-normal text-text-muted">Unnamed</span>}

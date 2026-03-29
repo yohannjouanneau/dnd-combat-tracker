@@ -22,7 +22,8 @@
       "room": "Room",
       "character": "Character",
       "combat": "Combat",
-      "object": "Object"
+      "object": "Object",
+      "scene": "Scene"
     },
     "new": "New Block",
     "edit": "Edit Block",
@@ -46,6 +47,8 @@
     "outcomeLabelPlaceholder": "e.g. Success",
     "outcomeDescription": "Description",
     "linkedBlock": "Links to block",
+    "icon": "Icon",
+    "iconReset": "Reset to default",
     "specialFeature": "Special Feature",
     "combatFeature": {
       "linked": "Linked combat",
