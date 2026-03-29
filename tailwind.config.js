@@ -19,6 +19,9 @@ export default {
   ],
   theme: {
     extend: {
+      zIndex: {
+        '60': '60',
+      },
       colors: {
         // Semantic colors using CSS variables
         'app-bg': withOpacity('--color-app-bg'),

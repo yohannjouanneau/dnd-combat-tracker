@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { SavedCombat, CombatState } from "../types";
 import LabeledTextInput from "../components/common/LabeledTextInput";
 import logo from "../assets/logo.png";
-import { BookOpen, Plus, Settings } from "lucide-react";
+import { BookOpen, Map, Plus, Settings } from "lucide-react";
 import CombatList from "../components/CombatsList/CombatList";
 import LibraryModal from "../components/Library/LibraryModal";
 import SettingsModal from "../components/Settings/SettingsModal";
@@ -16,7 +16,7 @@ type Props = {
 };
 
 export default function CombatsPage({ onOpen, combatStateManager }: Props) {
-  const { t } = useTranslation(["forms", "common"]);
+  const { t } = useTranslation(["forms", "common", "campaigns"]);
   const [combats, setCombats] = useState<SavedCombat[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -126,6 +126,14 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
                   >
                     <BookOpen className="w-5 h-5" />
                     <span className="hidden sm:inline">Library</span>
+                  </button>
+                  <button
+                    onClick={() => { location.hash = "#campaigns"; }}
+                    className="flex-1 md:flex-none bg-purple-700 hover:bg-purple-800 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
+                    title={t("campaigns:list.openCampaigns")}
+                  >
+                    <Map className="w-5 h-5" />
+                    <span className="hidden sm:inline">{t("campaigns:list.openCampaigns")}</span>
                   </button>
                   <button
                     onClick={() => setShowSettings(true)}

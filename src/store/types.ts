@@ -1,5 +1,6 @@
 import type { SyncApi } from "../api/sync/types";
 import type { CombatState, SavedCombat, SavedPlayer, NewCombatant, InitiativeGroup, DeathSaves, SavedCombatInput, SavedMonster, MonsterCombatant, PlayerCombatant, SearchResult, SearchSource, GroupSummary, TemplateOrigin } from "../types";
+import type { BuildingBlock, BuildingBlockInput, Campaign, CampaignInput } from "../types/campaign";
 
 export type CombatStateManager = {
     // State
@@ -69,8 +70,23 @@ export type CombatStateManager = {
   
     // Utility
     resetState: () => void;
-  
+
     // Dirty state management
     hasChanges: boolean;
+
+    // Campaign Manager
+    campaigns: Campaign[];
+    blocks: BuildingBlock[];
+    loadCampaigns: () => Promise<void>;
+    loadBlocks: () => Promise<void>;
+    createCampaign: (input: CampaignInput) => Promise<Campaign>;
+    updateCampaignMeta: (id: string, name: string, description: string) => Promise<void>;
+    deleteCampaign: (id: string) => Promise<void>;
+    createBlock: (input: BuildingBlockInput) => Promise<BuildingBlock>;
+    updateBlock: (id: string, patch: Partial<BuildingBlock>) => Promise<BuildingBlock>;
+    deleteBlock: (id: string) => Promise<void>;
+    addBlockToCampaign: (campaignId: string, blockId: string) => Promise<void>;
+    removeBlockFromCampaign: (campaignId: string, blockId: string) => Promise<void>;
+    addChildToBlock: (parentId: string, childId: string) => Promise<void>;
   };
   

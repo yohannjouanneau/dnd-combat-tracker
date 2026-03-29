@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import CombatTrackerPage from "./pages/CombatTrackerPage";
 import CombatsPage from "./pages/CombatsPage";
+import CampaignListPage from "./pages/CampaignListPage";
+import CampaignDetailPage from "./pages/CampaignDetailPage";
 import { useCombatState } from "./store/state";
 
 function App() {
@@ -52,24 +54,53 @@ function App() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [combatStateManager.hasChanges, combatStateManager.state?.combatId]);
 
-  const open = (id: string) => {
+  const openCombat = (id: string) => {
     location.hash = `#play/${id}`;
   };
 
-  if (!route.startsWith("#play")) {
+  const openCampaign = (id: string) => {
+    location.hash = `#campaigns/${id}`;
+  };
+
+  // Campaign detail page
+  const campaignDetailMatch = route.match(/^#campaigns\/([a-zA-Z0-9]+)$/);
+  if (campaignDetailMatch) {
     return (
-      <CombatsPage onOpen={open} combatStateManager={combatStateManager} />
+      <CampaignDetailPage
+        campaignId={campaignDetailMatch[1]}
+        combatStateManager={combatStateManager}
+        onBack={() => { location.hash = "#campaigns"; }}
+        onOpenCombat={openCombat}
+      />
     );
   }
 
-  if (isLoading) {
-    return <div className="p-6 text-white">Loading combat…</div>;
+  // Campaigns list page
+  if (route === "#campaigns") {
+    return (
+      <CampaignListPage
+        onOpen={openCampaign}
+        onBackToCombats={() => { location.hash = "#combats"; }}
+        combatStateManager={combatStateManager}
+      />
+    );
   }
 
+  // Combat tracker
+  if (route.startsWith("#play")) {
+    if (isLoading) {
+      return <div className="p-6 text-white">Loading combat…</div>;
+    }
+    return (
+      <div>
+        <CombatTrackerPage combatStateManager={combatStateManager} />
+      </div>
+    );
+  }
+
+  // Default: combats list
   return (
-    <div>
-      <CombatTrackerPage combatStateManager={combatStateManager} />
-    </div>
+    <CombatsPage onOpen={openCombat} combatStateManager={combatStateManager} />
   );
 }
 

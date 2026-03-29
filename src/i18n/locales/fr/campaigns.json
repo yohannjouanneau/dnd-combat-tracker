@@ -1,0 +1,78 @@
+{
+  "list": {
+    "title": "Campagnes",
+    "empty": "Aucune campagne. Créez votre première !",
+    "new": "Nouvelle campagne",
+    "namePlaceholder": "Nom de la campagne",
+    "descriptionPlaceholder": "Description (optionnelle)",
+    "backToCombats": "Retour aux combats",
+    "openCampaigns": "Campagnes"
+  },
+  "detail": {
+    "blocks": "Blocs de construction",
+    "addBlock": "Ajouter un bloc",
+    "addFromLibrary": "Ajouter depuis la bibliothèque",
+    "noBlocks": "Aucun bloc. Ajoutez votre premier bloc !",
+    "backToCampaigns": "Retour aux campagnes"
+  },
+  "block": {
+    "types": {
+      "environment": "Environnement",
+      "room": "Salle",
+      "npc": "PNJ",
+      "combat": "Combat",
+      "object": "Objet"
+    },
+    "new": "Nouveau bloc",
+    "edit": "Modifier le bloc",
+    "name": "Nom",
+    "namePlaceholder": "Nom du bloc",
+    "description": "Description",
+    "type": "Type",
+    "tags": "Étiquettes",
+    "tagsPlaceholder": "tag1, tag2, tag3",
+    "children": "Blocs enfants",
+    "addChild": "Ajouter un bloc enfant",
+    "statChecks": "Tests de caractéristique",
+    "addStatCheck": "Ajouter un test",
+    "checkLabel": "Libellé du test",
+    "checkLabelPlaceholder": "ex. Test de Perception",
+    "difficulty": "DD",
+    "outcomes": "Résultats",
+    "addOutcome": "Ajouter un résultat",
+    "outcomeLabel": "Libellé",
+    "outcomeLabelPlaceholder": "ex. Succès",
+    "outcomeDescription": "Description",
+    "linkedBlock": "Lien vers un bloc",
+    "specialFeature": "Fonctionnalité spéciale",
+    "combatFeature": {
+      "linked": "Combat lié",
+      "unlinked": "Aucun combat lié",
+      "openCombat": "Ouvrir le combat",
+      "createCombat": "Créer un combat",
+      "unlinkCombat": "Délier"
+    },
+    "lootFeature": {
+      "items": "Objets de butin",
+      "addItem": "Ajouter un objet",
+      "itemPlaceholder": "Nom ou description de l'objet"
+    },
+    "npcFeature": {
+      "linkedNpc": "PNJ lié",
+      "unlinked": "— Aucun —",
+      "openNpc": "Ouvrir le PNJ"
+    }
+  },
+  "delete": {
+    "campaignTitle": "Supprimer la campagne ?",
+    "campaignMessage": "Cette action supprimera définitivement la campagne. Les blocs de la bibliothèque ne seront pas supprimés.",
+    "blockTitle": "Retirer le bloc ?",
+    "blockMessage": "Cela retire le bloc de cette campagne. Il reste disponible dans la bibliothèque."
+  },
+  "toast": {
+    "campaignCreated": "Campagne créée",
+    "campaignDeleted": "Campagne supprimée",
+    "blockSaved": "Bloc sauvegardé",
+    "blockRemoved": "Bloc retiré de la campagne"
+  }
+}

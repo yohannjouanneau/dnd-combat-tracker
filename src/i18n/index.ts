@@ -8,12 +8,14 @@ import enCombat from "./locales/en/combat.json";
 import enForms from "./locales/en/forms.json";
 import enConditions from "./locales/en/conditions.json";
 import enColors from "./locales/en/colors.json";
+import enCampaigns from "./locales/en/campaigns.json";
 
 import frCommon from "./locales/fr/common.json";
 import frCombat from "./locales/fr/combat.json";
 import frForms from "./locales/fr/forms.json";
 import frConditions from "./locales/fr/conditions.json";
 import frColors from "./locales/fr/colors.json";
+import frCampaigns from "./locales/fr/campaigns.json";
 
 const resources = {
   en: {
@@ -22,6 +24,7 @@ const resources = {
     forms: enForms,
     conditions: enConditions,
     colors: enColors,
+    campaigns: enCampaigns,
   },
   fr: {
     common: frCommon,
@@ -29,6 +32,7 @@ const resources = {
     forms: frForms,
     conditions: frConditions,
     colors: frColors,
+    campaigns: frCampaigns,
   },
 };
 
@@ -39,7 +43,7 @@ i18n
     resources,
     fallbackLng: "en",
     defaultNS: "common",
-    ns: ["common", "combat", "forms", "conditions", "colors"],
+    ns: ["common", "combat", "forms", "conditions", "colors", "campaigns"],
     interpolation: {
       escapeValue: false,
     },

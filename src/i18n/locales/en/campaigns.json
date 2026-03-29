@@ -1,0 +1,78 @@
+{
+  "list": {
+    "title": "Campaigns",
+    "empty": "No campaigns yet. Create your first one!",
+    "new": "New Campaign",
+    "namePlaceholder": "Campaign name",
+    "descriptionPlaceholder": "Description (optional)",
+    "backToCombats": "Back to Combats",
+    "openCampaigns": "Campaigns"
+  },
+  "detail": {
+    "blocks": "Building Blocks",
+    "addBlock": "Add Block",
+    "addFromLibrary": "Add from Library",
+    "noBlocks": "No blocks yet. Add your first building block!",
+    "backToCampaigns": "Back to Campaigns"
+  },
+  "block": {
+    "types": {
+      "environment": "Environment",
+      "room": "Room",
+      "npc": "NPC",
+      "combat": "Combat",
+      "object": "Object"
+    },
+    "new": "New Block",
+    "edit": "Edit Block",
+    "name": "Name",
+    "namePlaceholder": "Block name",
+    "description": "Description",
+    "type": "Type",
+    "tags": "Tags",
+    "tagsPlaceholder": "tag1, tag2, tag3",
+    "children": "Child Blocks",
+    "addChild": "Add Child Block",
+    "statChecks": "Stat Checks",
+    "addStatCheck": "Add Stat Check",
+    "checkLabel": "Check label",
+    "checkLabelPlaceholder": "e.g. Perception Check",
+    "difficulty": "DC",
+    "outcomes": "Outcomes",
+    "addOutcome": "Add Outcome",
+    "outcomeLabel": "Label",
+    "outcomeLabelPlaceholder": "e.g. Success",
+    "outcomeDescription": "Description",
+    "linkedBlock": "Links to block",
+    "specialFeature": "Special Feature",
+    "combatFeature": {
+      "linked": "Linked combat",
+      "unlinked": "No combat linked yet",
+      "openCombat": "Open Combat",
+      "createCombat": "Create Combat",
+      "unlinkCombat": "Unlink"
+    },
+    "lootFeature": {
+      "items": "Loot items",
+      "addItem": "Add item",
+      "itemPlaceholder": "Item name or description"
+    },
+    "npcFeature": {
+      "linkedNpc": "Linked NPC",
+      "unlinked": "— None —",
+      "openNpc": "Open NPC"
+    }
+  },
+  "delete": {
+    "campaignTitle": "Delete campaign?",
+    "campaignMessage": "This will permanently delete the campaign. Building blocks in the library are not deleted.",
+    "blockTitle": "Remove block?",
+    "blockMessage": "This removes the block from this campaign. The block remains in the library."
+  },
+  "toast": {
+    "campaignCreated": "Campaign created",
+    "campaignDeleted": "Campaign deleted",
+    "blockSaved": "Block saved",
+    "blockRemoved": "Block removed from campaign"
+  }
+}

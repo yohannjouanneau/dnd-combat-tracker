@@ -1,6 +1,8 @@
 import type { SyncProvider } from "../api/sync/SyncProvider";
 import { GoogleDriveSyncProvider } from "../api/sync/gdrive/GoogleDriveSyncProvider";
 import {
+  BUILDING_BLOCK_STORAGE_KEY,
+  CAMPAIGN_STORAGE_KEY,
   COMBAT_STORAGE_KEY,
   MONSTER_STORAGE_KEY,
   PLAYER_STORAGE_KEY,
@@ -11,8 +13,11 @@ import type {
   SavedCombat,
   SavedCombatInput,
 } from "../types";
+import type { BuildingBlock, BuildingBlockInput, Campaign, CampaignInput } from "../types/campaign";
 import { CombatStorageProvider } from "./CombatStorageProvider";
 import { CombatantTemplateStorageProvider } from "./CombatantTemplateStorageProvider";
+import { BuildingBlockStorageProvider } from "./BuildingBlockStorageProvider";
+import { CampaignStorageProvider } from "./CampaignStorageProvider";
 import {
   cleanCombatStateForStorage,
   restoreCombatState,
@@ -22,6 +27,8 @@ export class DataStore {
   private combatProvider: CombatStorageProvider;
   private playerProvider: CombatantTemplateStorageProvider<"player">;
   private monsterProvider: CombatantTemplateStorageProvider<"monster">;
+  private blockProvider: BuildingBlockStorageProvider;
+  private campaignProvider: CampaignStorageProvider;
   private syncProvider: SyncProvider;
 
   constructor(
@@ -34,11 +41,19 @@ export class DataStore {
     ),
     monsterProvider = new CombatantTemplateStorageProvider<"monster">(
       MONSTER_STORAGE_KEY
+    ),
+    blockProvider: BuildingBlockStorageProvider = new BuildingBlockStorageProvider(
+      BUILDING_BLOCK_STORAGE_KEY
+    ),
+    campaignProvider: CampaignStorageProvider = new CampaignStorageProvider(
+      CAMPAIGN_STORAGE_KEY
     )
   ) {
     this.combatProvider = combatProvider;
     this.playerProvider = playerProvider;
     this.monsterProvider = monsterProvider;
+    this.blockProvider = blockProvider;
+    this.campaignProvider = campaignProvider;
     this.syncProvider = new GoogleDriveSyncProvider(clientId);
   }
 
@@ -179,6 +194,40 @@ export class DataStore {
   }
   deleteMonster(id: string) {
     return this.monsterProvider.delete(id);
+  }
+
+  // Block methods
+  listBlock(): Promise<BuildingBlock[]> {
+    return this.blockProvider.list();
+  }
+  getBlock(id: string): Promise<BuildingBlock | undefined> {
+    return this.blockProvider.get(id);
+  }
+  createBlock(input: BuildingBlockInput): Promise<BuildingBlock> {
+    return this.blockProvider.create(input);
+  }
+  updateBlock(id: string, patch: Partial<BuildingBlock>): Promise<BuildingBlock> {
+    return this.blockProvider.update(id, patch);
+  }
+  deleteBlock(id: string): Promise<void> {
+    return this.blockProvider.delete(id);
+  }
+
+  // Campaign methods
+  listCampaign(): Promise<Campaign[]> {
+    return this.campaignProvider.list();
+  }
+  getCampaign(id: string): Promise<Campaign | undefined> {
+    return this.campaignProvider.get(id);
+  }
+  createCampaign(input: CampaignInput): Promise<Campaign> {
+    return this.campaignProvider.create(input);
+  }
+  updateCampaign(id: string, patch: Partial<Campaign>): Promise<Campaign> {
+    return this.campaignProvider.update(id, patch);
+  }
+  deleteCampaign(id: string): Promise<void> {
+    return this.campaignProvider.delete(id);
   }
 }
 

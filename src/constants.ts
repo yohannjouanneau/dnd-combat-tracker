@@ -82,6 +82,8 @@ export const PLAYER_STORAGE_KEY = "dnd-ct:players:v1";
 export const MONSTER_STORAGE_KEY = "dnd-ct:monsters:v1";
 export const LAST_SYNC_STORAGE_KEY = "dnd-ct:lastSynced";
 export const SETTINGS_STORAGE_KEY = "dnd-ct:settings:v1";
+export const BUILDING_BLOCK_STORAGE_KEY = "dnd-ct:blocks:v1";
+export const CAMPAIGN_STORAGE_KEY = "dnd-ct:campaigns:v1";
 
 // Tag menu items configuration
 export const MARKDOWN_EDITOR_TAG_MENU_ITEMS: EditorTagMenuItem[] = [
