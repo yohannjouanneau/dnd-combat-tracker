@@ -54,7 +54,14 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
     <div className="mx-auto text-white h-screen flex flex-col">
       <div className="bg-app-bg flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 md:p-6 flex-shrink-0">
+        <div className="p-4 md:p-6 flex-shrink-0 relative">
+          <button
+            onClick={onBackToCombats}
+            className="absolute top-4 left-4 md:top-6 md:left-6 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
+            title={t("common:actions.back")}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <div className="flex flex-col gap-4">
             <div className="flex justify-center">
               <img
@@ -63,15 +70,6 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
                 className="h-20 md:h-40 rounded-xl"
               />
             </div>
-
-            {/* Back to combats link */}
-            <button
-              onClick={onBackToCombats}
-              className="flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition self-start"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {t("common:actions.backToHome")}
-            </button>
 
             {/* Create form */}
             <div className="bg-panel-bg rounded-lg p-4 border border-border-primary">
