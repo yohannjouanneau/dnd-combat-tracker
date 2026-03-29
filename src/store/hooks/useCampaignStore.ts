@@ -93,6 +93,18 @@ export function useCampaignStore() {
     await updateBlock(parentId, { children: [...parent.children, childId] });
   }, [blocks, updateBlock]);
 
+  const reorderCampaignBlocks = useCallback(async (campaignId: string, orderedBlockIds: string[]): Promise<void> => {
+    const campaign = await dataStore.getCampaign(campaignId);
+    if (!campaign) return;
+    const nodeMap = new Map(campaign.nodes.map((n) => [n.blockId, n]));
+    const reordered = orderedBlockIds.map((id) => nodeMap.get(id)).filter((n): n is CanvasNode => Boolean(n));
+    // Append any nodes not in orderedBlockIds at the end (safety)
+    const reorderedSet = new Set(orderedBlockIds);
+    campaign.nodes.filter((n) => !reorderedSet.has(n.blockId)).forEach((n) => reordered.push(n));
+    const updated = await dataStore.updateCampaign(campaignId, { nodes: reordered });
+    setCampaigns((prev) => prev.map((c) => (c.id === campaignId ? updated : c)));
+  }, []);
+
   // Attach helper to the returned object so CampaignDetailPage can call it
   const storeActions = {
     campaigns,
@@ -108,6 +120,7 @@ export function useCampaignStore() {
     addBlockToCampaign,
     removeBlockFromCampaign,
     addChildToBlock: _addChildToBlock,
+    reorderCampaignBlocks,
   };
 
   return storeActions;

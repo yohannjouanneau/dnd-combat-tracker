@@ -88,5 +88,6 @@ export type CombatStateManager = {
     addBlockToCampaign: (campaignId: string, blockId: string) => Promise<void>;
     removeBlockFromCampaign: (campaignId: string, blockId: string) => Promise<void>;
     addChildToBlock: (parentId: string, childId: string) => Promise<void>;
+    reorderCampaignBlocks: (campaignId: string, orderedBlockIds: string[]) => Promise<void>;
   };
   

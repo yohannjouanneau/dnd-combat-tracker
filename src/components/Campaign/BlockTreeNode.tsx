@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, Edit2, Plus, Swords, Trash2, UserCircle } from "lucide-react";
+import { ChevronDown, ChevronRight, Edit2, GripVertical, Plus, Swords, Trash2, UserCircle } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster, SavedPlayer } from "../../types";
@@ -12,12 +12,23 @@ const TYPE_ICONS: Record<BuildingBlockType, string> = {
   object: "📦",
 };
 
+export interface DragCallbacks {
+  onDragStart: (blockId: string) => void;
+  onDragOver: (targetId: string, position: "before" | "after" | "child") => void;
+  onDrop: () => void;
+  onDragEnd: () => void;
+  draggedId: string | null;
+  dropTarget: { targetId: string; position: "before" | "after" | "child" } | null;
+}
+
 interface Props {
   block: BuildingBlock;
   allBlocks: BuildingBlock[];
   savedPlayers: SavedPlayer[];
   savedMonsters: SavedMonster[];
   depth: number;
+  reorderMode?: boolean;
+  dragCallbacks?: DragCallbacks;
   onView: (block: BuildingBlock) => void;
   onEdit: (block: BuildingBlock) => void;
   onAddChild: (parentId: string) => void;
@@ -33,6 +44,8 @@ export default function BlockTreeNode({
   savedPlayers,
   savedMonsters,
   depth,
+  reorderMode,
+  dragCallbacks,
   onView,
   onEdit,
   onAddChild,
@@ -50,129 +63,151 @@ export default function BlockTreeNode({
 
   const hasChildren = children.length > 0;
 
-  const combatFeature =
-    block.specialFeature?.type === "combat" ? block.specialFeature : null;
-
-  const linkedNpcId =
-    block.specialFeature?.type === "npc" ? block.specialFeature.linkedNpcId : undefined;
+  const combatFeature = block.specialFeature?.type === "combat" ? block.specialFeature : null;
+  const linkedNpcId = block.specialFeature?.type === "npc" ? block.specialFeature.linkedNpcId : undefined;
   const linkedNpc = linkedNpcId
     ? (savedPlayers.find((p) => p.id === linkedNpcId) ?? savedMonsters.find((m) => m.id === linkedNpcId))
     : undefined;
 
+  const isDragged = dragCallbacks?.draggedId === block.id;
+  const dropPos = dragCallbacks?.dropTarget?.targetId === block.id && !isDragged
+    ? dragCallbacks.dropTarget.position
+    : null;
+
   return (
     <div className="select-none">
-      {/* Card row */}
-      <div
-        className="flex items-center gap-2 bg-panel-bg border border-border-primary hover:border-border-secondary rounded p-3 transition cursor-pointer"
-        style={{ marginLeft: `${depth * 1.5}rem` }}
-        onClick={() => onView(block)}
-      >
-        {/* Expand/Collapse toggle */}
-        <button
-          className="flex-shrink-0 text-text-muted hover:text-text-primary transition w-5"
-          onClick={(e) => { e.stopPropagation(); hasChildren && setExpanded((v) => !v); }}
+      <div className="relative" style={{ marginLeft: `${depth * 1.5}rem` }}>
+        {/* Before insert line */}
+        {dropPos === "before" && (
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-blue-500 rounded z-10 -translate-y-px pointer-events-none" />
+        )}
+
+        {/* Card row */}
+        <div
+          className={[
+            "flex items-center gap-2 bg-panel-bg border rounded p-3 transition",
+            reorderMode ? "cursor-grab active:cursor-grabbing" : "cursor-pointer hover:border-border-secondary",
+            isDragged ? "opacity-40" : "",
+            dropPos === "child" ? "border-blue-500 bg-blue-500/5" : "border-border-primary",
+          ].join(" ")}
+          draggable={reorderMode}
+          onDragStart={reorderMode ? (e) => {
+            e.dataTransfer.effectAllowed = "move";
+            dragCallbacks?.onDragStart(block.id);
+          } : undefined}
+          onDragOver={reorderMode ? (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = "move";
+            const rect = e.currentTarget.getBoundingClientRect();
+            const pct = (e.clientY - rect.top) / rect.height;
+            const position = pct < 0.3 ? "before" : pct > 0.7 ? "after" : "child";
+            dragCallbacks?.onDragOver(block.id, position);
+          } : undefined}
+          onDrop={reorderMode ? (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCallbacks?.onDrop();
+          } : undefined}
+          onDragEnd={reorderMode ? () => dragCallbacks?.onDragEnd() : undefined}
+          onClick={reorderMode ? undefined : () => onView(block)}
         >
-          {hasChildren ? (
-            expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
+          {/* Drag handle or expand toggle */}
+          {reorderMode ? (
+            <span className="flex-shrink-0 text-text-muted w-5 flex items-center justify-center">
+              <GripVertical className="w-4 h-4" />
+            </span>
           ) : (
-            <span className="w-4 h-4 inline-block" />
+            <button
+              className="flex-shrink-0 text-text-muted hover:text-text-primary transition w-5"
+              onClick={(e) => { e.stopPropagation(); hasChildren && setExpanded((v) => !v); }}
+            >
+              {hasChildren
+                ? expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
+                : <span className="w-4 h-4 inline-block" />}
+            </button>
           )}
-        </button>
 
-        {/* Type icon */}
-        <span className="text-base flex-shrink-0">{TYPE_ICONS[block.type]}</span>
+          {/* Type icon */}
+          <span className="text-base flex-shrink-0">{TYPE_ICONS[block.type]}</span>
 
-        {/* Name + description */}
-        <div className="flex-1 min-w-0">
-          <span className="text-sm text-text-primary font-semibold truncate block">
-            {block.name || <span className="text-text-muted italic font-normal">Unnamed</span>}
-          </span>
-          {block.description && (
-            <span className="text-xs text-text-muted block truncate">
-              {block.description.length > 150 ? block.description.slice(0, 150) + "…" : block.description}
+          {/* Name + description */}
+          <div className="flex-1 min-w-0">
+            <span className="text-sm text-text-primary font-semibold truncate block">
+              {block.name || <span className="text-text-muted italic font-normal">Unnamed</span>}
             </span>
-          )}
-        </div>
-
-        {/* Type */}
-        <span className="text-xs text-text-muted hidden sm:inline-block px-1.5 py-0.5 rounded border border-border-secondary">
-          {t(`campaigns:block.types.${block.type}`)}
-        </span>
-
-        {/* Tags */}
-        {block.tags && block.tags.length > 0 && (
-          <div className="hidden md:flex gap-1">
-            {block.tags.slice(0, 2).map((tag) => (
-              <span key={tag} className="text-xs text-text-muted bg-panel-secondary rounded px-1.5 py-0.5 border border-border-secondary">
-                {tag}
+            {block.description && (
+              <span className="text-xs text-text-muted block truncate">
+                {block.description.length > 150 ? block.description.slice(0, 150) + "…" : block.description}
               </span>
-            ))}
+            )}
           </div>
-        )}
 
-        {/* Stat checks count */}
-        {block.statChecks.length > 0 && (
-          <span className="text-xs text-text-muted px-1.5 py-0.5 rounded border border-border-secondary">
-            {block.statChecks.length} SC
-          </span>
-        )}
+          {!reorderMode && (
+            <>
+              <span className="text-xs text-text-muted hidden sm:inline-block px-1.5 py-0.5 rounded border border-border-secondary">
+                {t(`campaigns:block.types.${block.type}`)}
+              </span>
 
-        {/* Combat block action */}
-        {combatFeature && (
-          <button
-            onClick={(e) => { e.stopPropagation(); combatFeature.combatId ? onOpenCombat?.(combatFeature.combatId) : onCreateCombat?.(block.id); }}
-            className="flex-shrink-0 flex items-center gap-1 text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 px-2 py-1 rounded transition"
-            title={combatFeature.combatId
-              ? t("campaigns:block.combatFeature.openCombat")
-              : t("campaigns:block.combatFeature.createCombat")
-            }
-          >
-            <Swords className="w-3 h-3" />
-            <span className="hidden sm:inline">
-              {combatFeature.combatId
-                ? t("campaigns:block.combatFeature.openCombat")
-                : t("campaigns:block.combatFeature.createCombat")
-              }
-            </span>
-          </button>
-        )}
+              {block.tags && block.tags.length > 0 && (
+                <div className="hidden md:flex gap-1">
+                  {block.tags.slice(0, 2).map((tag) => (
+                    <span key={tag} className="text-xs text-text-muted bg-panel-secondary rounded px-1.5 py-0.5 border border-border-secondary">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
 
-        {/* NPC link button */}
-        {linkedNpc && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onOpenNpc?.(linkedNpc.id); }}
-            className="flex-shrink-0 flex items-center gap-1 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50 px-2 py-1 rounded transition"
-            title={linkedNpc.name}
-          >
-            <UserCircle className="w-3 h-3" />
-            <span className="hidden sm:inline max-w-24 truncate">{linkedNpc.name}</span>
-          </button>
-        )}
+              {block.statChecks.length > 0 && (
+                <span className="text-xs text-text-muted px-1.5 py-0.5 rounded border border-border-secondary">
+                  {block.statChecks.length} SC
+                </span>
+              )}
 
-        {/* Actions */}
-        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => onEdit(block)}
-            className="p-1.5 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-secondary hover:text-text-primary transition"
-            title={t("common:actions.edit")}
-          >
-            <Edit2 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={() => onAddChild(block.id)}
-            className="p-1.5 rounded bg-panel-secondary hover:bg-blue-100 dark:hover:bg-blue-900/30 text-text-secondary hover:text-blue-600 dark:hover:text-blue-400 transition"
-            title={t("campaigns:block.addChild")}
-          >
-            <Plus className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={() => onRemove(block.id)}
-            className="p-1.5 rounded bg-panel-secondary hover:bg-red-100 dark:hover:bg-red-900/30 text-text-secondary hover:text-red-600 dark:hover:text-red-400 transition"
-            title={t("common:actions.delete")}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+              {combatFeature && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); combatFeature.combatId ? onOpenCombat?.(combatFeature.combatId) : onCreateCombat?.(block.id); }}
+                  className="flex-shrink-0 flex items-center gap-1 text-xs bg-red-900/30 text-red-400 hover:bg-red-900/50 px-2 py-1 rounded transition"
+                  title={combatFeature.combatId ? t("campaigns:block.combatFeature.openCombat") : t("campaigns:block.combatFeature.createCombat")}
+                >
+                  <Swords className="w-3 h-3" />
+                  <span className="hidden sm:inline">
+                    {combatFeature.combatId ? t("campaigns:block.combatFeature.openCombat") : t("campaigns:block.combatFeature.createCombat")}
+                  </span>
+                </button>
+              )}
+
+              {linkedNpc && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onOpenNpc?.(linkedNpc.id); }}
+                  className="flex-shrink-0 flex items-center gap-1 text-xs bg-purple-900/30 text-purple-400 hover:bg-purple-900/50 px-2 py-1 rounded transition"
+                  title={linkedNpc.name}
+                >
+                  <UserCircle className="w-3 h-3" />
+                  <span className="hidden sm:inline max-w-24 truncate">{linkedNpc.name}</span>
+                </button>
+              )}
+
+              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => onEdit(block)} className="p-1.5 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-secondary hover:text-text-primary transition" title={t("common:actions.edit")}>
+                  <Edit2 className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => onAddChild(block.id)} className="p-1.5 rounded bg-panel-secondary hover:bg-blue-900/30 text-text-secondary hover:text-blue-400 transition" title={t("campaigns:block.addChild")}>
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => onRemove(block.id)} className="p-1.5 rounded bg-panel-secondary hover:bg-red-900/30 text-text-secondary hover:text-red-400 transition" title={t("common:actions.delete")}>
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </>
+          )}
         </div>
+
+        {/* After insert line */}
+        {dropPos === "after" && (
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded z-10 translate-y-px pointer-events-none" />
+        )}
       </div>
 
       {/* Children */}
@@ -186,6 +221,8 @@ export default function BlockTreeNode({
               savedPlayers={savedPlayers}
               savedMonsters={savedMonsters}
               depth={depth + 1}
+              reorderMode={reorderMode}
+              dragCallbacks={dragCallbacks}
               onView={onView}
               onEdit={onEdit}
               onAddChild={onAddChild}

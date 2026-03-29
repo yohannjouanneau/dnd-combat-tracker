@@ -12,6 +12,7 @@
     "blocks": "Building Blocks",
     "addBlock": "Add Block",
     "addFromLibrary": "Add from Library",
+    "reorder": "Reorder",
     "noBlocks": "No blocks yet. Add your first building block!",
     "backToCampaigns": "Back to Campaigns"
   },

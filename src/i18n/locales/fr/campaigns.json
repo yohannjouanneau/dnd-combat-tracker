@@ -12,6 +12,7 @@
     "blocks": "Blocs de construction",
     "addBlock": "Ajouter un bloc",
     "addFromLibrary": "Ajouter depuis la bibliothèque",
+    "reorder": "Réorganiser",
     "noBlocks": "Aucun bloc. Ajoutez votre premier bloc !",
     "backToCampaigns": "Retour aux campagnes"
   },

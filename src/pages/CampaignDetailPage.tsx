@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Library } from "lucide-react";
+import { ArrowUpDown, Check, Plus, Library } from "lucide-react";
 import TopBar from "../components/TopBar";
 import type { CombatStateManager } from "../store/types";
 import type { SavedCombat } from "../types";
@@ -10,7 +10,7 @@ import { useToast } from "../components/common/Toast/useToast";
 import { useConfirmationDialog } from "../hooks/useConfirmationDialog";
 import BlockEditModal from "../components/Campaign/BlockEditModal";
 import BlockDetailModal from "../components/Campaign/BlockDetailModal";
-import BlockTreeNode from "../components/Campaign/BlockTreeNode";
+import BlockTreeNode, { type DragCallbacks } from "../components/Campaign/BlockTreeNode";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
 import LibraryModal from "../components/Library/LibraryModal";
 import type { SavedMonster, SavedPlayer } from "../types";
@@ -43,6 +43,9 @@ export default function CampaignDetailPage({
   const [modalState, setModalState] = useState<ModalState>({ kind: "closed" });
   const [savedCombats, setSavedCombats] = useState<SavedCombat[]>([]);
   const [editingNpc, setEditingNpc] = useState<SavedPlayer | SavedMonster | null>(null);
+  const [reorderMode, setReorderMode] = useState(false);
+  const [dragState, setDragState] = useState<{ blockId: string; sourceParentId: string | null } | null>(null);
+  const [dropTarget, setDropTarget] = useState<{ targetId: string; position: "before" | "after" | "child" } | null>(null);
 
   const campaign: Campaign | undefined = combatStateManager.campaigns.find(
     (c) => c.id === campaignId
@@ -76,12 +79,28 @@ export default function CampaignDetailPage({
   );
 
   // Root blocks: in campaign but not listed as a child of another campaign block
+  // Ordered according to campaign.nodes array
   const rootBlocks = useMemo(() => {
     const childIds = new Set(
       campaignBlocks.flatMap((b) => b.children.filter((id) => blockIdsInCampaign.has(id)))
     );
-    return campaignBlocks.filter((b) => !childIds.has(b.id));
-  }, [campaignBlocks, blockIdsInCampaign]);
+    const nodeOrder = campaign?.nodes.map((n) => n.blockId) ?? [];
+    const rootSet = campaignBlocks.filter((b) => !childIds.has(b.id));
+    return [...rootSet].sort((a, b) => {
+      const ai = nodeOrder.indexOf(a.id);
+      const bi = nodeOrder.indexOf(b.id);
+      return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+    });
+  }, [campaignBlocks, blockIdsInCampaign, campaign?.nodes]);
+
+  const parentMap = useMemo(() => {
+    const map = new Map<string, string | null>();
+    campaignBlocks.forEach((b) => {
+      if (!map.has(b.id)) map.set(b.id, null);
+      b.children.forEach((childId) => map.set(childId, b.id));
+    });
+    return map;
+  }, [campaignBlocks]);
 
   // Library blocks not yet in the campaign
   const libraryBlocksNotInCampaign = useMemo(
@@ -185,6 +204,54 @@ export default function CampaignDetailPage({
     setMetaHasChanges(false);
   }, [localName, localDesc, saveCampaignMeta]);
 
+  const handleGlobalDrop = useCallback(async () => {
+    if (!dragState || !dropTarget) return;
+    const { blockId, sourceParentId } = dragState;
+    const { targetId, position } = dropTarget;
+    if (blockId === targetId) return;
+
+    // Remove from source parent if it had one
+    if (sourceParentId) {
+      const src = campaignBlocks.find((b) => b.id === sourceParentId);
+      if (src) {
+        await combatStateManager.updateBlock(sourceParentId, {
+          children: src.children.filter((id) => id !== blockId),
+        });
+      }
+    }
+
+    if (position === "child") {
+      // Add as last child of target
+      const target = campaignBlocks.find((b) => b.id === targetId);
+      if (target && !target.children.includes(blockId)) {
+        await combatStateManager.updateBlock(targetId, {
+          children: [...target.children, blockId],
+        });
+      }
+    } else {
+      // Insert before or after target at target's level
+      const targetParentId = parentMap.get(targetId) ?? null;
+      if (targetParentId) {
+        const parent = campaignBlocks.find((b) => b.id === targetParentId);
+        if (parent) {
+          const children = parent.children.filter((id) => id !== blockId);
+          const idx = children.indexOf(targetId);
+          children.splice(position === "before" ? idx : idx + 1, 0, blockId);
+          await combatStateManager.updateBlock(targetParentId, { children });
+        }
+      } else {
+        // Target is at root level — reorder campaign.nodes
+        const rootIds = rootBlocks.map((b) => b.id).filter((id) => id !== blockId);
+        const idx = rootIds.indexOf(targetId);
+        rootIds.splice(position === "before" ? idx : idx + 1, 0, blockId);
+        await combatStateManager.reorderCampaignBlocks(campaignId, rootIds);
+      }
+    }
+
+    setDragState(null);
+    setDropTarget(null);
+  }, [dragState, dropTarget, campaignBlocks, parentMap, rootBlocks, combatStateManager, campaignId]);
+
   if (!campaign) {
     return (
       <div className="p-6 text-text-secondary">
@@ -208,20 +275,37 @@ export default function CampaignDetailPage({
         />
         <div className="flex justify-end gap-2 mb-4">
           <button
-            onClick={() => setModalState({ kind: "library" })}
-            className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm transition"
-            title={t("campaigns:detail.addFromLibrary")}
+            onClick={() => { setReorderMode((v) => !v); setDragState(null); setDropTarget(null); }}
+            className={`flex items-center gap-1 px-3 py-2 rounded text-sm transition ${
+              reorderMode
+                ? "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary ring-1 ring-border-secondary"
+                : "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary"
+            }`}
           >
-            <Library className="w-4 h-4" />
-            <span className="hidden sm:inline">{t("campaigns:detail.addFromLibrary")}</span>
+            {reorderMode ? <Check className="w-4 h-4" /> : <ArrowUpDown className="w-4 h-4" />}
+            <span className="hidden sm:inline">
+              {reorderMode ? t("common:actions.confirm") : t("campaigns:detail.reorder")}
+            </span>
           </button>
-          <button
-            onClick={() => setModalState({ kind: "create" })}
-            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">{t("campaigns:detail.addBlock")}</span>
-          </button>
+          {!reorderMode && (
+            <>
+              <button
+                onClick={() => setModalState({ kind: "library" })}
+                className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm transition"
+                title={t("campaigns:detail.addFromLibrary")}
+              >
+                <Library className="w-4 h-4" />
+                <span className="hidden sm:inline">{t("campaigns:detail.addFromLibrary")}</span>
+              </button>
+              <button
+                onClick={() => setModalState({ kind: "create" })}
+                className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">{t("campaigns:detail.addBlock")}</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -241,6 +325,15 @@ export default function CampaignDetailPage({
                 savedPlayers={combatStateManager.savedPlayers}
                 savedMonsters={combatStateManager.monsters}
                 depth={0}
+                reorderMode={reorderMode}
+                dragCallbacks={reorderMode ? ({
+                  onDragStart: (blockId) => setDragState({ blockId, sourceParentId: parentMap.get(blockId) ?? null }),
+                  onDragOver: (targetId, position) => setDropTarget({ targetId, position }),
+                  onDrop: handleGlobalDrop,
+                  onDragEnd: () => { setDragState(null); setDropTarget(null); },
+                  draggedId: dragState?.blockId ?? null,
+                  dropTarget,
+                } satisfies DragCallbacks) : undefined}
                 onView={(b) => setModalState({ kind: "view", block: b })}
                 onEdit={(b) => setModalState({ kind: "edit", block: b })}
                 onAddChild={(parentId) => setModalState({ kind: "create-child", parentId })}
