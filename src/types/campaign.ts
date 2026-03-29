@@ -12,6 +12,7 @@ export interface Outcome {
 export interface StatCheck {
   id: string;
   label: string;
+  skill?: string;
   difficulty: number;
   outcomes: Outcome[];
 }

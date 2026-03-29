@@ -105,6 +105,14 @@ export default function StatCheckSection({ statChecks, allBlocks, onChange }: Pr
               onChange={(e) => updateCheck(check.id, { label: e.target.value })}
               className="flex-1 bg-transparent text-sm text-text-primary placeholder-text-muted focus:outline-none"
             />
+            <input
+              type="text"
+              value={check.skill ?? ""}
+              placeholder={t("campaigns:block.skillPlaceholder")}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => updateCheck(check.id, { skill: e.target.value || undefined })}
+              className="w-24 bg-input-bg text-text-primary rounded px-2 py-0.5 text-xs border border-border-secondary focus:border-blue-500 focus:outline-none"
+            />
             <span className="text-xs text-text-muted mr-1">{t("campaigns:block.difficulty")}</span>
             <input
               type="number"
