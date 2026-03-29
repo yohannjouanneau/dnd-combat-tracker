@@ -165,6 +165,7 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
         isOpen={showLibrary}
         monsters={combatStateManager.monsters}
         players={combatStateManager.savedPlayers}
+        blocks={combatStateManager.blocks}
         canLoadToForm={false}
         onClose={() => setShowLibrary(false)}
         onCreate={combatStateManager.createMonster}
@@ -173,6 +174,9 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
         onCreatePlayer={combatStateManager.createPlayer}
         onUpdatePlayer={combatStateManager.updatePlayer}
         onDeletePlayer={combatStateManager.removePlayer}
+        onCreateBlock={combatStateManager.createBlock}
+        onUpdateBlock={combatStateManager.updateBlock}
+        onDeleteBlock={combatStateManager.deleteBlock}
         onToggleAutoAdd={(player) =>
           combatStateManager.updatePlayer(player.id, {
             ...player,

@@ -7,10 +7,10 @@ import type { BuildingBlock, BuildingBlockInput, Campaign } from "../types/campa
 import { generateId, generateDefaultNewCombatant } from "../utils/utils";
 import { useToast } from "../components/common/Toast/useToast";
 import { useConfirmationDialog } from "../hooks/useConfirmationDialog";
-import BlockCard from "../components/Campaign/BlockCard";
 import BlockEditModal from "../components/Campaign/BlockEditModal";
 import BlockTreeNode from "../components/Campaign/BlockTreeNode";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
+import LibraryModal from "../components/Library/LibraryModal";
 import type { SavedMonster, SavedPlayer } from "../types";
 
 type Props = {
@@ -315,44 +315,35 @@ export default function CampaignDetailPage({
       )}
 
       {/* Library picker */}
-      {modalState.kind === "library" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-md bg-app-bg rounded-xl border border-border-primary shadow-xl">
-            <div className="flex items-center justify-between p-4 border-b border-border-primary">
-              <h2 className="text-lg font-semibold text-text-primary">
-                {t("campaigns:detail.addFromLibrary")}
-              </h2>
-              <button
-                onClick={() => setModalState({ kind: "closed" })}
-                className="text-text-muted hover:text-text-primary transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-4 overflow-y-auto max-h-96">
-              {libraryBlocksNotInCampaign.length === 0 ? (
-                <p className="text-text-muted text-sm text-center py-4">
-                  All library blocks are already in this campaign.
-                </p>
-              ) : (
-                <ul className="space-y-3">
-                  {libraryBlocksNotInCampaign.map((block) => (
-                    <li key={block.id}>
-                      <BlockCard
-                        block={block}
-                        onAdd={(b) => {
-                          handleAddFromLibrary(b.id);
-                          setModalState({ kind: "closed" });
-                        }}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <LibraryModal
+        isOpen={modalState.kind === "library"}
+        monsters={combatStateManager.monsters}
+        players={combatStateManager.savedPlayers}
+        blocks={libraryBlocksNotInCampaign}
+        savedCombats={savedCombats}
+        initialFilter="blocks"
+        onClose={() => setModalState({ kind: "closed" })}
+        onCreate={combatStateManager.createMonster}
+        onDelete={combatStateManager.removeMonster}
+        onUpdate={combatStateManager.updateMonster}
+        onCreatePlayer={combatStateManager.createPlayer}
+        onUpdatePlayer={combatStateManager.updatePlayer}
+        onDeletePlayer={combatStateManager.removePlayer}
+        onCreateBlock={async (data) => {
+          const created = await combatStateManager.createBlock(data);
+          await combatStateManager.addBlockToCampaign(campaignId, created.id);
+          return created;
+        }}
+        onUpdateBlock={combatStateManager.updateBlock}
+        onDeleteBlock={combatStateManager.deleteBlock}
+        onAddBlock={(block) => {
+          handleAddFromLibrary(block.id);
+          setModalState({ kind: "closed" });
+        }}
+        onSearchMonsters={combatStateManager.searchWithLibrary}
+        isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
+        isPlayerUsedAsTemplate={combatStateManager.isPlayerUsedAsTemplate}
+      />
       {/* NPC / Player edit modal */}
       {editingNpc && (
         <LibraryEditModal

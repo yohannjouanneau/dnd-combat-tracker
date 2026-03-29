@@ -12,14 +12,6 @@ const TYPE_ICONS: Record<BuildingBlockType, string> = {
   object: "📦",
 };
 
-const TYPE_COLORS: Record<BuildingBlockType, string> = {
-  environment: "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30",
-  room: "text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30",
-  npc: "text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30",
-  combat: "text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30",
-  object: "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30",
-};
-
 interface Props {
   block: BuildingBlock;
   allBlocks: BuildingBlock[];

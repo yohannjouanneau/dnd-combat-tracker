@@ -159,6 +159,8 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
         isOpen={showLibrary}
         monsters={combatStateManager.monsters}
         players={combatStateManager.savedPlayers}
+        blocks={combatStateManager.blocks}
+        savedCombats={combats}
         canLoadToForm={false}
         onClose={() => setShowLibrary(false)}
         onCreate={combatStateManager.createMonster}
@@ -167,6 +169,9 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
         onCreatePlayer={combatStateManager.createPlayer}
         onUpdatePlayer={combatStateManager.updatePlayer}
         onDeletePlayer={combatStateManager.removePlayer}
+        onCreateBlock={combatStateManager.createBlock}
+        onUpdateBlock={combatStateManager.updateBlock}
+        onDeleteBlock={combatStateManager.deleteBlock}
         onToggleAutoAdd={(player) =>
           combatStateManager.updatePlayer(player.id, { ...player, autoAddToCombat: !player.autoAddToCombat })
         }

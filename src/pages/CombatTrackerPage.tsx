@@ -35,7 +35,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   const combatants = combatStateManager.state.combatants;
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
-  const [libraryInitialFilter, setLibraryInitialFilter] = useState<"monsters" | "players">("monsters");
+  const [libraryInitialFilter, setLibraryInitialFilter] = useState<"monsters" | "players" | "blocks">("monsters");
   const [editingPlayer, setEditingPlayer] = useState<SavedPlayer | undefined>();
   const [showAddModal, setShowAddModal] = useState(false);
   const [addModalMode, setAddModalMode] =
@@ -415,6 +415,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onCreatePlayer={combatStateManager.createPlayer}
           onUpdatePlayer={combatStateManager.updatePlayer}
           onDeletePlayer={combatStateManager.removePlayer}
+          blocks={combatStateManager.blocks}
+          onCreateBlock={combatStateManager.createBlock}
+          onUpdateBlock={combatStateManager.updateBlock}
+          onDeleteBlock={combatStateManager.deleteBlock}
           onSearchMonsters={(query: string) => {
             return combatStateManager.searchWithLibrary(query, "api");
           }}

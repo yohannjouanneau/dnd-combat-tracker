@@ -1,29 +1,43 @@
-import { X, BookOpen, Plus, Users, Swords, Search, ArrowUp, ArrowDown } from "lucide-react";
+import { X, BookOpen, Plus, Users, Swords, Search, ArrowUp, ArrowDown, Edit2, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
-import type { MonsterCombatant, PlayerCombatant, SavedMonster, SavedPlayer, SearchResult } from "../../types";
+import type { MonsterCombatant, PlayerCombatant, SavedCombat, SavedMonster, SavedPlayer, SearchResult } from "../../types";
+import type { BuildingBlock, BuildingBlockInput, BuildingBlockType } from "../../types/campaign";
 import LibraryListItem from "./LibraryListItem";
 import LibraryEditModal from "./LibraryEditModal";
+import BlockEditModal from "../Campaign/BlockEditModal";
 import { generateId } from "../../utils/utils";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
 
-type FilterType = "monsters" | "players";
+const BLOCK_TYPE_ICONS: Record<BuildingBlockType, string> = {
+  environment: "🌍",
+  room: "🚪",
+  npc: "🧙",
+  combat: "⚔️",
+  object: "📦",
+};
+
+type FilterType = "monsters" | "players" | "blocks";
 
 type Props = {
   isOpen: boolean;
   monsters: SavedMonster[];
   players?: SavedPlayer[];
+  blocks?: BuildingBlock[];
+  savedCombats?: SavedCombat[];
   canLoadToForm?: boolean;
   onClose: () => void;
   onLoadToForm?: (monster: SavedMonster) => void;
   onUpdate: (id: string, updated: SavedMonster) => void;
-  onCreate: (
-    monster: MonsterCombatant
-  ) => void;
+  onCreate: (monster: MonsterCombatant) => void;
   onDelete: (id: string) => void;
   onUpdatePlayer?: (id: string, updated: SavedPlayer) => void;
   onCreatePlayer?: (player: PlayerCombatant) => void;
   onDeletePlayer?: (id: string) => void;
+  onCreateBlock?: (input: BuildingBlockInput) => Promise<BuildingBlock>;
+  onUpdateBlock?: (id: string, patch: Partial<BuildingBlock>) => Promise<BuildingBlock>;
+  onDeleteBlock?: (id: string) => Promise<void>;
+  onAddBlock?: (block: BuildingBlock) => void;
   onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
   isUsedAsTemplate: (id: string) => Promise<boolean>;
   isPlayerUsedAsTemplate?: (id: string) => Promise<boolean>;
@@ -36,6 +50,8 @@ export default function LibraryModal({
   isOpen,
   monsters,
   players = [],
+  blocks = [],
+  savedCombats = [],
   canLoadToForm = false,
   onClose,
   onLoadToForm,
@@ -45,6 +61,10 @@ export default function LibraryModal({
   onUpdatePlayer,
   onCreatePlayer,
   onDeletePlayer,
+  onCreateBlock,
+  onUpdateBlock,
+  onDeleteBlock,
+  onAddBlock,
   onSearchMonsters,
   isUsedAsTemplate,
   isPlayerUsedAsTemplate,
@@ -87,6 +107,15 @@ export default function LibraryModal({
     });
   };
 
+  const applyBlockSearchSort = (items: BuildingBlock[]): BuildingBlock[] => {
+    const q = searchQuery.toLowerCase();
+    const matched = q ? items.filter(b => b.name.toLowerCase().includes(q)) : items;
+    return [...matched].sort((a, b) => {
+      if (sortField === "createdAt") return sortDir === "asc" ? a.createdAt - b.createdAt : b.createdAt - a.createdAt;
+      return sortDir === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+    });
+  };
+
   const newMonsterTemplate: () => SavedMonster = () => {
     return {
       type: "monster",
@@ -119,6 +148,8 @@ export default function LibraryModal({
   const [isCreating, setIsCreating] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<SavedPlayer | undefined>();
   const [isCreatingPlayer, setIsCreatingPlayer] = useState(false);
+  const [editingBlock, setEditingBlock] = useState<BuildingBlock | undefined>();
+  const [isCreatingBlock, setIsCreatingBlock] = useState(false);
 
   if (!isOpen) return null;
 
@@ -180,15 +211,18 @@ export default function LibraryModal({
   // Filtered + sorted lists
   const filteredMonsters = applySearchSort(filter === "monsters" ? monsters : []);
   const filteredPlayers = applySearchSort(filter === "players" ? players : []);
-  const totalCount = filteredMonsters.length + filteredPlayers.length;
+  const filteredBlocks = applyBlockSearchSort(filter === "blocks" ? blocks : []);
+  const totalCount = filteredMonsters.length + filteredPlayers.length + filteredBlocks.length;
 
   const getEmptyTitle = () => {
     if (searchQuery) return t("forms:library.noSearchResultsTitle", { query: searchQuery });
+    if (filter === "blocks") return t("forms:library.emptyListTitleBlocks");
     return filter === "monsters" ? t("forms:library.emptyListTitle") : t("forms:library.emptyListTitlePlayers");
   };
 
   const getEmptyMessage = () => {
     if (searchQuery) return t("forms:library.noSearchResultsMessage");
+    if (filter === "blocks") return t("forms:library.emptyListMessageBlocks");
     return filter === "monsters" ? t("forms:library.emptyListMessage") : t("forms:library.emptyListMessagePlayers");
   };
 
@@ -248,6 +282,18 @@ export default function LibraryModal({
                   </span>
                 </button>
               )}
+              {filter === "blocks" && onCreateBlock && (
+                <button
+                  onClick={() => setIsCreatingBlock(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-2 rounded transition font-medium flex items-center gap-2"
+                  title={t("forms:library.newBlockHint")}
+                >
+                  <Plus className="w-5 h-5" />
+                  <span className="hidden sm:inline">
+                    {t("forms:library.newBlock")}
+                  </span>
+                </button>
+              )}
               <button
                 onClick={onClose}
                 className="text-text-muted hover:text-text-primary transition"
@@ -261,7 +307,7 @@ export default function LibraryModal({
           <div className="px-4 md:px-6 pt-3 border-b border-border-primary pb-0">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
             <div className="flex gap-1 w-full sm:w-auto">
-              {(["monsters", "players"] as FilterType[]).map((tab) => (
+              {(["monsters", "players", "blocks"] as FilterType[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => handleSetFilter(tab)}
@@ -275,6 +321,7 @@ export default function LibraryModal({
                   <span className="ml-1 text-xs opacity-70">
                     {tab === "monsters" && `(${monsters.length})`}
                     {tab === "players" && `(${players.length})`}
+                    {tab === "blocks" && `(${blocks.length})`}
                   </span>
                 </button>
               ))}
@@ -296,8 +343,8 @@ export default function LibraryModal({
                 className="text-sm bg-input-bg border border-border-secondary rounded px-2 py-1 text-text-primary focus:outline-none focus:border-amber-400"
               >
                 <option value="name">{t("forms:library.sort.name")}</option>
-                <option value="hp">{t("forms:library.sort.hp")}</option>
-                <option value="ac">{t("forms:library.sort.ac")}</option>
+                {filter !== "blocks" && <option value="hp">{t("forms:library.sort.hp")}</option>}
+                {filter !== "blocks" && <option value="ac">{t("forms:library.sort.ac")}</option>}
                 <option value="createdAt">{t("forms:library.sort.createdAt")}</option>
               </select>
               <button
@@ -352,6 +399,53 @@ export default function LibraryModal({
                     onToggleAutoAdd={onToggleAutoAdd}
                   />
                 ))}
+                {filteredBlocks.map((block) => (
+                  <div key={block.id} className="bg-panel-secondary rounded-lg border border-border-primary p-3 hover:border-border-secondary transition-colors">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl flex-shrink-0">{BLOCK_TYPE_ICONS[block.type]}</span>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-bold text-text-primary truncate">
+                          {block.name || <span className="italic font-normal text-text-muted">Unnamed</span>}
+                        </h3>
+                        {block.description && (
+                          <p className="text-xs text-text-muted truncate mt-0.5">
+                            {block.description.length > 80 ? block.description.slice(0, 80) + "…" : block.description}
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-xs text-text-muted px-1.5 py-0.5 rounded border border-border-secondary hidden sm:inline-block flex-shrink-0">
+                        {t(`campaigns:block.types.${block.type}`)}
+                      </span>
+                      <div className="flex gap-2 flex-shrink-0">
+                        {onAddBlock && (
+                          <button
+                            onClick={() => onAddBlock(block)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+                            title={t("common:actions.add")}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setEditingBlock(block)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+                          title={t("common:actions.edit")}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        {onDeleteBlock && (
+                          <button
+                            onClick={() => onDeleteBlock(block.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+                            title={t("common:actions.delete")}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -368,6 +462,26 @@ export default function LibraryModal({
         </div>
       </div>
       {editModal}
+      {(isCreatingBlock || editingBlock) && (
+        <BlockEditModal
+          block={editingBlock}
+          allBlocks={blocks}
+          savedCombats={savedCombats}
+          savedPlayers={players}
+          savedMonsters={monsters}
+          isCreating={isCreatingBlock}
+          onSave={async (data) => {
+            if (isCreatingBlock) {
+              await onCreateBlock?.(data);
+              setIsCreatingBlock(false);
+            } else {
+              await onUpdateBlock?.(data.id, data);
+              setEditingBlock(undefined);
+            }
+          }}
+          onCancel={() => { setIsCreatingBlock(false); setEditingBlock(undefined); }}
+        />
+      )}
     </>
   );
 }
