@@ -18,6 +18,7 @@ interface Props {
   savedPlayers: SavedPlayer[];
   savedMonsters: SavedMonster[];
   depth: number;
+  onView: (block: BuildingBlock) => void;
   onEdit: (block: BuildingBlock) => void;
   onAddChild: (parentId: string) => void;
   onRemove: (blockId: string) => void;
@@ -32,6 +33,7 @@ export default function BlockTreeNode({
   savedPlayers,
   savedMonsters,
   depth,
+  onView,
   onEdit,
   onAddChild,
   onRemove,
@@ -61,13 +63,14 @@ export default function BlockTreeNode({
     <div className="select-none">
       {/* Card row */}
       <div
-        className="flex items-center gap-2 bg-panel-bg border border-border-primary hover:border-border-secondary rounded p-3 transition"
+        className="flex items-center gap-2 bg-panel-bg border border-border-primary hover:border-border-secondary rounded p-3 transition cursor-pointer"
         style={{ marginLeft: `${depth * 1.5}rem` }}
+        onClick={() => onView(block)}
       >
         {/* Expand/Collapse toggle */}
         <button
           className="flex-shrink-0 text-text-muted hover:text-text-primary transition w-5"
-          onClick={() => hasChildren && setExpanded((v) => !v)}
+          onClick={(e) => { e.stopPropagation(); hasChildren && setExpanded((v) => !v); }}
         >
           {hasChildren ? (
             expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
@@ -117,11 +120,7 @@ export default function BlockTreeNode({
         {/* Combat block action */}
         {combatFeature && (
           <button
-            onClick={() =>
-              combatFeature.combatId
-                ? onOpenCombat?.(combatFeature.combatId)
-                : onCreateCombat?.(block.id)
-            }
+            onClick={(e) => { e.stopPropagation(); combatFeature.combatId ? onOpenCombat?.(combatFeature.combatId) : onCreateCombat?.(block.id); }}
             className="flex-shrink-0 flex items-center gap-1 text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 px-2 py-1 rounded transition"
             title={combatFeature.combatId
               ? t("campaigns:block.combatFeature.openCombat")
@@ -141,7 +140,7 @@ export default function BlockTreeNode({
         {/* NPC link button */}
         {linkedNpc && (
           <button
-            onClick={() => onOpenNpc?.(linkedNpc.id)}
+            onClick={(e) => { e.stopPropagation(); onOpenNpc?.(linkedNpc.id); }}
             className="flex-shrink-0 flex items-center gap-1 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50 px-2 py-1 rounded transition"
             title={linkedNpc.name}
           >
@@ -151,7 +150,7 @@ export default function BlockTreeNode({
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => onEdit(block)}
             className="p-1.5 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-secondary hover:text-text-primary transition"
@@ -187,6 +186,7 @@ export default function BlockTreeNode({
               savedPlayers={savedPlayers}
               savedMonsters={savedMonsters}
               depth={depth + 1}
+              onView={onView}
               onEdit={onEdit}
               onAddChild={onAddChild}
               onRemove={onRemove}

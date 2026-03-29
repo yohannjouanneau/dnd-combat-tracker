@@ -9,6 +9,7 @@ import { generateId, generateDefaultNewCombatant } from "../utils/utils";
 import { useToast } from "../components/common/Toast/useToast";
 import { useConfirmationDialog } from "../hooks/useConfirmationDialog";
 import BlockEditModal from "../components/Campaign/BlockEditModal";
+import BlockDetailModal from "../components/Campaign/BlockDetailModal";
 import BlockTreeNode from "../components/Campaign/BlockTreeNode";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
 import LibraryModal from "../components/Library/LibraryModal";
@@ -23,6 +24,7 @@ type Props = {
 
 type ModalState =
   | { kind: "closed" }
+  | { kind: "view"; block: BuildingBlock }
   | { kind: "create" }
   | { kind: "create-child"; parentId: string }
   | { kind: "edit"; block: BuildingBlock }
@@ -239,6 +241,7 @@ export default function CampaignDetailPage({
                 savedPlayers={combatStateManager.savedPlayers}
                 savedMonsters={combatStateManager.monsters}
                 depth={0}
+                onView={(b) => setModalState({ kind: "view", block: b })}
                 onEdit={(b) => setModalState({ kind: "edit", block: b })}
                 onAddChild={(parentId) => setModalState({ kind: "create-child", parentId })}
                 onRemove={handleRemoveBlock}
@@ -250,6 +253,24 @@ export default function CampaignDetailPage({
           </div>
         )}
       </div>
+
+      {/* Block Detail Modal */}
+      {modalState.kind === "view" && (
+        <BlockDetailModal
+          block={modalState.block}
+          allBlocks={campaignBlocks}
+          savedPlayers={combatStateManager.savedPlayers}
+          savedMonsters={combatStateManager.monsters}
+          onClose={() => setModalState({ kind: "closed" })}
+          onEdit={(b) => setModalState({ kind: "edit", block: b })}
+          onOpenCombat={(id) => { setModalState({ kind: "closed" }); onOpenCombat(id); }}
+          onOpenNpc={handleOpenNpc}
+          onOpenBlock={(blockId) => {
+            const b = campaignBlocks.find((x) => x.id === blockId);
+            if (b) setModalState({ kind: "view", block: b });
+          }}
+        />
+      )}
 
       {/* Block Edit / Create Modal */}
       {(modalState.kind === "create" ||
