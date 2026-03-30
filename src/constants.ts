@@ -88,13 +88,13 @@ export const CAMPAIGN_STORAGE_KEY = "dnd-ct:campaigns:v1";
 export const BLOCK_TYPE_STORAGE_KEY = "dnd-ct:block-types:v1";
 
 export const BUILT_IN_BLOCK_TYPES: BlockTypeDef[] = [
-  { id: "environment", name: "environment", icon: "🌍", features: [],                              isBuiltIn: true },
-  { id: "room",        name: "room",        icon: "🚪", features: [],                              isBuiltIn: true },
-  { id: "character",   name: "character",   icon: "🧙", features: ["characters"],                   isBuiltIn: true },
-  { id: "combat",      name: "combat",      icon: "⚔️", features: ["combat"],                      isBuiltIn: true },
-  { id: "loot",        name: "loot",        icon: "📦", features: ["loot"],                        isBuiltIn: true },
+  { id: "environment", name: "environment", icon: "🌍", features: ["countdown"],                              isBuiltIn: true },
+  { id: "room",        name: "room",        icon: "🚪", features: [],                                        isBuiltIn: true },
+  { id: "character",   name: "character",   icon: "🧙", features: ["characters"],                            isBuiltIn: true },
+  { id: "combat",      name: "combat",      icon: "⚔️", features: ["combat"],                               isBuiltIn: true },
+  { id: "loot",        name: "loot",        icon: "📦", features: ["loot"],                                  isBuiltIn: true },
   // "scene" is the hidden default: all features enabled, no specific type selected
-  { id: "scene",       name: "scene",       icon: "🎭", features: ["characters", "combat", "loot"], isBuiltIn: true },
+  { id: "scene",       name: "scene",       icon: "🎭", features: ["characters", "combat", "loot", "countdown"], isBuiltIn: true },
 ];
 
 // Tag menu items configuration

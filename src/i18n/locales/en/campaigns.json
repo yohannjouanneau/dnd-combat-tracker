@@ -32,6 +32,7 @@
       "featureCharacters": "Characters",
       "featureCombat": "Combat",
       "featureLoot": "Loot",
+      "featureCountdown": "Countdown",
       "create": "Create type"
     },
     "new": "New Block",
@@ -77,6 +78,13 @@
       "unlinked": "— None —",
       "openNpc": "Open Character",
       "searchPlaceholder": "Search character…"
+    },
+    "countdown": {
+      "label": "Countdown",
+      "hint": "0 = disabled",
+      "progress": "{{current}} / {{max}}",
+      "step": "Step {{n}}",
+      "stepPlaceholder": "Optional description…"
     }
   },
   "delete": {

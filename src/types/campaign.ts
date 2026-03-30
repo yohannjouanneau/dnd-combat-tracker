@@ -1,6 +1,6 @@
 import type { TimestampedEntity } from "../types";
 
-export type BlockFeatureKey = "characters" | "combat" | "loot";
+export type BlockFeatureKey = "characters" | "combat" | "loot" | "countdown";
 
 export interface BlockTypeDef {
   id: string;
@@ -32,6 +32,12 @@ export interface StatCheck {
   outcomes: Outcome[];
 }
 
+export interface CountdownData {
+  max: number;          // total steps (0 = disabled)
+  current: number;      // elapsed steps (0..max)
+  descriptions?: string[]; // optional label per step, indexed 0..max-1
+}
+
 export interface BuildingBlock extends TimestampedEntity {
   id: string;
   typeId: string;           // reference to BlockTypeDef.id
@@ -42,6 +48,7 @@ export interface BuildingBlock extends TimestampedEntity {
   statChecks: StatCheck[];
   featureData?: BlockFeatureData;
   tags?: string[];
+  countdown?: CountdownData;
 }
 
 export interface CanvasNode {

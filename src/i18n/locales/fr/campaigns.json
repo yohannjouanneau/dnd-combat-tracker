@@ -32,6 +32,7 @@
       "featureCharacters": "Personnages",
       "featureCombat": "Combat",
       "featureLoot": "Butin",
+      "featureCountdown": "Décompte",
       "create": "Créer le type"
     },
     "new": "Nouveau bloc",
@@ -77,6 +78,13 @@
       "unlinked": "— Aucun —",
       "openNpc": "Ouvrir le personnage",
       "searchPlaceholder": "Rechercher un personnage…"
+    },
+    "countdown": {
+      "label": "Décompte",
+      "hint": "0 = désactivé",
+      "progress": "{{current}} / {{max}}",
+      "step": "Étape {{n}}",
+      "stepPlaceholder": "Description optionnelle…"
     }
   },
   "delete": {

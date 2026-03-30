@@ -364,6 +364,7 @@ export default function CampaignDetailPage({
             const b = campaignBlocks.find((x) => x.id === blockId);
             if (b) setModalState({ kind: "view", block: b });
           }}
+          onUpdateBlock={combatStateManager.updateBlock}
         />
       )}
 

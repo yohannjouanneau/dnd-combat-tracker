@@ -2,7 +2,7 @@ import { Plus, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedCombat, SavedMonster, SavedPlayer } from "../../types";
-import type { BlockFeatureData, BlockFeatureKey, BlockTypeDef, BuildingBlock, BuildingBlockInput, StatCheck } from "../../types/campaign";
+import type { BlockFeatureData, BlockFeatureKey, BlockTypeDef, BuildingBlock, BuildingBlockInput, CountdownData, StatCheck } from "../../types/campaign";
 import { generateId } from "../../utils/utils";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
 import StatCheckSection from "./StatCheckSection";
@@ -51,6 +51,7 @@ export default function BlockEditModal({
       statChecks: [],
       tags: [],
       featureData: undefined,
+      countdown: undefined,
     };
   });
 
@@ -66,6 +67,7 @@ export default function BlockEditModal({
   const hasCharacters = currentTypeDef?.features.includes("characters") ?? false;
   const hasCombat = currentTypeDef?.features.includes("combat") ?? false;
   const hasLoot = currentTypeDef?.features.includes("loot") ?? false;
+  const hasCountdown = currentTypeDef?.features.includes("countdown") ?? false;
 
   const handleTypeChange = (typeId: string) => {
     const typeDef = blockTypes.find((t) => t.id === typeId);
@@ -77,7 +79,8 @@ export default function BlockEditModal({
           items: typeDef.features.includes("loot") ? (formData.featureData?.items ?? []) : undefined,
         }
       : undefined;
-    setFormData((prev) => ({ ...prev, typeId, featureData: newFeatureData }));
+    const countdown = typeDef?.features.includes("countdown") ? formData.countdown : undefined;
+    setFormData((prev) => ({ ...prev, typeId, featureData: newFeatureData, countdown }));
   };
 
   const openCreateTypeDialog = () => {
@@ -108,7 +111,8 @@ export default function BlockEditModal({
           items: newTypeFeatures.includes("loot") ? (formData.featureData?.items ?? []) : undefined,
         }
       : undefined;
-    setFormData((prev) => ({ ...prev, typeId: created.id, featureData: newFeatureData }));
+    const countdown = newTypeFeatures.includes("countdown") ? formData.countdown : undefined;
+    setFormData((prev) => ({ ...prev, typeId: created.id, featureData: newFeatureData, countdown }));
     setShowCreateType(false);
   };
 
@@ -289,6 +293,61 @@ export default function BlockEditModal({
             onChange={handleStatChecksChange}
           />
 
+          {/* Countdown */}
+          {hasCountdown && (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm text-text-secondary">{t("campaigns:block.countdown.label")}</label>
+                <span className="text-xs text-text-muted">{t("campaigns:block.countdown.hint")}</span>
+              </div>
+              <input
+                type="number"
+                min="0"
+                max="20"
+                value={formData.countdown?.max ?? 0}
+                onChange={(e) => {
+                  const max = Math.max(0, Math.min(20, parseInt(e.target.value, 10) || 0));
+                  if (max === 0) {
+                    setFormData((prev) => ({ ...prev, countdown: undefined }));
+                  } else {
+                    setFormData((prev) => {
+                      const prev_cd = (prev.countdown as CountdownData | undefined);
+                      const oldDescs = prev_cd?.descriptions ?? [];
+                      const descriptions = Array.from({ length: max }, (_, i) => oldDescs[i] ?? "");
+                      return { ...prev, countdown: { max, current: prev_cd?.current ?? 0, descriptions } };
+                    });
+                  }
+                }}
+                className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none w-24"
+              />
+              {(formData.countdown?.max ?? 0) > 0 && (
+                <div className="flex flex-col gap-1.5 mt-1">
+                  {Array.from({ length: formData.countdown!.max }, (_, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-xs text-text-muted w-14 flex-shrink-0">
+                        {t("campaigns:block.countdown.step", { n: i + 1 })}
+                      </span>
+                      <input
+                        type="text"
+                        value={formData.countdown?.descriptions?.[i] ?? ""}
+                        placeholder={t("campaigns:block.countdown.stepPlaceholder")}
+                        onChange={(e) => {
+                          setFormData((prev) => {
+                            const cd = prev.countdown!;
+                            const descriptions = [...(cd.descriptions ?? Array(cd.max).fill(""))];
+                            descriptions[i] = e.target.value;
+                            return { ...prev, countdown: { ...cd, descriptions } };
+                          });
+                        }}
+                        className="flex-1 bg-input-bg text-text-primary rounded px-2 py-1 border border-border-secondary focus:border-blue-500 focus:outline-none text-sm"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Feature — Characters */}
           {hasCharacters && (
             <div className="flex flex-col gap-2">
@@ -419,7 +478,7 @@ export default function BlockEditModal({
             <div className="flex flex-col gap-2">
               <label className="text-sm text-text-secondary">{t("campaigns:block.blockType.features")}</label>
               <div className="flex gap-3">
-                {(["characters", "combat", "loot"] as BlockFeatureKey[]).map((key) => (
+                {(["characters", "combat", "loot", "countdown"] as BlockFeatureKey[]).map((key) => (
                   <label key={key} className="flex items-center gap-1.5 text-sm text-text-primary cursor-pointer">
                     <input
                       type="checkbox"

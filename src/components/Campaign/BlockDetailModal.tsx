@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, Edit2, Swords, UserCircle, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Edit2, Swords, Timer, UserCircle, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster, SavedPlayer } from "../../types";
@@ -22,6 +22,7 @@ interface Props {
   onEdit: (block: BuildingBlock) => void;
   onOpenCombat?: (combatId: string) => void;
   onOpenBlock?: (blockId: string) => void;
+  onUpdateBlock?: (id: string, patch: Partial<BuildingBlock>) => Promise<BuildingBlock>;
 }
 
 export default function BlockDetailModal({
@@ -34,9 +35,11 @@ export default function BlockDetailModal({
   onEdit,
   onOpenCombat,
   onOpenBlock,
+  onUpdateBlock,
 }: Props) {
   const { t } = useTranslation(["campaigns", "common"]);
   const [expandedChecks, setExpandedChecks] = useState<Record<string, boolean>>({});
+  const [countdownCurrent, setCountdownCurrent] = useState(block.countdown?.current ?? 0);
 
   const toggleCheck = (id: string) =>
     setExpandedChecks((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -46,6 +49,7 @@ export default function BlockDetailModal({
   const hasCharacters = typeDef?.features.includes("characters") ?? false;
   const hasCombat = typeDef?.features.includes("combat") ?? false;
   const hasLoot = typeDef?.features.includes("loot") ?? false;
+  const hasCountdown = typeDef?.features.includes("countdown") ?? false;
 
   const children = block.children
     .map((id) => allBlocks.find((b) => b.id === id))
@@ -277,6 +281,63 @@ export default function BlockDetailModal({
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Countdown */}
+          {hasCountdown && block.countdown && block.countdown.max > 0 && (
+            <div className="bg-panel-bg rounded-lg border border-border-primary p-3">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Timer className="w-4 h-4 text-text-muted" />
+                  <span className="text-sm font-medium text-text-secondary">
+                    {t("campaigns:block.countdown.label")}
+                  </span>
+                </div>
+                <span className="text-xs text-text-muted">
+                  {t("campaigns:block.countdown.progress", { current: countdownCurrent, max: block.countdown.max })}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {Array.from({ length: block.countdown.max }, (_, i) => {
+                  const boxIndex = i + 1;
+                  const isElapsed = boxIndex <= countdownCurrent;
+                  const pastHalfway = countdownCurrent > block.countdown!.max / 2;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        if (!onUpdateBlock || !block.countdown) return;
+                        const next = boxIndex <= countdownCurrent ? boxIndex - 1 : boxIndex;
+                        setCountdownCurrent(next);
+                        onUpdateBlock(block.id, { countdown: { ...block.countdown, current: next } });
+                      }}
+                      className={[
+                        "w-7 h-7 rounded border transition",
+                        isElapsed
+                          ? "bg-red-700 border-red-600"
+                          : pastHalfway
+                            ? "bg-panel-secondary border-amber-500/60 hover:border-amber-400"
+                            : "bg-panel-secondary border-border-secondary hover:border-border-primary",
+                      ].join(" ")}
+                    />
+                  );
+                })}
+              </div>
+              {block.countdown.descriptions?.some(Boolean) && (
+                <div className="mt-2 space-y-1">
+                  {block.countdown.descriptions.map((desc, i) => desc ? (
+                    <div key={i} className={[
+                      "flex items-baseline gap-2 text-xs",
+                      i + 1 <= countdownCurrent ? "text-red-400/70" : "text-text-muted",
+                    ].join(" ")}>
+                      <span className="flex-shrink-0 font-medium">{i + 1}.</span>
+                      <span>{desc}</span>
+                    </div>
+                  ) : null)}
+                </div>
+              )}
             </div>
           )}
 
