@@ -25,6 +25,15 @@ interface Props {
   onOpenCombat?: (combatId: string) => void;
 }
 
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-border-primary bg-panel-bg p-4 flex flex-col gap-3">
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
 function getTypeDisplayName(type: BlockTypeDef, t: (key: string) => string): string {
   return type.isBuiltIn ? t(`campaigns:block.types.${type.id}`) : type.name;
 }
@@ -71,7 +80,6 @@ export default function BlockEditModal({
 
   const handleTypeChange = (typeId: string) => {
     const typeDef = blockTypes.find((t) => t.id === typeId);
-    // Reset featureData when switching to a type with no features
     const newFeatureData: BlockFeatureData | undefined = typeDef?.features.length
       ? {
           linkedNpcIds: typeDef.features.includes("characters") ? (formData.featureData?.linkedNpcIds ?? []) : undefined,
@@ -84,7 +92,6 @@ export default function BlockEditModal({
   };
 
   const openCreateTypeDialog = () => {
-    // Auto-detect features from current form data
     const detected: BlockFeatureKey[] = [];
     if ((formData.featureData?.linkedNpcIds?.length ?? 0) > 0) detected.push("characters");
     if (formData.featureData?.combatId != null) detected.push("combat");
@@ -103,7 +110,6 @@ export default function BlockEditModal({
       icon: newTypeIcon,
       features: newTypeFeatures,
     });
-    // Switch the block to the new type, preserving relevant feature data
     const newFeatureData: BlockFeatureData | undefined = newTypeFeatures.length
       ? {
           linkedNpcIds: newTypeFeatures.includes("characters") ? (formData.featureData?.linkedNpcIds ?? []) : undefined,
@@ -165,33 +171,28 @@ export default function BlockEditModal({
         </div>
 
         {/* Body */}
-        <div className="p-4 space-y-4">
-          {/* Icon picker */}
-          <div className="flex flex-col gap-2 items-center">
-            <label className="text-sm text-text-secondary">{t("campaigns:block.icon")}</label>
-            <IconPicker
-              value={formData.icon}
-              defaultIcon={defaultIcon}
-              onChange={(icon) => setFormData((prev) => ({ ...prev, icon }))}
-              onClear={() => setFormData((prev) => ({ ...prev, icon: undefined }))}
-            />
-          </div>
+        <div className="p-4 space-y-3">
 
-          {/* Name */}
-          <div className="flex flex-col gap-1">
-            <label className="text-sm text-text-secondary">{t("campaigns:block.name")}</label>
-            <input
-              type="text"
-              value={formData.name}
-              placeholder={t("campaigns:block.namePlaceholder")}
-              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-              className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none"
-            />
-          </div>
+          {/* ── Identity ── */}
+          <Section title={t("campaigns:block.sections.identity")}>
+            {/* Icon + Name side-by-side */}
+            <div className="flex items-center gap-3">
+              <IconPicker
+                value={formData.icon}
+                defaultIcon={defaultIcon}
+                onChange={(icon) => setFormData((prev) => ({ ...prev, icon }))}
+                onClear={() => setFormData((prev) => ({ ...prev, icon: undefined }))}
+              />
+              <input
+                type="text"
+                value={formData.name}
+                placeholder={t("campaigns:block.namePlaceholder")}
+                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                className="flex-1 bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none"
+              />
+            </div>
 
-          {/* Type selector */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-text-secondary">{t("campaigns:block.type")}</label>
+            {/* Type pills */}
             <div className="flex flex-wrap gap-1.5">
               {blockTypes.filter((type) => type.id !== "scene").map((type) => (
                 <div key={type.id} className="relative group/type">
@@ -220,7 +221,6 @@ export default function BlockEditModal({
                   )}
                 </div>
               ))}
-              {/* New type button */}
               <button
                 type="button"
                 onClick={openCreateTypeDialog}
@@ -230,32 +230,31 @@ export default function BlockEditModal({
                 {t("campaigns:block.blockType.new")}
               </button>
             </div>
-          </div>
+          </Section>
 
-          {/* Description */}
-          <div className="flex flex-col gap-1">
-            <label className="text-sm text-text-secondary">{t("campaigns:block.description")}</label>
-            <MarkdownEditor
-              value={formData.description}
-              onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
-            />
-          </div>
+          {/* ── Content ── */}
+          <Section title={t("campaigns:block.sections.content")}>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-text-muted">{t("campaigns:block.description")}</label>
+              <MarkdownEditor
+                value={formData.description}
+                onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-text-muted">{t("campaigns:block.tags")}</label>
+              <input
+                type="text"
+                value={tagsInput}
+                placeholder={t("campaigns:block.tagsPlaceholder")}
+                onChange={(e) => handleTagsChange(e.target.value)}
+                className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </Section>
 
-          {/* Tags */}
-          <div className="flex flex-col gap-1">
-            <label className="text-sm text-text-secondary">{t("campaigns:block.tags")}</label>
-            <input
-              type="text"
-              value={tagsInput}
-              placeholder={t("campaigns:block.tagsPlaceholder")}
-              onChange={(e) => handleTagsChange(e.target.value)}
-              className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          {/* Child Blocks */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-text-secondary">{t("campaigns:block.children")}</label>
+          {/* ── Organization ── */}
+          <Section title={t("campaigns:block.sections.organization")}>
             {formData.children.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {formData.children.map((childId) => {
@@ -284,76 +283,74 @@ export default function BlockEditModal({
                 if (id) setFormData((prev) => ({ ...prev, children: [...prev.children, id] }));
               }}
             />
-          </div>
+          </Section>
 
-          {/* Stat Checks */}
-          <StatCheckSection
-            statChecks={formData.statChecks}
-            allBlocks={allBlocks}
-            onChange={handleStatChecksChange}
-          />
+          {/* ── Mechanics ── */}
+          <Section title={t("campaigns:block.sections.mechanics")}>
+            <StatCheckSection
+              statChecks={formData.statChecks}
+              allBlocks={allBlocks}
+              onChange={handleStatChecksChange}
+            />
 
-          {/* Countdown */}
-          {hasCountdown && (
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm text-text-secondary">{t("campaigns:block.countdown.label")}</label>
-                <span className="text-xs text-text-muted">{t("campaigns:block.countdown.hint")}</span>
-              </div>
-              <input
-                type="number"
-                min="0"
-                max="20"
-                value={formData.countdown?.max ?? 0}
-                onChange={(e) => {
-                  const max = Math.max(0, Math.min(20, parseInt(e.target.value, 10) || 0));
-                  if (max === 0) {
-                    setFormData((prev) => ({ ...prev, countdown: undefined }));
-                  } else {
-                    setFormData((prev) => {
-                      const prev_cd = (prev.countdown as CountdownData | undefined);
-                      const oldDescs = prev_cd?.descriptions ?? [];
-                      const descriptions = Array.from({ length: max }, (_, i) => oldDescs[i] ?? "");
-                      return { ...prev, countdown: { max, current: prev_cd?.current ?? 0, descriptions } };
-                    });
-                  }
-                }}
-                className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none w-24"
-              />
-              {(formData.countdown?.max ?? 0) > 0 && (
-                <div className="flex flex-col gap-1.5 mt-1">
-                  {Array.from({ length: formData.countdown!.max }, (_, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <span className="text-xs text-text-muted w-14 flex-shrink-0">
-                        {t("campaigns:block.countdown.step", { n: i + 1 })}
-                      </span>
-                      <input
-                        type="text"
-                        value={formData.countdown?.descriptions?.[i] ?? ""}
-                        placeholder={t("campaigns:block.countdown.stepPlaceholder")}
-                        onChange={(e) => {
-                          setFormData((prev) => {
-                            const cd = prev.countdown!;
-                            const descriptions = [...(cd.descriptions ?? Array(cd.max).fill(""))];
-                            descriptions[i] = e.target.value;
-                            return { ...prev, countdown: { ...cd, descriptions } };
-                          });
-                        }}
-                        className="flex-1 bg-input-bg text-text-primary rounded px-2 py-1 border border-border-secondary focus:border-blue-500 focus:outline-none text-sm"
-                      />
-                    </div>
-                  ))}
+            {hasCountdown && (
+              <div className="flex flex-col gap-2 pt-1 border-t border-border-secondary">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-text-muted">{t("campaigns:block.countdown.label")}</label>
+                  <span className="text-xs text-text-muted">{t("campaigns:block.countdown.hint")}</span>
                 </div>
-              )}
-            </div>
-          )}
+                <input
+                  type="number"
+                  min="0"
+                  max="20"
+                  value={formData.countdown?.max ?? 0}
+                  onChange={(e) => {
+                    const max = Math.max(0, Math.min(20, parseInt(e.target.value, 10) || 0));
+                    if (max === 0) {
+                      setFormData((prev) => ({ ...prev, countdown: undefined }));
+                    } else {
+                      setFormData((prev) => {
+                        const prev_cd = (prev.countdown as CountdownData | undefined);
+                        const oldDescs = prev_cd?.descriptions ?? [];
+                        const descriptions = Array.from({ length: max }, (_, i) => oldDescs[i] ?? "");
+                        return { ...prev, countdown: { max, current: prev_cd?.current ?? 0, descriptions } };
+                      });
+                    }
+                  }}
+                  className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none w-24"
+                />
+                {(formData.countdown?.max ?? 0) > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    {Array.from({ length: formData.countdown!.max }, (_, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="text-xs text-text-muted w-14 flex-shrink-0">
+                          {t("campaigns:block.countdown.step", { n: i + 1 })}
+                        </span>
+                        <input
+                          type="text"
+                          value={formData.countdown?.descriptions?.[i] ?? ""}
+                          placeholder={t("campaigns:block.countdown.stepPlaceholder")}
+                          onChange={(e) => {
+                            setFormData((prev) => {
+                              const cd = prev.countdown!;
+                              const descriptions = [...(cd.descriptions ?? Array(cd.max).fill(""))];
+                              descriptions[i] = e.target.value;
+                              return { ...prev, countdown: { ...cd, descriptions } };
+                            });
+                          }}
+                          className="flex-1 bg-input-bg text-text-primary rounded px-2 py-1 border border-border-secondary focus:border-blue-500 focus:outline-none text-sm"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </Section>
 
-          {/* Feature — Characters */}
+          {/* ── Characters ── */}
           {hasCharacters && (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-text-secondary">
-                {t("campaigns:block.characterFeature.linkedNpcs")}
-              </label>
+            <Section title={t("campaigns:block.sections.characters")}>
               {linkedNpcIds.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                   {linkedNpcIds.map((id) => {
@@ -376,15 +373,12 @@ export default function BlockEditModal({
                 placeholder={t("campaigns:block.characterFeature.searchPlaceholder")}
                 onChange={(id) => { if (id) setLinkedNpcIds([...linkedNpcIds, id]); }}
               />
-            </div>
+            </Section>
           )}
 
-          {/* Feature — Combat */}
+          {/* ── Combat ── */}
           {hasCombat && (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-text-secondary">
-                {t("campaigns:block.combatFeature.linked")}
-              </label>
+            <Section title={t("campaigns:block.sections.combat")}>
               <SearchSelect
                 items={savedCombats.map((c) => ({ id: c.id, label: c.name, icon: "⚔️" }))}
                 value={formData.featureData?.combatId ?? undefined}
@@ -393,16 +387,14 @@ export default function BlockEditModal({
                 onOpenSelected={onOpenCombat}
                 openSelectedTitle={t("campaigns:block.combatFeature.openCombat")}
               />
-            </div>
+            </Section>
           )}
 
-          {/* Feature — Loot */}
+          {/* ── Loot ── */}
           {hasLoot && (
-            <div className="flex flex-col gap-2">
+            <Section title={t("campaigns:block.sections.loot")}>
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-text-secondary">
-                  {t("campaigns:block.lootFeature.items")}
-                </label>
+                <span className="text-xs text-text-muted">{t("campaigns:block.lootFeature.items")}</span>
                 <button
                   type="button"
                   onClick={() => patchFeatureData({ items: [...(formData.featureData?.items ?? []), ""] })}
@@ -425,7 +417,7 @@ export default function BlockEditModal({
                   className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none text-sm"
                 />
               ))}
-            </div>
+            </Section>
           )}
         </div>
 

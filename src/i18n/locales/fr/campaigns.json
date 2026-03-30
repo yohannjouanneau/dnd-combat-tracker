@@ -85,6 +85,15 @@
       "progress": "{{current}} / {{max}}",
       "step": "Étape {{n}}",
       "stepPlaceholder": "Description optionnelle…"
+    },
+    "sections": {
+      "identity": "Identité",
+      "content": "Contenu",
+      "organization": "Organisation",
+      "mechanics": "Mécanique",
+      "characters": "Personnages",
+      "combat": "Combat",
+      "loot": "Butin"
     }
   },
   "delete": {

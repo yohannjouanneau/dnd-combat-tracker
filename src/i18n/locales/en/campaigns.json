@@ -85,6 +85,15 @@
       "progress": "{{current}} / {{max}}",
       "step": "Step {{n}}",
       "stepPlaceholder": "Optional description…"
+    },
+    "sections": {
+      "identity": "Identity",
+      "content": "Content",
+      "organization": "Organization",
+      "mechanics": "Mechanics",
+      "characters": "Characters",
+      "combat": "Combat",
+      "loot": "Loot"
     }
   },
   "delete": {
