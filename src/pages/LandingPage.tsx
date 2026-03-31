@@ -1,23 +1,55 @@
 import { Map, Settings, Swords } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.png";
 import SettingsModal from "../components/Settings/SettingsModal";
 import type { SyncApi } from "../api/sync/types";
+import type { CombatStateManager } from "../store/types";
+import type { SavedCombat } from "../types";
+
+function formatRelativeTime(ts: number): string {
+  const diff = (ts - Date.now()) / 1000;
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  const abs = Math.abs(diff);
+  if (abs < 60) return rtf.format(Math.round(diff), "second");
+  if (abs < 3600) return rtf.format(Math.round(diff / 60), "minute");
+  if (abs < 86400) return rtf.format(Math.round(diff / 3600), "hour");
+  return rtf.format(Math.round(diff / 86400), "day");
+}
 
 type Props = {
   onOpenCombats: () => void;
   onOpenCampaigns: () => void;
+  onOpenCombat: (id: string) => void;
+  onOpenCampaign: (id: string) => void;
   syncApi: SyncApi;
+  combatStateManager: CombatStateManager;
 };
 
 export default function LandingPage({
   onOpenCombats,
   onOpenCampaigns,
+  onOpenCombat,
+  onOpenCampaign,
   syncApi,
+  combatStateManager,
 }: Props) {
   const { t } = useTranslation(["common", "campaigns"]);
   const [showSettings, setShowSettings] = useState(false);
+  const [recentCombat, setRecentCombat] = useState<SavedCombat | undefined>();
+
+  useEffect(() => {
+    combatStateManager.listCombat().then((list) => {
+      const sorted = [...list].sort((a, b) => b.updatedAt - a.updatedAt);
+      setRecentCombat(sorted[0]);
+    });
+  }, [combatStateManager]);
+
+  const recentCampaign = [...combatStateManager.campaigns].sort(
+    (a, b) => b.updatedAt - a.updatedAt,
+  )[0];
+
+  const hasRecent = recentCampaign || recentCombat;
 
   return (
     <div className="min-h-screen bg-app-bg flex flex-col items-center justify-center p-6 gap-8 relative">
@@ -84,6 +116,49 @@ export default function LandingPage({
           </button>
         </div>
       </div>
+
+      {/* Continue your adventures */}
+      {hasRecent && (
+        <div className="w-full max-w-3xl bg-panel-bg border border-border-primary rounded-xl p-6 flex flex-col gap-4">
+          <h2 className="text-lg font-bold text-text-primary">
+            {t("common:landing.continueTitle")}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {recentCampaign && (
+              <button
+                onClick={() => onOpenCampaign(recentCampaign.id)}
+                className="flex items-center gap-3 bg-panel-secondary hover:bg-panel-secondary/70 border border-border-secondary rounded-lg px-4 py-3 text-left transition group"
+              >
+                <Map className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-text-primary truncate">
+                    {recentCampaign.name || t("common:noData")}
+                  </p>
+                  <p className="text-xs text-text-muted">
+                    {formatRelativeTime(recentCampaign.updatedAt)}
+                  </p>
+                </div>
+              </button>
+            )}
+            {recentCombat && (
+              <button
+                onClick={() => onOpenCombat(recentCombat.id)}
+                className="flex items-center gap-3 bg-panel-secondary hover:bg-panel-secondary/70 border border-border-secondary rounded-lg px-4 py-3 text-left transition group"
+              >
+                <Swords className="w-5 h-5 text-red-400 flex-shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-text-primary truncate">
+                    {recentCombat.name || t("common:noData")}
+                  </p>
+                  <p className="text-xs text-text-muted">
+                    {formatRelativeTime(recentCombat.updatedAt)}
+                  </p>
+                </div>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       <SettingsModal
         isOpen={showSettings}

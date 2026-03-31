@@ -28,7 +28,8 @@
     "combatButton": "Open Combats",
     "campaignTitle": "Campaign Manager",
     "campaignDescription": "Organise your world into building blocks — environments, rooms, NPCs, and encounters. Structure your entire campaign.",
-    "campaignButton": "Open Campaigns"
+    "campaignButton": "Open Campaigns",
+    "continueTitle": "Continue your adventures"
   },
   "noData": "No data available",
   "error": "An error occurred",

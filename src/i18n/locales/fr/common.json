@@ -28,7 +28,8 @@
     "combatButton": "Ouvrir les combats",
     "campaignTitle": "Gestionnaire de campagne",
     "campaignDescription": "Organisez votre monde en blocs de construction — environnements, salles, PNJ et rencontres. Structurez toute votre campagne.",
-    "campaignButton": "Ouvrir les campagnes"
+    "campaignButton": "Ouvrir les campagnes",
+    "continueTitle": "Continuez vos aventures"
   },
   "noData": "Aucune donnée disponible",
   "error": "Une erreur s'est produite",

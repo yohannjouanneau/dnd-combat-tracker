@@ -53,26 +53,48 @@ export default function TopBar({
 
   return (
     <div className="w-full bg-panel-bg rounded-lg p-4 mb-6 border border-border-primary">
-      {/* Mobile logo */}
+      {/* Mobile: back button + centered logo row */}
       {logo && (
-        <div className="flex justify-center mb-4 md:hidden">
-          <img
-            src={logoSrc}
-            alt="D&D Combat Tracker Logo"
-            className="h-20 rounded-xl"
-          />
+        <div className="flex items-center mb-4 md:hidden">
+          <button
+            onClick={onBack}
+            className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
+            title={t("common:actions.back")}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div className="flex-1 flex justify-center">
+            <img
+              src={logoSrc}
+              alt="D&D Combat Tracker Logo"
+              className="h-20 rounded-xl"
+            />
+          </div>
+          {/* Spacer to balance the back button */}
+          <div className="w-9 flex-shrink-0" />
         </div>
       )}
 
       <div className="flex items-center gap-3">
-        {/* Back button — far left */}
-        <button
-          onClick={onBack}
-          className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
-          title={t("common:actions.back")}
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
+        {/* Back button — far left (desktop, or mobile without logo) */}
+        {!logo && (
+          <button
+            onClick={onBack}
+            className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
+            title={t("common:actions.back")}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        )}
+        {logo && (
+          <button
+            onClick={onBack}
+            className="hidden md:flex bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
+            title={t("common:actions.back")}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        )}
 
         {/* Desktop logo */}
         {logo && (

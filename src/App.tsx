@@ -122,7 +122,10 @@ function App() {
       onOpenCampaigns={() => {
         location.hash = "#campaigns";
       }}
+      onOpenCombat={openCombat}
+      onOpenCampaign={openCampaign}
       syncApi={combatStateManager.syncApi}
+      combatStateManager={combatStateManager}
     />
   );
 }
