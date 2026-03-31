@@ -89,47 +89,49 @@ export default function StatCheckSection({ statChecks, allBlocks, onChange }: Pr
       {statChecks.map((check) => (
         <div key={check.id} className="border border-border-secondary rounded bg-panel-secondary">
           <div
-            className="flex items-center gap-2 p-2 cursor-pointer"
+            className="p-2 cursor-pointer"
             onClick={() => toggleExpand(check.id)}
           >
-            {expanded[check.id] ? (
-              <ChevronDown className="w-4 h-4 text-text-muted flex-shrink-0" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-text-muted flex-shrink-0" />
-            )}
-            <input
-              type="text"
-              value={check.label}
-              placeholder={t("campaigns:block.checkLabelPlaceholder")}
-              onClick={(e) => e.stopPropagation()}
-              onChange={(e) => updateCheck(check.id, { label: e.target.value })}
-              className="flex-1 bg-transparent text-sm text-text-primary placeholder-text-muted focus:outline-none"
-            />
-            <input
-              type="text"
-              value={check.skill ?? ""}
-              placeholder={t("campaigns:block.skillPlaceholder")}
-              onClick={(e) => e.stopPropagation()}
-              onChange={(e) => updateCheck(check.id, { skill: e.target.value || undefined })}
-              className="w-24 bg-input-bg text-text-primary rounded px-2 py-0.5 text-xs border border-border-secondary focus:border-blue-500 focus:outline-none"
-            />
-            <span className="text-xs text-text-muted mr-1">{t("campaigns:block.difficulty")}</span>
-            <input
-              type="number"
-              value={check.difficulty}
-              min={1}
-              max={30}
-              onClick={(e) => e.stopPropagation()}
-              onChange={(e) => updateCheck(check.id, { difficulty: parseInt(e.target.value) || 10 })}
-              className="w-12 bg-input-bg text-text-primary rounded px-1 py-0.5 text-sm border border-border-secondary focus:border-blue-500 focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); removeStatCheck(check.id); }}
-              className="text-red-400 hover:text-red-300 transition ml-1"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              {expanded[check.id] ? (
+                <ChevronDown className="w-4 h-4 text-text-muted flex-shrink-0" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-text-muted flex-shrink-0" />
+              )}
+              <input
+                type="text"
+                value={check.label}
+                placeholder={t("campaigns:block.checkLabelPlaceholder")}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => updateCheck(check.id, { label: e.target.value })}
+                className="flex-1 min-w-0 bg-transparent text-sm text-text-primary placeholder-text-muted focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); removeStatCheck(check.id); }}
+                className="text-red-400 hover:text-red-300 transition flex-shrink-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex items-center gap-2 mt-1.5 pl-6" onClick={(e) => e.stopPropagation()}>
+              <input
+                type="text"
+                value={check.skill ?? ""}
+                placeholder={t("campaigns:block.skillPlaceholder")}
+                onChange={(e) => updateCheck(check.id, { skill: e.target.value || undefined })}
+                className="flex-1 min-w-0 bg-input-bg text-text-primary rounded px-2 py-0.5 text-xs border border-border-secondary focus:border-blue-500 focus:outline-none"
+              />
+              <span className="text-xs text-text-muted flex-shrink-0">{t("campaigns:block.difficulty")}</span>
+              <input
+                type="number"
+                value={check.difficulty}
+                min={1}
+                max={30}
+                onChange={(e) => updateCheck(check.id, { difficulty: parseInt(e.target.value) || 10 })}
+                className="w-14 flex-shrink-0 bg-input-bg text-text-primary rounded px-1 py-0.5 text-sm border border-border-secondary focus:border-blue-500 focus:outline-none"
+              />
+            </div>
           </div>
 
           {expanded[check.id] && (
