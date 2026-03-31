@@ -25,8 +25,8 @@ export default function StatCheckSection({ statChecks, allBlocks, onChange }: Pr
       label: "",
       difficulty: 10,
       outcomes: [
-        { id: generateId(), label: "Success", description: "", linkedBlockId: undefined },
-        { id: generateId(), label: "Failure", description: "", linkedBlockId: undefined },
+        { id: generateId(), label: t("statChecks.defaultSuccess", "Success"), description: "", linkedBlockId: undefined },
+        { id: generateId(), label: t("statChecks.defaultFailure", "Failure"), description: "", linkedBlockId: undefined },
       ],
     };
     onChange([...statChecks, newCheck]);

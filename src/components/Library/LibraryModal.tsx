@@ -485,7 +485,14 @@ export default function LibraryModal({
             }
           }}
           onCancel={() => { setIsCreatingBlock(false); setEditingBlock(undefined); }}
-          onCreateBlockType={onCreateBlockType ?? (() => Promise.resolve({ id: "", name: "", icon: "", features: [], isBuiltIn: false }))}
+          onCreateBlockType={
+            onCreateBlockType ??
+            (async () => {
+              throw new Error(
+                "Block type creation is not available because onCreateBlockType was not provided."
+              );
+            })
+          }
           onDeleteBlockType={onDeleteBlockType}
         />
       )}

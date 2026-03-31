@@ -97,6 +97,10 @@
       "loot": "Loot"
     }
   },
+  "statChecks": {
+    "defaultSuccess": "Success",
+    "defaultFailure": "Failure"
+  },
   "delete": {
     "campaignTitle": "Delete campaign?",
     "campaignMessage": "This will permanently delete the campaign. Building blocks in the library are not deleted.",

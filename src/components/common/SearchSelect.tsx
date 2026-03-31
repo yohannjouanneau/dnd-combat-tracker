@@ -28,6 +28,7 @@ type Props<T = unknown> = {
   onSelectItem?: (item: SearchSelectItem<T>) => void;
 
   placeholder?: string;
+  noResultsText?: string;
   // ExternalLink button shown in chip (ID mode only)
   onOpenSelected?: (id: string) => void;
   openSelectedTitle?: string;
@@ -43,6 +44,7 @@ export default function SearchSelect<T = unknown>({
   onTextChange,
   onSelectItem,
   placeholder,
+  noResultsText = "No results",
   onOpenSelected,
   openSelectedTitle,
 }: Props<T>) {
@@ -296,7 +298,7 @@ export default function SearchSelect<T = unknown>({
 
       {showDropdown && !isSearching && flatItems.length === 0 && inputValue.trim() && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-input-bg rounded border border-border-secondary shadow-lg z-10">
-          <div className="px-3 py-2 text-sm text-text-muted text-center">No results</div>
+          <div className="px-3 py-2 text-sm text-text-muted text-center">{noResultsText}</div>
         </div>
       )}
     </div>

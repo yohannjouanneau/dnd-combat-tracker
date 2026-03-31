@@ -1,5 +1,6 @@
 // src/persistence/GoogleDriveSyncProvider.ts
 import {
+  BLOCK_TYPE_STORAGE_KEY,
   BUILDING_BLOCK_STORAGE_KEY,
   CAMPAIGN_STORAGE_KEY,
   COMBAT_STORAGE_KEY,
@@ -62,6 +63,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
       monsters: localStorage.getItem(MONSTER_STORAGE_KEY),
       blocks: localStorage.getItem(BUILDING_BLOCK_STORAGE_KEY),
       campaigns: localStorage.getItem(CAMPAIGN_STORAGE_KEY),
+      blockTypes: localStorage.getItem(BLOCK_TYPE_STORAGE_KEY),
       lastSynced: Date.now(),
     };
 
@@ -105,6 +107,9 @@ export class GoogleDriveSyncProvider implements SyncProvider {
     }
     if (data.campaigns) {
       localStorage.setItem(CAMPAIGN_STORAGE_KEY, data.campaigns);
+    }
+    if (data.blockTypes) {
+      localStorage.setItem(BLOCK_TYPE_STORAGE_KEY, data.blockTypes);
     }
   }
 

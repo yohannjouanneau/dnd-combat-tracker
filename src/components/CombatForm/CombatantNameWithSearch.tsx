@@ -1,4 +1,5 @@
 import { BookOpen, Globe } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { SearchResult } from "../../types";
 import SearchSelect, { type SearchSelectItem } from "../common/SearchSelect";
 
@@ -21,6 +22,7 @@ export default function CombatantNameWithSearch({
   onSearch,
   onSelectResult,
 }: Props) {
+  const { t } = useTranslation("forms");
   const handleSearch = onSearch
     ? async (query: string): Promise<SearchSelectItem<SearchResult>[]> => {
         const results = await onSearch(query);
@@ -48,6 +50,7 @@ export default function CombatantNameWithSearch({
         onSearch={handleSearch}
         onSelectItem={item => item.raw && onSelectResult(item.raw)}
         placeholder={placeholder}
+        noResultsText={t("monster.noResults", { query: value })}
       />
     </div>
   );

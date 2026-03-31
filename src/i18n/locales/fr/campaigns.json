@@ -97,6 +97,10 @@
       "loot": "Butin"
     }
   },
+  "statChecks": {
+    "defaultSuccess": "Succès",
+    "defaultFailure": "Échec"
+  },
   "delete": {
     "campaignTitle": "Supprimer la campagne ?",
     "campaignMessage": "Cette action supprimera définitivement la campagne. Les blocs de la bibliothèque ne seront pas supprimés.",
