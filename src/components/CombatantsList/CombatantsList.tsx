@@ -54,7 +54,9 @@ export default function CombatantsList({
           onDeathSaves={onDeathSaves}
           onToggleCondition={onToggleCondition}
           onUpdateInitiative={onUpdateInitiative}
-          onShowDetail={onSelectCombatant ? () => onSelectCombatant(c.id) : undefined}
+          onShowDetail={
+            onSelectCombatant ? () => onSelectCombatant(c.id) : undefined
+          }
           isQuickButtonsOpen={openQuickButtonsId === c.id}
           onToggleQuickButtons={onToggleQuickButtons}
         />

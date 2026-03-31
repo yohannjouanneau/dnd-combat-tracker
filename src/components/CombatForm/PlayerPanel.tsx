@@ -27,9 +27,7 @@ export default function PlayerPanel({
       <div className="flex items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-2">
           <Users className="w-5 h-5 text-purple-400" />
-          <h2 className="text-xl font-semibold">
-            {t("forms:players.title")}
-          </h2>
+          <h2 className="text-xl font-semibold">{t("forms:players.title")}</h2>
         </div>
         <button
           onClick={onOpenAddModal}

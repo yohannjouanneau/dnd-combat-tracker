@@ -1,9 +1,19 @@
 import { useTranslation } from "react-i18next";
 import type { SkillProficiency, SpellcastingAbility } from "../../types";
-import { getEffectiveProficiencyBonus, getPassiveScore, getProficiencyBonusFromLevel, getSpellAttackBonus, getSpellSaveDC, safeParseInt } from "../../utils/utils";
+import {
+  getEffectiveProficiencyBonus,
+  getPassiveScore,
+  getProficiencyBonusFromLevel,
+  getSpellAttackBonus,
+  getSpellSaveDC,
+  safeParseInt,
+} from "../../utils/utils";
 import LabeledTextInput from "../common/LabeledTextInput";
 
-type SkillKey = "perceptionProficiency" | "insightProficiency" | "investigationProficiency";
+type SkillKey =
+  | "perceptionProficiency"
+  | "insightProficiency"
+  | "investigationProficiency";
 
 type Props = {
   perceptionProficiency?: SkillProficiency;
@@ -16,9 +26,14 @@ type Props = {
   cha?: number;
   spellcastingAbility?: SpellcastingAbility;
   onChange: (key: SkillKey, value: SkillProficiency) => void;
-  onLevelChange: (level: number | undefined, profBonus: number | undefined) => void;
+  onLevelChange: (
+    level: number | undefined,
+    profBonus: number | undefined,
+  ) => void;
   onProficiencyBonusChange: (bonus: number | undefined) => void;
-  onSpellcastingAbilityChange: (ability: SpellcastingAbility | undefined) => void;
+  onSpellcastingAbilityChange: (
+    ability: SpellcastingAbility | undefined,
+  ) => void;
 };
 
 const SKILLS: { key: SkillKey; abilityKey: "wis" | "int" }[] = [
@@ -44,19 +59,47 @@ export default function SkillProficienciesEditor({
 }: Props) {
   const { t } = useTranslation(["forms", "combat"]);
 
-  const proficiency = { perceptionProficiency, insightProficiency, investigationProficiency };
-
-  const effectiveProfBonus = getEffectiveProficiencyBonus(level, proficiencyBonus) ?? 0;
-
-  const passiveScores = {
-    perceptionProficiency: getPassiveScore(wis, effectiveProfBonus, perceptionProficiency),
-    insightProficiency: getPassiveScore(wis, effectiveProfBonus, insightProficiency),
-    investigationProficiency: getPassiveScore(int, effectiveProfBonus, investigationProficiency),
+  const proficiency = {
+    perceptionProficiency,
+    insightProficiency,
+    investigationProficiency,
   };
 
-  const spellcastingScore = spellcastingAbility === "int" ? int : spellcastingAbility === "wis" ? wis : cha;
-  const spellSaveDC = spellcastingAbility != null && spellcastingScore != null ? getSpellSaveDC(effectiveProfBonus, spellcastingScore) : undefined;
-  const spellAttackBonus = spellcastingAbility != null && spellcastingScore != null ? getSpellAttackBonus(effectiveProfBonus, spellcastingScore) : undefined;
+  const effectiveProfBonus =
+    getEffectiveProficiencyBonus(level, proficiencyBonus) ?? 0;
+
+  const passiveScores = {
+    perceptionProficiency: getPassiveScore(
+      wis,
+      effectiveProfBonus,
+      perceptionProficiency,
+    ),
+    insightProficiency: getPassiveScore(
+      wis,
+      effectiveProfBonus,
+      insightProficiency,
+    ),
+    investigationProficiency: getPassiveScore(
+      int,
+      effectiveProfBonus,
+      investigationProficiency,
+    ),
+  };
+
+  const spellcastingScore =
+    spellcastingAbility === "int"
+      ? int
+      : spellcastingAbility === "wis"
+        ? wis
+        : cha;
+  const spellSaveDC =
+    spellcastingAbility != null && spellcastingScore != null
+      ? getSpellSaveDC(effectiveProfBonus, spellcastingScore)
+      : undefined;
+  const spellAttackBonus =
+    spellcastingAbility != null && spellcastingScore != null
+      ? getSpellAttackBonus(effectiveProfBonus, spellcastingScore)
+      : undefined;
 
   const skillLabels: Record<SkillKey, string> = {
     perceptionProficiency: t("forms:library.edit.skills.perception"),
@@ -67,7 +110,9 @@ export default function SkillProficienciesEditor({
   const passiveLabels: Record<SkillKey, string> = {
     perceptionProficiency: t("combat:combatant.details.passive.perception"),
     insightProficiency: t("combat:combatant.details.passive.insight"),
-    investigationProficiency: t("combat:combatant.details.passive.investigation"),
+    investigationProficiency: t(
+      "combat:combatant.details.passive.investigation",
+    ),
   };
 
   return (
@@ -85,7 +130,9 @@ export default function SkillProficienciesEditor({
           value={level?.toString() ?? ""}
           onChange={(v) => {
             const newLevel = safeParseInt(v);
-            const newProfBonus = newLevel ? getProficiencyBonusFromLevel(newLevel) : proficiencyBonus;
+            const newProfBonus = newLevel
+              ? getProficiencyBonusFromLevel(newLevel)
+              : proficiencyBonus;
             onLevelChange(newLevel, newProfBonus);
           }}
           placeholder="5"
@@ -109,12 +156,24 @@ export default function SkillProficienciesEditor({
         <select
           className="w-full bg-transparent border border-border-primary rounded px-3 py-2 text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-border-primary"
           value={spellcastingAbility ?? ""}
-          onChange={(e) => onSpellcastingAbilityChange((e.target.value as SpellcastingAbility) || undefined)}
+          onChange={(e) =>
+            onSpellcastingAbilityChange(
+              (e.target.value as SpellcastingAbility) || undefined,
+            )
+          }
         >
-          <option value="">{t("forms:library.edit.spellcastingOptions.none")}</option>
-          <option value="int">{t("forms:library.edit.spellcastingOptions.int")}</option>
-          <option value="wis">{t("forms:library.edit.spellcastingOptions.wis")}</option>
-          <option value="cha">{t("forms:library.edit.spellcastingOptions.cha")}</option>
+          <option value="">
+            {t("forms:library.edit.spellcastingOptions.none")}
+          </option>
+          <option value="int">
+            {t("forms:library.edit.spellcastingOptions.int")}
+          </option>
+          <option value="wis">
+            {t("forms:library.edit.spellcastingOptions.wis")}
+          </option>
+          <option value="cha">
+            {t("forms:library.edit.spellcastingOptions.cha")}
+          </option>
         </select>
       </div>
 
@@ -125,14 +184,20 @@ export default function SkillProficienciesEditor({
         {/* Header row */}
         <div className="grid grid-cols-3 gap-2 text-xs text-text-muted font-medium pb-1 border-b border-border-primary">
           <span>{t("forms:library.edit.fields.skill")}</span>
-          <span className="text-center">{t("forms:library.edit.fields.proficient")}</span>
-          <span className="text-center">{t("forms:library.edit.fields.expertise")}</span>
+          <span className="text-center">
+            {t("forms:library.edit.fields.proficient")}
+          </span>
+          <span className="text-center">
+            {t("forms:library.edit.fields.expertise")}
+          </span>
         </div>
         {SKILLS.map(({ key }) => {
           const prof = proficiency[key];
           return (
             <div key={key} className="grid grid-cols-3 gap-2 items-center">
-              <span className="text-sm text-text-primary">{skillLabels[key]}</span>
+              <span className="text-sm text-text-primary">
+                {skillLabels[key]}
+              </span>
               <div className="flex justify-center">
                 <input
                   type="checkbox"
@@ -152,7 +217,11 @@ export default function SkillProficienciesEditor({
                   checked={prof?.expertise ?? false}
                   disabled={!prof?.proficient}
                   onChange={(e) =>
-                    onChange(key, { ...prof, proficient: true, expertise: e.target.checked })
+                    onChange(key, {
+                      ...prof,
+                      proficient: true,
+                      expertise: e.target.checked,
+                    })
                   }
                   className="w-4 h-4 accent-blue-500 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                 />
@@ -167,19 +236,31 @@ export default function SkillProficienciesEditor({
         {SKILLS.map(({ key }) => (
           <span key={key} className="text-xs text-text-muted">
             <span className="text-text-secondary">{passiveLabels[key]}:</span>{" "}
-            <span className="font-semibold text-text-primary">{passiveScores[key]}</span>
+            <span className="font-semibold text-text-primary">
+              {passiveScores[key]}
+            </span>
           </span>
         ))}
         {spellSaveDC != null && (
           <span className="text-xs text-text-muted">
-            <span className="text-text-secondary">{t("combat:combatant.details.spellSaveDC")}:</span>{" "}
-            <span className="font-semibold text-text-primary">{spellSaveDC}</span>
+            <span className="text-text-secondary">
+              {t("combat:combatant.details.spellSaveDC")}:
+            </span>{" "}
+            <span className="font-semibold text-text-primary">
+              {spellSaveDC}
+            </span>
           </span>
         )}
         {spellAttackBonus != null && (
           <span className="text-xs text-text-muted">
-            <span className="text-text-secondary">{t("combat:combatant.details.spellAttackBonus")}:</span>{" "}
-            <span className="font-semibold text-text-primary">{spellAttackBonus >= 0 ? `+${spellAttackBonus}` : spellAttackBonus}</span>
+            <span className="text-text-secondary">
+              {t("combat:combatant.details.spellAttackBonus")}:
+            </span>{" "}
+            <span className="font-semibold text-text-primary">
+              {spellAttackBonus >= 0
+                ? `+${spellAttackBonus}`
+                : spellAttackBonus}
+            </span>
           </span>
         )}
       </div>

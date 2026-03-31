@@ -42,7 +42,6 @@ export default function CombatantCard({
   isQuickButtonsOpen,
   onToggleQuickButtons,
 }: Props) {
-
   const { t } = useTranslation(["combat", "common"]);
 
   const confirmDialog = useConfirmationDialog();
@@ -126,8 +125,8 @@ export default function CombatantCard({
         isActive
           ? "border-yellow-500 shadow-lg shadow-yellow-500/20"
           : showSelectionVisual
-          ? "border-selection shadow-lg shadow-selection/20"
-          : "border-border-primary"
+            ? "border-selection shadow-lg shadow-selection/20"
+            : "border-border-primary"
       }`}
       style={{ borderLeftWidth: "6px", borderLeftColor: combatant.color }}
     >

@@ -1,5 +1,8 @@
 // src/persistence/GoogleDriveSyncProvider.ts
 import {
+  BLOCK_TYPE_STORAGE_KEY,
+  BUILDING_BLOCK_STORAGE_KEY,
+  CAMPAIGN_STORAGE_KEY,
   COMBAT_STORAGE_KEY,
   LAST_SYNC_STORAGE_KEY,
   MONSTER_STORAGE_KEY,
@@ -17,7 +20,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
   constructor(clientId: string) {
     this.client = new GoogleDriveSyncClient(
       clientId,
-      "dnd-combat-tracker.json"
+      "dnd-combat-tracker.json",
     );
   }
 
@@ -58,6 +61,9 @@ export class GoogleDriveSyncProvider implements SyncProvider {
       combats: localStorage.getItem(COMBAT_STORAGE_KEY),
       players: localStorage.getItem(PLAYER_STORAGE_KEY),
       monsters: localStorage.getItem(MONSTER_STORAGE_KEY),
+      blocks: localStorage.getItem(BUILDING_BLOCK_STORAGE_KEY),
+      campaigns: localStorage.getItem(CAMPAIGN_STORAGE_KEY),
+      blockTypes: localStorage.getItem(BLOCK_TYPE_STORAGE_KEY),
       lastSynced: Date.now(),
     };
 
@@ -96,6 +102,15 @@ export class GoogleDriveSyncProvider implements SyncProvider {
     if (data.monsters) {
       localStorage.setItem(MONSTER_STORAGE_KEY, data.monsters);
     }
+    if (data.blocks) {
+      localStorage.setItem(BUILDING_BLOCK_STORAGE_KEY, data.blocks);
+    }
+    if (data.campaigns) {
+      localStorage.setItem(CAMPAIGN_STORAGE_KEY, data.campaigns);
+    }
+    if (data.blockTypes) {
+      localStorage.setItem(BLOCK_TYPE_STORAGE_KEY, data.blockTypes);
+    }
   }
 
   private async loadData(): Promise<SyncData | null> {
@@ -110,15 +125,15 @@ export class GoogleDriveSyncProvider implements SyncProvider {
 
   async hasNewRemoteData(): Promise<boolean> {
     const localLastSynced = parseInt(
-      localStorage.getItem(LAST_SYNC_STORAGE_KEY) || "0"
+      localStorage.getItem(LAST_SYNC_STORAGE_KEY) || "0",
     );
 
-    this.lastRemoteData = await this.loadData()
-    
+    this.lastRemoteData = await this.loadData();
+
     if (!this.lastRemoteData) {
-      return false
+      return false;
     }
-    return this.lastRemoteData.lastSynced > localLastSynced
+    return this.lastRemoteData.lastSynced > localLastSynced;
   }
 
   /**
@@ -131,7 +146,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
 
     this.syncInProgress = true;
     try {
-      const remoteData = this.lastRemoteData ?? await this.loadData()
+      const remoteData = this.lastRemoteData ?? (await this.loadData());
 
       if (!remoteData) {
         // No remote data, upload local
@@ -140,7 +155,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
       }
 
       const localLastSynced = parseInt(
-        localStorage.getItem(LAST_SYNC_STORAGE_KEY) || "0"
+        localStorage.getItem(LAST_SYNC_STORAGE_KEY) || "0",
       );
 
       // If remote is newer, download
@@ -148,7 +163,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
         await this.downloadInternal();
         localStorage.setItem(
           LAST_SYNC_STORAGE_KEY,
-          remoteData.lastSynced.toString()
+          remoteData.lastSynced.toString(),
         );
       } else {
         // Local is newer or same, upload

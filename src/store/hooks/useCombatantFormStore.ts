@@ -20,7 +20,6 @@ interface Props {
 }
 
 export function useCombatantFormStore({ setState }: Props): CombatantFormStore {
-
   // Update form with partial data
   const updateNewCombatant = useCallback(
     (patch: Partial<NewCombatant>) => {
@@ -29,7 +28,7 @@ export function useCombatantFormStore({ setState }: Props): CombatantFormStore {
         newCombatant: { ...prev.newCombatant, ...patch },
       }));
     },
-    [setState]
+    [setState],
   );
 
   // Add new initiative group
@@ -50,7 +49,9 @@ export function useCombatantFormStore({ setState }: Props): CombatantFormStore {
   const removeInitiativeGroup = useCallback(
     (id: string) => {
       setState((prev) => {
-        const filtered = prev.newCombatant.initiativeGroups.filter((g) => g.id !== id);
+        const filtered = prev.newCombatant.initiativeGroups.filter(
+          (g) => g.id !== id,
+        );
 
         // Keep at least one group - no-op if trying to remove last
         if (filtered.length === 0) return prev;
@@ -64,7 +65,7 @@ export function useCombatantFormStore({ setState }: Props): CombatantFormStore {
         };
       });
     },
-    [setState]
+    [setState],
   );
 
   // Update specific initiative group
@@ -75,12 +76,12 @@ export function useCombatantFormStore({ setState }: Props): CombatantFormStore {
         newCombatant: {
           ...prev.newCombatant,
           initiativeGroups: prev.newCombatant.initiativeGroups.map((g) =>
-            g.id === id ? { ...g, ...patch } : g
+            g.id === id ? { ...g, ...patch } : g,
           ),
         },
       }));
     },
-    [setState]
+    [setState],
   );
 
   // Reset form to default state - returns patch for composition

@@ -13,7 +13,7 @@ export default function FocusModeToggle({ isFocusMode, onToggle }: Props) {
     ? `${t("combat:focusMode.exit")} ${t("combat:focusMode.keyHint")}`
     : `${t("combat:focusMode.enter")} ${t("combat:focusMode.keyHint")}`;
 
-  const buttonColor = isFocusMode ? 'bg-panel-secondary' : 'bg-panel-bg' 
+  const buttonColor = isFocusMode ? "bg-panel-secondary" : "bg-panel-bg";
 
   return (
     <button

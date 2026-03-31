@@ -2,7 +2,7 @@
   "title": "Gestionnaire de Combat",
   "turn": {
     "round": "Tour {{number}}",
-    "notStarted":"Pas de combat en cours",
+    "notStarted": "Pas de combat en cours",
     "current": "Tour actuel",
     "next": "Tour suivant",
     "previous": "Tour précédent",
@@ -22,22 +22,22 @@
     "noCombatants": "Aucun combattant pour le moment. Ajoutez-en pour commencer la bataille !",
     "editInitiative": "Cliquer pour modifier l'initiative",
     "details": {
-      "hitPoints":"Point de vie",
-      "initiative":"Initiative",
-      "armorClass":"Classe d'armure",
-      "notes":"Notes de bibliothèque",
-      "openInNewTab":"Ouvrir dans un nouvel onglet",
-      "combatNotes":"Notes de combat",
-      "combatNotesPlaceholder":"Ajoutez des notes pour ce combattant...",
-      "derivedStats":"Statistiques dérivées",
-      "proficiencyBonus":"Bonus de maîtrise",
-      "level":"Niveau {{level}}",
-      "spellSaveDC":"DD des sorts",
-      "spellAttackBonus":"Attaque de sort",
+      "hitPoints": "Point de vie",
+      "initiative": "Initiative",
+      "armorClass": "Classe d'armure",
+      "notes": "Notes de bibliothèque",
+      "openInNewTab": "Ouvrir dans un nouvel onglet",
+      "combatNotes": "Notes de combat",
+      "combatNotesPlaceholder": "Ajoutez des notes pour ce combattant...",
+      "derivedStats": "Statistiques dérivées",
+      "proficiencyBonus": "Bonus de maîtrise",
+      "level": "Niveau {{level}}",
+      "spellSaveDC": "DD des sorts",
+      "spellAttackBonus": "Attaque de sort",
       "passive": {
-        "perception":"Perception passive",
-        "insight":"Intuition passive",
-        "investigation":"Investigation passive"
+        "perception": "Perception passive",
+        "insight": "Intuition passive",
+        "investigation": "Investigation passive"
       }
     }
   },

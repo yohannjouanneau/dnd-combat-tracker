@@ -31,13 +31,11 @@ export class CombatantTemplateStorageProvider<T extends CombatantTemplateType> {
   async search(query: string): Promise<SavedCombatantTemplate<T>[]> {
     const lowerQuery = query.toLowerCase();
     return this.readAll().filter((monster) =>
-      monster.name.toLowerCase().includes(lowerQuery)
+      monster.name.toLowerCase().includes(lowerQuery),
     );
   }
 
-  async create(
-    data: CombatantTemplate<T>
-  ): Promise<SavedCombatantTemplate<T>> {
+  async create(data: CombatantTemplate<T>): Promise<SavedCombatantTemplate<T>> {
     const now = Date.now();
     const generatedId = data.id;
 
@@ -56,7 +54,7 @@ export class CombatantTemplateStorageProvider<T extends CombatantTemplateType> {
 
   async update(
     id: string,
-    patch: Partial<CombatantTemplate<T>>
+    patch: Partial<CombatantTemplate<T>>,
   ): Promise<SavedCombatantTemplate<T>> {
     const items = this.readAll();
     const idx = items.findIndex((i) => i.id === id);

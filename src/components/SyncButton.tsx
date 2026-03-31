@@ -40,10 +40,10 @@ export default function SyncButton({
   useEffect(() => {
     const checkRemoteData = async () => {
       if (syncApi.isSyncAuthorized()) {
-        setIsCheckingRemoteData(true)
+        setIsCheckingRemoteData(true);
         const hasRemote = await syncApi.hasNewRemoteData();
         setHasNewRemoteData(hasRemote);
-        setIsCheckingRemoteData(false)
+        setIsCheckingRemoteData(false);
       }
     };
 
@@ -138,7 +138,7 @@ export default function SyncButton({
       return <CloudDownload className="w-5 h-5" />;
     }
     return <CloudUpload className="w-5 h-5" />;
-  },[hasNewRemoteData, isAuthorized, isSyncing]);
+  }, [hasNewRemoteData, isAuthorized, isSyncing]);
 
   const getTooltip = useCallback(() => {
     if (isCheckingRemoteData) {
@@ -154,14 +154,14 @@ export default function SyncButton({
       return t("settings.sync.downloadAvailable");
     }
     return t("settings.sync.uploadData");
-  },[hasNewRemoteData, isAuthorized, isCheckingRemoteData, isSyncing, t])
+  }, [hasNewRemoteData, isAuthorized, isCheckingRemoteData, isSyncing, t]);
 
   const getSyncText = useCallback(() => {
     if (isCheckingRemoteData) return t("settings.sync.checkingRemote");
     if (isSyncing) return t("settings.googleDrive.syncing");
     if (hasNewRemoteData) return t("settings.googleDrive.downloadData");
     return t("settings.googleDrive.uploadData");
-  },[hasNewRemoteData, isCheckingRemoteData, isSyncing, t]);
+  }, [hasNewRemoteData, isCheckingRemoteData, isSyncing, t]);
 
   if (variant === "full") {
     return (

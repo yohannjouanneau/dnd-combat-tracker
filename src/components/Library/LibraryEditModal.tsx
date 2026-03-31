@@ -1,11 +1,20 @@
 import { X, Save, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { SavedMonster, SavedPlayer, SearchResult, SkillProficiency } from "../../types";
+import type {
+  SavedMonster,
+  SavedPlayer,
+  SearchResult,
+  SkillProficiency,
+} from "../../types";
 import LabeledTextInput from "../common/LabeledTextInput";
 import CombatantNameWithSearch from "../CombatForm/CombatantNameWithSearch";
 import type { ApiMonster } from "../../api/types";
-import { getStatModifier, getApiImageUrl, safeParseInt } from "../../utils/utils";
+import {
+  getStatModifier,
+  getApiImageUrl,
+  safeParseInt,
+} from "../../utils/utils";
 import { appendFormattedActions } from "../../utils/monsterNotes";
 import { DEFAULT_COLOR_PRESET } from "../../constants";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
@@ -35,9 +44,10 @@ export default function LibraryEditModal({
   const handleSave = () => {
     // Validation: ensure required fields are filled
     if (!formData.name.trim()) {
-      alert(isPlayer
-        ? t("forms:library.edit.validation.nameRequiredPlayer")
-        : t("forms:library.edit.validation.nameRequired")
+      alert(
+        isPlayer
+          ? t("forms:library.edit.validation.nameRequiredPlayer")
+          : t("forms:library.edit.validation.nameRequired"),
       );
       return;
     }
@@ -77,8 +87,17 @@ export default function LibraryEditModal({
   };
 
   const title = isCreating
-    ? t(isPlayer ? "forms:library.edit.title.createPlayer" : "forms:library.edit.title.create")
-    : t(isPlayer ? "forms:library.edit.title.editPlayer" : "forms:library.edit.title.edit", { name: monster.name });
+    ? t(
+        isPlayer
+          ? "forms:library.edit.title.createPlayer"
+          : "forms:library.edit.title.create",
+      )
+    : t(
+        isPlayer
+          ? "forms:library.edit.title.editPlayer"
+          : "forms:library.edit.title.edit",
+        { name: monster.name },
+      );
 
   const updateNotes = (notes: string) => {
     setFormData({ ...formData, notes: notes });
@@ -88,16 +107,22 @@ export default function LibraryEditModal({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        style={{ zIndex: 60 }}
         onClick={onCancel}
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
+      <div
+        className="fixed inset-0 flex items-center justify-center p-4"
+        style={{ zIndex: 60 }}
+      >
         <div className="bg-panel-bg rounded-lg border border-border-primary max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-border-primary sticky top-0 bg-panel-bg z-10">
-            <h3 className="text-lg md:text-xl font-bold text-text-primary">{title}</h3>
+            <h3 className="text-lg md:text-xl font-bold text-text-primary">
+              {title}
+            </h3>
             <button
               onClick={onCancel}
               className="text-text-muted hover:text-text-primary transition"
@@ -134,7 +159,11 @@ export default function LibraryEditModal({
                 label={t("forms:library.edit.fields.hp")}
                 value={formData.hp?.toString() ?? ""}
                 onChange={(v) =>
-                  setFormData({ ...formData, hp: safeParseInt(v), maxHp: safeParseInt(v) })
+                  setFormData({
+                    ...formData,
+                    hp: safeParseInt(v),
+                    maxHp: safeParseInt(v),
+                  })
                 }
                 placeholder="50"
               />
@@ -163,12 +192,18 @@ export default function LibraryEditModal({
                     setFormData({ ...formData, externalResourceUrl: v })
                   }
                   placeholder={t(
-                    "forms:library.edit.placeholders.externalResourceUrl"
+                    "forms:library.edit.placeholders.externalResourceUrl",
                   )}
                 />
                 <button
                   type="button"
-                  onClick={() => window.open(formData.externalResourceUrl, '_blank', 'noopener,noreferrer')}
+                  onClick={() =>
+                    window.open(
+                      formData.externalResourceUrl,
+                      "_blank",
+                      "noopener,noreferrer",
+                    )
+                  }
                   disabled={!formData.externalResourceUrl?.trim()}
                   className="p-2 mb-1 rounded hover:bg-panel-bg transition disabled:opacity-30 disabled:cursor-not-allowed text-text-secondary hover:text-text-primary"
                   title={t("forms:library.edit.openInNewTab")}

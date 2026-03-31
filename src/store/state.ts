@@ -9,6 +9,7 @@ import { useCombatStore } from "./hooks/useCombatStore";
 import { useCombatantFormStore } from "./hooks/useCombatantFormStore";
 import { useCombatantStore } from "./hooks/useCombatantStore";
 import { useMonsterStore } from "./hooks/useMonsterStore";
+import { useCampaignStore } from "./hooks/useCampaignStore";
 
 const getInitialState = (): CombatState => ({
   combatants: [],
@@ -23,9 +24,19 @@ export function useCombatState(): CombatStateManager {
   const [state, setState] = useState<CombatState>(getInitialState());
 
   // Helper to update state from child hooks
-  const updateState = useCallback((patch: Partial<CombatState> | ((prev: CombatState) => Partial<CombatState>)) => {
-    setState((prev) => ({ ...prev, ...(typeof patch === 'function' ? patch(prev) : patch) }));
-  }, []);
+  const updateState = useCallback(
+    (
+      patch:
+        | Partial<CombatState>
+        | ((prev: CombatState) => Partial<CombatState>),
+    ) => {
+      setState((prev) => ({
+        ...prev,
+        ...(typeof patch === "function" ? patch(prev) : patch),
+      }));
+    },
+    [],
+  );
 
   // Initialize player state hook early (needs to be before it's used in synchronise)
   const playerStore = usePlayerStore({ updateState });
@@ -60,12 +71,18 @@ export function useCombatState(): CombatStateManager {
     combatantFormStore,
   });
 
+  // Initialize campaign store
+  const campaignStore = useCampaignStore();
+
   // Initialize sync API hook with reload callback (needs playerStore and monsterStore)
   const syncApi = useSyncApi({
     onSyncSuccess: async () => {
       // Reload data after sync to reflect any downloaded changes
       await playerStore.actions.loadPlayers();
       await monsterStore.actions.loadMonsters();
+      await campaignStore.loadCampaigns();
+      await campaignStore.loadBlocks();
+      await campaignStore.loadBlockTypes();
 
       // Reload current combat if one is loaded
       if (state.combatId) {
@@ -87,7 +104,7 @@ export function useCombatState(): CombatStateManager {
       parkedGroupStore.actions,
       combatantStore.actions,
       combatantFormStore.actions,
-    ]
+    ],
   );
 
   const resetState = useCallback(() => {
@@ -111,7 +128,7 @@ export function useCombatState(): CombatStateManager {
       removePlayer: playerStore.actions.removePlayer,
       savedPlayers: playerStore.state.savedPlayers,
       linkedPlayers: playerStore.state.savedPlayers.filter(
-        (p) => state.linkedPlayerIds?.includes(p.id) ?? false
+        (p) => state.linkedPlayerIds?.includes(p.id) ?? false,
       ),
       linkPlayer: playerStore.actions.linkPlayer,
       unlinkPlayer: playerStore.actions.unlinkPlayer,
@@ -169,6 +186,26 @@ export function useCombatState(): CombatStateManager {
 
       // Dirty state management
       hasChanges: combatStore.hasChanges,
+
+      // Campaign Manager
+      campaigns: campaignStore.campaigns,
+      blocks: campaignStore.blocks,
+      blockTypes: campaignStore.blockTypes,
+      loadCampaigns: campaignStore.loadCampaigns,
+      loadBlocks: campaignStore.loadBlocks,
+      loadBlockTypes: campaignStore.loadBlockTypes,
+      createBlockType: campaignStore.createBlockType,
+      deleteBlockType: campaignStore.deleteBlockType,
+      createCampaign: campaignStore.createCampaign,
+      updateCampaignMeta: campaignStore.updateCampaignMeta,
+      deleteCampaign: campaignStore.deleteCampaign,
+      createBlock: campaignStore.createBlock,
+      updateBlock: campaignStore.updateBlock,
+      deleteBlock: campaignStore.deleteBlock,
+      addBlockToCampaign: campaignStore.addBlockToCampaign,
+      removeBlockFromCampaign: campaignStore.removeBlockFromCampaign,
+      addChildToBlock: campaignStore.addChildToBlock,
+      reorderCampaignBlocks: campaignStore.reorderCampaignBlocks,
     }),
     [
       addParkedGroupFromForm,
@@ -218,6 +255,24 @@ export function useCombatState(): CombatStateManager {
       resetState,
       state,
       syncApi,
-    ]
+      campaignStore.campaigns,
+      campaignStore.blocks,
+      campaignStore.blockTypes,
+      campaignStore.loadCampaigns,
+      campaignStore.loadBlocks,
+      campaignStore.loadBlockTypes,
+      campaignStore.createBlockType,
+      campaignStore.deleteBlockType,
+      campaignStore.createCampaign,
+      campaignStore.updateCampaignMeta,
+      campaignStore.deleteCampaign,
+      campaignStore.createBlock,
+      campaignStore.updateBlock,
+      campaignStore.deleteBlock,
+      campaignStore.addBlockToCampaign,
+      campaignStore.removeBlockFromCampaign,
+      campaignStore.addChildToBlock,
+      campaignStore.reorderCampaignBlocks,
+    ],
   );
 }

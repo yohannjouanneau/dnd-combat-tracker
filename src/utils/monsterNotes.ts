@@ -16,7 +16,9 @@ function generateActionTags(action: Action): string[] {
   }
 
   // Parse damage from description (e.g., "Hit: 17 (2d10 + 6) piercing damage")
-  const damageMatch = action.desc.match(/Hit:\s*\d+\s*\(([^)]+)\)\s*(\w+)\s+damage/i);
+  const damageMatch = action.desc.match(
+    /Hit:\s*\d+\s*\(([^)]+)\)\s*(\w+)\s+damage/i,
+  );
   if (damageMatch) {
     const dice = damageMatch[1].trim();
     const type = damageMatch[2].toLowerCase();
@@ -59,7 +61,7 @@ export function generateTagsFromText(text: string): string[] {
   // Damage: {dmg: 2d6+5 slashing}
   const damageMatch = text.match(/Hit:\s*\d+\s*\(([^)]+)\)\s*(\w+)\s+damage/i);
   if (damageMatch) {
-    const dice = damageMatch[1].replace(/\s/g, '');
+    const dice = damageMatch[1].replace(/\s/g, "");
     const type = damageMatch[2].toLowerCase();
     tags.push(`{dmg: ${dice} ${type}}`);
   }
@@ -80,7 +82,9 @@ export function generateTagsFromText(text: string): string[] {
 
   // Frequency patterns: Recharge X-Y, X/Day, At will
   // Match patterns in parentheses: (Recharge 5-6), (3/Day), (1/Day), (at will)
-  const rechargeMatch = text.match(/\((?:Recharge\s+)?(\d+(?:-\d+)?(?:\/Day)?|at will)\)/i);
+  const rechargeMatch = text.match(
+    /\((?:Recharge\s+)?(\d+(?:-\d+)?(?:\/Day)?|at will)\)/i,
+  );
   if (rechargeMatch) {
     const freq = rechargeMatch[1].toLowerCase();
     tags.push(`{recharge: ${freq}}`);
@@ -193,7 +197,10 @@ export function formatActionsAsMarkdown(monster: ApiMonster): string {
  * @param monster - Monster data from D&D 5e API
  * @returns Combined notes with formatted actions appended
  */
-export function appendFormattedActions(existingNotes: string | undefined, monster: ApiMonster): string {
+export function appendFormattedActions(
+  existingNotes: string | undefined,
+  monster: ApiMonster,
+): string {
   const formattedActions = formatActionsAsMarkdown(monster);
 
   // If no actions to add, return existing notes
@@ -245,7 +252,10 @@ export function formatSRDText(text: string): string {
   let result = text;
 
   // Step 1: Convert section headers (Traits, Actions, Reactions, etc.)
-  result = result.replace(/^(Traits|Actions|Reactions|Legendary Actions)\s*$/gm, '## $1');
+  result = result.replace(
+    /^(Traits|Actions|Reactions|Legendary Actions)\s*$/gm,
+    "## $1",
+  );
 
   // Step 2: Parse and format abilities/traits
   // Match ability name followed by its description
@@ -267,19 +277,25 @@ export function formatSRDText(text: string): string {
   // Step 3: Process spell lists
   // Pattern: "1/day each: spell1, spell2" or "At will: spell1, spell2"
   // Match frequency + colon + spell list
-  const spellListPattern = /^(\d+\/day each|at will):\s*(.+)$/gmi;
+  const spellListPattern = /^(\d+\/day each|at will):\s*(.+)$/gim;
 
   result = result.replace(spellListPattern, (_match, frequency, spellList) => {
     // Add recharge tag for the frequency
     const freqTag = `{recharge: ${frequency.toLowerCase()}}`;
 
     // Split spells by comma and wrap each in {spell:} tag
-    const spells = spellList.split(',').map((spell: string) => {
-      // Remove parenthetical notes like "(self only)" for the tag
-      const spellName = spell.trim().replace(/\s*\([^)]+\)/, '').trim();
-      // But keep the full text with notes
-      return spell.trim().replace(spellName, `{spell: ${spellName}}`);
-    }).join(', ');
+    const spells = spellList
+      .split(",")
+      .map((spell: string) => {
+        // Remove parenthetical notes like "(self only)" for the tag
+        const spellName = spell
+          .trim()
+          .replace(/\s*\([^)]+\)/, "")
+          .trim();
+        // But keep the full text with notes
+        return spell.trim().replace(spellName, `{spell: ${spellName}}`);
+      })
+      .join(", ");
 
     return `${freqTag} ${spells}`;
   });

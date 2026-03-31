@@ -3,27 +3,34 @@ import { useTranslation } from "react-i18next";
 import type { SavedCombat, CombatState } from "../types";
 import LabeledTextInput from "../components/common/LabeledTextInput";
 import logo from "../assets/logo.png";
-import { BookOpen, Plus, Settings } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus } from "lucide-react";
 import CombatList from "../components/CombatsList/CombatList";
 import LibraryModal from "../components/Library/LibraryModal";
-import SettingsModal from "../components/Settings/SettingsModal";
-import { buildPlayerCombatantsForFight, generateDefaultNewCombatant, generateId } from "../utils/utils";
+import {
+  buildPlayerCombatantsForFight,
+  generateDefaultNewCombatant,
+  generateId,
+} from "../utils/utils";
 import type { CombatStateManager } from "../store/types";
 
 type Props = {
   onOpen: (id: string) => void;
+  onBack: () => void;
   combatStateManager: CombatStateManager;
 };
 
-export default function CombatsPage({ onOpen, combatStateManager }: Props) {
+export default function CombatsPage({
+  onOpen,
+  onBack,
+  combatStateManager,
+}: Props) {
   const { t } = useTranslation(["forms", "common"]);
   const [combats, setCombats] = useState<SavedCombat[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(true);
   const [showLibrary, setShowLibrary] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  
+
   useEffect(() => {
     combatStateManager.listCombat().then((c) => {
       setCombats(c);
@@ -33,11 +40,13 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
 
   const create = useCallback(async () => {
     if (!name.trim()) return;
-    const autoPlayers = combatStateManager.savedPlayers.filter(p => p.autoAddToCombat);
+    const autoPlayers = combatStateManager.savedPlayers.filter(
+      (p) => p.autoAddToCombat,
+    );
     const autoCombatants = buildPlayerCombatantsForFight(autoPlayers);
     const emptyState: CombatState = {
       combatants: autoCombatants,
-      linkedPlayerIds: autoPlayers.map(p => p.id),
+      linkedPlayerIds: autoPlayers.map((p) => p.id),
       currentTurn: 0,
       round: 1,
       parkedGroups: [],
@@ -54,18 +63,24 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
     setDescription("");
     setCombats(await combatStateManager.listCombat());
     onOpen(created.id);
-  },[combatStateManager, description, name, onOpen])
+  }, [combatStateManager, description, name, onOpen]);
 
-  const del = useCallback(async (id: string) => {
-    await combatStateManager.deleteCombat(id);
-    setCombats(await combatStateManager.listCombat());
-  },[combatStateManager])
+  const del = useCallback(
+    async (id: string) => {
+      await combatStateManager.deleteCombat(id);
+      setCombats(await combatStateManager.listCombat());
+    },
+    [combatStateManager],
+  );
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      create();
-    }
-  },[create])
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        create();
+      }
+    },
+    [create],
+  );
 
   if (loading)
     return <div className="p-6 text-text-secondary">{t("common:loading")}</div>;
@@ -74,7 +89,14 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
     <div className="mx-auto text-white h-screen flex flex-col">
       <div className="bg-app-bg flex flex-col h-full">
         {/* Header Section with Logo and Inputs */}
-        <div className="p-4 md:p-6 flex-shrink-0">
+        <div className="p-4 md:p-6 flex-shrink-0 relative">
+          <button
+            onClick={onBack}
+            className="absolute top-4 left-4 md:top-6 md:left-6 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
+            title={t("common:actions.back")}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <div className="flex flex-col gap-4">
             {/* Logo - centered on mobile */}
             <div className="flex justify-center">
@@ -127,13 +149,6 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
                     <BookOpen className="w-5 h-5" />
                     <span className="hidden sm:inline">Library</span>
                   </button>
-                  <button
-                    onClick={() => setShowSettings(true)}
-                    className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-3 md:py-2 rounded transition font-semibold h-[42px] flex items-center justify-center"
-                    title={t("settings:title")}
-                  >
-                    <Settings className="w-5 h-5" />
-                  </button>
                 </div>
               </div>
             </div>
@@ -151,6 +166,8 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
         isOpen={showLibrary}
         monsters={combatStateManager.monsters}
         players={combatStateManager.savedPlayers}
+        blocks={combatStateManager.blocks}
+        savedCombats={combats}
         canLoadToForm={false}
         onClose={() => setShowLibrary(false)}
         onCreate={combatStateManager.createMonster}
@@ -159,19 +176,18 @@ export default function CombatsPage({ onOpen, combatStateManager }: Props) {
         onCreatePlayer={combatStateManager.createPlayer}
         onUpdatePlayer={combatStateManager.updatePlayer}
         onDeletePlayer={combatStateManager.removePlayer}
+        onCreateBlock={combatStateManager.createBlock}
+        onUpdateBlock={combatStateManager.updateBlock}
+        onDeleteBlock={combatStateManager.deleteBlock}
         onToggleAutoAdd={(player) =>
-          combatStateManager.updatePlayer(player.id, { ...player, autoAddToCombat: !player.autoAddToCombat })
+          combatStateManager.updatePlayer(player.id, {
+            ...player,
+            autoAddToCombat: !player.autoAddToCombat,
+          })
         }
         onSearchMonsters={combatStateManager.searchWithLibrary}
         isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
         isPlayerUsedAsTemplate={combatStateManager.isPlayerUsedAsTemplate}
-      />
-
-      {/* Settings Modal */}
-      <SettingsModal
-        isOpen={showSettings}
-        syncApi={combatStateManager.syncApi}
-        onClose={() => setShowSettings(false)}
       />
     </div>
   );

@@ -17,13 +17,7 @@ export interface ToastApi {
   info(message: string, duration?: number): void;
 }
 
-const Toast = ({
-  id,
-  message,
-  type,
-  duration,
-  onClose,
-}: Toast) => {
+const Toast = ({ id, message, type, duration, onClose }: Toast) => {
   const [isVisible, setIsVisible] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
 
@@ -113,7 +107,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const toast = {
     success: (message: string, duration: number = 3000) =>
       addToast({ message, type: "success", duration }),
-    error: (message: string, duration: number  = 3000) =>
+    error: (message: string, duration: number = 3000) =>
       addToast({ message, type: "error", duration }),
     warning: (message: string, duration: number = 3000) =>
       addToast({ message, type: "warning", duration }),

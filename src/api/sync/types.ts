@@ -2,6 +2,9 @@ export interface SyncData {
   combats: string | null;
   players: string | null;
   monsters: string | null;
+  blocks: string | null;
+  campaigns: string | null;
+  blockTypes?: string | null;
   lastSynced: number;
 }
 

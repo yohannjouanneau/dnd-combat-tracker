@@ -8,7 +8,7 @@ type Props = {
   index: number;
   canRemove: boolean;
   initBonus: number | undefined;
-  disableCount: boolean
+  disableCount: boolean;
   onChange: (id: string, patch: Partial<InitiativeGroup>) => void;
   onRemove: (id: string) => void;
 };

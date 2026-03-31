@@ -38,23 +38,33 @@ export default function LibraryListItem({
       ? t("common:confirmation.cannotDeletePlayerFromLibrary.title")
       : t("common:confirmation.cannotDeleteFromLibrary.title");
     const cannotDeleteMessage = isPlayer
-      ? t("common:confirmation.cannotDeletePlayerFromLibrary.message", { name: monster.name })
-      : t("common:confirmation.cannotDeleteFromLibrary.message", { name: monster.name });
+      ? t("common:confirmation.cannotDeletePlayerFromLibrary.message", {
+          name: monster.name,
+        })
+      : t("common:confirmation.cannotDeleteFromLibrary.message", {
+          name: monster.name,
+        });
     const deleteTitle = isPlayer
       ? t("common:confirmation.deletePlayerFromLibrary.title")
       : t("common:confirmation.deleteFromLibrary.title");
     const deleteMessage = isPlayer
-      ? t("common:confirmation.deletePlayerFromLibrary.message", { name: monster.name })
-      : t("common:confirmation.deleteFromLibrary.message", { name: monster.name });
+      ? t("common:confirmation.deletePlayerFromLibrary.message", {
+          name: monster.name,
+        })
+      : t("common:confirmation.deleteFromLibrary.message", {
+          name: monster.name,
+        });
 
-    const isConfirmed = isUsed ? confirmDialog({
-      title: cannotDeleteTitle,
-      message: cannotDeleteMessage,
-      noConfirmButton: true  // Shows only cancel button
-    }) : confirmDialog({
-      title: deleteTitle,
-      message: deleteMessage,
-    });
+    const isConfirmed = isUsed
+      ? confirmDialog({
+          title: cannotDeleteTitle,
+          message: cannotDeleteMessage,
+          noConfirmButton: true, // Shows only cancel button
+        })
+      : confirmDialog({
+          title: deleteTitle,
+          message: deleteMessage,
+        });
     if (await isConfirmed) {
       onDelete(monster.id);
     }
@@ -117,7 +127,11 @@ export default function LibraryListItem({
             <button
               onClick={() => onEdit(monster)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
-              title={isPlayer ? t("library.listItem.actions.editPlayer") : t("library.listItem.actions.edit")}
+              title={
+                isPlayer
+                  ? t("library.listItem.actions.editPlayer")
+                  : t("library.listItem.actions.edit")
+              }
             >
               <Edit className="w-4 h-4" />
             </button>
@@ -149,7 +163,11 @@ export default function LibraryListItem({
           <button
             onClick={() => confirmRemove()}
             className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
-            title={isPlayer ? t("library.listItem.actions.deletePlayer") : t("library.listItem.actions.delete")}
+            title={
+              isPlayer
+                ? t("library.listItem.actions.deletePlayer")
+                : t("library.listItem.actions.delete")
+            }
           >
             <Trash2 className="w-4 h-4" />
           </button>

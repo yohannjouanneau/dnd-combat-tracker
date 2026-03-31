@@ -1,6 +1,9 @@
 import type { SyncProvider } from "../api/sync/SyncProvider";
 import { GoogleDriveSyncProvider } from "../api/sync/gdrive/GoogleDriveSyncProvider";
 import {
+  BLOCK_TYPE_STORAGE_KEY,
+  BUILDING_BLOCK_STORAGE_KEY,
+  CAMPAIGN_STORAGE_KEY,
   COMBAT_STORAGE_KEY,
   MONSTER_STORAGE_KEY,
   PLAYER_STORAGE_KEY,
@@ -11,8 +14,18 @@ import type {
   SavedCombat,
   SavedCombatInput,
 } from "../types";
+import type {
+  BlockTypeDef,
+  BuildingBlock,
+  BuildingBlockInput,
+  Campaign,
+  CampaignInput,
+} from "../types/campaign";
 import { CombatStorageProvider } from "./CombatStorageProvider";
 import { CombatantTemplateStorageProvider } from "./CombatantTemplateStorageProvider";
+import { BuildingBlockStorageProvider } from "./BuildingBlockStorageProvider";
+import { BlockTypeStorageProvider } from "./BlockTypeStorageProvider";
+import { CampaignStorageProvider } from "./CampaignStorageProvider";
 import {
   cleanCombatStateForStorage,
   restoreCombatState,
@@ -22,23 +35,38 @@ export class DataStore {
   private combatProvider: CombatStorageProvider;
   private playerProvider: CombatantTemplateStorageProvider<"player">;
   private monsterProvider: CombatantTemplateStorageProvider<"monster">;
+  private blockProvider: BuildingBlockStorageProvider;
+  private blockTypeProvider: BlockTypeStorageProvider;
+  private campaignProvider: CampaignStorageProvider;
   private syncProvider: SyncProvider;
 
   constructor(
     clientId: string,
     combatProvider: CombatStorageProvider = new CombatStorageProvider(
-      COMBAT_STORAGE_KEY
+      COMBAT_STORAGE_KEY,
     ),
     playerProvider = new CombatantTemplateStorageProvider<"player">(
-      PLAYER_STORAGE_KEY
+      PLAYER_STORAGE_KEY,
     ),
     monsterProvider = new CombatantTemplateStorageProvider<"monster">(
-      MONSTER_STORAGE_KEY
-    )
+      MONSTER_STORAGE_KEY,
+    ),
+    blockProvider: BuildingBlockStorageProvider = new BuildingBlockStorageProvider(
+      BUILDING_BLOCK_STORAGE_KEY,
+    ),
+    blockTypeProvider: BlockTypeStorageProvider = new BlockTypeStorageProvider(
+      BLOCK_TYPE_STORAGE_KEY,
+    ),
+    campaignProvider: CampaignStorageProvider = new CampaignStorageProvider(
+      CAMPAIGN_STORAGE_KEY,
+    ),
   ) {
     this.combatProvider = combatProvider;
     this.playerProvider = playerProvider;
     this.monsterProvider = monsterProvider;
+    this.blockProvider = blockProvider;
+    this.blockTypeProvider = blockTypeProvider;
+    this.campaignProvider = campaignProvider;
     this.syncProvider = new GoogleDriveSyncProvider(clientId);
   }
 
@@ -102,7 +130,7 @@ export class DataStore {
     const restoredData = await restoreCombatState(savedCombat.data, this);
 
     if (!restoredData) {
-      return undefined
+      return undefined;
     }
 
     return {
@@ -130,11 +158,14 @@ export class DataStore {
         ...patch,
         data: optimizedData,
       };
-      const otpmizedSavedCombat = await this.combatProvider.update(id, optimizedPatch);
+      const otpmizedSavedCombat = await this.combatProvider.update(
+        id,
+        optimizedPatch,
+      );
       return {
         ...otpmizedSavedCombat,
-        data: patch.data
-      }
+        data: patch.data,
+      };
     }
     const savedCombat = await this.combatProvider.update(id, patch);
     return savedCombat;
@@ -179,6 +210,62 @@ export class DataStore {
   }
   deleteMonster(id: string) {
     return this.monsterProvider.delete(id);
+  }
+
+  // Block methods
+  listBlock(): Promise<BuildingBlock[]> {
+    return this.blockProvider.list();
+  }
+  getBlock(id: string): Promise<BuildingBlock | undefined> {
+    return this.blockProvider.get(id);
+  }
+  createBlock(input: BuildingBlockInput): Promise<BuildingBlock> {
+    return this.blockProvider.create(input);
+  }
+  updateBlock(
+    id: string,
+    patch: Partial<BuildingBlock>,
+  ): Promise<BuildingBlock> {
+    return this.blockProvider.update(id, patch);
+  }
+  deleteBlock(id: string): Promise<void> {
+    return this.blockProvider.delete(id);
+  }
+
+  // Block type methods
+  listBlockTypes(): Promise<BlockTypeDef[]> {
+    return this.blockTypeProvider.list();
+  }
+  createBlockType(
+    input: Omit<BlockTypeDef, "isBuiltIn">,
+  ): Promise<BlockTypeDef> {
+    return this.blockTypeProvider.create(input);
+  }
+  updateBlockType(
+    id: string,
+    patch: Partial<BlockTypeDef>,
+  ): Promise<BlockTypeDef> {
+    return this.blockTypeProvider.update(id, patch);
+  }
+  deleteBlockType(id: string): Promise<void> {
+    return this.blockTypeProvider.delete(id);
+  }
+
+  // Campaign methods
+  listCampaign(): Promise<Campaign[]> {
+    return this.campaignProvider.list();
+  }
+  getCampaign(id: string): Promise<Campaign | undefined> {
+    return this.campaignProvider.get(id);
+  }
+  createCampaign(input: CampaignInput): Promise<Campaign> {
+    return this.campaignProvider.create(input);
+  }
+  updateCampaign(id: string, patch: Partial<Campaign>): Promise<Campaign> {
+    return this.campaignProvider.update(id, patch);
+  }
+  deleteCampaign(id: string): Promise<void> {
+    return this.campaignProvider.delete(id);
   }
 }
 

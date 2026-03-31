@@ -31,7 +31,9 @@ export default function CombatLayout({
   onUpdateNotes,
 }: Props) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const [selectedCombatantId, setSelectedCombatantId] = useState<number | null>(null);
+  const [selectedCombatantId, setSelectedCombatantId] = useState<number | null>(
+    null,
+  );
   const [showMobileDetail, setShowMobileDetail] = useState(false);
 
   const activeCombatant = combatants[currentTurn] ?? null;
@@ -55,7 +57,7 @@ export default function CombatLayout({
   }, [isFocusMode]);
 
   const handleSelectCombatant = useCallback((id: number) => {
-    setSelectedCombatantId(prev => prev === id ? null : id);
+    setSelectedCombatantId((prev) => (prev === id ? null : id));
   }, []);
 
   const handleMobileSelectCombatant = useCallback((id: number) => {

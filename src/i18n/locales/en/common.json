@@ -6,7 +6,7 @@
     "edit": "Edit",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "back": "Back to List",
+    "back": "Back",
     "add": "Add",
     "remove": "Remove",
     "open": "Open",
@@ -14,13 +14,23 @@
     "search": "Search",
     "apply": "Apply",
     "close": "Close",
-    "hide": "Hide"
+    "hide": "Hide",
+    "backToHome": "Back"
   },
   "navigation": {
     "combatList": "Combat List",
     "newCombat": "New Combat"
   },
   "loading": "Loading…",
+  "landing": {
+    "combatTitle": "Combat Tracker",
+    "combatDescription": "Track initiative, HP, conditions, and death saves for your encounters. Manage monster and player templates in your library.",
+    "combatButton": "Open Combats",
+    "campaignTitle": "Campaign Manager",
+    "campaignDescription": "Organise your world into building blocks — environments, rooms, NPCs, and encounters. Structure your entire campaign.",
+    "campaignButton": "Open Campaigns",
+    "continueTitle": "Continue your adventures"
+  },
   "noData": "No data available",
   "error": "An error occurred",
   "theme": {

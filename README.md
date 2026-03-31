@@ -55,6 +55,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 ## ✨ Features
 
 ### Combat Management
+
 - **Initiative Tracking** with editable values and multiple groups per combatant
 - **HP Management** with visual bars, quick buttons (mobile), and keyboard shortcuts
 - **Turn Navigation** via keyboard (Arrow keys) with auto-scroll to active combatant
@@ -62,6 +63,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **Group Management** with color coding and bulk actions
 
 ### Character & Monster Tools
+
 - **Saved Players** - Reuse characters across encounters
 - **Monster Library** - Build your personal collection with full stats and notes
 - **Parked Groups** - Stage combatants before adding to combat
@@ -69,6 +71,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **Bulk Creation** - Generate multiple combatants at once (e.g., "Goblin A, B, C")
 
 ### Combat Features
+
 - **Death Saving Throws** tracking
 - **Concentration** monitoring
 - **Conditions** - Quick-toggle 14 standard D&D 5e conditions
@@ -76,12 +79,14 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **Markdown Notes** with combat tags and dice notation
 
 ### Data & Sync
+
 - **Local Storage** - All data saved in browser by default
 - **Google Drive Sync** - Optional cloud backup across devices
 - **Smart Storage** - Optimized references for library-sourced combatants
 - **Combat History** - Save, rename, and load encounters
 
 ### User Interface
+
 - **Responsive Design** - Optimized for desktop, tablet, and mobile
 - **Multi-Language** - English and French support
 - **Visual Feedback** - Color-coded HP bars, avatars, and toast notifications
@@ -150,6 +155,7 @@ The production-ready files will be in the `dist/` directory.
 ## 📖 Usage Guide
 
 ### Quick Start
+
 1. **Create Combat** - Enter name/description and click "Create"
 2. **Add Combatants** - Fill in stats (Name, HP, AC, Initiative) or search for monsters
 3. **Navigate Turns** - Use Arrow keys or Next/Previous buttons
@@ -157,11 +163,13 @@ The production-ready files will be in the `dist/` directory.
 5. **Save Progress** - Press Ctrl/Cmd+S to save your combat
 
 ### Monster Search
+
 - Type monster name in combatant field
 - Results show from both your Library (amber) and D&D API (blue)
 - Click any result to auto-fill stats
 
 ### Combat Actions
+
 - **Fight!** - Add combatants to combat immediately
 - **Park Group** - Stage combatants for later (cleared between combats)
 - **Save Player** - Reuse characters in future encounters
@@ -170,6 +178,7 @@ The production-ready files will be in the `dist/` directory.
 - **Add Another checkbox** - Keep form open to quickly add multiple groups
 
 ### During Combat
+
 - **Edit Initiative** - Click value to modify, Enter to save, Escape to cancel
 - **Conditions** - Click "Add Condition" to toggle status effects
 - **Death Saves** - Click boxes when HP reaches 0
@@ -177,11 +186,13 @@ The production-ready files will be in the `dist/` directory.
 - **Combatant Details** - Click card to view full stats and notes
 
 ### Cloud Sync
+
 1. Open Settings → Sign in with Google
 2. First sync: Choose Download (from cloud) or Upload (to cloud)
 3. Click "Sync" anytime to backup changes across devices
 
 ### Keyboard Shortcuts
+
 - `→` / `←` - Navigate turns
 - `F` - Toggle Focus Mode
 - `Ctrl/Cmd + S` - Save combat

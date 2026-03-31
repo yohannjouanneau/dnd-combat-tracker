@@ -13,10 +13,14 @@ import {
   RotateCw,
   Star,
 } from "lucide-react";
-import type { EditorTag, EditorTagMenuItem } from "./components/common/mardown/types";
+import type {
+  EditorTag,
+  EditorTagMenuItem,
+} from "./components/common/mardown/types";
 import type { NewCombatant } from "./types";
+import type { BlockTypeDef } from "./types/campaign";
 
-export const DEFAULT_NEW_COMBATANT: Omit<NewCombatant, 'id'> = {
+export const DEFAULT_NEW_COMBATANT: Omit<NewCombatant, "id"> = {
   type: "monster",
   name: "",
   initiativeGroups: [{ id: crypto.randomUUID(), initiative: "", count: "1" }],
@@ -29,9 +33,9 @@ export const DEFAULT_NEW_COMBATANT: Omit<NewCombatant, 'id'> = {
   ac: 0,
   initBonus: 0,
   templateOrigin: {
-    origin: 'no_template',
-    id: ''
-  }
+    origin: "no_template",
+    id: "",
+  },
 };
 
 // Condition keys for translation - use these with t('conditions:key')
@@ -82,6 +86,43 @@ export const PLAYER_STORAGE_KEY = "dnd-ct:players:v1";
 export const MONSTER_STORAGE_KEY = "dnd-ct:monsters:v1";
 export const LAST_SYNC_STORAGE_KEY = "dnd-ct:lastSynced";
 export const SETTINGS_STORAGE_KEY = "dnd-ct:settings:v1";
+export const BUILDING_BLOCK_STORAGE_KEY = "dnd-ct:blocks:v1";
+export const CAMPAIGN_STORAGE_KEY = "dnd-ct:campaigns:v1";
+export const BLOCK_TYPE_STORAGE_KEY = "dnd-ct:block-types:v1";
+
+export const BUILT_IN_BLOCK_TYPES: BlockTypeDef[] = [
+  {
+    id: "environment",
+    name: "environment",
+    icon: "🌍",
+    features: ["countdown"],
+    isBuiltIn: true,
+  },
+  { id: "room", name: "room", icon: "🚪", features: [], isBuiltIn: true },
+  {
+    id: "character",
+    name: "character",
+    icon: "🧙",
+    features: ["characters"],
+    isBuiltIn: true,
+  },
+  {
+    id: "combat",
+    name: "combat",
+    icon: "⚔️",
+    features: ["combat"],
+    isBuiltIn: true,
+  },
+  { id: "loot", name: "loot", icon: "📦", features: ["loot"], isBuiltIn: true },
+  // "scene" is the hidden default: all features enabled, no specific type selected
+  {
+    id: "scene",
+    name: "scene",
+    icon: "🎭",
+    features: ["characters", "combat", "loot", "countdown"],
+    isBuiltIn: true,
+  },
+];
 
 // Tag menu items configuration
 export const MARKDOWN_EDITOR_TAG_MENU_ITEMS: EditorTagMenuItem[] = [
@@ -262,20 +303,20 @@ export const DICE_NOTATION_TEST_REGEX = /^\d+d\d+(?:\s*[+-]\s*\d+)?$/i;
 // These constants are used to encode/decode markdown links inside custom tags
 // to prevent the markdown parser from extracting them before our plugin runs.
 // Example: {spell: [Fireball](url)} → {spell: MDLINK<base64>ENDLINK}
-export const MARKDOWN_LINK_PROTECTION_PREFIX = 'MDLINK';
-export const MARKDOWN_LINK_PROTECTION_SUFFIX = 'ENDLINK';
+export const MARKDOWN_LINK_PROTECTION_PREFIX = "MDLINK";
+export const MARKDOWN_LINK_PROTECTION_SUFFIX = "ENDLINK";
 export const MARKDOWN_LINK_PROTECTION_REGEX = /MDLINK([A-Za-z0-9+/=]+)ENDLINK/g;
 
 // Regex to detect custom tags containing markdown links
 // Matches: {spell: [Fireball](url)}, {dmg: [text](url) more text}
-export const MARKDOWN_LINK_IN_TAG_REGEX = /\{([a-z]+):\s*\[([^\]]+)\]\(([^)]+)\)([^}]*)\}/gi;
+export const MARKDOWN_LINK_IN_TAG_REGEX =
+  /\{([a-z]+):\s*\[([^\]]+)\]\(([^)]+)\)([^}]*)\}/gi;
 
 // Encoding prefixes for processed content in AST nodes
 // These prefixes identify custom tags and dice notation in inlineCode nodes
-export const CUSTOM_TAG_PREFIX = 'CUSTOMTAG';
-export const DICE_NOTATION_PREFIX = 'DICE';
-export const TAG_COMPONENT_SEPARATOR = '::';
+export const CUSTOM_TAG_PREFIX = "CUSTOMTAG";
+export const DICE_NOTATION_PREFIX = "DICE";
+export const TAG_COMPONENT_SEPARATOR = "::";
 
 // Regex to parse markdown link notation [text](url) within tag content
 export const MARKDOWN_LINK_NOTATION_REGEX = /^\[([^\]]+)\]\(([^)]+)\)$/;
-

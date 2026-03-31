@@ -14,13 +14,23 @@
     "search": "Rechercher",
     "apply": "Appliquer",
     "close": "Fermer",
-    "hide": "Masquer"
+    "hide": "Masquer",
+    "backToHome": "Retour"
   },
   "navigation": {
     "combatList": "Liste des combats",
     "newCombat": "Nouveau combat"
   },
   "loading": "Chargement…",
+  "landing": {
+    "combatTitle": "Suivi de combat",
+    "combatDescription": "Suivez l'initiative, les PV, les conditions et les jets de mort pour vos rencontres. Gérez vos templates de monstres et de joueurs.",
+    "combatButton": "Ouvrir les combats",
+    "campaignTitle": "Gestionnaire de campagne",
+    "campaignDescription": "Organisez votre monde en blocs de construction — environnements, salles, PNJ et rencontres. Structurez toute votre campagne.",
+    "campaignButton": "Ouvrir les campagnes",
+    "continueTitle": "Continuez vos aventures"
+  },
   "noData": "Aucune donnée disponible",
   "error": "Une erreur s'est produite",
   "theme": {

@@ -18,7 +18,6 @@ import type {
 } from "../types";
 import type { CombatStateManager } from "../store/types";
 import PlayerPanel from "../components/CombatForm/PlayerPanel";
-import logo from "../assets/logo.png";
 import { HP_BAR_ID_PREFIX } from "../constants";
 import LibraryModal from "../components/Library/LibraryModal";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
@@ -28,21 +27,29 @@ import TopBar from "../components/TopBar";
 
 type Props = {
   combatStateManager: CombatStateManager;
+  returnHash?: string;
 };
 
-export default function CombatTrackerPage({ combatStateManager }: Props) {
+export default function CombatTrackerPage({
+  combatStateManager,
+  returnHash = "#combats",
+}: Props) {
   const { t } = useTranslation("combat");
   const combatants = combatStateManager.state.combatants;
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
-  const [libraryInitialFilter, setLibraryInitialFilter] = useState<"monsters" | "players">("monsters");
+  const [libraryInitialFilter, setLibraryInitialFilter] = useState<
+    "monsters" | "players" | "blocks"
+  >("monsters");
   const [editingPlayer, setEditingPlayer] = useState<SavedPlayer | undefined>();
   const [showAddModal, setShowAddModal] = useState(false);
   const [addModalMode, setAddModalMode] =
     useState<AddCombatantModalMode>("fight");
   const [addToFight, setAddToFight] = useState(false);
   const [addAnOther, setAddAnOther] = useState(false);
-  const [editingMonster, setEditingMonster] = useState<SavedMonster | undefined>();
+  const [editingMonster, setEditingMonster] = useState<
+    SavedMonster | undefined
+  >();
   const [showSettings, setShowSettings] = useState(false);
   const [shouldScrollToActive, setShouldScrollToActive] = useState(false);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -111,7 +118,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   };
 
   const addParkedGroupToFight = (combatant: NewCombatant) => {
-    combatStateManager.addCombatant(combatant, { id: combatant.id, origin: 'parked_group'});
+    combatStateManager.addCombatant(combatant, {
+      id: combatant.id,
+      origin: "parked_group",
+    });
   };
 
   const handleEditPlayer = (player: SavedPlayer) => setEditingPlayer(player);
@@ -178,10 +188,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
   };
 
   const stagedFromParkedGroups = combatStateManager.state.parkedGroups.find(
-    (group) => group.name === combatStateManager.state.newCombatant.name
+    (group) => group.name === combatStateManager.state.newCombatant.name,
   )?.name;
   const stagedPlayer = combatStateManager.savedPlayers.find(
-    (group) => group.name === combatStateManager.state.newCombatant.name
+    (group) => group.name === combatStateManager.state.newCombatant.name,
   )?.name;
   const stagedFrom = stagedFromParkedGroups ?? stagedPlayer;
   const doBack = useCallback(async () => {
@@ -189,8 +199,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     if (combatStateManager.hasChanges && combatStateManager.state?.combatId) {
       await combatStateManager.saveCombat();
     }
-    location.hash = "#combats";
-  }, [combatStateManager]);
+    location.hash = returnHash;
+  }, [combatStateManager, returnHash]);
 
   const back = useCallback(async () => {
     if (isTimerRunning) {
@@ -210,14 +220,14 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
 
   const handleOpenLibrary = useCallback(() => {
     const { templateOrigin } = combatStateManager.state.newCombatant;
-    
+
     // Check if we have a monster_library template origin with a valid ID
     if (templateOrigin.origin === "monster_library" && templateOrigin.id) {
       // Find the monster in the library
       const monster = combatStateManager.monsters.find(
-        (m) => m.id === templateOrigin.id
+        (m) => m.id === templateOrigin.id,
       );
-      
+
       if (monster) {
         // Open library modal in the background and edit modal on top
         setShowLibrary(true);
@@ -227,7 +237,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
       // If monster not found, fall through to open library modal
       // (monster may have been deleted from library)
     }
-    
+
     // Otherwise, open the library modal
     setShowLibrary(true);
   }, [combatStateManager.state.newCombatant, combatStateManager.monsters]);
@@ -237,7 +247,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
       combatStateManager.updateMonster(updated.id, updated as SavedMonster);
       setEditingMonster(undefined);
     },
-    [combatStateManager]
+    [combatStateManager],
   );
 
   const handleCancelEditMonster = useCallback(() => {
@@ -248,12 +258,16 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     (query: string) => {
       return combatStateManager.searchWithLibrary(query, "api");
     },
-    [combatStateManager]
+    [combatStateManager],
   );
 
   return (
-    <div className={`bg-app-bg text-text-primary ${isFocusMode ? 'h-screen overflow-hidden flex flex-col px-6 pt-2 pb-6 md:pt-6 md:pb-2' : 'min-h-screen p-6'}`}>
-      <div className={`${isFocusMode ? 'flex-1 flex flex-col overflow-y-hidden w-full' : 'max-w-6xl mx-auto'}`}>
+    <div
+      className={`bg-app-bg text-text-primary ${isFocusMode ? "h-screen overflow-hidden flex flex-col px-6 pt-2 pb-6 md:pt-6 md:pb-2" : "min-h-screen p-6"}`}
+    >
+      <div
+        className={`${isFocusMode ? "flex-1 flex flex-col overflow-y-hidden w-full" : "max-w-6xl mx-auto"}`}
+      >
         {/* Wrapper with transition for hidden elements */}
         <div
           className={`transition-all duration-500 ease-in-out ${
@@ -262,45 +276,25 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
               : "max-h-[5000px] opacity-100"
           }`}
         >
-          {/* Logo - Mobile only, centered at top */}
-          <div className="flex justify-center mb-4 md:hidden">
-            <img
-              src={logo}
-              alt="D&D Combat Tracker Logo"
-              className="h-20 rounded-xl"
-            />
-          </div>
-
-          <div className="flex items-center gap-3 mb-8">
-            {/* Logo - Desktop only */}
-            <div className="hidden md:flex md:mb-6">
-              <img
-                src={logo}
-                alt="D&D Combat Tracker Logo"
-                className="md:h-24 rounded-xl"
-              />
-            </div>
-            <div className="flex-1">
-              <TopBar
-                name={combatStateManager.state.combatName ?? ""}
-                description={combatStateManager.state.combatDescription ?? ""}
-                onChange={(patch) =>
-                  combatStateManager.updateCombat(
-                    patch.name ?? "",
-                    patch.description ?? ""
-                  )
-                }
-                onBack={back}
-                onSave={async () => {
-                  if (!combatStateManager.state) return;
-                  await combatStateManager.saveCombat();
-                }}
-                hasChanges={combatStateManager.hasChanges}
-                syncApi={combatStateManager.syncApi}
-                onOpenSettings={() => setShowSettings(true)}
-              />
-            </div>
-          </div>
+          <TopBar
+            logo
+            name={combatStateManager.state.combatName ?? ""}
+            description={combatStateManager.state.combatDescription ?? ""}
+            onChange={(patch) =>
+              combatStateManager.updateCombat(
+                patch.name ?? "",
+                patch.description ?? "",
+              )
+            }
+            onBack={back}
+            onSave={async () => {
+              if (!combatStateManager.state) return;
+              await combatStateManager.saveCombat();
+            }}
+            hasChanges={combatStateManager.hasChanges}
+            syncApi={combatStateManager.syncApi}
+            onOpenSettings={() => setShowSettings(true)}
+          />
 
           <div className="grid grid-cols-1 gap-4">
             <PlayerPanel
@@ -312,7 +306,7 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
                   .filter(
                     (c) =>
                       c.templateOrigin?.origin === "player_library" &&
-                      c.templateOrigin?.id === playerId
+                      c.templateOrigin?.id === playerId,
                   )
                   .forEach((c) => combatStateManager.removeCombatant(c.id));
                 combatStateManager.unlinkPlayer(playerId);
@@ -363,7 +357,13 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           </div>
         </div>
 
-        <div className={isFocusMode ? "flex-1 overflow-y-auto order-first md:order-last" : ""}>
+        <div
+          className={
+            isFocusMode
+              ? "flex-1 overflow-y-auto order-first md:order-last"
+              : ""
+          }
+        >
           <CombatLayout
             combatants={combatants}
             currentTurn={combatStateManager.state.currentTurn}
@@ -395,7 +395,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           initialFilter={libraryInitialFilter}
           onAddPlayerToFight={addPlayerToFight}
           onToggleAutoAdd={(player) =>
-            combatStateManager.updatePlayer(player.id, { ...player, autoAddToCombat: !player.autoAddToCombat })
+            combatStateManager.updatePlayer(player.id, {
+              ...player,
+              autoAddToCombat: !player.autoAddToCombat,
+            })
           }
           onClose={() => {
             setShowLibrary(false);
@@ -415,6 +418,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
           onCreatePlayer={combatStateManager.createPlayer}
           onUpdatePlayer={combatStateManager.updatePlayer}
           onDeletePlayer={combatStateManager.removePlayer}
+          blocks={combatStateManager.blocks}
+          onCreateBlock={combatStateManager.createBlock}
+          onUpdateBlock={combatStateManager.updateBlock}
+          onDeleteBlock={combatStateManager.deleteBlock}
           onSearchMonsters={(query: string) => {
             return combatStateManager.searchWithLibrary(query, "api");
           }}
@@ -464,7 +471,10 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
             isCreating={false}
             templateType="player"
             onSave={(updated) => {
-              combatStateManager.updatePlayer(updated.id, updated as SavedPlayer);
+              combatStateManager.updatePlayer(
+                updated.id,
+                updated as SavedPlayer,
+              );
               setEditingPlayer(undefined);
             }}
             onCancel={() => setEditingPlayer(undefined)}

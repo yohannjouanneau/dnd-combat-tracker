@@ -73,7 +73,7 @@ export default function PlayerItem({
       }),
     });
     if (isConfirmed) {
-      onRemove(player.id)
+      onRemove(player.id);
     }
   };
 

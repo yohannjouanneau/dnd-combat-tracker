@@ -10,7 +10,11 @@ type Props = {
   onClearAll: () => void;
 };
 
-export default function GroupsOverview({ groups, onRemoveGroup, onClearAll }: Props) {
+export default function GroupsOverview({
+  groups,
+  onRemoveGroup,
+  onClearAll,
+}: Props) {
   const { t } = useTranslation(["combat", "common"]);
   const confirmDialog = useConfirmationDialog();
 

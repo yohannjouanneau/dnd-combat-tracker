@@ -24,13 +24,14 @@ interface PlayerStore {
 }
 
 interface Props {
-  updateState: (patch: Partial<CombatState> | ((prev: CombatState) => Partial<CombatState>)) => void;
+  updateState: (
+    patch: Partial<CombatState> | ((prev: CombatState) => Partial<CombatState>),
+  ) => void;
 }
 
 export function usePlayerStore({ updateState }: Props): PlayerStore {
   // Local reactive state for saved players
   const [savedPlayers, setSavedPlayers] = useState<SavedPlayer[]>([]);
-
 
   // Load players from dataStore
   const loadPlayers = useCallback(async () => {
@@ -49,7 +50,7 @@ export function usePlayerStore({ updateState }: Props): PlayerStore {
       await dataStore.deletePlayer(id);
       await loadPlayers();
     },
-    [loadPlayers]
+    [loadPlayers],
   );
 
   // Update player initiative
@@ -70,7 +71,7 @@ export function usePlayerStore({ updateState }: Props): PlayerStore {
       });
       await loadPlayers();
     },
-    [loadPlayers, savedPlayers]
+    [loadPlayers, savedPlayers],
   );
 
   // Create a new player from the library
@@ -79,7 +80,7 @@ export function usePlayerStore({ updateState }: Props): PlayerStore {
       await dataStore.createPlayer(player);
       await loadPlayers();
     },
-    [loadPlayers]
+    [loadPlayers],
   );
 
   // Update an existing player from the library
@@ -88,7 +89,7 @@ export function usePlayerStore({ updateState }: Props): PlayerStore {
       await dataStore.updatePlayer(id, player);
       await loadPlayers();
     },
-    [loadPlayers]
+    [loadPlayers],
   );
 
   // Link a player to the current combat
@@ -100,47 +101,52 @@ export function usePlayerStore({ updateState }: Props): PlayerStore {
         return { linkedPlayerIds: [...current, playerId] };
       });
     },
-    [updateState]
+    [updateState],
   );
 
   // Unlink a player from the current combat
   const unlinkPlayer = useCallback(
     (playerId: string) => {
       updateState((prev) => ({
-        linkedPlayerIds: (prev.linkedPlayerIds ?? []).filter((id) => id !== playerId),
+        linkedPlayerIds: (prev.linkedPlayerIds ?? []).filter(
+          (id) => id !== playerId,
+        ),
       }));
     },
-    [updateState]
+    [updateState],
   );
 
   // Check if a player is used as a template in any saved combat
-  const isPlayerUsedAsTemplate = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      const allCombats = await dataStore.listCombat();
-      for (const combat of allCombats) {
-        for (const combatant of combat.data.combatants) {
-          if (
-            combatant.templateOrigin?.origin === "player_library" &&
-            combatant.templateOrigin.id === id
-          ) {
-            return true;
+  const isPlayerUsedAsTemplate = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        const allCombats = await dataStore.listCombat();
+        for (const combat of allCombats) {
+          for (const combatant of combat.data.combatants) {
+            if (
+              combatant.templateOrigin?.origin === "player_library" &&
+              combatant.templateOrigin.id === id
+            ) {
+              return true;
+            }
+          }
+          for (const group of combat.data.parkedGroups) {
+            if (
+              group.templateOrigin?.origin === "player_library" &&
+              group.templateOrigin.id === id
+            ) {
+              return true;
+            }
           }
         }
-        for (const group of combat.data.parkedGroups) {
-          if (
-            group.templateOrigin?.origin === "player_library" &&
-            group.templateOrigin.id === id
-          ) {
-            return true;
-          }
-        }
+        return false;
+      } catch (error) {
+        console.error("Error checking if player is used as template:", error);
+        return false;
       }
-      return false;
-    } catch (error) {
-      console.error("Error checking if player is used as template:", error);
-      return false;
-    }
-  }, []);
+    },
+    [],
+  );
 
   return {
     state: {

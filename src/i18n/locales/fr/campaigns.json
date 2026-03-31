@@ -1,0 +1,116 @@
+{
+  "list": {
+    "title": "Campagnes",
+    "empty": "Aucune campagne. Créez votre première !",
+    "new": "Nouvelle campagne",
+    "namePlaceholder": "Nom de la campagne",
+    "descriptionPlaceholder": "Description (optionnelle)",
+    "backToCombats": "Retour",
+    "openCampaigns": "Campagnes"
+  },
+  "detail": {
+    "blocks": "Blocs de construction",
+    "addBlock": "Ajouter un bloc",
+    "addFromLibrary": "Ajouter depuis la bibliothèque",
+    "reorder": "Réorganiser",
+    "noBlocks": "Aucun bloc. Ajoutez votre premier bloc !",
+    "backToCampaigns": "Retour aux campagnes"
+  },
+  "block": {
+    "types": {
+      "environment": "Environnement",
+      "room": "Salle",
+      "character": "Personnage",
+      "combat": "Combat",
+      "loot": "Butin",
+      "scene": "Scène"
+    },
+    "blockType": {
+      "new": "Nouveau type",
+      "namePlaceholder": "Nom du type",
+      "features": "Fonctionnalités",
+      "featureCharacters": "Personnages",
+      "featureCombat": "Combat",
+      "featureLoot": "Butin",
+      "featureCountdown": "Décompte",
+      "create": "Créer le type"
+    },
+    "new": "Nouveau bloc",
+    "edit": "Modifier le bloc",
+    "name": "Nom",
+    "namePlaceholder": "Nom du bloc",
+    "description": "Description",
+    "type": "Type",
+    "tags": "Étiquettes",
+    "tagsPlaceholder": "tag1, tag2, tag3",
+    "children": "Blocs enfants",
+    "addChild": "Ajouter un bloc enfant",
+    "statChecks": "Tests de caractéristique",
+    "addStatCheck": "Ajouter un test",
+    "checkLabel": "Libellé du test",
+    "checkLabelPlaceholder": "ex. Test d'Acrobaties pour traverser un pont",
+    "skillPlaceholder": "Compétence / Stat",
+    "difficulty": "DD",
+    "outcomes": "Résultats",
+    "addOutcome": "Ajouter un résultat",
+    "outcomeLabel": "Libellé",
+    "outcomeLabelPlaceholder": "ex. Succès",
+    "outcomeDescription": "Description",
+    "linkedBlock": "Lien vers un bloc",
+    "icon": "Icône",
+    "iconReset": "Réinitialiser",
+    "specialFeature": "Fonctionnalité spéciale",
+    "combatFeature": {
+      "linked": "Combat lié",
+      "unlinked": "Aucun combat lié",
+      "openCombat": "Ouvrir le combat",
+      "createCombat": "Créer un combat",
+      "newCombat": "Nouveau combat",
+      "searchPlaceholder": "Rechercher un combat…",
+      "unlinkCombat": "Délier"
+    },
+    "lootFeature": {
+      "items": "Objets de butin",
+      "addItem": "Ajouter un objet",
+      "itemPlaceholder": "Nom ou description de l'objet"
+    },
+    "characterFeature": {
+      "linkedNpcs": "Personnages liés",
+      "unlinked": "— Aucun —",
+      "openNpc": "Ouvrir le personnage",
+      "searchPlaceholder": "Rechercher un personnage…"
+    },
+    "countdown": {
+      "label": "Décompte",
+      "hint": "0 = désactivé",
+      "progress": "{{current}} / {{max}}",
+      "step": "Étape {{n}}",
+      "stepPlaceholder": "Description optionnelle…"
+    },
+    "sections": {
+      "identity": "Identité",
+      "content": "Contenu",
+      "organization": "Organisation",
+      "mechanics": "Mécanique",
+      "characters": "Personnages",
+      "combat": "Combat",
+      "loot": "Butin"
+    }
+  },
+  "statChecks": {
+    "defaultSuccess": "Succès",
+    "defaultFailure": "Échec"
+  },
+  "delete": {
+    "campaignTitle": "Supprimer la campagne ?",
+    "campaignMessage": "Cette action supprimera définitivement la campagne. Les blocs de la bibliothèque ne seront pas supprimés.",
+    "blockTitle": "Retirer le bloc ?",
+    "blockMessage": "Cela retire le bloc de cette campagne. Il reste disponible dans la bibliothèque."
+  },
+  "toast": {
+    "campaignCreated": "Campagne créée",
+    "campaignDeleted": "Campagne supprimée",
+    "blockSaved": "Bloc sauvegardé",
+    "blockRemoved": "Bloc retiré de la campagne"
+  }
+}

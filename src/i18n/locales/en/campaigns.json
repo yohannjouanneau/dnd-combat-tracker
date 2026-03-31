@@ -1,0 +1,116 @@
+{
+  "list": {
+    "title": "Campaigns",
+    "empty": "No campaigns yet. Create your first one!",
+    "new": "New Campaign",
+    "namePlaceholder": "Campaign name",
+    "descriptionPlaceholder": "Description (optional)",
+    "backToCombats": "Back",
+    "openCampaigns": "Campaigns"
+  },
+  "detail": {
+    "blocks": "Building Blocks",
+    "addBlock": "Add Block",
+    "addFromLibrary": "Add from Library",
+    "reorder": "Reorder",
+    "noBlocks": "No blocks yet. Add your first building block!",
+    "backToCampaigns": "Back to Campaigns"
+  },
+  "block": {
+    "types": {
+      "environment": "Environment",
+      "room": "Room",
+      "character": "Character",
+      "combat": "Combat",
+      "loot": "Loot",
+      "scene": "Scene"
+    },
+    "blockType": {
+      "new": "New type",
+      "namePlaceholder": "Type name",
+      "features": "Features",
+      "featureCharacters": "Characters",
+      "featureCombat": "Combat",
+      "featureLoot": "Loot",
+      "featureCountdown": "Countdown",
+      "create": "Create type"
+    },
+    "new": "New Block",
+    "edit": "Edit Block",
+    "name": "Name",
+    "namePlaceholder": "Block name",
+    "description": "Description",
+    "type": "Type",
+    "tags": "Tags",
+    "tagsPlaceholder": "tag1, tag2, tag3",
+    "children": "Child Blocks",
+    "addChild": "Add Child Block",
+    "statChecks": "Stat Checks",
+    "addStatCheck": "Add Stat Check",
+    "checkLabel": "Check label",
+    "checkLabelPlaceholder": "e.g. Acrobatics check to cross a bridge",
+    "skillPlaceholder": "Skill / Stat",
+    "difficulty": "DC",
+    "outcomes": "Outcomes",
+    "addOutcome": "Add Outcome",
+    "outcomeLabel": "Label",
+    "outcomeLabelPlaceholder": "e.g. Success",
+    "outcomeDescription": "Description",
+    "linkedBlock": "Links to block",
+    "icon": "Icon",
+    "iconReset": "Reset to default",
+    "specialFeature": "Special Feature",
+    "combatFeature": {
+      "linked": "Linked combat",
+      "unlinked": "No combat linked yet",
+      "openCombat": "Open Combat",
+      "createCombat": "Create Combat",
+      "newCombat": "New Combat",
+      "searchPlaceholder": "Search combat…",
+      "unlinkCombat": "Unlink"
+    },
+    "lootFeature": {
+      "items": "Loot items",
+      "addItem": "Add item",
+      "itemPlaceholder": "Item name or description"
+    },
+    "characterFeature": {
+      "linkedNpcs": "Linked Characters",
+      "unlinked": "— None —",
+      "openNpc": "Open Character",
+      "searchPlaceholder": "Search character…"
+    },
+    "countdown": {
+      "label": "Countdown",
+      "hint": "0 = disabled",
+      "progress": "{{current}} / {{max}}",
+      "step": "Step {{n}}",
+      "stepPlaceholder": "Optional description…"
+    },
+    "sections": {
+      "identity": "Identity",
+      "content": "Content",
+      "organization": "Organization",
+      "mechanics": "Mechanics",
+      "characters": "Characters",
+      "combat": "Combat",
+      "loot": "Loot"
+    }
+  },
+  "statChecks": {
+    "defaultSuccess": "Success",
+    "defaultFailure": "Failure"
+  },
+  "delete": {
+    "campaignTitle": "Delete campaign?",
+    "campaignMessage": "This will permanently delete the campaign. Building blocks in the library are not deleted.",
+    "blockTitle": "Remove block?",
+    "blockMessage": "This removes the block from this campaign. The block remains in the library."
+  },
+  "toast": {
+    "campaignCreated": "Campaign created",
+    "campaignDeleted": "Campaign deleted",
+    "blockSaved": "Block saved",
+    "blockRemoved": "Block removed from campaign"
+  }
+}

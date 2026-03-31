@@ -38,11 +38,14 @@ export default function MobileCombatLayout({
   showDetail,
   onCloseDetail,
 }: Props) {
-  const [openQuickButtonsId, setOpenQuickButtonsId] = useState<number | null>(null);
+  const [openQuickButtonsId, setOpenQuickButtonsId] = useState<number | null>(
+    null,
+  );
 
-  const selectedCombatant = selectedCombatantId !== null
-    ? combatants.find(c => c.id === selectedCombatantId) ?? null
-    : null;
+  const selectedCombatant =
+    selectedCombatantId !== null
+      ? (combatants.find((c) => c.id === selectedCombatantId) ?? null)
+      : null;
 
   // Auto-close QuickButtons when turn changes
   useEffect(() => {
@@ -50,7 +53,7 @@ export default function MobileCombatLayout({
   }, [currentTurn]);
 
   const handleToggleQuickButtons = useCallback((id: number) => {
-    setOpenQuickButtonsId(prev => prev === id ? null : id);
+    setOpenQuickButtonsId((prev) => (prev === id ? null : id));
   }, []);
 
   return (
