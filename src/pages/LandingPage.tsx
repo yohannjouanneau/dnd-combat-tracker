@@ -1,8 +1,10 @@
-import { Map, Settings, Swords } from "lucide-react";
+import { Leaf, Map, Moon, Settings, Sun, Swords } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.png";
 import SettingsModal from "../components/Settings/SettingsModal";
+import SyncButton from "../components/SyncButton";
+import { useTheme } from "../hooks/useTheme";
 import type { SyncApi } from "../api/sync/types";
 import type { CombatStateManager } from "../store/types";
 import type { SavedCombat } from "../types";
@@ -35,6 +37,7 @@ export default function LandingPage({
   combatStateManager,
 }: Props) {
   const { t } = useTranslation(["common", "campaigns"]);
+  const { theme, toggleTheme } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
   const [recentCombat, setRecentCombat] = useState<SavedCombat | undefined>();
 
@@ -53,13 +56,38 @@ export default function LandingPage({
 
   return (
     <div className="min-h-screen bg-app-bg flex flex-col items-center justify-center p-6 gap-8 relative">
-      <button
-        onClick={() => setShowSettings(true)}
-        className="absolute top-4 right-4 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
-        title={t("common:settings.title")}
-      >
-        <Settings className="w-5 h-5" />
-      </button>
+      <div className="absolute top-4 right-4 flex gap-2">
+        <button
+          onClick={toggleTheme}
+          className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
+          title={
+            theme === "dark"
+              ? t("common:theme.switchTo.light")
+              : theme === "light"
+                ? t("common:theme.switchTo.forest")
+                : t("common:theme.switchTo.dark")
+          }
+        >
+          {theme === "dark" ? (
+            <Moon className="w-5 h-5" />
+          ) : theme === "light" ? (
+            <Sun className="w-5 h-5" />
+          ) : (
+            <Leaf className="w-5 h-5" />
+          )}
+        </button>
+        <SyncButton
+          syncApi={syncApi}
+          onOpenSettings={() => setShowSettings(true)}
+        />
+        <button
+          onClick={() => setShowSettings(true)}
+          className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
+          title={t("common:settings.title")}
+        >
+          <Settings className="w-5 h-5" />
+        </button>
+      </div>
 
       <img
         src={logo}
@@ -124,22 +152,6 @@ export default function LandingPage({
             {t("common:landing.continueTitle")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {recentCampaign && (
-              <button
-                onClick={() => onOpenCampaign(recentCampaign.id)}
-                className="flex items-center gap-3 bg-panel-secondary hover:bg-panel-secondary/70 border border-border-secondary rounded-lg px-4 py-3 text-left transition group"
-              >
-                <Map className="w-5 h-5 text-amber-400 flex-shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-text-primary truncate">
-                    {recentCampaign.name || t("common:noData")}
-                  </p>
-                  <p className="text-xs text-text-muted">
-                    {formatRelativeTime(recentCampaign.updatedAt)}
-                  </p>
-                </div>
-              </button>
-            )}
             {recentCombat && (
               <button
                 onClick={() => onOpenCombat(recentCombat.id)}
@@ -152,6 +164,22 @@ export default function LandingPage({
                   </p>
                   <p className="text-xs text-text-muted">
                     {formatRelativeTime(recentCombat.updatedAt)}
+                  </p>
+                </div>
+              </button>
+            )}
+            {recentCampaign && (
+              <button
+                onClick={() => onOpenCampaign(recentCampaign.id)}
+                className="flex items-center gap-3 bg-panel-secondary hover:bg-panel-secondary/70 border border-border-secondary rounded-lg px-4 py-3 text-left transition group"
+              >
+                <Map className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-text-primary truncate">
+                    {recentCampaign.name || t("common:noData")}
+                  </p>
+                  <p className="text-xs text-text-muted">
+                    {formatRelativeTime(recentCampaign.updatedAt)}
                   </p>
                 </div>
               </button>

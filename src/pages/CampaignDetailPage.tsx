@@ -19,6 +19,7 @@ import BlockTreeNode, {
 } from "../components/Campaign/BlockTreeNode";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
 import LibraryModal from "../components/Library/LibraryModal";
+import SettingsModal from "../components/Settings/SettingsModal";
 import type { SavedMonster, SavedPlayer } from "../types";
 
 type Props = {
@@ -47,6 +48,7 @@ export default function CampaignDetailPage({
   const confirmDialog = useConfirmationDialog();
 
   const [modalState, setModalState] = useState<ModalState>({ kind: "closed" });
+  const [showSettings, setShowSettings] = useState(false);
   const [savedCombats, setSavedCombats] = useState<SavedCombat[]>([]);
   const [editingNpc, setEditingNpc] = useState<
     SavedPlayer | SavedMonster | null
@@ -308,6 +310,8 @@ export default function CampaignDetailPage({
           onSave={handleSaveMeta}
           hasChanges={metaHasChanges}
           nameLabel={t("campaigns:list.new")}
+          syncApi={combatStateManager.syncApi}
+          onOpenSettings={() => setShowSettings(true)}
         />
         <div className="flex justify-end gap-2 mb-4">
           <button
@@ -514,6 +518,11 @@ export default function CampaignDetailPage({
           onSearchMonsters={combatStateManager.searchWithLibrary}
         />
       )}
+      <SettingsModal
+        isOpen={showSettings}
+        syncApi={combatStateManager.syncApi}
+        onClose={() => setShowSettings(false)}
+      />
     </div>
   );
 }
