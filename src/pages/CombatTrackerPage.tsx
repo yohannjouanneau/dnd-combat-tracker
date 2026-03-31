@@ -27,9 +27,13 @@ import TopBar from "../components/TopBar";
 
 type Props = {
   combatStateManager: CombatStateManager;
+  returnHash?: string;
 };
 
-export default function CombatTrackerPage({ combatStateManager }: Props) {
+export default function CombatTrackerPage({
+  combatStateManager,
+  returnHash = "#combats",
+}: Props) {
   const { t } = useTranslation("combat");
   const combatants = combatStateManager.state.combatants;
   const [isFocusMode, setIsFocusMode] = useState(false);
@@ -195,8 +199,8 @@ export default function CombatTrackerPage({ combatStateManager }: Props) {
     if (combatStateManager.hasChanges && combatStateManager.state?.combatId) {
       await combatStateManager.saveCombat();
     }
-    location.hash = "#combats";
-  }, [combatStateManager]);
+    location.hash = returnHash;
+  }, [combatStateManager, returnHash]);
 
   const back = useCallback(async () => {
     if (isTimerRunning) {

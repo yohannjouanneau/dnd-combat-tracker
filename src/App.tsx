@@ -10,6 +10,7 @@ import { useCombatState } from "./store/state";
 function App() {
   const [route, setRoute] = useState<string>(location.hash || "");
   const [isLoading, setIsLoading] = useState(false);
+  const [combatReturnHash, setCombatReturnHash] = useState<string>("#combats");
   const combatStateManager = useCombatState();
 
   useEffect(() => {
@@ -52,7 +53,8 @@ function App() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [combatStateManager.hasChanges, combatStateManager.state?.combatId]);
 
-  const openCombat = (id: string) => {
+  const openCombat = (id: string, returnHash = "#combats") => {
+    setCombatReturnHash(returnHash);
     location.hash = `#play/${id}`;
   };
 
@@ -70,7 +72,9 @@ function App() {
         onBack={() => {
           location.hash = "#campaigns";
         }}
-        onOpenCombat={openCombat}
+        onOpenCombat={(combatId) =>
+          openCombat(combatId, `#campaigns/${campaignDetailMatch[1]}`)
+        }
       />
     );
   }
@@ -95,7 +99,10 @@ function App() {
     }
     return (
       <div>
-        <CombatTrackerPage combatStateManager={combatStateManager} />
+        <CombatTrackerPage
+          combatStateManager={combatStateManager}
+          returnHash={combatReturnHash}
+        />
       </div>
     );
   }
