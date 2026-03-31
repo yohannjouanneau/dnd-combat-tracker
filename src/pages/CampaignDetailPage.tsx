@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowUpDown, Check, Plus, Library } from "lucide-react";
+import {
+  ArrowUpDown,
+  Check,
+  Plus,
+  Library,
+  GitGraph,
+  List,
+} from "lucide-react";
 import TopBar from "../components/TopBar";
 import type { CombatStateManager } from "../store/types";
 import type { SavedCombat } from "../types";
@@ -20,6 +27,7 @@ import BlockTreeNode, {
 import LibraryEditModal from "../components/Library/LibraryEditModal";
 import LibraryModal from "../components/Library/LibraryModal";
 import SettingsModal from "../components/Settings/SettingsModal";
+import CampaignCanvas from "../components/Campaign/canvas/CampaignCanvas";
 import type { SavedMonster, SavedPlayer } from "../types";
 
 type Props = {
@@ -47,6 +55,7 @@ export default function CampaignDetailPage({
   const toast = useToast();
   const confirmDialog = useConfirmationDialog();
 
+  const [viewMode, setViewMode] = useState<"tree" | "canvas">("tree");
   const [modalState, setModalState] = useState<ModalState>({ kind: "closed" });
   const [showSettings, setShowSettings] = useState(false);
   const [savedCombats, setSavedCombats] = useState<SavedCombat[]>([]);
@@ -299,7 +308,7 @@ export default function CampaignDetailPage({
   }
 
   return (
-    <div className="mx-auto text-white min-h-screen flex flex-col bg-app-bg">
+    <div className="mx-auto text-white h-screen flex flex-col bg-app-bg">
       <div className="p-4 md:p-6 flex-shrink-0">
         <TopBar
           logo
@@ -313,108 +322,157 @@ export default function CampaignDetailPage({
           syncApi={combatStateManager.syncApi}
           onOpenSettings={() => setShowSettings(true)}
         />
-        <div className="flex justify-end gap-2 mb-4">
-          <button
-            onClick={() => {
-              setReorderMode((v) => !v);
-              setDragState(null);
-              setDropTarget(null);
-            }}
-            className={`flex items-center gap-1 px-3 py-2 rounded text-sm transition ${
-              reorderMode
-                ? "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary ring-1 ring-border-secondary"
-                : "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary"
-            }`}
-          >
-            {reorderMode ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <ArrowUpDown className="w-4 h-4" />
+        <div className="flex justify-between gap-2 mb-4">
+          {/* View mode toggle */}
+          <div className="flex items-center gap-1 bg-panel-secondary rounded p-0.5 border border-border-secondary">
+            <button
+              onClick={() => setViewMode("tree")}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm transition ${
+                viewMode === "tree"
+                  ? "bg-blue-600 text-white"
+                  : "text-text-muted hover:text-text-primary"
+              }`}
+            >
+              <List className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">
+                {t("campaigns:canvas.tree")}
+              </span>
+            </button>
+            <button
+              onClick={() => setViewMode("canvas")}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm transition ${
+                viewMode === "canvas"
+                  ? "bg-blue-600 text-white"
+                  : "text-text-muted hover:text-text-primary"
+              }`}
+            >
+              <GitGraph className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">
+                {t("campaigns:canvas.toggle")}
+              </span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {viewMode === "tree" && (
+              <button
+                onClick={() => {
+                  setReorderMode((v) => !v);
+                  setDragState(null);
+                  setDropTarget(null);
+                }}
+                className={`flex items-center gap-1 px-3 py-2 rounded text-sm transition ${
+                  reorderMode
+                    ? "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary ring-1 ring-border-secondary"
+                    : "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary"
+                }`}
+              >
+                {reorderMode ? (
+                  <Check className="w-4 h-4" />
+                ) : (
+                  <ArrowUpDown className="w-4 h-4" />
+                )}
+                <span className="hidden sm:inline">
+                  {reorderMode
+                    ? t("common:actions.confirm")
+                    : t("campaigns:detail.reorder")}
+                </span>
+              </button>
             )}
-            <span className="hidden sm:inline">
-              {reorderMode
-                ? t("common:actions.confirm")
-                : t("campaigns:detail.reorder")}
-            </span>
-          </button>
-          {!reorderMode && (
-            <>
-              <button
-                onClick={() => setModalState({ kind: "library" })}
-                className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm transition"
-                title={t("campaigns:detail.addFromLibrary")}
-              >
-                <Library className="w-4 h-4" />
-                <span className="hidden sm:inline">
-                  {t("campaigns:detail.addFromLibrary")}
-                </span>
-              </button>
-              <button
-                onClick={() => setModalState({ kind: "create" })}
-                className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition"
-              >
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">
-                  {t("campaigns:detail.addBlock")}
-                </span>
-              </button>
-            </>
-          )}
+            {!reorderMode && (
+              <>
+                <button
+                  onClick={() => setModalState({ kind: "library" })}
+                  className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm transition"
+                  title={t("campaigns:detail.addFromLibrary")}
+                >
+                  <Library className="w-4 h-4" />
+                  <span className="hidden sm:inline">
+                    {t("campaigns:detail.addFromLibrary")}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setModalState({ kind: "create" })}
+                  className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden sm:inline">
+                    {t("campaigns:detail.addBlock")}
+                  </span>
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Tree */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {rootBlocks.length === 0 ? (
-          <div className="text-center text-text-muted py-12">
-            <p className="text-base">{t("campaigns:detail.noBlocks")}</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {rootBlocks.map((block) => (
-              <BlockTreeNode
-                key={block.id}
-                block={block}
-                allBlocks={campaignBlocks}
-                blockTypes={combatStateManager.blockTypes}
-                savedPlayers={combatStateManager.savedPlayers}
-                savedMonsters={combatStateManager.monsters}
-                depth={0}
-                reorderMode={reorderMode}
-                dragCallbacks={
-                  reorderMode
-                    ? ({
-                        onDragStart: (blockId) =>
-                          setDragState({
-                            blockId,
-                            sourceParentId: parentMap.get(blockId) ?? null,
-                          }),
-                        onDragOver: (targetId, position) =>
-                          setDropTarget({ targetId, position }),
-                        onDrop: handleGlobalDrop,
-                        onDragEnd: () => {
-                          setDragState(null);
-                          setDropTarget(null);
-                        },
-                        draggedId: dragState?.blockId ?? null,
-                        dropTarget,
-                      } satisfies DragCallbacks)
-                    : undefined
-                }
-                onView={(b) => setModalState({ kind: "view", block: b })}
-                onEdit={(b) => setModalState({ kind: "edit", block: b })}
-                onAddChild={(parentId) =>
-                  setModalState({ kind: "create-child", parentId })
-                }
-                onRemove={handleRemoveBlock}
-                onOpenCombat={onOpenCombat}
-                onCreateCombat={handleCreateCombatForBlock}
-                onOpenNpc={handleOpenNpc}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Canvas or Tree */}
+      {viewMode === "canvas" ? (
+        <div className="flex-1">
+          <CampaignCanvas
+            campaign={campaign}
+            blocks={campaignBlocks}
+            blockTypes={combatStateManager.blockTypes}
+            onUpdateNodes={combatStateManager.updateCanvasNodes}
+            onAddChild={combatStateManager.addChildToBlock}
+            onRemoveChild={combatStateManager.removeChildFromBlock}
+            onViewBlock={(b) => setModalState({ kind: "view", block: b })}
+            onEditBlock={(b) => setModalState({ kind: "edit", block: b })}
+          />
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto p-4">
+          {rootBlocks.length === 0 ? (
+            <div className="text-center text-text-muted py-12">
+              <p className="text-base">{t("campaigns:detail.noBlocks")}</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {rootBlocks.map((block) => (
+                <BlockTreeNode
+                  key={block.id}
+                  block={block}
+                  allBlocks={campaignBlocks}
+                  blockTypes={combatStateManager.blockTypes}
+                  savedPlayers={combatStateManager.savedPlayers}
+                  savedMonsters={combatStateManager.monsters}
+                  depth={0}
+                  reorderMode={reorderMode}
+                  dragCallbacks={
+                    reorderMode
+                      ? ({
+                          onDragStart: (blockId) =>
+                            setDragState({
+                              blockId,
+                              sourceParentId: parentMap.get(blockId) ?? null,
+                            }),
+                          onDragOver: (targetId, position) =>
+                            setDropTarget({ targetId, position }),
+                          onDrop: handleGlobalDrop,
+                          onDragEnd: () => {
+                            setDragState(null);
+                            setDropTarget(null);
+                          },
+                          draggedId: dragState?.blockId ?? null,
+                          dropTarget,
+                        } satisfies DragCallbacks)
+                      : undefined
+                  }
+                  onView={(b) => setModalState({ kind: "view", block: b })}
+                  onEdit={(b) => setModalState({ kind: "edit", block: b })}
+                  onAddChild={(parentId) =>
+                    setModalState({ kind: "create-child", parentId })
+                  }
+                  onRemove={handleRemoveBlock}
+                  onOpenCombat={onOpenCombat}
+                  onCreateCombat={handleCreateCombatForBlock}
+                  onOpenNpc={handleOpenNpc}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Block Detail Modal */}
       {modalState.kind === "view" && (

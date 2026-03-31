@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* React Flow — override XY variables to match app theme.
+   Must be outside @layer base so it wins over React Flow's unlayered CSS. */
+.react-flow {
+  --xy-background-color: rgb(var(--color-app-bg));
+  --xy-background-pattern-color: rgb(var(--color-border-secondary));
+  --xy-node-color: rgb(var(--color-text-primary));
+  --xy-edge-label-color: rgb(var(--color-text-muted));
+  --xy-controls-button-background-color: rgb(var(--color-panel-bg));
+  --xy-controls-button-background-color-hover: rgb(
+    var(--color-panel-secondary)
+  );
+  --xy-controls-button-color: rgb(var(--color-text-primary));
+  --xy-controls-button-color-hover: rgb(var(--color-text-primary));
+  --xy-controls-button-border-color: rgb(var(--color-border-primary));
+  --xy-minimap-background-color: rgb(var(--color-panel-bg));
+  --xy-minimap-mask-background-color: rgb(var(--color-app-bg) / 0.7);
+  --xy-attribution-background-color: rgb(var(--color-panel-secondary));
+  --xy-attribution-color: rgb(var(--color-text-muted));
+}
+
 @layer base {
   :root {
     /* Light theme - Warmer tones inspired by D&D parchment */

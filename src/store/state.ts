@@ -205,7 +205,11 @@ export function useCombatState(): CombatStateManager {
       addBlockToCampaign: campaignStore.addBlockToCampaign,
       removeBlockFromCampaign: campaignStore.removeBlockFromCampaign,
       addChildToBlock: campaignStore.addChildToBlock,
+      removeChildFromBlock: campaignStore.removeChildFromBlock,
       reorderCampaignBlocks: campaignStore.reorderCampaignBlocks,
+      updateCanvasNodes: campaignStore.updateCanvasNodes,
+      addCanvasEdge: campaignStore.addCanvasEdge,
+      removeCanvasEdge: campaignStore.removeCanvasEdge,
     }),
     [
       addParkedGroupFromForm,
@@ -272,7 +276,11 @@ export function useCombatState(): CombatStateManager {
       campaignStore.addBlockToCampaign,
       campaignStore.removeBlockFromCampaign,
       campaignStore.addChildToBlock,
+      campaignStore.removeChildFromBlock,
       campaignStore.reorderCampaignBlocks,
+      campaignStore.updateCanvasNodes,
+      campaignStore.addCanvasEdge,
+      campaignStore.removeCanvasEdge,
     ],
   );
 }

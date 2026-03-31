@@ -8,6 +8,11 @@
     "backToCombats": "Back",
     "openCampaigns": "Campaigns"
   },
+  "canvas": {
+    "toggle": "Canvas",
+    "tree": "Tree",
+    "autoLayout": "Auto-layout"
+  },
   "detail": {
     "blocks": "Building Blocks",
     "addBlock": "Add Block",

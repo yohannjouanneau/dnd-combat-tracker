@@ -21,6 +21,8 @@ import type {
   BuildingBlockInput,
   Campaign,
   CampaignInput,
+  CanvasEdge,
+  CanvasNode,
 } from "../types/campaign";
 
 export type CombatStateManager = {
@@ -128,8 +130,12 @@ export type CombatStateManager = {
     blockId: string,
   ) => Promise<void>;
   addChildToBlock: (parentId: string, childId: string) => Promise<void>;
+  removeChildFromBlock: (parentId: string, childId: string) => Promise<void>;
   reorderCampaignBlocks: (
     campaignId: string,
     orderedBlockIds: string[],
   ) => Promise<void>;
+  updateCanvasNodes: (campaignId: string, nodes: CanvasNode[]) => Promise<void>;
+  addCanvasEdge: (campaignId: string, edge: CanvasEdge) => Promise<void>;
+  removeCanvasEdge: (campaignId: string, edgeId: string) => Promise<void>;
 };
