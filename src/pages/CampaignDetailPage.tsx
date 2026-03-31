@@ -171,7 +171,7 @@ export default function CampaignDetailPage({
     async (blockId: string) => {
       const newCombat = await combatStateManager.createCombat({
         id: generateId(),
-        name: campaignBlocks.find((b) => b.id === blockId)?.name ?? "New Combat",
+        name: campaignBlocks.find((b) => b.id === blockId)?.name ?? t("campaigns:block.combatFeature.newCombat"),
         description: "",
         data: {
           combatants: [],

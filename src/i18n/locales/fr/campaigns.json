@@ -65,6 +65,7 @@
       "unlinked": "Aucun combat lié",
       "openCombat": "Ouvrir le combat",
       "createCombat": "Créer un combat",
+      "newCombat": "Nouveau combat",
       "searchPlaceholder": "Rechercher un combat…",
       "unlinkCombat": "Délier"
     },

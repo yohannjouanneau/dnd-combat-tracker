@@ -65,6 +65,7 @@
       "unlinked": "No combat linked yet",
       "openCombat": "Open Combat",
       "createCombat": "Create Combat",
+      "newCombat": "New Combat",
       "searchPlaceholder": "Search combat…",
       "unlinkCombat": "Unlink"
     },
