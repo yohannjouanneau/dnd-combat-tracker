@@ -72,6 +72,7 @@ export function useCombatState(): CombatStateManager {
       await monsterStore.actions.loadMonsters();
       await campaignStore.loadCampaigns();
       await campaignStore.loadBlocks();
+      await campaignStore.loadBlockTypes();
 
       // Reload current combat if one is loaded
       if (state.combatId) {
