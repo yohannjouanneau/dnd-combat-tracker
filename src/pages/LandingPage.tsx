@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.png";
 import SettingsModal from "../components/Settings/SettingsModal";
-import type { SyncApi } from "../store/types";
+import type { SyncApi } from "../api/sync/types";
 
 type Props = {
   onOpenCombats: () => void;
