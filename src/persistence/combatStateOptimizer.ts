@@ -30,7 +30,7 @@ import type { DataStore } from "./storage";
 async function optimizeCombatant(
   combatant: Combatant,
   dataStore: DataStore,
-  parkedGroups: NewCombatant[] = []
+  parkedGroups: NewCombatant[] = [],
 ): Promise<Combatant> {
   const origin = combatant.templateOrigin?.origin;
 
@@ -53,7 +53,7 @@ async function optimizeCombatant(
       template = await dataStore.getMonster(combatant.templateOrigin.id);
     } else if (origin === "parked_group") {
       template = parkedGroups.find(
-        (pg) => pg.id === combatant.templateOrigin.id
+        (pg) => pg.id === combatant.templateOrigin.id,
       );
     }
 
@@ -73,7 +73,9 @@ async function optimizeCombatant(
       conditions: combatant.conditions,
       deathSaves: combatant.deathSaves,
       isReference: true,
-      ...(combatant.combatNotes !== undefined ? { combatNotes: combatant.combatNotes } : {}),
+      ...(combatant.combatNotes !== undefined
+        ? { combatNotes: combatant.combatNotes }
+        : {}),
       ...overrides,
     } as Combatant;
   }
@@ -99,7 +101,7 @@ const COMPARABLE_FORM_FIELDS = [
  */
 function getChangedFormFields(
   entity: NewCombatant | Combatant,
-  template: SavedPlayer | SavedMonster | NewCombatant
+  template: SavedPlayer | SavedMonster | NewCombatant,
 ): Partial<NewCombatant> {
   const overrides: Partial<NewCombatant> = {};
 
@@ -131,7 +133,7 @@ function getChangedFormFields(
  */
 async function optimizeParkedGroup(
   group: NewCombatant,
-  dataStore: DataStore
+  dataStore: DataStore,
 ): Promise<NewCombatant> {
   const origin = group.templateOrigin?.origin;
 
@@ -179,17 +181,17 @@ async function optimizeParkedGroup(
  */
 export async function cleanCombatStateForStorage(
   state: CombatState,
-  dataStore: DataStore
+  dataStore: DataStore,
 ): Promise<CombatState> {
   return {
     ...state,
     combatants: await Promise.all(
       state.combatants.map((c) =>
-        optimizeCombatant(c, dataStore, state.parkedGroups)
-      )
+        optimizeCombatant(c, dataStore, state.parkedGroups),
+      ),
     ),
     parkedGroups: await Promise.all(
-      state.parkedGroups.map((g) => optimizeParkedGroup(g, dataStore))
+      state.parkedGroups.map((g) => optimizeParkedGroup(g, dataStore)),
     ),
   };
 }
@@ -213,7 +215,7 @@ export async function cleanCombatStateForStorage(
 async function restoreCombatant(
   combatant: Combatant,
   dataStore: DataStore,
-  parkedGroups: NewCombatant[] = []
+  parkedGroups: NewCombatant[] = [],
 ): Promise<Combatant | undefined> {
   // If not a reference, return as-is
   if (!combatant.isReference) {
@@ -236,7 +238,7 @@ async function restoreCombatant(
 
   if (!template) {
     console.error(
-      `Template not found for combatant ${combatant.id}, origin: ${origin.origin}, id: ${origin.id}`
+      `Template not found for combatant ${combatant.id}, origin: ${origin.origin}, id: ${origin.id}`,
     );
     return undefined;
   }
@@ -271,7 +273,7 @@ async function restoreCombatant(
  */
 async function restoreParkedGroup(
   group: NewCombatant,
-  dataStore: DataStore
+  dataStore: DataStore,
 ): Promise<NewCombatant | undefined> {
   // If not a reference, return as-is
   if (!group.isReference) {
@@ -290,7 +292,7 @@ async function restoreParkedGroup(
 
   if (!template) {
     console.error(
-      `Template not found for parked group, origin: ${origin.origin}, id: ${origin.id}`
+      `Template not found for parked group, origin: ${origin.origin}, id: ${origin.id}`,
     );
     return undefined;
   }
@@ -321,19 +323,19 @@ async function restoreParkedGroup(
  */
 export async function restoreCombatState(
   state: CombatState,
-  dataStore: DataStore
+  dataStore: DataStore,
 ): Promise<CombatState | undefined> {
   try {
     // Restore parked groups first (combatants may reference them)
     const restoredGroups = await Promise.all(
-      state.parkedGroups.map((g) => restoreParkedGroup(g, dataStore))
+      state.parkedGroups.map((g) => restoreParkedGroup(g, dataStore)),
     );
 
     const parkedGroups = restoredGroups.filter((c) => c !== undefined);
 
     // Then restore combatants (passing restored parked groups for parked_group origin lookups)
     const restoredCombatants = await Promise.all(
-      state.combatants.map((c) => restoreCombatant(c, dataStore, parkedGroups))
+      state.combatants.map((c) => restoreCombatant(c, dataStore, parkedGroups)),
     );
     const combatants = restoredCombatants.filter((c) => c !== undefined);
 

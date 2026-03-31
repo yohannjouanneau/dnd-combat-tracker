@@ -56,7 +56,11 @@ export default function TopBar({
       {/* Mobile logo */}
       {logo && (
         <div className="flex justify-center mb-4 md:hidden">
-          <img src={logoSrc} alt="D&D Combat Tracker Logo" className="h-20 rounded-xl" />
+          <img
+            src={logoSrc}
+            alt="D&D Combat Tracker Logo"
+            className="h-20 rounded-xl"
+          />
         </div>
       )}
 
@@ -73,7 +77,11 @@ export default function TopBar({
         {/* Desktop logo */}
         {logo && (
           <div className="hidden md:flex flex-shrink-0">
-            <img src={logoSrc} alt="D&D Combat Tracker Logo" className="h-24 rounded-xl" />
+            <img
+              src={logoSrc}
+              alt="D&D Combat Tracker Logo"
+              className="h-24 rounded-xl"
+            />
           </div>
         )}
 
@@ -115,8 +123,8 @@ export default function TopBar({
                 theme === "dark"
                   ? t("common:theme.switchTo.light")
                   : theme === "light"
-                  ? t("common:theme.switchTo.forest")
-                  : t("common:theme.switchTo.dark")
+                    ? t("common:theme.switchTo.forest")
+                    : t("common:theme.switchTo.dark")
               }
             >
               {theme === "dark" ? (

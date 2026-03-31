@@ -2,7 +2,7 @@
   "title": "Combat Tracker",
   "turn": {
     "round": "Round {{number}}",
-    "notStarted":"No combat started",
+    "notStarted": "No combat started",
     "current": "Current Turn",
     "next": "Next Turn",
     "previous": "Previous Turn",
@@ -29,22 +29,22 @@
     "noCombatants": "No combatants yet. Add some to start the battle!",
     "editInitiative": "Click to edit initiative",
     "details": {
-      "hitPoints":"Hit points",
-      "initiative":"Initiative",
-      "armorClass":"Armor class",
-      "notes":"Library notes",
-      "openInNewTab":"Open in new tab",
-      "combatNotes":"Combat notes",
-      "combatNotesPlaceholder":"Add notes for this combatant...",
-      "derivedStats":"Derived Stats",
-      "proficiencyBonus":"Proficiency Bonus",
-      "level":"Level {{level}}",
-      "spellSaveDC":"Spell Save DC",
-      "spellAttackBonus":"Spell Attack",
+      "hitPoints": "Hit points",
+      "initiative": "Initiative",
+      "armorClass": "Armor class",
+      "notes": "Library notes",
+      "openInNewTab": "Open in new tab",
+      "combatNotes": "Combat notes",
+      "combatNotesPlaceholder": "Add notes for this combatant...",
+      "derivedStats": "Derived Stats",
+      "proficiencyBonus": "Proficiency Bonus",
+      "level": "Level {{level}}",
+      "spellSaveDC": "Spell Save DC",
+      "spellAttackBonus": "Spell Attack",
       "passive": {
-        "perception":"Passive Perception",
-        "insight":"Passive Insight",
-        "investigation":"Passive Investigation"
+        "perception": "Passive Perception",
+        "insight": "Passive Insight",
+        "investigation": "Passive Investigation"
       }
     }
   },

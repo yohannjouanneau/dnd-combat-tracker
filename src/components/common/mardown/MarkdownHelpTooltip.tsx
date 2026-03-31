@@ -1,9 +1,9 @@
-import { HelpCircle, X } from 'lucide-react';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { HelpCircle, X } from "lucide-react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function MarkdownHelpTooltip() {
-  const { t } = useTranslation(['forms']);
+  const { t } = useTranslation(["forms"]);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -12,7 +12,7 @@ export default function MarkdownHelpTooltip() {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="text-text-muted hover:text-text-secondary transition p-1"
-        title={t('forms:library.notes.help.title')}
+        title={t("forms:library.notes.help.title")}
       >
         <HelpCircle className="w-4 h-4" />
       </button>
@@ -30,7 +30,7 @@ export default function MarkdownHelpTooltip() {
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-text-primary">
-                {t('forms:library.notes.help.header')}
+                {t("forms:library.notes.help.header")}
               </h3>
               <button
                 onClick={() => setIsOpen(false)}
@@ -46,83 +46,105 @@ export default function MarkdownHelpTooltip() {
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   # Heading 1
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.heading1')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.heading1")}
+                </span>
               </div>
-              
+
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   ## Heading 2
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.heading2')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.heading2")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   **bold**
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.bold')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.bold")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   *italic*
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.italic')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.italic")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   ~~strikethrough~~
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.strikethrough')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.strikethrough")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   - List item
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.bulletList')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.bulletList")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   1. Numbered
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.numberedList')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.numberedList")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   [Link](url)
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.hyperlink')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.hyperlink")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   `code`
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.inlineCode')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.inlineCode")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded block mt-1">
                   &gt; Quote
                 </code>
-                <span className="text-text-muted">{t('forms:library.notes.help.blockquote')}</span>
+                <span className="text-text-muted">
+                  {t("forms:library.notes.help.blockquote")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   ---
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.horizontalLine')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.horizontalLine")}
+                </span>
               </div>
 
               {/* D&D specific notations */}
               <div className="mt-3 pt-3 border-t border-border-primary">
                 <div className="font-semibold text-text-secondary mb-2">
-                  {t('forms:library.notes.help.dndNotations')}
+                  {t("forms:library.notes.help.dndNotations")}
                 </div>
               </div>
 
@@ -130,35 +152,45 @@ export default function MarkdownHelpTooltip() {
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   2d6+3
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.help.diceNotation')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.help.diceNotation")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   {`{hit: +5}`}
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.tags.hit')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.tags.hit")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   {`{dmg: 2d6+3 fire}`}
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.tags.dmg')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.tags.dmg")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   {`{save: DC 15 Dex}`}
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.tags.save')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.tags.save")}
+                </span>
               </div>
 
               <div>
                 <code className="bg-panel-secondary px-1.5 py-0.5 rounded">
                   {`{heal: 2d8+4}`}
                 </code>
-                <span className="text-text-muted ml-2">{t('forms:library.notes.tags.heal')}</span>
+                <span className="text-text-muted ml-2">
+                  {t("forms:library.notes.tags.heal")}
+                </span>
               </div>
 
               <div>
@@ -171,7 +203,7 @@ export default function MarkdownHelpTooltip() {
 
             {/* Footer tip */}
             <div className="mt-3 pt-3 border-t border-border-primary text-xs text-text-muted">
-              {t('forms:library.notes.help.tip')}
+              {t("forms:library.notes.help.tip")}
             </div>
           </div>
         </>

@@ -14,7 +14,11 @@ type Props = {
   combatStateManager: CombatStateManager;
 };
 
-export default function CampaignListPage({ onOpen, onBackToCombats, combatStateManager }: Props) {
+export default function CampaignListPage({
+  onOpen,
+  onBackToCombats,
+  combatStateManager,
+}: Props) {
   const { t } = useTranslation(["campaigns", "common"]);
   const toast = useToast();
   const [name, setName] = useState("");
@@ -39,7 +43,7 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
     (e: React.KeyboardEvent) => {
       if (e.key === "Enter") create();
     },
-    [create]
+    [create],
   );
 
   const handleDelete = useCallback(
@@ -47,7 +51,7 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
       await combatStateManager.deleteCampaign(id);
       toast.success(t("campaigns:toast.campaignDeleted"));
     },
-    [combatStateManager, t, toast]
+    [combatStateManager, t, toast],
   );
 
   return (
@@ -76,7 +80,10 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
               <div className="flex flex-col md:flex-row gap-3 md:gap-4">
                 <div className="flex-1">
                   <div className="flex flex-col gap-1">
-                    <label htmlFor="campaignName" className="text-sm text-text-secondary">
+                    <label
+                      htmlFor="campaignName"
+                      className="text-sm text-text-secondary"
+                    >
                       {t("campaigns:list.new")}
                     </label>
                     <input
@@ -92,7 +99,10 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
                 </div>
                 <div className="flex-1">
                   <div className="flex flex-col gap-1">
-                    <label htmlFor="campaignDesc" className="text-sm text-text-secondary">
+                    <label
+                      htmlFor="campaignDesc"
+                      className="text-sm text-text-secondary"
+                    >
                       &nbsp;
                     </label>
                     <input
@@ -133,7 +143,9 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
           {combatStateManager.campaigns.length === 0 ? (
             <div className="text-center text-text-muted py-8">
               <FolderOpen className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 opacity-50" />
-              <p className="text-base md:text-lg">{t("campaigns:list.empty")}</p>
+              <p className="text-base md:text-lg">
+                {t("campaigns:list.empty")}
+              </p>
             </div>
           ) : (
             <ul className="space-y-3">
@@ -177,7 +189,6 @@ export default function CampaignListPage({ onOpen, onBackToCombats, combatStateM
         isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
         isPlayerUsedAsTemplate={combatStateManager.isPlayerUsedAsTemplate}
       />
-
     </div>
   );
 }

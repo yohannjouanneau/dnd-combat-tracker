@@ -22,9 +22,7 @@ interface Props {
   setState: React.Dispatch<React.SetStateAction<CombatState>>;
 }
 
-export function useParkedGroupStore({
-  setState,
-}: Props): ParkedGroupStore {
+export function useParkedGroupStore({ setState }: Props): ParkedGroupStore {
   const toastApi = useToast();
   const { t } = useTranslation(["common"]);
 
@@ -36,7 +34,8 @@ export function useParkedGroupStore({
       // Validation - return prev if invalid (no-op)
       if (!nc.name || !nc.hp) return prev;
       if (nc.initiativeGroups.length === 0) return prev;
-      if (nc.initiativeGroups.some((g) => !g.initiative || !g.count)) return prev;
+      if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
+        return prev;
 
       // Create group
       const groupToAdd: NewCombatant = {
@@ -50,7 +49,7 @@ export function useParkedGroupStore({
 
       // Replace existing group with same name
       const filteredGroups = prev.parkedGroups.filter(
-        (g) => g.name !== nc.name
+        (g) => g.name !== nc.name,
       );
 
       // Return new state
@@ -65,9 +64,16 @@ export function useParkedGroupStore({
 
   // Orchestration action: add parked group and optionally add to combat
   const addParkedGroupFromForm = useCallback(
-    ({ isFightModeEnabled, prepareCombatantList, resetForm }: {
+    ({
+      isFightModeEnabled,
+      prepareCombatantList,
+      resetForm,
+    }: {
       isFightModeEnabled: boolean;
-      prepareCombatantList: (prev: CombatState, nc: NewCombatant) => Combatant[];
+      prepareCombatantList: (
+        prev: CombatState,
+        nc: NewCombatant,
+      ) => Combatant[];
       resetForm: () => Partial<CombatState>;
     }) => {
       setState((prev) => {
@@ -76,7 +82,8 @@ export function useParkedGroupStore({
         // Validation
         if (!nc.name || !nc.hp) return prev;
         if (nc.initiativeGroups.length === 0) return prev;
-        if (nc.initiativeGroups.some((g) => !g.initiative || !g.count)) return prev;
+        if (nc.initiativeGroups.some((g) => !g.initiative || !g.count))
+          return prev;
 
         // Create parked group
         const groupToAdd: NewCombatant = {
@@ -88,7 +95,9 @@ export function useParkedGroupStore({
               : { origin: "parked_group", id: nc.id },
         };
 
-        const filteredGroups = prev.parkedGroups.filter((g) => g.name !== nc.name);
+        const filteredGroups = prev.parkedGroups.filter(
+          (g) => g.name !== nc.name,
+        );
 
         // Compute combatants if fight mode enabled
         const combatants = isFightModeEnabled
@@ -116,7 +125,7 @@ export function useParkedGroupStore({
 
       toastApi.success(t("common:confirmation.addedToParkedGroup.success"));
     },
-    [setState, toastApi, t]
+    [setState, toastApi, t],
   );
 
   // Remove parked group by name
@@ -127,7 +136,7 @@ export function useParkedGroupStore({
         parkedGroups: prev.parkedGroups.filter((g) => g.name !== name),
       }));
     },
-    [setState]
+    [setState],
   );
 
   // Include parked group into form
@@ -138,7 +147,7 @@ export function useParkedGroupStore({
         newCombatant: combatant,
       }));
     },
-    [setState]
+    [setState],
   );
 
   return {

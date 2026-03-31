@@ -39,7 +39,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
     (type: CombatantIdentifierType) => {
       updateSettings({ combatantIdentifierType: type });
     },
-    [updateSettings]
+    [updateSettings],
   );
 
   if (!isOpen) return null;

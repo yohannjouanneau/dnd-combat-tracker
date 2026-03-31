@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
-import { getHpColorClass } from '../../utils/utils';
+import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
+import { getHpColorClass } from "../../utils/utils";
 
 type Props = {
   inputId: string;
@@ -13,9 +13,17 @@ type Props = {
   onToggleQuickButtons?: () => void;
 };
 
-export default function HpBar({inputId, hp, maxHp, isActive, onDelta, isQuickButtonsOpen, onToggleQuickButtons }: Props) {
-  const { t } = useTranslation('combat');
-  const [inputValue, setInputValue] = useState('');
+export default function HpBar({
+  inputId,
+  hp,
+  maxHp,
+  isActive,
+  onDelta,
+  isQuickButtonsOpen,
+  onToggleQuickButtons,
+}: Props) {
+  const { t } = useTranslation("combat");
+  const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const pct = (hp / maxHp) * 100;
 
@@ -40,12 +48,12 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta, isQuickBut
     const value = parseInt(inputValue);
     if (!isNaN(value) && value !== 0) {
       onDelta(value);
-      setInputValue('');
+      setInputValue("");
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleApply();
     }
   };
@@ -60,46 +68,51 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta, isQuickBut
     <div className="mb-4">
       <div className="flex items-center justify-between mb-2">
         <span className="font-semibold text-text-primary">
-          {hp} / {maxHp} {t('combat:combatant.hp')}
+          {hp} / {maxHp} {t("combat:combatant.hp")}
         </span>
-        
+
         <button
           onClick={onToggleQuickButtons}
           className="md:hidden text-text-secondary active:text-text-secondary/80 transition flex items-center gap-1 text-sm px-2 py-1 rounded"
         >
-          {showQuickButtons ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          {t('combat:hpBar.quick')}
+          {showQuickButtons ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
+          {t("combat:hpBar.quick")}
         </button>
       </div>
 
       {/* HP Progress Bar */}
       <div className="w-full bg-panel-secondary rounded-full h-3 overflow-hidden mb-3">
         <div
-          className={`h-full transition-all ${getHpColorClass(hp, maxHp, 'bg')}`}
+          className={`h-full transition-all ${getHpColorClass(hp, maxHp, "bg")}`}
           style={{ width: `${pct}%` }}
         />
       </div>
 
       {/* Collapsible Quick Buttons - Mobile/Tablet only */}
-      <div 
+      <div
         className="md:hidden overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ 
-          maxHeight: showQuickButtons ? '120px' : '0px',
-          opacity: showQuickButtons ? 1 : 0
+        style={{
+          maxHeight: showQuickButtons ? "120px" : "0px",
+          opacity: showQuickButtons ? 1 : 0,
         }}
       >
         <div className="grid grid-cols-3 gap-2 mb-3">
-          {quickValues.map(val => (
+          {quickValues.map((val) => (
             <button
               key={val}
               onClick={() => handleQuickDelta(val)}
               className={`py-2 rounded font-bold text-base transition active:scale-95 ${
-                val < 0 
-                  ? 'bg-red-600 hover:bg-red-700 active:bg-red-800 text-white' 
-                  : 'bg-green-600 hover:bg-green-700 active:bg-green-800 text-white'
+                val < 0
+                  ? "bg-red-600 hover:bg-red-700 active:bg-red-800 text-white"
+                  : "bg-green-600 hover:bg-green-700 active:bg-green-800 text-white"
               }`}
             >
-              {val > 0 ? '+' : ''}{val}
+              {val > 0 ? "+" : ""}
+              {val}
             </button>
           ))}
         </div>
@@ -114,14 +127,14 @@ export default function HpBar({inputId, hp, maxHp, isActive, onDelta, isQuickBut
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyPress}
-          placeholder={t('combat:hpBar.placeholder')}
+          placeholder={t("combat:hpBar.placeholder")}
           className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none w-24 text-center"
         />
-        <button 
+        <button
           onClick={handleApply}
           disabled={!inputValue}
           className="bg-blue-600 hover:bg-blue-700 disabled:bg-panel-secondary disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
-          title={t('combat:hpBar.apply')}
+          title={t("combat:hpBar.apply")}
         >
           <Check className="w-4 h-4" />
         </button>

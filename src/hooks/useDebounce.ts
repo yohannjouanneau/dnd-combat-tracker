@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef } from "react";
  */
 export function useDebounce<T extends (...args: Parameters<T>) => void>(
   callback: T,
-  delay: number
+  delay: number,
 ): (...args: Parameters<T>) => void {
   const timerRef = useRef<number | null>(null);
   // Keep callback ref in sync without causing the debounced fn to re-create
@@ -34,6 +34,6 @@ export function useDebounce<T extends (...args: Parameters<T>) => void>(
         callbackRef.current(...args);
       }, delay);
     },
-    [delay]
+    [delay],
   );
 }

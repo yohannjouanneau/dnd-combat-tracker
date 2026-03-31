@@ -26,13 +26,16 @@ export default function CombatantNameWithSearch({
   const handleSearch = onSearch
     ? async (query: string): Promise<SearchSelectItem<SearchResult>[]> => {
         const results = await onSearch(query);
-        return results.map(r => ({
+        return results.map((r) => ({
           id: r.monster.name + "_" + r.source,
           label: r.monster.name,
           group: r.source === "api" ? "D&D API" : "Your Library",
-          icon: r.source === "api"
-            ? <Globe className="w-4 h-4 text-blue-400" />
-            : <BookOpen className="w-4 h-4 text-amber-400" />,
+          icon:
+            r.source === "api" ? (
+              <Globe className="w-4 h-4 text-blue-400" />
+            ) : (
+              <BookOpen className="w-4 h-4 text-amber-400" />
+            ),
           raw: r,
         }));
       }
@@ -48,7 +51,7 @@ export default function CombatantNameWithSearch({
         textValue={value}
         onTextChange={onChange}
         onSearch={handleSearch}
-        onSelectItem={item => item.raw && onSelectResult(item.raw)}
+        onSelectItem={(item) => item.raw && onSelectResult(item.raw)}
         placeholder={placeholder}
         noResultsText={t("monster.noResults", { query: value })}
       />

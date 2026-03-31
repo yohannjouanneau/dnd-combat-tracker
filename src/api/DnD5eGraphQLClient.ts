@@ -39,7 +39,10 @@ class GraphQLCache {
     this.ttl = ttlMinutes * 60 * 1000;
   }
 
-  private generateKey(query: string, variables?: Record<string, unknown>): string {
+  private generateKey(
+    query: string,
+    variables?: Record<string, unknown>,
+  ): string {
     const varString = variables ? JSON.stringify(variables) : "";
     return `${query}:${varString}`;
   }
@@ -107,7 +110,10 @@ export class DnD5eGraphQLClient {
   /**
    * Execute a raw GraphQL query
    */
-  async query<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
+  async query<T>(
+    query: string,
+    variables?: Record<string, unknown>,
+  ): Promise<T> {
     // Check cache first
     if (this.cache) {
       const cached = this.cache.get<T>(query, variables);
@@ -130,7 +136,7 @@ export class DnD5eGraphQLClient {
 
       if (!response.ok) {
         throw new Error(
-          `HTTP error: ${response.status} ${response.statusText}`
+          `HTTP error: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -213,7 +219,7 @@ export class DnD5eGraphQLClient {
 // ============================================================================
 
 export function createGraphQLClient(
-  config?: GraphQLClientConfig
+  config?: GraphQLClientConfig,
 ): DnD5eGraphQLClient {
   return new DnD5eGraphQLClient(config);
 }

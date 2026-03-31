@@ -38,21 +38,18 @@ function App() {
         combatStateManager.resetState();
       }
     }
-  }, [
-    combatStateManager,
-    route
-  ]);
+  }, [combatStateManager, route]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (combatStateManager.hasChanges && combatStateManager.state?.combatId) {
         e.preventDefault();
-        e.returnValue = '';
+        e.returnValue = "";
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [combatStateManager.hasChanges, combatStateManager.state?.combatId]);
 
   const openCombat = (id: string) => {
@@ -70,7 +67,9 @@ function App() {
       <CampaignDetailPage
         campaignId={campaignDetailMatch[1]}
         combatStateManager={combatStateManager}
-        onBack={() => { location.hash = "#campaigns"; }}
+        onBack={() => {
+          location.hash = "#campaigns";
+        }}
         onOpenCombat={openCombat}
       />
     );
@@ -81,7 +80,9 @@ function App() {
     return (
       <CampaignListPage
         onOpen={openCampaign}
-        onBackToCombats={() => { location.hash = ""; }}
+        onBackToCombats={() => {
+          location.hash = "";
+        }}
         combatStateManager={combatStateManager}
       />
     );
@@ -102,15 +103,25 @@ function App() {
   // Combats list
   if (route === "#combats") {
     return (
-      <CombatsPage onOpen={openCombat} onBack={() => { location.hash = ""; }} combatStateManager={combatStateManager} />
+      <CombatsPage
+        onOpen={openCombat}
+        onBack={() => {
+          location.hash = "";
+        }}
+        combatStateManager={combatStateManager}
+      />
     );
   }
 
   // Default: landing page
   return (
     <LandingPage
-      onOpenCombats={() => { location.hash = "#combats"; }}
-      onOpenCampaigns={() => { location.hash = "#campaigns"; }}
+      onOpenCombats={() => {
+        location.hash = "#combats";
+      }}
+      onOpenCampaigns={() => {
+        location.hash = "#campaigns";
+      }}
       syncApi={combatStateManager.syncApi}
     />
   );

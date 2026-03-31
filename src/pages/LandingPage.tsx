@@ -11,7 +11,11 @@ type Props = {
   syncApi: SyncApi;
 };
 
-export default function LandingPage({ onOpenCombats, onOpenCampaigns, syncApi }: Props) {
+export default function LandingPage({
+  onOpenCombats,
+  onOpenCampaigns,
+  syncApi,
+}: Props) {
   const { t } = useTranslation(["common", "campaigns"]);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -25,7 +29,11 @@ export default function LandingPage({ onOpenCombats, onOpenCampaigns, syncApi }:
         <Settings className="w-5 h-5" />
       </button>
 
-      <img src={logo} alt="DnD Combat Tracker" className="w-24 h-24 object-contain" />
+      <img
+        src={logo}
+        alt="DnD Combat Tracker"
+        className="w-24 h-24 object-contain"
+      />
 
       <h1 className="text-3xl md:text-4xl font-bold text-text-primary text-center">
         D&D Combat Tracker

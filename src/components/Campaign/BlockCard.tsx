@@ -3,9 +3,11 @@ import { useTranslation } from "react-i18next";
 import type { BuildingBlock } from "../../types/campaign";
 
 const TYPE_COLORS: Record<string, string> = {
-  environment: "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30",
+  environment:
+    "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30",
   room: "text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30",
-  character: "text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30",
+  character:
+    "text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30",
   combat: "text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30",
   loot: "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30",
 };
@@ -27,16 +29,24 @@ export default function BlockCard({ block, onEdit, onDelete, onAdd }: Props) {
       <div className="flex-1 min-w-0 md:mr-4">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-semibold text-base text-text-primary truncate">
-            {block.name || <span className="italic text-text-muted">Unnamed</span>}
+            {block.name || (
+              <span className="italic text-text-muted">Unnamed</span>
+            )}
           </span>
-          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${TYPE_COLORS[block.typeId] ?? "text-text-muted bg-panel-secondary"}`}>
+          <span
+            className={`text-xs px-1.5 py-0.5 rounded font-medium ${TYPE_COLORS[block.typeId] ?? "text-text-muted bg-panel-secondary"}`}
+          >
             {block.typeId}
           </span>
-          {block.tags && block.tags.slice(0, 2).map((tag) => (
-            <span key={tag} className="text-xs text-text-muted bg-panel-secondary rounded px-1.5 py-0.5">
-              {tag}
-            </span>
-          ))}
+          {block.tags &&
+            block.tags.slice(0, 2).map((tag) => (
+              <span
+                key={tag}
+                className="text-xs text-text-muted bg-panel-secondary rounded px-1.5 py-0.5"
+              >
+                {tag}
+              </span>
+            ))}
         </div>
         {block.description && (
           <div className="text-xs md:text-sm text-text-muted mt-1 line-clamp-2">
@@ -45,7 +55,8 @@ export default function BlockCard({ block, onEdit, onDelete, onAdd }: Props) {
         )}
         {block.statChecks.length > 0 && (
           <div className="text-xs text-text-muted mt-1">
-            {block.statChecks.length} stat check{block.statChecks.length > 1 ? "s" : ""}
+            {block.statChecks.length} stat check
+            {block.statChecks.length > 1 ? "s" : ""}
           </div>
         )}
       </div>
@@ -75,7 +86,9 @@ export default function BlockCard({ block, onEdit, onDelete, onAdd }: Props) {
             className="bg-red-600 hover:bg-red-700 px-3 md:px-4 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1"
           >
             <Trash2 className="w-4 h-4" />
-            <span className="hidden sm:inline">{t("common:actions.delete")}</span>
+            <span className="hidden sm:inline">
+              {t("common:actions.delete")}
+            </span>
           </button>
         )}
       </div>

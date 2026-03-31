@@ -25,7 +25,12 @@ export default function CombatList({ combats, onOpen, onDelete }: Props) {
       ) : (
         <ul className="space-y-3">
           {combats.map((c) => (
-            <CombatListItem combat={c} onOpen={onOpen} onDelete={onDelete} key={c.id} />
+            <CombatListItem
+              combat={c}
+              onOpen={onOpen}
+              onDelete={onDelete}
+              key={c.id}
+            />
           ))}
         </ul>
       )}

@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
-import { Dices } from 'lucide-react';
+import { Dices } from "lucide-react";
 import { remarkCustomTags } from "./remarkCustomTags";
 import {
   EDITOR_TAGS,
@@ -11,13 +11,12 @@ import {
   CUSTOM_TAG_PREFIX,
   DICE_NOTATION_PREFIX,
   TAG_COMPONENT_SEPARATOR,
-  MARKDOWN_LINK_NOTATION_REGEX
+  MARKDOWN_LINK_NOTATION_REGEX,
 } from "../../../constants";
 
 type Props = {
   content: string;
 };
-
 
 export default function MarkdownRenderer({ content }: Props) {
   // Preprocess content to protect links inside custom tags
@@ -28,55 +27,82 @@ export default function MarkdownRenderer({ content }: Props) {
     (_match, tagName, linkText, linkUrl, rest) => {
       const linkData = btoa(`[${linkText}](${linkUrl})`);
       return `{${tagName}: ${MARKDOWN_LINK_PROTECTION_PREFIX}${linkData}${MARKDOWN_LINK_PROTECTION_SUFFIX}${rest}}`;
-    }
+    },
   );
 
   const components: Components = {
     // Headings - smaller sizes for compact display
     h1: ({ children, ...props }) => (
-      <h1 className="text-lg font-bold text-text-primary mt-3 mb-2 first:mt-0" {...props}>
+      <h1
+        className="text-lg font-bold text-text-primary mt-3 mb-2 first:mt-0"
+        {...props}
+      >
         {children}
       </h1>
     ),
     h2: ({ children, ...props }) => (
-      <h2 className="text-base font-bold text-text-primary mt-2 mb-1.5 first:mt-0" {...props}>
+      <h2
+        className="text-base font-bold text-text-primary mt-2 mb-1.5 first:mt-0"
+        {...props}
+      >
         {children}
       </h2>
     ),
     h3: ({ children, ...props }) => (
-      <h3 className="text-sm font-semibold text-text-primary mt-2 mb-1 first:mt-0" {...props}>
+      <h3
+        className="text-sm font-semibold text-text-primary mt-2 mb-1 first:mt-0"
+        {...props}
+      >
         {children}
       </h3>
     ),
     h4: ({ children, ...props }) => (
-      <h4 className="text-sm font-semibold text-text-secondary mt-1.5 mb-1 first:mt-0" {...props}>
+      <h4
+        className="text-sm font-semibold text-text-secondary mt-1.5 mb-1 first:mt-0"
+        {...props}
+      >
         {children}
       </h4>
     ),
     h5: ({ children, ...props }) => (
-      <h5 className="text-xs font-semibold text-text-secondary mt-1 mb-0.5 first:mt-0" {...props}>
+      <h5
+        className="text-xs font-semibold text-text-secondary mt-1 mb-0.5 first:mt-0"
+        {...props}
+      >
         {children}
       </h5>
     ),
     h6: ({ children, ...props }) => (
-      <h6 className="text-xs font-semibold text-text-muted mt-1 mb-0.5 first:mt-0" {...props}>
+      <h6
+        className="text-xs font-semibold text-text-muted mt-1 mb-0.5 first:mt-0"
+        {...props}
+      >
         {children}
       </h6>
     ),
 
     // Paragraphs - compact spacing with dice notation processing
     p: ({ children, ...props }) => (
-      <p className="text-sm text-text-secondary leading-relaxed mb-2 last:mb-0" {...props}>
+      <p
+        className="text-sm text-text-secondary leading-relaxed mb-2 last:mb-0"
+        {...props}
+      >
         {children}
       </p>
     ),
 
     // Lists - tighter spacing
     ul: ({ ...props }) => (
-      <ul className="list-disc list-inside text-sm text-text-secondary mb-2 space-y-0.5" {...props} />
+      <ul
+        className="list-disc list-inside text-sm text-text-secondary mb-2 space-y-0.5"
+        {...props}
+      />
     ),
     ol: ({ ...props }) => (
-      <ol className="list-decimal list-inside text-sm text-text-secondary mb-2 space-y-0.5" {...props} />
+      <ol
+        className="list-decimal list-inside text-sm text-text-secondary mb-2 space-y-0.5"
+        {...props}
+      />
     ),
     li: ({ children, ...props }) => (
       <li className="text-sm text-text-secondary" {...props}>
@@ -100,15 +126,17 @@ export default function MarkdownRenderer({ content }: Props) {
     code: ({ className, children, ...props }) => {
       const isInline = !className;
 
-      if (isInline && typeof children === 'string') {
+      if (isInline && typeof children === "string") {
         // Check for custom tag prefix
-        if (children.startsWith(`${CUSTOM_TAG_PREFIX}${TAG_COMPONENT_SEPARATOR}`)) {
+        if (
+          children.startsWith(`${CUSTOM_TAG_PREFIX}${TAG_COMPONENT_SEPARATOR}`)
+        ) {
           const parts = children.split(TAG_COMPONENT_SEPARATOR);
           const tagType = parts[1];
           const tagContent = parts[2];
           const tagClassName = parts.slice(3).join(TAG_COMPONENT_SEPARATOR); // Rejoin in case className had ::
 
-          const tag = EDITOR_TAGS.find(t => {
+          const tag = EDITOR_TAGS.find((t) => {
             const pattern = t.pattern.source.toLowerCase();
             return pattern.includes(`{${tagType.toLowerCase()}:`);
           });
@@ -119,7 +147,9 @@ export default function MarkdownRenderer({ content }: Props) {
           const linkMatch = tagContent?.match(MARKDOWN_LINK_NOTATION_REGEX);
 
           return (
-            <span className={`inline-flex items-center gap-1 ${tagClassName || ''}`}>
+            <span
+              className={`inline-flex items-center gap-1 ${tagClassName || ""}`}
+            >
               {Icon && <Icon className="w-3 h-3 inline" />}
               {linkMatch ? (
                 <a
@@ -138,8 +168,14 @@ export default function MarkdownRenderer({ content }: Props) {
         }
 
         // Check for dice notation prefix
-        if (children.startsWith(`${DICE_NOTATION_PREFIX}${TAG_COMPONENT_SEPARATOR}`)) {
-          const diceValue = children.substring((DICE_NOTATION_PREFIX + TAG_COMPONENT_SEPARATOR).length);
+        if (
+          children.startsWith(
+            `${DICE_NOTATION_PREFIX}${TAG_COMPONENT_SEPARATOR}`,
+          )
+        ) {
+          const diceValue = children.substring(
+            (DICE_NOTATION_PREFIX + TAG_COMPONENT_SEPARATOR).length,
+          );
           return (
             <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold">
               <Dices className="w-3 h-3 inline" />
@@ -152,13 +188,19 @@ export default function MarkdownRenderer({ content }: Props) {
       // Regular code rendering
       if (isInline) {
         return (
-          <code className="bg-panel-bg text-pink-400 px-1.5 py-0.5 rounded text-xs font-mono" {...props}>
+          <code
+            className="bg-panel-bg text-pink-400 px-1.5 py-0.5 rounded text-xs font-mono"
+            {...props}
+          >
             {children}
           </code>
         );
       }
       return (
-        <code className="block bg-panel-bg text-text-secondary p-2 rounded text-xs font-mono overflow-x-auto mb-2" {...props}>
+        <code
+          className="block bg-panel-bg text-text-secondary p-2 rounded text-xs font-mono overflow-x-auto mb-2"
+          {...props}
+        >
           {children}
         </code>
       );
@@ -166,27 +208,41 @@ export default function MarkdownRenderer({ content }: Props) {
 
     // Blockquotes
     blockquote: ({ children, ...props }) => (
-      <blockquote className="border-l-4 border-border-secondary pl-3 py-1 my-2 italic text-text-muted text-sm" {...props}>
+      <blockquote
+        className="border-l-4 border-border-secondary pl-3 py-1 my-2 italic text-text-muted text-sm"
+        {...props}
+      >
         {children}
       </blockquote>
     ),
 
     // Horizontal rules
-    hr: ({ ...props }) => <hr className="border-border-primary my-3" {...props} />,
+    hr: ({ ...props }) => (
+      <hr className="border-border-primary my-3" {...props} />
+    ),
 
     // Tables - compact mobile-friendly
     table: ({ ...props }) => (
       <div className="overflow-x-auto mb-2">
-        <table className="min-w-full text-xs border-collapse border border-border-primary" {...props} />
+        <table
+          className="min-w-full text-xs border-collapse border border-border-primary"
+          {...props}
+        />
       </div>
     ),
     th: ({ children, ...props }) => (
-      <th className="border border-border-primary bg-panel-bg px-2 py-1 text-left font-semibold text-text-primary" {...props}>
+      <th
+        className="border border-border-primary bg-panel-bg px-2 py-1 text-left font-semibold text-text-primary"
+        {...props}
+      >
         {children}
       </th>
     ),
     td: ({ children, ...props }) => (
-      <td className="border border-border-primary px-2 py-1 text-text-secondary" {...props}>
+      <td
+        className="border border-border-primary px-2 py-1 text-text-secondary"
+        {...props}
+      >
         {children}
       </td>
     ),

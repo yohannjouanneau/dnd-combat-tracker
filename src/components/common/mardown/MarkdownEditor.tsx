@@ -72,10 +72,10 @@ export default function MarkdownEditor({
       onChange(newText);
       textarea.focus();
       const newPos = start + `{${tagName}: ${textToWrap}}`.length;
-      setNewCursorPos(newPos)
+      setNewCursorPos(newPos);
       setIsTagMenuOpen(false);
     },
-    [onChange, value]
+    [onChange, value],
   );
 
   // Format SRD text
@@ -147,7 +147,9 @@ export default function MarkdownEditor({
             title={t("forms:library.notes.formatHint")}
           >
             <Wand2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t("forms:library.notes.format")}</span>
+            <span className="hidden sm:inline">
+              {t("forms:library.notes.format")}
+            </span>
           </button>
 
           {/* Write/Preview tabs */}

@@ -16,5 +16,5 @@ createRoot(document.getElementById("root")!).render(
         </ConfirmationDialogProvider>
       </ToastProvider>
     </ThemeProvider>
-  </StrictMode>
+  </StrictMode>,
 );

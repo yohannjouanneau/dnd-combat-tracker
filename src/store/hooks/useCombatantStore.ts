@@ -26,7 +26,7 @@ interface CombatantActions {
   prevTurn: () => void;
   prepareCombatantList: (
     prev: CombatState,
-    combatant: NewCombatant
+    combatant: NewCombatant,
   ) => Combatant[];
   getUniqueGroups: () => GroupSummary[];
 }
@@ -54,7 +54,7 @@ export function useCombatantStore({
   const createCombatantsUpdate = (
     prev: CombatState,
     newCombatants: Combatant[],
-    defaultTurn: number
+    defaultTurn: number,
   ): CombatState => {
     if (newCombatants.length === 0) {
       return {
@@ -73,7 +73,11 @@ export function useCombatantStore({
 
   // Helper function to prepare combatant list from form
   const prepareCombatantList = useCallback(
-    (prev: CombatState, combatant: NewCombatant, templateOrigin?: TemplateOrigin) => {
+    (
+      prev: CombatState,
+      combatant: NewCombatant,
+      templateOrigin?: TemplateOrigin,
+    ) => {
       const nc = combatant;
       if (!nc.name || !nc.hp) return prev.combatants;
       if (nc.initiativeGroups.length === 0) return prev.combatants;
@@ -86,13 +90,13 @@ export function useCombatantStore({
       // Calculate total count across all initiative groups
       const totalCount = nc.initiativeGroups.reduce(
         (sum, g) => sum + (parseInt(g.count) || 0),
-        0
+        0,
       );
       if (totalCount === 0) return prev.combatants;
 
       // Find highest existing index for this group
       const existingGroupMembers = prev.combatants.filter(
-        (c) => c.name === nc.name
+        (c) => c.name === nc.name,
       );
       const maxGroupIndex =
         existingGroupMembers.length > 0
@@ -159,7 +163,7 @@ export function useCombatantStore({
 
       return updated;
     },
-    []
+    [],
   );
 
   const addCombatant = useCallback(
@@ -168,7 +172,7 @@ export function useCombatantStore({
         const updated = prepareCombatantList(
           prev,
           combatant ?? state.newCombatant,
-          templateOrigin
+          templateOrigin,
         );
         return {
           ...prev,
@@ -185,7 +189,7 @@ export function useCombatantStore({
       combatantFormStore,
       toastApi,
       t,
-    ]
+    ],
   );
 
   const removeCombatant = useCallback(
@@ -199,7 +203,7 @@ export function useCombatantStore({
         return createCombatantsUpdate(prev, newCombatants, newTurn);
       });
     },
-    [setState]
+    [setState],
   );
 
   const removeGroup = useCallback(
@@ -209,7 +213,7 @@ export function useCombatantStore({
         return createCombatantsUpdate(prev, newCombatants, 0);
       });
     },
-    [setState]
+    [setState],
   );
 
   const updateHP = useCallback(
@@ -220,7 +224,7 @@ export function useCombatantStore({
           if (c.id === id) {
             const newHp = Math.max(
               0,
-              Math.min(c.maxHp ?? 0, (c.hp ?? 0) + change)
+              Math.min(c.maxHp ?? 0, (c.hp ?? 0) + change),
             );
             return { ...c, hp: newHp };
           }
@@ -228,7 +232,7 @@ export function useCombatantStore({
         }),
       }));
     },
-    [setState]
+    [setState],
   );
 
   const updateInitiative = useCallback(
@@ -236,7 +240,7 @@ export function useCombatantStore({
       setState((prev) => {
         // Update the combatant's initiative
         const updatedCombatants = prev.combatants.map((c) =>
-          c.id === id ? { ...c, initiative: newInitiative } : c
+          c.id === id ? { ...c, initiative: newInitiative } : c,
         );
 
         // Re-sort the combatants by initiative (descending), then by group name, then by index
@@ -253,7 +257,7 @@ export function useCombatantStore({
         // Find the new index of the currently active combatant
         const activeCombatant = prev.combatants[prev.currentTurn];
         const newCurrentTurn = sortedCombatants.findIndex(
-          (c) => c.id === activeCombatant?.id
+          (c) => c.id === activeCombatant?.id,
         );
 
         return {
@@ -263,7 +267,7 @@ export function useCombatantStore({
         };
       });
     },
-    [setState]
+    [setState],
   );
 
   const toggleCondition = useCallback(
@@ -284,7 +288,7 @@ export function useCombatantStore({
         }),
       }));
     },
-    [setState]
+    [setState],
   );
 
   const updateDeathSave = useCallback(
@@ -305,7 +309,7 @@ export function useCombatantStore({
         }),
       }));
     },
-    [setState]
+    [setState],
   );
 
   const updateCombatantNotes = useCallback(
@@ -313,11 +317,11 @@ export function useCombatantStore({
       setState((prev) => ({
         ...prev,
         combatants: prev.combatants.map((c) =>
-          c.id === id ? { ...c, combatNotes } : c
+          c.id === id ? { ...c, combatNotes } : c,
         ),
       }));
     },
-    [setState]
+    [setState],
   );
 
   const nextTurn = useCallback(() => {
@@ -380,7 +384,7 @@ export function useCombatantStore({
       nextTurn,
       prevTurn,
       prepareCombatantList,
-      getUniqueGroups
+      getUniqueGroups,
     },
   };
 }

@@ -30,7 +30,10 @@ export class BlockTypeStorageProvider {
     return item;
   }
 
-  async update(id: string, patch: Partial<BlockTypeDef>): Promise<BlockTypeDef> {
+  async update(
+    id: string,
+    patch: Partial<BlockTypeDef>,
+  ): Promise<BlockTypeDef> {
     const items = this.readAll();
     const idx = items.findIndex((i) => i.id === id);
     if (idx < 0) throw new Error("Not found");

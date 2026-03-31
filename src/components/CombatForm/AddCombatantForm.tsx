@@ -4,20 +4,11 @@ import LabeledTextInput from "../common/LabeledTextInput";
 import LabeledNumberInput from "../common/LabeledNumberInput";
 import ColorPicker from "../common/ColorPicker";
 import InitiativeGroupInput from "./InitiativeGroupInput";
-import {
-  Save,
-  Sword,
-  CircleParking,
-  Dice3,
-} from "lucide-react";
+import { Save, Sword, CircleParking, Dice3 } from "lucide-react";
 import CombatantNameWithSearch from "./CombatantNameWithSearch";
 import { isNewCombatantInvalid, safeParseInt } from "../../utils/utils";
 
-type ButtonType =
-  | "fight"
-  | "park"
-  | "addToLibrary"
-  | "addInitGroup";
+type ButtonType = "fight" | "park" | "addToLibrary" | "addInitGroup";
 
 type Props = {
   newCombatant: NewCombatant;
@@ -25,7 +16,7 @@ type Props = {
   totalCount: number;
   visibleButtons?: ButtonType[];
   addToFightChecked: boolean;
-  disableInitiativeCount: boolean,
+  disableInitiativeCount: boolean;
   onAddToFightChange: (checked: boolean) => void;
   addAnotherChecked: boolean;
   onAddAnotherChange: (checked: boolean) => void;
@@ -36,7 +27,7 @@ type Props = {
   onRemoveInitiativeGroup: (id: string) => void;
   onUpdateInitiativeGroup: (
     id: string,
-    patch: Partial<InitiativeGroup>
+    patch: Partial<InitiativeGroup>,
   ) => void;
   onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
   onSelectSearchResult: (searchResult: SearchResult) => void;

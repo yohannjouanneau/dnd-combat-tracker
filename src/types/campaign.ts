@@ -4,7 +4,7 @@ export type BlockFeatureKey = "characters" | "combat" | "loot" | "countdown";
 
 export interface BlockTypeDef {
   id: string;
-  name: string;   // i18n key for built-ins, user string for custom
+  name: string; // i18n key for built-ins, user string for custom
   icon: string;
   features: BlockFeatureKey[];
   isBuiltIn: boolean;
@@ -12,9 +12,9 @@ export interface BlockTypeDef {
 
 /** Unified feature data — replaces the old SpecialFeature discriminated union */
 export interface BlockFeatureData {
-  linkedNpcIds?: string[];    // "characters" feature
-  combatId?: string | null;   // "combat" feature
-  items?: string[];           // "loot" feature
+  linkedNpcIds?: string[]; // "characters" feature
+  combatId?: string | null; // "combat" feature
+  items?: string[]; // "loot" feature
 }
 
 export interface Outcome {
@@ -33,14 +33,14 @@ export interface StatCheck {
 }
 
 export interface CountdownData {
-  max: number;          // total steps (0 = disabled)
-  current: number;      // elapsed steps (0..max)
+  max: number; // total steps (0 = disabled)
+  current: number; // elapsed steps (0..max)
   descriptions?: string[]; // optional label per step, indexed 0..max-1
 }
 
 export interface BuildingBlock extends TimestampedEntity {
   id: string;
-  typeId: string;           // reference to BlockTypeDef.id
+  typeId: string; // reference to BlockTypeDef.id
   icon?: string;
   name: string;
   description: string;

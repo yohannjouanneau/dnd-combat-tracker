@@ -24,9 +24,19 @@ export function useCombatState(): CombatStateManager {
   const [state, setState] = useState<CombatState>(getInitialState());
 
   // Helper to update state from child hooks
-  const updateState = useCallback((patch: Partial<CombatState> | ((prev: CombatState) => Partial<CombatState>)) => {
-    setState((prev) => ({ ...prev, ...(typeof patch === 'function' ? patch(prev) : patch) }));
-  }, []);
+  const updateState = useCallback(
+    (
+      patch:
+        | Partial<CombatState>
+        | ((prev: CombatState) => Partial<CombatState>),
+    ) => {
+      setState((prev) => ({
+        ...prev,
+        ...(typeof patch === "function" ? patch(prev) : patch),
+      }));
+    },
+    [],
+  );
 
   // Initialize player state hook early (needs to be before it's used in synchronise)
   const playerStore = usePlayerStore({ updateState });
@@ -94,7 +104,7 @@ export function useCombatState(): CombatStateManager {
       parkedGroupStore.actions,
       combatantStore.actions,
       combatantFormStore.actions,
-    ]
+    ],
   );
 
   const resetState = useCallback(() => {
@@ -118,7 +128,7 @@ export function useCombatState(): CombatStateManager {
       removePlayer: playerStore.actions.removePlayer,
       savedPlayers: playerStore.state.savedPlayers,
       linkedPlayers: playerStore.state.savedPlayers.filter(
-        (p) => state.linkedPlayerIds?.includes(p.id) ?? false
+        (p) => state.linkedPlayerIds?.includes(p.id) ?? false,
       ),
       linkPlayer: playerStore.actions.linkPlayer,
       unlinkPlayer: playerStore.actions.unlinkPlayer,
@@ -263,6 +273,6 @@ export function useCombatState(): CombatStateManager {
       campaignStore.removeBlockFromCampaign,
       campaignStore.addChildToBlock,
       campaignStore.reorderCampaignBlocks,
-    ]
+    ],
   );
 }

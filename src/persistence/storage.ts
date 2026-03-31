@@ -14,7 +14,13 @@ import type {
   SavedCombat,
   SavedCombatInput,
 } from "../types";
-import type { BlockTypeDef, BuildingBlock, BuildingBlockInput, Campaign, CampaignInput } from "../types/campaign";
+import type {
+  BlockTypeDef,
+  BuildingBlock,
+  BuildingBlockInput,
+  Campaign,
+  CampaignInput,
+} from "../types/campaign";
 import { CombatStorageProvider } from "./CombatStorageProvider";
 import { CombatantTemplateStorageProvider } from "./CombatantTemplateStorageProvider";
 import { BuildingBlockStorageProvider } from "./BuildingBlockStorageProvider";
@@ -37,23 +43,23 @@ export class DataStore {
   constructor(
     clientId: string,
     combatProvider: CombatStorageProvider = new CombatStorageProvider(
-      COMBAT_STORAGE_KEY
+      COMBAT_STORAGE_KEY,
     ),
     playerProvider = new CombatantTemplateStorageProvider<"player">(
-      PLAYER_STORAGE_KEY
+      PLAYER_STORAGE_KEY,
     ),
     monsterProvider = new CombatantTemplateStorageProvider<"monster">(
-      MONSTER_STORAGE_KEY
+      MONSTER_STORAGE_KEY,
     ),
     blockProvider: BuildingBlockStorageProvider = new BuildingBlockStorageProvider(
-      BUILDING_BLOCK_STORAGE_KEY
+      BUILDING_BLOCK_STORAGE_KEY,
     ),
     blockTypeProvider: BlockTypeStorageProvider = new BlockTypeStorageProvider(
-      BLOCK_TYPE_STORAGE_KEY
+      BLOCK_TYPE_STORAGE_KEY,
     ),
     campaignProvider: CampaignStorageProvider = new CampaignStorageProvider(
-      CAMPAIGN_STORAGE_KEY
-    )
+      CAMPAIGN_STORAGE_KEY,
+    ),
   ) {
     this.combatProvider = combatProvider;
     this.playerProvider = playerProvider;
@@ -124,7 +130,7 @@ export class DataStore {
     const restoredData = await restoreCombatState(savedCombat.data, this);
 
     if (!restoredData) {
-      return undefined
+      return undefined;
     }
 
     return {
@@ -152,11 +158,14 @@ export class DataStore {
         ...patch,
         data: optimizedData,
       };
-      const otpmizedSavedCombat = await this.combatProvider.update(id, optimizedPatch);
+      const otpmizedSavedCombat = await this.combatProvider.update(
+        id,
+        optimizedPatch,
+      );
       return {
         ...otpmizedSavedCombat,
-        data: patch.data
-      }
+        data: patch.data,
+      };
     }
     const savedCombat = await this.combatProvider.update(id, patch);
     return savedCombat;
@@ -213,7 +222,10 @@ export class DataStore {
   createBlock(input: BuildingBlockInput): Promise<BuildingBlock> {
     return this.blockProvider.create(input);
   }
-  updateBlock(id: string, patch: Partial<BuildingBlock>): Promise<BuildingBlock> {
+  updateBlock(
+    id: string,
+    patch: Partial<BuildingBlock>,
+  ): Promise<BuildingBlock> {
     return this.blockProvider.update(id, patch);
   }
   deleteBlock(id: string): Promise<void> {
@@ -224,10 +236,15 @@ export class DataStore {
   listBlockTypes(): Promise<BlockTypeDef[]> {
     return this.blockTypeProvider.list();
   }
-  createBlockType(input: Omit<BlockTypeDef, "isBuiltIn">): Promise<BlockTypeDef> {
+  createBlockType(
+    input: Omit<BlockTypeDef, "isBuiltIn">,
+  ): Promise<BlockTypeDef> {
     return this.blockTypeProvider.create(input);
   }
-  updateBlockType(id: string, patch: Partial<BlockTypeDef>): Promise<BlockTypeDef> {
+  updateBlockType(
+    id: string,
+    patch: Partial<BlockTypeDef>,
+  ): Promise<BlockTypeDef> {
     return this.blockTypeProvider.update(id, patch);
   }
   deleteBlockType(id: string): Promise<void> {

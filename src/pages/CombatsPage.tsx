@@ -6,7 +6,11 @@ import logo from "../assets/logo.png";
 import { ArrowLeft, BookOpen, Plus } from "lucide-react";
 import CombatList from "../components/CombatsList/CombatList";
 import LibraryModal from "../components/Library/LibraryModal";
-import { buildPlayerCombatantsForFight, generateDefaultNewCombatant, generateId } from "../utils/utils";
+import {
+  buildPlayerCombatantsForFight,
+  generateDefaultNewCombatant,
+  generateId,
+} from "../utils/utils";
 import type { CombatStateManager } from "../store/types";
 
 type Props = {
@@ -15,14 +19,18 @@ type Props = {
   combatStateManager: CombatStateManager;
 };
 
-export default function CombatsPage({ onOpen, onBack, combatStateManager }: Props) {
+export default function CombatsPage({
+  onOpen,
+  onBack,
+  combatStateManager,
+}: Props) {
   const { t } = useTranslation(["forms", "common"]);
   const [combats, setCombats] = useState<SavedCombat[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(true);
   const [showLibrary, setShowLibrary] = useState(false);
-  
+
   useEffect(() => {
     combatStateManager.listCombat().then((c) => {
       setCombats(c);
@@ -32,11 +40,13 @@ export default function CombatsPage({ onOpen, onBack, combatStateManager }: Prop
 
   const create = useCallback(async () => {
     if (!name.trim()) return;
-    const autoPlayers = combatStateManager.savedPlayers.filter(p => p.autoAddToCombat);
+    const autoPlayers = combatStateManager.savedPlayers.filter(
+      (p) => p.autoAddToCombat,
+    );
     const autoCombatants = buildPlayerCombatantsForFight(autoPlayers);
     const emptyState: CombatState = {
       combatants: autoCombatants,
-      linkedPlayerIds: autoPlayers.map(p => p.id),
+      linkedPlayerIds: autoPlayers.map((p) => p.id),
       currentTurn: 0,
       round: 1,
       parkedGroups: [],
@@ -53,18 +63,24 @@ export default function CombatsPage({ onOpen, onBack, combatStateManager }: Prop
     setDescription("");
     setCombats(await combatStateManager.listCombat());
     onOpen(created.id);
-  },[combatStateManager, description, name, onOpen])
+  }, [combatStateManager, description, name, onOpen]);
 
-  const del = useCallback(async (id: string) => {
-    await combatStateManager.deleteCombat(id);
-    setCombats(await combatStateManager.listCombat());
-  },[combatStateManager])
+  const del = useCallback(
+    async (id: string) => {
+      await combatStateManager.deleteCombat(id);
+      setCombats(await combatStateManager.listCombat());
+    },
+    [combatStateManager],
+  );
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      create();
-    }
-  },[create])
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        create();
+      }
+    },
+    [create],
+  );
 
   if (loading)
     return <div className="p-6 text-text-secondary">{t("common:loading")}</div>;
@@ -164,13 +180,15 @@ export default function CombatsPage({ onOpen, onBack, combatStateManager }: Prop
         onUpdateBlock={combatStateManager.updateBlock}
         onDeleteBlock={combatStateManager.deleteBlock}
         onToggleAutoAdd={(player) =>
-          combatStateManager.updatePlayer(player.id, { ...player, autoAddToCombat: !player.autoAddToCombat })
+          combatStateManager.updatePlayer(player.id, {
+            ...player,
+            autoAddToCombat: !player.autoAddToCombat,
+          })
         }
         onSearchMonsters={combatStateManager.searchWithLibrary}
         isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
         isPlayerUsedAsTemplate={combatStateManager.isPlayerUsedAsTemplate}
       />
-
     </div>
   );
 }

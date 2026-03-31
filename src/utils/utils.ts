@@ -1,6 +1,11 @@
 import type { ApiMonster } from "../api/types";
 import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "../constants";
-import type { Combatant, NewCombatant, SavedPlayer, SkillProficiency } from "../types";
+import type {
+  Combatant,
+  NewCombatant,
+  SavedPlayer,
+  SkillProficiency,
+} from "../types";
 
 export function generateId(): string {
   // Generate a random id: 16 characters, URL-safe
@@ -39,16 +44,21 @@ export function getProficiencyBonusFromLevel(level: number): number {
   return Math.ceil(level / 4) + 1;
 }
 
-export function getEffectiveProficiencyBonus(level?: number, proficiencyBonus?: number): number | undefined {
-  if (level && level >= 1 && level <= 20) return getProficiencyBonusFromLevel(level);
-  if (proficiencyBonus !== undefined && proficiencyBonus > 0) return proficiencyBonus;
+export function getEffectiveProficiencyBonus(
+  level?: number,
+  proficiencyBonus?: number,
+): number | undefined {
+  if (level && level >= 1 && level <= 20)
+    return getProficiencyBonusFromLevel(level);
+  if (proficiencyBonus !== undefined && proficiencyBonus > 0)
+    return proficiencyBonus;
   return undefined;
 }
 
 export function getPassiveScore(
   abilityScore: number | undefined,
   profBonus: number,
-  proficiency?: SkillProficiency
+  proficiency?: SkillProficiency,
 ): number {
   const mod = getStatModifier(abilityScore) ?? 0;
   const profMod = proficiency?.expertise
@@ -61,14 +71,14 @@ export function getPassiveScore(
 
 export function getSpellSaveDC(
   spellcastingScore: number | undefined,
-  profBonus: number
+  profBonus: number,
 ): number {
   return 8 + profBonus + (getStatModifier(spellcastingScore) ?? 0);
 }
 
 export function getSpellAttackBonus(
   spellcastingScore: number | undefined,
-  profBonus: number
+  profBonus: number,
 ): number {
   return profBonus + (getStatModifier(spellcastingScore) ?? 0);
 }
@@ -82,13 +92,16 @@ export function getAbilityModifier(score: number) {
   const num = score || 10;
   const mod = getStatModifier(num);
   return mod && mod >= 0 ? `+${mod}` : `${mod}`;
-};
+}
 
 export function getApiImageUrl(monster: ApiMonster) {
   return `${DND_API_HOST}${monster.image}`;
 }
 
-export function safeParseInt(strNumber: string, allowNegative: boolean = false) {
+export function safeParseInt(
+  strNumber: string,
+  allowNegative: boolean = false,
+) {
   const result = parseInt(strNumber);
   if (isNaN(result)) return undefined;
   if (!allowNegative && result < 0) return undefined;
@@ -166,18 +179,22 @@ export function getReadableTimestamp(timestamp: number | Date): string {
 export function isNewCombatantInvalid(newCombatant: NewCombatant): boolean {
   return (
     newCombatant.name === "" ||
-    !newCombatant.ac || newCombatant.ac <= 0 ||
-    !newCombatant.hp || newCombatant.hp <= 0 ||
+    !newCombatant.ac ||
+    newCombatant.ac <= 0 ||
+    !newCombatant.hp ||
+    newCombatant.hp <= 0 ||
     newCombatant.initiativeGroups.length === 0 ||
-    newCombatant.initiativeGroups.some((g) => g.initiative === "" || g.count === "")
+    newCombatant.initiativeGroups.some(
+      (g) => g.initiative === "" || g.count === "",
+    )
   );
 }
 
 export function generateDefaultNewCombatant() {
   return {
     ...DEFAULT_NEW_COMBATANT,
-    id: generateId()
-  }
+    id: generateId(),
+  };
 }
 
 /**
@@ -185,7 +202,9 @@ export function generateDefaultNewCombatant() {
  * used when auto-adding players at new combat creation time.
  * Mirrors the core logic of prepareCombatantList in useCombatantStore.
  */
-export function buildPlayerCombatantsForFight(players: SavedPlayer[]): Combatant[] {
+export function buildPlayerCombatantsForFight(
+  players: SavedPlayer[],
+): Combatant[] {
   const result: Combatant[] = [];
 
   for (const player of players) {
@@ -193,16 +212,20 @@ export function buildPlayerCombatantsForFight(players: SavedPlayer[]): Combatant
     const groups = player.initiativeGroups;
     if (groups.length === 0) continue;
 
-    const totalCount = groups.reduce((sum, g) => sum + (parseInt(g.count) || 0), 0);
+    const totalCount = groups.reduce(
+      (sum, g) => sum + (parseInt(g.count) || 0),
+      0,
+    );
     if (totalCount === 0) continue;
 
     let globalIndex = 0;
     for (const group of groups) {
       const count = parseInt(group.count) || 1;
       for (let i = 0; i < count; i++) {
-        const displayName = totalCount > 1
-          ? `${player.name} ${indexToLetter(globalIndex)}`
-          : player.name;
+        const displayName =
+          totalCount > 1
+            ? `${player.name} ${indexToLetter(globalIndex)}`
+            : player.name;
         result.push({
           id: generateCombatantId(),
           name: player.name,
@@ -241,10 +264,13 @@ export function buildPlayerCombatantsForFight(players: SavedPlayer[]): Combatant
  *
  * Tailwind safelist: bg-green-500 bg-yellow-500 bg-red-500 text-green-400 text-yellow-400 text-red-400
  */
-export function getHpColorClass(hp: number, maxHp: number, type: 'bg' | 'text' = 'text'): string {
+export function getHpColorClass(
+  hp: number,
+  maxHp: number,
+  type: "bg" | "text" = "text",
+): string {
   const pct = maxHp > 0 ? (hp / maxHp) * 100 : 0;
-  const color = pct > 50 ? 'green' : pct > 25 ? 'yellow' : 'red';
-  const shade = type === 'bg' ? '500' : '400';
+  const color = pct > 50 ? "green" : pct > 25 ? "yellow" : "red";
+  const shade = type === "bg" ? "500" : "400";
   return `${type}-${color}-${shade}`;
 }
-

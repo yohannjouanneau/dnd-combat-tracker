@@ -11,7 +11,12 @@ type Props = {
   onClear: () => void;
 };
 
-export default function IconPicker({ value, defaultIcon, onChange, onClear }: Props) {
+export default function IconPicker({
+  value,
+  defaultIcon,
+  onChange,
+  onClear,
+}: Props) {
   const { t, i18n } = useTranslation("campaigns");
   const [open, setOpen] = useState(false);
 

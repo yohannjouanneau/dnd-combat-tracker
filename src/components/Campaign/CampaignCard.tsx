@@ -35,7 +35,8 @@ export default function CampaignCard({ campaign, onOpen, onDelete }: Props) {
           </div>
         )}
         <div className="text-xs text-text-muted mt-1">
-          {campaign.nodes.length} {campaign.nodes.length === 1 ? "block" : "blocks"}
+          {campaign.nodes.length}{" "}
+          {campaign.nodes.length === 1 ? "block" : "blocks"}
         </div>
       </div>
       <div className="grid grid-cols-2 md:flex gap-2 flex-shrink-0">

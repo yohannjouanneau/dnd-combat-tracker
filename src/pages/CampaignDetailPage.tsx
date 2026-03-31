@@ -4,13 +4,19 @@ import { ArrowUpDown, Check, Plus, Library } from "lucide-react";
 import TopBar from "../components/TopBar";
 import type { CombatStateManager } from "../store/types";
 import type { SavedCombat } from "../types";
-import type { BuildingBlock, BuildingBlockInput, Campaign } from "../types/campaign";
+import type {
+  BuildingBlock,
+  BuildingBlockInput,
+  Campaign,
+} from "../types/campaign";
 import { generateId, generateDefaultNewCombatant } from "../utils/utils";
 import { useToast } from "../components/common/Toast/useToast";
 import { useConfirmationDialog } from "../hooks/useConfirmationDialog";
 import BlockEditModal from "../components/Campaign/BlockEditModal";
 import BlockDetailModal from "../components/Campaign/BlockDetailModal";
-import BlockTreeNode, { type DragCallbacks } from "../components/Campaign/BlockTreeNode";
+import BlockTreeNode, {
+  type DragCallbacks,
+} from "../components/Campaign/BlockTreeNode";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
 import LibraryModal from "../components/Library/LibraryModal";
 import type { SavedMonster, SavedPlayer } from "../types";
@@ -42,13 +48,21 @@ export default function CampaignDetailPage({
 
   const [modalState, setModalState] = useState<ModalState>({ kind: "closed" });
   const [savedCombats, setSavedCombats] = useState<SavedCombat[]>([]);
-  const [editingNpc, setEditingNpc] = useState<SavedPlayer | SavedMonster | null>(null);
+  const [editingNpc, setEditingNpc] = useState<
+    SavedPlayer | SavedMonster | null
+  >(null);
   const [reorderMode, setReorderMode] = useState(false);
-  const [dragState, setDragState] = useState<{ blockId: string; sourceParentId: string | null } | null>(null);
-  const [dropTarget, setDropTarget] = useState<{ targetId: string; position: "before" | "after" | "child" } | null>(null);
+  const [dragState, setDragState] = useState<{
+    blockId: string;
+    sourceParentId: string | null;
+  } | null>(null);
+  const [dropTarget, setDropTarget] = useState<{
+    targetId: string;
+    position: "before" | "after" | "child";
+  } | null>(null);
 
   const campaign: Campaign | undefined = combatStateManager.campaigns.find(
-    (c) => c.id === campaignId
+    (c) => c.id === campaignId,
   );
 
   const [localName, setLocalName] = useState(campaign?.name ?? "");
@@ -69,20 +83,22 @@ export default function CampaignDetailPage({
   // Block IDs in this campaign
   const blockIdsInCampaign = useMemo(
     () => new Set(campaign?.nodes.map((n) => n.blockId) ?? []),
-    [campaign]
+    [campaign],
   );
 
   // Full block objects for campaign nodes
   const campaignBlocks = useMemo(
     () => combatStateManager.blocks.filter((b) => blockIdsInCampaign.has(b.id)),
-    [combatStateManager.blocks, blockIdsInCampaign]
+    [combatStateManager.blocks, blockIdsInCampaign],
   );
 
   // Root blocks: in campaign but not listed as a child of another campaign block
   // Ordered according to campaign.nodes array
   const rootBlocks = useMemo(() => {
     const childIds = new Set(
-      campaignBlocks.flatMap((b) => b.children.filter((id) => blockIdsInCampaign.has(id)))
+      campaignBlocks.flatMap((b) =>
+        b.children.filter((id) => blockIdsInCampaign.has(id)),
+      ),
     );
     const nodeOrder = campaign?.nodes.map((n) => n.blockId) ?? [];
     const rootSet = campaignBlocks.filter((b) => !childIds.has(b.id));
@@ -104,16 +120,21 @@ export default function CampaignDetailPage({
 
   // Library blocks not yet in the campaign
   const libraryBlocksNotInCampaign = useMemo(
-    () => combatStateManager.blocks.filter((b) => !blockIdsInCampaign.has(b.id)),
-    [combatStateManager.blocks, blockIdsInCampaign]
+    () =>
+      combatStateManager.blocks.filter((b) => !blockIdsInCampaign.has(b.id)),
+    [combatStateManager.blocks, blockIdsInCampaign],
   );
 
   const saveCampaignMeta = useCallback(
     async (name: string, description: string) => {
       if (!campaign) return;
-      await combatStateManager.updateCampaignMeta(campaign.id, name, description);
+      await combatStateManager.updateCampaignMeta(
+        campaign.id,
+        name,
+        description,
+      );
     },
-    [campaign, combatStateManager]
+    [campaign, combatStateManager],
   );
 
   const handleSaveBlock = useCallback(
@@ -125,7 +146,10 @@ export default function CampaignDetailPage({
       } else if (modalState.kind === "create-child") {
         const created = await combatStateManager.createBlock(data);
         await combatStateManager.addBlockToCampaign(campaignId, created.id);
-        await combatStateManager.addChildToBlock(modalState.parentId, created.id);
+        await combatStateManager.addChildToBlock(
+          modalState.parentId,
+          created.id,
+        );
         toast.success(t("campaigns:toast.blockSaved"));
       } else if (modalState.kind === "edit") {
         await combatStateManager.updateBlock(data.id, data);
@@ -133,7 +157,7 @@ export default function CampaignDetailPage({
       }
       setModalState({ kind: "closed" });
     },
-    [modalState, campaignId, combatStateManager, t, toast]
+    [modalState, campaignId, combatStateManager, t, toast],
   );
 
   const handleRemoveBlock = useCallback(
@@ -146,7 +170,7 @@ export default function CampaignDetailPage({
       await combatStateManager.removeBlockFromCampaign(campaignId, blockId);
       toast.success(t("campaigns:toast.blockRemoved"));
     },
-    [campaignId, combatStateManager, confirmDialog, t, toast]
+    [campaignId, combatStateManager, confirmDialog, t, toast],
   );
 
   const handleAddFromLibrary = useCallback(
@@ -154,7 +178,7 @@ export default function CampaignDetailPage({
       await combatStateManager.addBlockToCampaign(campaignId, blockId);
       toast.success(t("campaigns:toast.blockSaved"));
     },
-    [campaignId, combatStateManager, t, toast]
+    [campaignId, combatStateManager, t, toast],
   );
 
   const handleOpenNpc = useCallback(
@@ -164,14 +188,16 @@ export default function CampaignDetailPage({
         combatStateManager.monsters.find((m) => m.id === npcId);
       if (entity) setEditingNpc(entity);
     },
-    [combatStateManager.savedPlayers, combatStateManager.monsters]
+    [combatStateManager.savedPlayers, combatStateManager.monsters],
   );
 
   const handleCreateCombatForBlock = useCallback(
     async (blockId: string) => {
       const newCombat = await combatStateManager.createCombat({
         id: generateId(),
-        name: campaignBlocks.find((b) => b.id === blockId)?.name ?? t("campaigns:block.combatFeature.newCombat"),
+        name:
+          campaignBlocks.find((b) => b.id === blockId)?.name ??
+          t("campaigns:block.combatFeature.newCombat"),
         description: "",
         data: {
           combatants: [],
@@ -184,11 +210,14 @@ export default function CampaignDetailPage({
       });
       const currentBlock = campaignBlocks.find((b) => b.id === blockId);
       await combatStateManager.updateBlock(blockId, {
-        featureData: { ...(currentBlock?.featureData ?? {}), combatId: newCombat.id },
+        featureData: {
+          ...(currentBlock?.featureData ?? {}),
+          combatId: newCombat.id,
+        },
       });
       onOpenCombat(newCombat.id);
     },
-    [campaignBlocks, combatStateManager, onOpenCombat]
+    [campaignBlocks, combatStateManager, onOpenCombat, t],
   );
 
   const handleMetaChange = useCallback(
@@ -197,7 +226,7 @@ export default function CampaignDetailPage({
       if (patch.description !== undefined) setLocalDesc(patch.description);
       setMetaHasChanges(true);
     },
-    []
+    [],
   );
 
   const handleSaveMeta = useCallback(async () => {
@@ -242,7 +271,9 @@ export default function CampaignDetailPage({
         }
       } else {
         // Target is at root level — reorder campaign.nodes
-        const rootIds = rootBlocks.map((b) => b.id).filter((id) => id !== blockId);
+        const rootIds = rootBlocks
+          .map((b) => b.id)
+          .filter((id) => id !== blockId);
         const idx = rootIds.indexOf(targetId);
         rootIds.splice(position === "before" ? idx : idx + 1, 0, blockId);
         await combatStateManager.reorderCampaignBlocks(campaignId, rootIds);
@@ -251,14 +282,18 @@ export default function CampaignDetailPage({
 
     setDragState(null);
     setDropTarget(null);
-  }, [dragState, dropTarget, campaignBlocks, parentMap, rootBlocks, combatStateManager, campaignId]);
+  }, [
+    dragState,
+    dropTarget,
+    campaignBlocks,
+    parentMap,
+    rootBlocks,
+    combatStateManager,
+    campaignId,
+  ]);
 
   if (!campaign) {
-    return (
-      <div className="p-6 text-text-secondary">
-        {t("common:loading")}
-      </div>
-    );
+    return <div className="p-6 text-text-secondary">{t("common:loading")}</div>;
   }
 
   return (
@@ -276,16 +311,26 @@ export default function CampaignDetailPage({
         />
         <div className="flex justify-end gap-2 mb-4">
           <button
-            onClick={() => { setReorderMode((v) => !v); setDragState(null); setDropTarget(null); }}
+            onClick={() => {
+              setReorderMode((v) => !v);
+              setDragState(null);
+              setDropTarget(null);
+            }}
             className={`flex items-center gap-1 px-3 py-2 rounded text-sm transition ${
               reorderMode
                 ? "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary ring-1 ring-border-secondary"
                 : "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary"
             }`}
           >
-            {reorderMode ? <Check className="w-4 h-4" /> : <ArrowUpDown className="w-4 h-4" />}
+            {reorderMode ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <ArrowUpDown className="w-4 h-4" />
+            )}
             <span className="hidden sm:inline">
-              {reorderMode ? t("common:actions.confirm") : t("campaigns:detail.reorder")}
+              {reorderMode
+                ? t("common:actions.confirm")
+                : t("campaigns:detail.reorder")}
             </span>
           </button>
           {!reorderMode && (
@@ -296,14 +341,18 @@ export default function CampaignDetailPage({
                 title={t("campaigns:detail.addFromLibrary")}
               >
                 <Library className="w-4 h-4" />
-                <span className="hidden sm:inline">{t("campaigns:detail.addFromLibrary")}</span>
+                <span className="hidden sm:inline">
+                  {t("campaigns:detail.addFromLibrary")}
+                </span>
               </button>
               <button
                 onClick={() => setModalState({ kind: "create" })}
                 className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">{t("campaigns:detail.addBlock")}</span>
+                <span className="hidden sm:inline">
+                  {t("campaigns:detail.addBlock")}
+                </span>
               </button>
             </>
           )}
@@ -328,17 +377,31 @@ export default function CampaignDetailPage({
                 savedMonsters={combatStateManager.monsters}
                 depth={0}
                 reorderMode={reorderMode}
-                dragCallbacks={reorderMode ? ({
-                  onDragStart: (blockId) => setDragState({ blockId, sourceParentId: parentMap.get(blockId) ?? null }),
-                  onDragOver: (targetId, position) => setDropTarget({ targetId, position }),
-                  onDrop: handleGlobalDrop,
-                  onDragEnd: () => { setDragState(null); setDropTarget(null); },
-                  draggedId: dragState?.blockId ?? null,
-                  dropTarget,
-                } satisfies DragCallbacks) : undefined}
+                dragCallbacks={
+                  reorderMode
+                    ? ({
+                        onDragStart: (blockId) =>
+                          setDragState({
+                            blockId,
+                            sourceParentId: parentMap.get(blockId) ?? null,
+                          }),
+                        onDragOver: (targetId, position) =>
+                          setDropTarget({ targetId, position }),
+                        onDrop: handleGlobalDrop,
+                        onDragEnd: () => {
+                          setDragState(null);
+                          setDropTarget(null);
+                        },
+                        draggedId: dragState?.blockId ?? null,
+                        dropTarget,
+                      } satisfies DragCallbacks)
+                    : undefined
+                }
                 onView={(b) => setModalState({ kind: "view", block: b })}
                 onEdit={(b) => setModalState({ kind: "edit", block: b })}
-                onAddChild={(parentId) => setModalState({ kind: "create-child", parentId })}
+                onAddChild={(parentId) =>
+                  setModalState({ kind: "create-child", parentId })
+                }
                 onRemove={handleRemoveBlock}
                 onOpenCombat={onOpenCombat}
                 onCreateCombat={handleCreateCombatForBlock}
@@ -359,7 +422,10 @@ export default function CampaignDetailPage({
           savedMonsters={combatStateManager.monsters}
           onClose={() => setModalState({ kind: "closed" })}
           onEdit={(b) => setModalState({ kind: "edit", block: b })}
-          onOpenCombat={(id) => { setModalState({ kind: "closed" }); onOpenCombat(id); }}
+          onOpenCombat={(id) => {
+            setModalState({ kind: "closed" });
+            onOpenCombat(id);
+          }}
           onOpenBlock={(blockId) => {
             const b = campaignBlocks.find((x) => x.id === blockId);
             if (b) setModalState({ kind: "view", block: b });
@@ -385,7 +451,10 @@ export default function CampaignDetailPage({
           onCreateBlockType={combatStateManager.createBlockType}
           onDeleteBlockType={combatStateManager.deleteBlockType}
           onOpenNpc={handleOpenNpc}
-          onOpenCombat={(combatId) => { setModalState({ kind: "closed" }); onOpenCombat(combatId); }}
+          onOpenCombat={(combatId) => {
+            setModalState({ kind: "closed" });
+            onOpenCombat(combatId);
+          }}
         />
       )}
 
@@ -429,9 +498,15 @@ export default function CampaignDetailPage({
           templateType={editingNpc.type === "player" ? "player" : "monster"}
           onSave={async (updated) => {
             if (updated.type === "player") {
-              await combatStateManager.updatePlayer(updated.id, updated as SavedPlayer);
+              await combatStateManager.updatePlayer(
+                updated.id,
+                updated as SavedPlayer,
+              );
             } else {
-              await combatStateManager.updateMonster(updated.id, updated as SavedMonster);
+              await combatStateManager.updateMonster(
+                updated.id,
+                updated as SavedMonster,
+              );
             }
             setEditingNpc(null);
           }}

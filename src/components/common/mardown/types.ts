@@ -10,6 +10,6 @@ export interface EditorTagMenuItem {
 
 export type EditorTag = {
   pattern: RegExp;
-  icon: LucideIcon
+  icon: LucideIcon;
   className: string;
 };

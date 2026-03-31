@@ -37,7 +37,10 @@ export class BuildingBlockStorageProvider {
     return item;
   }
 
-  async update(id: string, patch: Partial<BuildingBlock>): Promise<BuildingBlock> {
+  async update(
+    id: string,
+    patch: Partial<BuildingBlock>,
+  ): Promise<BuildingBlock> {
     const items = this.readAll();
     const idx = items.findIndex((i) => i.id === id);
     if (idx < 0) throw new Error("Not found");

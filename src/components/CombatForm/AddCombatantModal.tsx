@@ -5,11 +5,7 @@ import AddCombatantForm from "./AddCombatantForm";
 
 export type AddCombatantModalMode = "group" | "fight";
 
-type ButtonType =
-  | "fight"
-  | "park"
-  | "addToLibrary"
-  | "addInitGroup";
+type ButtonType = "fight" | "park" | "addToLibrary" | "addInitGroup";
 
 type Props = {
   isOpen: boolean;
@@ -29,7 +25,7 @@ type Props = {
   onRemoveInitiativeGroup: (id: string) => void;
   onUpdateInitiativeGroup: (
     id: string,
-    patch: Partial<InitiativeGroup>
+    patch: Partial<InitiativeGroup>,
   ) => void;
   onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
   onSelectSearchResult: (searchResult: SearchResult) => void;
@@ -71,10 +67,12 @@ export default function AddCombatantModal({
   const visibleButtons = BUTTON_MODE_MAP[mode];
   const titleKey = newCombatant.name ? `${mode}-edit` : mode;
   const modalTitle = t(`forms:combatant.modalTitle.${titleKey}`);
-  
+
   // Determine library button title based on template origin
-  const hasMonsterTemplate = newCombatant.templateOrigin?.origin === "monster_library" && newCombatant.templateOrigin?.id;
-  const libraryButtonTitle = hasMonsterTemplate 
+  const hasMonsterTemplate =
+    newCombatant.templateOrigin?.origin === "monster_library" &&
+    newCombatant.templateOrigin?.id;
+  const libraryButtonTitle = hasMonsterTemplate
     ? t("forms:combatant.actions.libraryWithTemplate")
     : t("forms:combatant.actions.library");
 

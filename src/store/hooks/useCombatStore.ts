@@ -54,7 +54,7 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
       const savedCombat = await dataStore.getCombat(combatId);
 
       if (savedCombat?.data) {
-        const savedSnapshot = takeSnapshot(savedCombat.data)
+        const savedSnapshot = takeSnapshot(savedCombat.data);
         setState({
           ...savedCombat.data,
           combatants: savedCombat.data.combatants,
@@ -66,34 +66,28 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
         });
       }
     },
-    [setState, takeSnapshot]
+    [setState, takeSnapshot],
   );
 
   // Save current combat to storage
-  const saveCombat = useCallback(
-    async () => {
-      if (state.combatId) {
-        const updatedCombat = await dataStore.updateCombat(
-          state.combatId,
-          {
-            name: state.combatName,
-            description: state.combatDescription,
-            data: state,
-            updatedAt: Date.now(),
-          }
-        );
-        setState((prev) => ({
-          ...updatedCombat.data,
-          combatId: prev.combatId,
-          combatName: prev.combatName,
-          combatDescription: prev.combatDescription,
-        }));
-        markAsSaved();
-        toastApi.success(t("common:confirmation.saveCombat.success"));
-      }
-    },
-    [state, setState, markAsSaved, toastApi, t]
-  );
+  const saveCombat = useCallback(async () => {
+    if (state.combatId) {
+      const updatedCombat = await dataStore.updateCombat(state.combatId, {
+        name: state.combatName,
+        description: state.combatDescription,
+        data: state,
+        updatedAt: Date.now(),
+      });
+      setState((prev) => ({
+        ...updatedCombat.data,
+        combatId: prev.combatId,
+        combatName: prev.combatName,
+        combatDescription: prev.combatDescription,
+      }));
+      markAsSaved();
+      toastApi.success(t("common:confirmation.saveCombat.success"));
+    }
+  }, [state, setState, markAsSaved, toastApi, t]);
 
   // Update combat metadata (client-side only, no persistence)
   const updateCombat = useCallback(
@@ -105,7 +99,7 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
           description.length === 0 ? prev.combatDescription : description,
       }));
     },
-    [setState]
+    [setState],
   );
 
   // List all saved combats
@@ -126,8 +120,8 @@ export function useCombatStore({ state, setState }: Props): CombatStore {
   // Compute whether state has changes since last save
   const hasChanges = useMemo(() => {
     if (!state.lastSavedSnapshot) return true; // never saved
-    const currentSnapshot = takeSnapshot(state)
-    
+    const currentSnapshot = takeSnapshot(state);
+
     return state.lastSavedSnapshot !== currentSnapshot;
   }, [state, takeSnapshot]);
 

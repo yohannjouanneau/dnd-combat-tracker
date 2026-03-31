@@ -23,10 +23,10 @@ interface MonsterStoreActions {
   loadMonsterToForm: (searchTerm: SearchResult) => void;
   searchWithLibrary: (
     query: string,
-    source?: SearchSource
+    source?: SearchSource,
   ) => Promise<SearchResult[]>;
   addCombatantToLibrary: () => Promise<void>;
-  isUsedAsTemplate: (id: string) => Promise<boolean>
+  isUsedAsTemplate: (id: string) => Promise<boolean>;
 }
 
 interface MonsterStoreState {
@@ -85,7 +85,7 @@ export function useMonsterStore({
         }),
       }));
     },
-    [setState]
+    [setState],
   );
 
   const loadMonsters = useCallback(async () => {
@@ -98,7 +98,7 @@ export function useMonsterStore({
       await dataStore.createMonster(monster);
       await loadMonsters();
     },
-    [loadMonsters]
+    [loadMonsters],
   );
 
   const removeMonster = useCallback(
@@ -106,7 +106,7 @@ export function useMonsterStore({
       await dataStore.deleteMonster(id);
       await loadMonsters();
     },
-    [loadMonsters]
+    [loadMonsters],
   );
 
   const updateMonster = useCallback(
@@ -117,7 +117,7 @@ export function useMonsterStore({
       // Sync notes to active combatants and parked groups
       syncMonsterNotesToCombat(id, monster.notes || "");
     },
-    [loadMonsters, syncMonsterNotesToCombat]
+    [loadMonsters, syncMonsterNotesToCombat],
   );
 
   const fillFormWithMonsterRemoteData = useCallback(
@@ -134,7 +134,7 @@ export function useMonsterStore({
         notes: appendFormattedActions(state.newCombatant.notes, monster),
       });
     },
-    [combatantFormStore, state.newCombatant.notes]
+    [combatantFormStore, state.newCombatant.notes],
   );
 
   const fillFormWithMonsterLibraryData = useCallback(
@@ -161,7 +161,7 @@ export function useMonsterStore({
         },
       });
     },
-    [combatantFormStore]
+    [combatantFormStore],
   );
 
   const loadMonsterToForm = useCallback(
@@ -172,7 +172,7 @@ export function useMonsterStore({
         fillFormWithMonsterLibraryData(searchResult.monster as SavedMonster);
       }
     },
-    [fillFormWithMonsterRemoteData, fillFormWithMonsterLibraryData]
+    [fillFormWithMonsterRemoteData, fillFormWithMonsterLibraryData],
   );
 
   const searchWithLibrary = useCallback(
@@ -187,7 +187,7 @@ export function useMonsterStore({
             ...apiMonsters.map((m) => ({
               source: "api" as const,
               monster: m,
-            }))
+            })),
           );
         } catch (error) {
           console.error("API search failed:", error);
@@ -202,7 +202,7 @@ export function useMonsterStore({
             ...libraryMonsters.map((m) => ({
               source: "library" as const,
               monster: m,
-            }))
+            })),
           );
         } catch (error) {
           console.error("Library search failed:", error);
@@ -211,13 +211,13 @@ export function useMonsterStore({
 
       return results;
     },
-    [apiClient]
+    [apiClient],
   );
 
   const addCombatantToLibrary = useCallback(async () => {
     const nc = state.newCombatant;
     const someInitAreIncomplete = nc.initiativeGroups.some(
-      (g) => !g.initiative || !g.count
+      (g) => !g.initiative || !g.count,
     );
     if (
       !nc.name ||
@@ -269,7 +269,7 @@ export function useMonsterStore({
       console.error("Error checking if monster is used as template:", error);
       return false; // Safe fallback
     }
-  }, [])
+  }, []);
 
   // Load monsters on mount
   useEffect(() => {

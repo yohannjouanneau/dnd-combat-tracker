@@ -1,4 +1,3 @@
-
 import type { Combatant, DeathSaves } from "../../types";
 import CombatantsList from "../CombatantsList/CombatantsList";
 import CombatantDetailPanel from "../CombatantDetailPanel/CombatantDetailPanel";
@@ -34,14 +33,19 @@ export default function DesktopCombatLayout({
   selectedCombatantId,
   onSelectCombatant,
 }: Props) {
-  const selectedCombatant = selectedCombatantId !== null
-    ? combatants.find(c => c.id === selectedCombatantId) ?? null
-    : null;
+  const selectedCombatant =
+    selectedCombatantId !== null
+      ? (combatants.find((c) => c.id === selectedCombatantId) ?? null)
+      : null;
 
   return (
     <div className="flex gap-4 h-full">
       {/* Left side: CombatantsList */}
-      <div className={selectedCombatant && isFocusMode ? "flex-1 h-full" : "w-full"}>
+      <div
+        className={
+          selectedCombatant && isFocusMode ? "flex-1 h-full" : "w-full"
+        }
+      >
         <CombatantsList
           combatants={combatants}
           currentTurn={currentTurn}
@@ -62,7 +66,10 @@ export default function DesktopCombatLayout({
       {selectedCombatant && isFocusMode && (
         <div className="flex-1 flex flex-col overflow-y-auto">
           <div className="my-auto w-full">
-            <CombatantDetailPanel combatant={selectedCombatant} onUpdateNotes={onUpdateNotes} />
+            <CombatantDetailPanel
+              combatant={selectedCombatant}
+              onUpdateNotes={onUpdateNotes}
+            />
           </div>
         </div>
       )}

@@ -58,19 +58,22 @@ export default function SearchSelect<T = unknown>({
   const justSelectedRef = useRef(false);
 
   // --- Async search ---
-  const performSearch = useCallback(async (q: string) => {
-    if (!onSearch || !q.trim()) return;
-    setIsSearching(true);
-    try {
-      const results = await onSearch(q);
-      setAsyncResults(results);
-      setShowDropdown(true);
-    } catch {
-      setAsyncResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  }, [onSearch]);
+  const performSearch = useCallback(
+    async (q: string) => {
+      if (!onSearch || !q.trim()) return;
+      setIsSearching(true);
+      try {
+        const results = await onSearch(q);
+        setAsyncResults(results);
+        setShowDropdown(true);
+      } catch {
+        setAsyncResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    },
+    [onSearch],
+  );
 
   const debouncedSearch = useDebounce(performSearch, 400);
 
@@ -117,12 +120,15 @@ export default function SearchSelect<T = unknown>({
     if (!items) return [];
     const q = inputValue.toLowerCase().trim();
     if (!q) return items;
-    return items.filter(i => i.label.toLowerCase().includes(q));
+    return items.filter((i) => i.label.toLowerCase().includes(q));
   }, [items, onSearch, asyncResults, inputValue]);
 
   // Group items
   const grouped = useMemo(() => {
-    const groups: { group: string | undefined; items: SearchSelectItem<T>[] }[] = [];
+    const groups: {
+      group: string | undefined;
+      items: SearchSelectItem<T>[];
+    }[] = [];
     for (const item of displayedItems) {
       const last = groups[groups.length - 1];
       if (last && last.group === item.group) {
@@ -137,19 +143,22 @@ export default function SearchSelect<T = unknown>({
   const flatItems = displayedItems;
 
   // --- Selection ---
-  const handleSelect = useCallback((item: SearchSelectItem<T>) => {
-    justSelectedRef.current = true;
-    if (textMode) {
-      onTextChange?.(item.label);
-    } else {
-      setQuery("");
-      onChange?.(item.id);
-    }
-    onSelectItem?.(item);
-    setShowDropdown(false);
-    setSelectedIndex(-1);
-    setAsyncResults([]);
-  }, [textMode, onChange, onTextChange, onSelectItem]);
+  const handleSelect = useCallback(
+    (item: SearchSelectItem<T>) => {
+      justSelectedRef.current = true;
+      if (textMode) {
+        onTextChange?.(item.label);
+      } else {
+        setQuery("");
+        onChange?.(item.id);
+      }
+      onSelectItem?.(item);
+      setShowDropdown(false);
+      setSelectedIndex(-1);
+      setAsyncResults([]);
+    },
+    [textMode, onChange, onTextChange, onSelectItem],
+  );
 
   const handleClear = () => {
     setQuery("");
@@ -163,11 +172,11 @@ export default function SearchSelect<T = unknown>({
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setSelectedIndex(i => Math.min(i + 1, flatItems.length - 1));
+        setSelectedIndex((i) => Math.min(i + 1, flatItems.length - 1));
         break;
       case "ArrowUp":
         e.preventDefault();
-        setSelectedIndex(i => Math.max(i - 1, -1));
+        setSelectedIndex((i) => Math.max(i - 1, -1));
         break;
       case "Enter":
         e.preventDefault();
@@ -184,17 +193,25 @@ export default function SearchSelect<T = unknown>({
   // Auto-scroll selected row into view
   useEffect(() => {
     if (selectedIndex >= 0) {
-      resultsRef.current[selectedIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      resultsRef.current[selectedIndex]?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
     }
   }, [selectedIndex]);
 
-  useEffect(() => { setSelectedIndex(-1); }, [displayedItems]);
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [displayedItems]);
 
   // Click-outside
   useEffect(() => {
     if (!showDropdown) return;
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setShowDropdown(false);
         setSelectedIndex(-1);
       }
@@ -206,7 +223,10 @@ export default function SearchSelect<T = unknown>({
   // --- Chip: find label for current value ---
   const selectedLabel = useMemo(() => {
     if (!value) return undefined;
-    return items?.find(i => i.id === value)?.label ?? asyncResults.find(i => i.id === value)?.label;
+    return (
+      items?.find((i) => i.id === value)?.label ??
+      asyncResults.find((i) => i.id === value)?.label
+    );
   }, [value, items, asyncResults]);
 
   // ID-select mode: show chip when value is set
@@ -244,12 +264,15 @@ export default function SearchSelect<T = unknown>({
         <input
           type="text"
           value={inputValue}
-          onChange={e => handleInputChange(e.target.value)}
+          onChange={(e) => handleInputChange(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-            if (inputValue.trim() && (flatItems.length > 0 || onSearch)) setShowDropdown(true);
+            if (inputValue.trim() && (flatItems.length > 0 || onSearch))
+              setShowDropdown(true);
           }}
-          onBlur={() => { setTimeout(() => setShowDropdown(false), 200); }}
+          onBlur={() => {
+            setTimeout(() => setShowDropdown(false), 200);
+          }}
           placeholder={placeholder}
           className="w-full bg-input-bg text-text-primary rounded px-3 py-2 pr-8 border border-border-secondary focus:border-blue-500 focus:outline-none text-sm"
         />
@@ -278,14 +301,23 @@ export default function SearchSelect<T = unknown>({
                     <button
                       key={item.id}
                       type="button"
-                      ref={el => { resultsRef.current[globalIndex] = el; }}
-                      onMouseDown={e => { e.preventDefault(); handleSelect(item); }}
+                      ref={(el) => {
+                        resultsRef.current[globalIndex] = el;
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleSelect(item);
+                      }}
                       onMouseEnter={() => setSelectedIndex(globalIndex)}
                       className={`w-full text-left px-3 py-2 text-sm text-text-primary border-b border-border-secondary last:border-b-0 transition flex items-center gap-2 ${
-                        isActive ? "bg-panel-secondary" : "hover:bg-panel-secondary/80"
+                        isActive
+                          ? "bg-panel-secondary"
+                          : "hover:bg-panel-secondary/80"
                       }`}
                     >
-                      {item.icon && <span className="flex-shrink-0">{item.icon}</span>}
+                      {item.icon && (
+                        <span className="flex-shrink-0">{item.icon}</span>
+                      )}
                       <span>{item.label}</span>
                     </button>
                   );
@@ -296,11 +328,16 @@ export default function SearchSelect<T = unknown>({
         </div>
       )}
 
-      {showDropdown && !isSearching && flatItems.length === 0 && inputValue.trim() && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-input-bg rounded border border-border-secondary shadow-lg z-10">
-          <div className="px-3 py-2 text-sm text-text-muted text-center">{noResultsText}</div>
-        </div>
-      )}
+      {showDropdown &&
+        !isSearching &&
+        flatItems.length === 0 &&
+        inputValue.trim() && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-input-bg rounded border border-border-secondary shadow-lg z-10">
+            <div className="px-3 py-2 text-sm text-text-muted text-center">
+              {noResultsText}
+            </div>
+          </div>
+        )}
     </div>
   );
 }

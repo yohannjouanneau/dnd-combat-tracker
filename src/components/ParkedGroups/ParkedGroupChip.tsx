@@ -32,9 +32,9 @@ export default function ParkedGroupChip({
 
   const totalCount = group.initiativeGroups.reduce(
     (sum, g) => sum + (parseInt(g.count, 10) || 0),
-    0
+    0,
   );
-  
+
   return (
     <div
       className="flex items-center gap-2 px-3 py-2 rounded border-2"

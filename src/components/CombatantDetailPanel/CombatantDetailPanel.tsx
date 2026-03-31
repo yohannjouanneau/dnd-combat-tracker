@@ -16,13 +16,17 @@ type Props = {
   onUpdateNotes: (id: number, notes: string) => void;
 };
 
-export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes }: Props) {
+export default function CombatantDetailPanel({
+  combatant,
+  onClose,
+  onUpdateNotes,
+}: Props) {
   const { t } = useTranslation(["combat", "forms"]);
   const [localNotes, setLocalNotes] = useState(combatant.combatNotes ?? "");
 
   const debouncedUpdateNotes = useDebounce(
     (value: string) => onUpdateNotes(combatant.id, value),
-    NOTES_DEBOUNCE_MS
+    NOTES_DEBOUNCE_MS,
   );
 
   // Sync local notes when switching to a different combatant
@@ -38,7 +42,7 @@ export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes
 
   return (
     <div
-      className={`bg-panel-bg rounded-lg p-4 md:p-6 border-2 border-border-primary relative ${onClose ? 'overflow-y-auto scrollbar-thin scrollbar-thumb-border-secondary scrollbar-track-panel-bg' : ''}`}
+      className={`bg-panel-bg rounded-lg p-4 md:p-6 border-2 border-border-primary relative ${onClose ? "overflow-y-auto scrollbar-thin scrollbar-thumb-border-secondary scrollbar-track-panel-bg" : ""}`}
       style={{ borderLeftWidth: "6px", borderLeftColor: combatant.color }}
     >
       {/* Close button - Mobile only */}
@@ -70,7 +74,13 @@ export default function CombatantDetailPanel({ combatant, onClose, onUpdateNotes
         {combatant.externalResourceUrl && (
           <button
             type="button"
-            onClick={() => window.open(combatant.externalResourceUrl, '_blank', 'noopener,noreferrer')}
+            onClick={() =>
+              window.open(
+                combatant.externalResourceUrl,
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
             className="p-2 rounded hover:bg-panel-secondary transition text-text-muted hover:text-text-primary flex-shrink-0"
             title={t("combat:combatant.details.openInNewTab")}
           >
