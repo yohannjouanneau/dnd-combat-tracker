@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { BlockFeatureData, BlockTypeDef, BuildingBlock, BuildingBlockInput, Campaign, CampaignInput, CanvasNode } from "../../types/campaign";
+import type { BlockTypeDef, BuildingBlock, BuildingBlockInput, Campaign, CampaignInput, CanvasNode } from "../../types/campaign";
 import { BUILT_IN_BLOCK_TYPES } from "../../constants";
 import { dataStore } from "../../persistence/storage";
 
@@ -20,44 +20,7 @@ export function useCampaignStore() {
 
   const loadBlocks = useCallback(async () => {
     const list = await dataStore.listBlock();
-
-    type LegacyBlock = {
-      id: string;
-      typeId?: string;
-      type?: string;
-      specialFeature?: {
-        type?: string;
-        combatId?: string | null;
-        linkedNpcIds?: string[];
-        linkedNpcId?: string;
-        items?: string[];
-      };
-    };
-
-    // Migrate legacy blocks that still have old shape (type + specialFeature instead of typeId + featureData)
-    const toMigrate = (list as LegacyBlock[]).filter((b) => b.typeId == null);
-    for (const b of toMigrate) {
-      const oldType: string = b.type ?? "environment";
-      const typeId =
-        oldType === "npc" ? "character" :
-        oldType === "object" ? "loot" :
-        oldType;
-
-      const sf = b.specialFeature;
-      let featureData: BlockFeatureData | undefined;
-      if (sf) {
-        if (sf.type === "combat") featureData = { combatId: sf.combatId };
-        else if (sf.type === "character") featureData = { linkedNpcIds: sf.linkedNpcIds ?? [] };
-        else if (sf.type === "loot") featureData = { items: sf.items ?? [] };
-        else if (sf.type === "scene") featureData = { linkedNpcIds: sf.linkedNpcIds ?? [], combatId: sf.combatId, items: sf.items ?? [] };
-        else if (sf.linkedNpcId) featureData = { linkedNpcIds: [sf.linkedNpcId] };
-      }
-
-      await dataStore.updateBlock(b.id, { typeId, featureData } as Partial<BuildingBlock>);
-    }
-
-    const final = toMigrate.length > 0 ? await dataStore.listBlock() : list;
-    setBlocks(final);
+    setBlocks(list);
   }, []);
 
   useEffect(() => {
