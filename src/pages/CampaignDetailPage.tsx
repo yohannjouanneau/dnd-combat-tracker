@@ -416,7 +416,6 @@ export default function CampaignDetailPage({
         onDeleteBlockType={combatStateManager.deleteBlockType}
         onAddBlock={(block) => {
           handleAddFromLibrary(block.id);
-          setModalState({ kind: "closed" });
         }}
         onSearchMonsters={combatStateManager.searchWithLibrary}
         isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
