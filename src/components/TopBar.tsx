@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 import LabeledTextInput from "./common/LabeledTextInput";
 import SyncButton from "./SyncButton";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "../hooks/useTheme";
-import { ArrowLeft, Moon, Sun, Leaf } from "lucide-react";
+import { ArrowLeft, Moon, Sun, Leaf, Pencil, Check } from "lucide-react";
 import type { SyncApi } from "../api/sync/types";
 import logoSrc from "../assets/logo.png";
 
@@ -36,6 +36,8 @@ export default function TopBar({
   nameLabel,
   descriptionLabel,
 }: Props) {
+  const [isEditing, setIsEditing] = useState(false);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!hasChanges) return;
@@ -107,26 +109,57 @@ export default function TopBar({
           </div>
         )}
 
-        {/* Inputs + right buttons */}
-        <div className="flex flex-col md:flex-row justify-between items-end gap-3 flex-1">
-          <div className="flex gap-3 flex-1 w-full md:w-auto items-end">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
-              <LabeledTextInput
-                id="topbarName"
-                label={nameLabel ?? t("forms:combat.name")}
-                value={name}
-                placeholder={t("forms:combat.namePlaceholder")}
-                onChange={(v) => onChange({ name: v })}
-              />
-              <LabeledTextInput
-                id="topbarDesc"
-                label={descriptionLabel ?? t("forms:combat.description")}
-                value={description}
-                placeholder={t("forms:combat.descriptionPlaceholder")}
-                onChange={(v) => onChange({ description: v })}
-              />
+        {/* Title / inputs + right buttons */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3 flex-1 min-w-0">
+          {isEditing ? (
+            <div className="flex gap-3 flex-1 w-full md:w-auto items-end">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                <LabeledTextInput
+                  id="topbarName"
+                  label={nameLabel ?? t("forms:combat.name")}
+                  value={name}
+                  placeholder={t("forms:combat.namePlaceholder")}
+                  onChange={(v) => onChange({ name: v })}
+                />
+                <LabeledTextInput
+                  id="topbarDesc"
+                  label={descriptionLabel ?? t("forms:combat.description")}
+                  value={description}
+                  placeholder={t("forms:combat.descriptionPlaceholder")}
+                  onChange={(v) => onChange({ description: v })}
+                />
+              </div>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0 self-end"
+                title={t("common:actions.confirm")}
+              >
+                <Check className="w-5 h-5" />
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="flex flex-col min-w-0 flex-1">
+                <span
+                  className={`text-lg font-semibold truncate leading-tight ${name ? "text-text-primary" : "text-text-secondary italic"}`}
+                >
+                  {name || (nameLabel ?? t("forms:combat.namePlaceholder"))}
+                </span>
+                {description && (
+                  <span className="text-sm text-text-secondary truncate mt-0.5">
+                    {description}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => setIsEditing(true)}
+                className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
+                title={t("common:actions.edit")}
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
           <div className="flex gap-2 flex-shrink-0 w-full md:w-auto justify-end items-center">
             {actions}
