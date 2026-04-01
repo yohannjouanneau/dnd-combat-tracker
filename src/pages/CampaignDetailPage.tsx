@@ -7,6 +7,7 @@ import {
   Library,
   GitGraph,
   List,
+  X,
 } from "lucide-react";
 import TopBar from "../components/TopBar";
 import type { CombatStateManager } from "../store/types";
@@ -55,6 +56,12 @@ export default function CampaignDetailPage({
   const toast = useToast();
   const confirmDialog = useConfirmationDialog();
 
+  const canvasLayout =
+    window.innerWidth < 640
+      ? "mobile"
+      : window.innerWidth < 1024
+        ? "intermediate"
+        : "desktop";
   const [viewMode, setViewMode] = useState<"tree" | "canvas">("tree");
   const [modalState, setModalState] = useState<ModalState>({ kind: "closed" });
   const [showSettings, setShowSettings] = useState(false);
@@ -407,7 +414,7 @@ export default function CampaignDetailPage({
       </div>
 
       {/* Canvas or Tree */}
-      {viewMode === "canvas" ? (
+      {viewMode === "canvas" && canvasLayout === "desktop" && (
         <div className="flex-1">
           <CampaignCanvas
             campaign={campaign}
@@ -420,7 +427,68 @@ export default function CampaignDetailPage({
             onEditBlock={(b) => setModalState({ kind: "edit", block: b })}
           />
         </div>
-      ) : (
+      )}
+
+      {/* Intermediate (640–1023px): overlay + simple header + interactive */}
+      {viewMode === "canvas" && canvasLayout === "intermediate" && (
+        <div className="fixed inset-0 z-50 bg-app-bg flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border-primary flex-shrink-0">
+            <span className="font-semibold text-text-primary truncate">
+              {campaign.name}
+            </span>
+            <button
+              onClick={() => setViewMode("tree")}
+              className="p-1 text-text-muted hover:text-text-primary"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="flex-1">
+            <CampaignCanvas
+              campaign={campaign}
+              blocks={campaignBlocks}
+              blockTypes={combatStateManager.blockTypes}
+              onUpdateNodes={combatStateManager.updateCanvasNodes}
+              onAddChild={combatStateManager.addChildToBlock}
+              onRemoveChild={combatStateManager.removeChildFromBlock}
+              onViewBlock={(b) => setModalState({ kind: "view", block: b })}
+              onEditBlock={(b) => setModalState({ kind: "edit", block: b })}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Mobile (<640px): overlay + simple header + read-only */}
+      {viewMode === "canvas" && canvasLayout === "mobile" && (
+        <div className="fixed inset-0 z-50 bg-app-bg flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border-primary flex-shrink-0">
+            <span className="font-semibold text-text-primary truncate">
+              {campaign.name}
+            </span>
+            <button
+              onClick={() => setViewMode("tree")}
+              className="p-1 text-text-muted hover:text-text-primary"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="flex-1">
+            <CampaignCanvas
+              campaign={campaign}
+              blocks={campaignBlocks}
+              blockTypes={combatStateManager.blockTypes}
+              onUpdateNodes={combatStateManager.updateCanvasNodes}
+              onAddChild={combatStateManager.addChildToBlock}
+              onRemoveChild={combatStateManager.removeChildFromBlock}
+              onViewBlock={(b) => setModalState({ kind: "view", block: b })}
+              onEditBlock={(b) => setModalState({ kind: "edit", block: b })}
+              readOnly
+            />
+          </div>
+        </div>
+      )}
+
+      {viewMode !== "canvas" && (
         <div className="flex-1 overflow-y-auto p-4">
           {rootBlocks.length === 0 ? (
             <div className="text-center text-text-muted py-12">

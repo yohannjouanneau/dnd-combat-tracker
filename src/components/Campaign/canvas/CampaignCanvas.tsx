@@ -51,12 +51,19 @@ function toRFNodes(
   blockTypes: BlockTypeDef[],
   onView: (b: BuildingBlock) => void,
   onEdit: (b: BuildingBlock) => void,
+  readOnly: boolean,
 ): Node[] {
   return nodes.flatMap((n) => {
     const block = blocks.find((b) => b.id === n.blockId);
     if (!block) return [];
     const typeDef = blockTypes.find((t) => t.id === block.typeId);
-    const data: CanvasBlockNodeData = { block, typeDef, onView, onEdit };
+    const data: CanvasBlockNodeData = {
+      block,
+      typeDef,
+      onView,
+      onEdit,
+      readOnly,
+    };
     return [
       { id: n.blockId, type: "block", position: { x: n.x, y: n.y }, data },
     ];
@@ -98,6 +105,7 @@ interface Props {
   onRemoveChild: (parentId: string, childId: string) => Promise<void>;
   onViewBlock: (block: BuildingBlock) => void;
   onEditBlock: (block: BuildingBlock) => void;
+  readOnly?: boolean;
 }
 
 function CampaignCanvasInner({
@@ -109,6 +117,7 @@ function CampaignCanvasInner({
   onRemoveChild,
   onViewBlock,
   onEditBlock,
+  readOnly = false,
 }: Props) {
   const { t } = useTranslation("campaigns");
   const [layoutDir, setLayoutDir] = useState<LayoutDirection>("TB");
@@ -125,7 +134,15 @@ function CampaignCanvasInner({
   );
 
   const initialNodes = useMemo(
-    () => toRFNodes(laidOutNodes, blocks, blockTypes, onViewBlock, onEditBlock),
+    () =>
+      toRFNodes(
+        laidOutNodes,
+        blocks,
+        blockTypes,
+        onViewBlock,
+        onEditBlock,
+        readOnly,
+      ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [campaign.id],
   );
@@ -145,7 +162,7 @@ function CampaignCanvasInner({
         const block = blocks.find((b) => b.id === node.id);
         if (!block) return node;
         const typeDef = blockTypes.find((t) => t.id === block.typeId);
-        return { ...node, data: { ...node.data, block, typeDef } };
+        return { ...node, data: { ...node.data, block, typeDef, readOnly } };
       }),
     );
     setRfEdges(() => toRFEdges(blocks, blockIds, layoutDir));
@@ -235,9 +252,11 @@ function CampaignCanvasInner({
         nodeTypes={NODE_TYPES}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onNodeDragStop={handleNodeDragStop}
-        onConnect={handleConnect}
-        onEdgeClick={handleEdgeClick}
+        onNodeDragStop={readOnly ? undefined : handleNodeDragStop}
+        onConnect={readOnly ? undefined : handleConnect}
+        onEdgeClick={readOnly ? undefined : handleEdgeClick}
+        nodesDraggable={!readOnly}
+        nodesConnectable={!readOnly}
         fitView
         fitViewOptions={{ padding: 0.2 }}
         deleteKeyCode={null}

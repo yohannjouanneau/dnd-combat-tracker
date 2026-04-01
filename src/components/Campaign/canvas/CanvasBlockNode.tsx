@@ -16,10 +16,12 @@ export interface CanvasBlockNodeData extends Record<string, unknown> {
   typeDef: BlockTypeDef | undefined;
   onView: (block: BuildingBlock) => void;
   onEdit: (block: BuildingBlock) => void;
+  readOnly?: boolean;
 }
 
 export default function CanvasBlockNode({ data, selected }: NodeProps) {
-  const { block, typeDef, onView, onEdit } = data as CanvasBlockNodeData;
+  const { block, typeDef, onView, onEdit, readOnly } =
+    data as CanvasBlockNodeData;
 
   const displayIcon = block.icon ?? typeDef?.icon ?? "📦";
   const typeName = typeDef
@@ -45,13 +47,23 @@ export default function CanvasBlockNode({ data, selected }: NodeProps) {
         id="top"
         type="target"
         position={Position.Top}
-        className="!bg-border-secondary !border-border-primary !w-2.5 !h-2.5"
+        isConnectable={!readOnly}
+        className={
+          readOnly
+            ? "!opacity-0 !pointer-events-none"
+            : "!bg-border-secondary !border-border-primary !w-2.5 !h-2.5"
+        }
       />
       <Handle
         id="left"
         type="target"
         position={Position.Left}
-        className="!bg-border-secondary !border-border-primary !w-2.5 !h-2.5"
+        isConnectable={!readOnly}
+        className={
+          readOnly
+            ? "!opacity-0 !pointer-events-none"
+            : "!bg-border-secondary !border-border-primary !w-2.5 !h-2.5"
+        }
       />
 
       {/* Card body — click to view */}
@@ -117,13 +129,23 @@ export default function CanvasBlockNode({ data, selected }: NodeProps) {
         id="right"
         type="source"
         position={Position.Right}
-        className="!bg-border-secondary !border-border-primary !w-2.5 !h-2.5"
+        isConnectable={!readOnly}
+        className={
+          readOnly
+            ? "!opacity-0 !pointer-events-none"
+            : "!bg-border-secondary !border-border-primary !w-2.5 !h-2.5"
+        }
       />
       <Handle
         id="bottom"
         type="source"
         position={Position.Bottom}
-        className="!bg-border-secondary !border-border-primary !w-2.5 !h-2.5"
+        isConnectable={!readOnly}
+        className={
+          readOnly
+            ? "!opacity-0 !pointer-events-none"
+            : "!bg-border-secondary !border-border-primary !w-2.5 !h-2.5"
+        }
       />
     </div>
   );
