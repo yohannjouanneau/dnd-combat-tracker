@@ -161,7 +161,7 @@ export default function TopBar({
                 className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
                 title={t("common:actions.edit")}
               >
-                <Pencil className="w-4 h-4" />
+                <Pencil className="w-5 h-5" />
               </button>
             )}
             {syncApi && (
