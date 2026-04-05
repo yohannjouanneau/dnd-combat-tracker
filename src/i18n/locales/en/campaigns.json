@@ -13,6 +13,12 @@
     "tree": "Tree",
     "autoLayout": "Auto-layout"
   },
+  "filter": {
+    "searchPlaceholder": "Search by name…",
+    "clearAll": "Clear filters",
+    "noResults": "No blocks match the current filters.",
+    "activeCount": "Filters active — showing {{count}} of {{total}} blocks"
+  },
   "detail": {
     "blocks": "Building Blocks",
     "addBlock": "Add Block",

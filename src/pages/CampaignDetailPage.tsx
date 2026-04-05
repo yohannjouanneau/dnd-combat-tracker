@@ -29,6 +29,9 @@ import LibraryEditModal from "../components/Library/LibraryEditModal";
 import LibraryModal from "../components/Library/LibraryModal";
 import SettingsModal from "../components/Settings/SettingsModal";
 import CampaignCanvas from "../components/Campaign/canvas/CampaignCanvas";
+import CampaignFilterBar, {
+  type FilterState,
+} from "../components/Campaign/CampaignFilterBar";
 import type { SavedMonster, SavedPlayer } from "../types";
 
 type Props = {
@@ -78,6 +81,12 @@ export default function CampaignDetailPage({
     targetId: string;
     position: "before" | "after" | "child";
   } | null>(null);
+
+  const [filterState, setFilterState] = useState<FilterState>({
+    searchQuery: "",
+    selectedTypeIds: [],
+    selectedTags: [],
+  });
 
   const campaign: Campaign | undefined = combatStateManager.campaigns.find(
     (c) => c.id === campaignId,
@@ -142,6 +151,66 @@ export default function CampaignDetailPage({
       combatStateManager.blocks.filter((b) => !blockIdsInCampaign.has(b.id)),
     [combatStateManager.blocks, blockIdsInCampaign],
   );
+
+  // Types present in this campaign (for filter chips)
+  const campaignBlockTypes = useMemo(
+    () =>
+      combatStateManager.blockTypes.filter((t) =>
+        campaignBlocks.some((b) => b.typeId === t.id),
+      ),
+    [campaignBlocks, combatStateManager.blockTypes],
+  );
+
+  // Tags present in this campaign (for filter chips)
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    campaignBlocks.forEach((b) => (b.tags ?? []).forEach((tag) => set.add(tag)));
+    return [...set].sort();
+  }, [campaignBlocks]);
+
+  const hasActiveFilters =
+    filterState.searchQuery.trim() !== "" ||
+    filterState.selectedTypeIds.length > 0 ||
+    filterState.selectedTags.length > 0;
+
+  // Blocks passing all active filters
+  const filteredCampaignBlocks = useMemo(() => {
+    if (!hasActiveFilters) return campaignBlocks;
+    const q = filterState.searchQuery.trim().toLowerCase();
+    return campaignBlocks.filter((b) => {
+      if (q && !b.name.toLowerCase().includes(q)) return false;
+      if (
+        filterState.selectedTypeIds.length > 0 &&
+        !filterState.selectedTypeIds.includes(b.typeId)
+      )
+        return false;
+      if (
+        filterState.selectedTags.length > 0 &&
+        !filterState.selectedTags.some((tag) => (b.tags ?? []).includes(tag))
+      )
+        return false;
+      return true;
+    });
+  }, [campaignBlocks, filterState]);
+
+  const filteredBlockIds = useMemo(
+    () => new Set(filteredCampaignBlocks.map((b) => b.id)),
+    [filteredCampaignBlocks],
+  );
+
+  // Campaign with only matching nodes (passed to canvas when filtering)
+  const filteredCampaign = useMemo(
+    () =>
+      hasActiveFilters
+        ? {
+            ...campaign,
+            nodes: (campaign?.nodes ?? []).filter((n) =>
+              filteredBlockIds.has(n.blockId),
+            ),
+          }
+        : campaign,
+    [campaign, filteredBlockIds],
+  ) as Campaign | undefined;
 
   const saveCampaignMeta = useCallback(
     async (name: string, description: string) => {
@@ -411,14 +480,33 @@ export default function CampaignDetailPage({
             )}
           </div>
         </div>
+
+        {/* Filter bar */}
+        <CampaignFilterBar
+          searchQuery={filterState.searchQuery}
+          selectedTypeIds={filterState.selectedTypeIds}
+          selectedTags={filterState.selectedTags}
+          blockTypes={campaignBlockTypes}
+          allTags={allTags}
+          onChange={(patch) =>
+            setFilterState((prev) => ({ ...prev, ...patch }))
+          }
+          onClear={() =>
+            setFilterState({
+              searchQuery: "",
+              selectedTypeIds: [],
+              selectedTags: [],
+            })
+          }
+        />
       </div>
 
       {/* Canvas or Tree */}
       {viewMode === "canvas" && canvasLayout === "desktop" && (
         <div className="flex-1">
           <CampaignCanvas
-            campaign={campaign}
-            blocks={campaignBlocks}
+            campaign={filteredCampaign!}
+            blocks={filteredCampaignBlocks}
             blockTypes={combatStateManager.blockTypes}
             onUpdateNodes={combatStateManager.updateCanvasNodes}
             onAddChild={combatStateManager.addChildToBlock}
@@ -445,8 +533,8 @@ export default function CampaignDetailPage({
           </div>
           <div className="flex-1">
             <CampaignCanvas
-              campaign={campaign}
-              blocks={campaignBlocks}
+              campaign={filteredCampaign!}
+              blocks={filteredCampaignBlocks}
               blockTypes={combatStateManager.blockTypes}
               onUpdateNodes={combatStateManager.updateCanvasNodes}
               onAddChild={combatStateManager.addChildToBlock}
@@ -474,8 +562,8 @@ export default function CampaignDetailPage({
           </div>
           <div className="flex-1">
             <CampaignCanvas
-              campaign={campaign}
-              blocks={campaignBlocks}
+              campaign={filteredCampaign!}
+              blocks={filteredCampaignBlocks}
               blockTypes={combatStateManager.blockTypes}
               onUpdateNodes={combatStateManager.updateCanvasNodes}
               onAddChild={combatStateManager.addChildToBlock}
@@ -490,7 +578,48 @@ export default function CampaignDetailPage({
 
       {viewMode !== "canvas" && (
         <div className="flex-1 overflow-y-auto p-4">
-          {rootBlocks.length === 0 ? (
+          {hasActiveFilters ? (
+            // Flat filtered list
+            <>
+              {filteredCampaignBlocks.length === 0 ? (
+                <div className="text-center text-text-muted py-12">
+                  <p className="text-base">{t("campaigns:filter.noResults")}</p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-xs text-text-muted mb-3">
+                    {t("campaigns:filter.activeCount", {
+                      count: filteredCampaignBlocks.length,
+                      total: campaignBlocks.length,
+                    })}
+                  </p>
+                  <div className="space-y-2">
+                    {filteredCampaignBlocks.map((block) => (
+                      <BlockTreeNode
+                        key={block.id}
+                        block={block}
+                        allBlocks={campaignBlocks}
+                        blockTypes={combatStateManager.blockTypes}
+                        savedPlayers={combatStateManager.savedPlayers}
+                        savedMonsters={combatStateManager.monsters}
+                        depth={0}
+                        reorderMode={false}
+                        onView={(b) => setModalState({ kind: "view", block: b })}
+                        onEdit={(b) => setModalState({ kind: "edit", block: b })}
+                        onAddChild={(parentId) =>
+                          setModalState({ kind: "create-child", parentId })
+                        }
+                        onRemove={handleRemoveBlock}
+                        onOpenCombat={onOpenCombat}
+                        onCreateCombat={handleCreateCombatForBlock}
+                        onOpenNpc={handleOpenNpc}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          ) : rootBlocks.length === 0 ? (
             <div className="text-center text-text-muted py-12">
               <p className="text-base">{t("campaigns:detail.noBlocks")}</p>
             </div>
