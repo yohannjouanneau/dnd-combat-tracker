@@ -267,14 +267,14 @@ function CampaignCanvasInner({
           <div className="flex items-center gap-1 rounded border border-border-primary bg-panel-bg shadow overflow-hidden">
             <button
               onClick={() => setLayoutDir("TB")}
-              title="Top to bottom"
+              title={t("canvas.directionTB")}
               className={`px-2 py-1.5 text-xs transition ${layoutDir === "TB" ? "bg-panel-secondary text-text-primary" : "text-text-muted hover:text-text-primary"}`}
             >
               TB
             </button>
             <button
               onClick={() => setLayoutDir("LR")}
-              title="Left to right"
+              title={t("canvas.directionLR")}
               className={`px-2 py-1.5 text-xs transition border-l border-border-primary ${layoutDir === "LR" ? "bg-panel-secondary text-text-primary" : "text-text-muted hover:text-text-primary"}`}
             >
               LR

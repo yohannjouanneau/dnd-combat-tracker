@@ -11,7 +11,9 @@
   "canvas": {
     "toggle": "Canvas",
     "tree": "Arbre",
-    "autoLayout": "Disposition auto"
+    "autoLayout": "Disposition auto",
+    "directionTB": "De haut en bas",
+    "directionLR": "De gauche à droite"
   },
   "filter": {
     "searchPlaceholder": "Rechercher par nom…",
