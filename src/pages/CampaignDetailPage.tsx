@@ -164,7 +164,9 @@ export default function CampaignDetailPage({
   // Tags present in this campaign (for filter chips)
   const allTags = useMemo(() => {
     const set = new Set<string>();
-    campaignBlocks.forEach((b) => (b.tags ?? []).forEach((tag) => set.add(tag)));
+    campaignBlocks.forEach((b) =>
+      (b.tags ?? []).forEach((tag) => set.add(tag)),
+    );
     return [...set].sort();
   }, [campaignBlocks]);
 
@@ -604,8 +606,12 @@ export default function CampaignDetailPage({
                         savedMonsters={combatStateManager.monsters}
                         depth={0}
                         reorderMode={false}
-                        onView={(b) => setModalState({ kind: "view", block: b })}
-                        onEdit={(b) => setModalState({ kind: "edit", block: b })}
+                        onView={(b) =>
+                          setModalState({ kind: "view", block: b })
+                        }
+                        onEdit={(b) =>
+                          setModalState({ kind: "edit", block: b })
+                        }
                         onAddChild={(parentId) =>
                           setModalState({ kind: "create-child", parentId })
                         }

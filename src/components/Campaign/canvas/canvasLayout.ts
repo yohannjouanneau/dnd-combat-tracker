@@ -38,60 +38,38 @@ export function computeTreeLayout(
   );
 
   const positions = new Map<string, { x: number; y: number }>();
+  const isLR = direction === "LR";
+  const [mainSize, mainGap, crossSize, crossGap] = isLR
+    ? [NODE_W, H_GAP, NODE_H, V_GAP]
+    : [NODE_H, V_GAP, NODE_W, H_GAP];
+
+  function place(ids: string[], level: number) {
+    const main = level * (mainSize + mainGap);
+    const totalCross = ids.length * crossSize + (ids.length - 1) * crossGap;
+    const startCross = -totalCross / 2;
+    ids.forEach((id, i) => {
+      const cross = startCross + i * (crossSize + crossGap);
+      positions.set(id, isLR ? { x: main, y: cross } : { x: cross, y: main });
+    });
+  }
 
   let level = 0;
   let currentLevel = roots.map((b) => b.id);
   const visited = new Set<string>();
 
   while (currentLevel.length > 0) {
-    if (direction === "TB") {
-      const y = level * (NODE_H + V_GAP);
-      const totalWidth =
-        currentLevel.length * NODE_W + (currentLevel.length - 1) * H_GAP;
-      const startX = -totalWidth / 2;
-      currentLevel.forEach((id, i) => {
-        positions.set(id, { x: startX + i * (NODE_W + H_GAP), y });
-        visited.add(id);
-      });
-    } else {
-      const x = level * (NODE_W + H_GAP);
-      const totalHeight =
-        currentLevel.length * NODE_H + (currentLevel.length - 1) * V_GAP;
-      const startY = -totalHeight / 2;
-      currentLevel.forEach((id, i) => {
-        positions.set(id, { x, y: startY + i * (NODE_H + V_GAP) });
-        visited.add(id);
-      });
-    }
-    const nextLevel: string[] = [];
-    for (const id of currentLevel) {
-      for (const childId of childrenMap.get(id) ?? []) {
-        if (!visited.has(childId)) nextLevel.push(childId);
-      }
-    }
-    currentLevel = nextLevel;
+    place(currentLevel, level);
+    currentLevel.forEach((id) => visited.add(id));
+    currentLevel = currentLevel.flatMap((id) =>
+      (childrenMap.get(id) ?? []).filter((cid) => !visited.has(cid)),
+    );
     level++;
   }
 
-  isolated.forEach((b, i) => {
-    if (direction === "TB") {
-      const isolatedY = level * (NODE_H + V_GAP);
-      const totalWidth =
-        isolated.length * NODE_W + (isolated.length - 1) * H_GAP;
-      positions.set(b.id, {
-        x: -totalWidth / 2 + i * (NODE_W + H_GAP),
-        y: isolatedY,
-      });
-    } else {
-      const isolatedX = level * (NODE_W + H_GAP);
-      const totalHeight =
-        isolated.length * NODE_H + (isolated.length - 1) * V_GAP;
-      positions.set(b.id, {
-        x: isolatedX,
-        y: -totalHeight / 2 + i * (NODE_H + V_GAP),
-      });
-    }
-  });
+  place(
+    isolated.map((b) => b.id),
+    level,
+  );
 
   return positions;
 }
