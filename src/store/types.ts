@@ -110,6 +110,10 @@ export type CombatStateManager = {
   createBlockType: (
     input: Omit<BlockTypeDef, "isBuiltIn">,
   ) => Promise<BlockTypeDef>;
+  updateBlockType: (
+    id: string,
+    patch: Partial<BlockTypeDef>,
+  ) => Promise<BlockTypeDef>;
   deleteBlockType: (id: string) => Promise<void>;
   createCampaign: (input: CampaignInput) => Promise<Campaign>;
   updateCampaignMeta: (

@@ -46,7 +46,10 @@
       "featureCombat": "Combat",
       "featureLoot": "Butin",
       "featureCountdown": "Décompte",
-      "create": "Créer le type"
+      "create": "Créer le type",
+      "edit": "Modifier le type",
+      "save": "Enregistrer le type",
+      "editTitle": "Modifier le type"
     },
     "new": "Nouveau bloc",
     "edit": "Modifier le bloc",
@@ -107,7 +110,8 @@
       "mechanics": "Mécanique",
       "characters": "Personnages",
       "combat": "Combat",
-      "loot": "Butin"
+      "loot": "Butin",
+      "features": "Fonctionnalités supplémentaires"
     }
   },
   "statChecks": {
