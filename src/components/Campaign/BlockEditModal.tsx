@@ -284,7 +284,7 @@ export default function BlockEditModal({
                       className={[
                         "flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm transition border",
                         formData.typeId === type.id
-                          ? "bg-blue-600/20 border-blue-500 text-text-primary"
+                          ? "bg-accent/20 border-accent text-text-primary"
                           : "bg-panel-secondary border-border-secondary text-text-muted hover:text-text-primary hover:border-border-primary",
                       ].join(" ")}
                     >

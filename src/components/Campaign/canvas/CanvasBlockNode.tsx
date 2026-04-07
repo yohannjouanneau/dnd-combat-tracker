@@ -105,6 +105,11 @@ export default function CanvasBlockNode({ data, selected }: NodeProps) {
               #{tag}
             </span>
           ))}
+          {(block.tags ?? []).length > 2 && (
+            <span className="text-[10px] text-text-muted px-1 py-0.5">
+              +{(block.tags ?? []).length - 2}
+            </span>
+          )}
         </div>
 
         {/* Countdown bar */}

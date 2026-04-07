@@ -426,7 +426,7 @@ export default function CampaignDetailPage({
               onClick={() => setViewMode("tree")}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm transition ${
                 viewMode === "tree"
-                  ? "bg-blue-600 text-white"
+                  ? "bg-accent text-accent-text"
                   : "text-text-muted hover:text-text-primary"
               }`}
             >
@@ -439,7 +439,7 @@ export default function CampaignDetailPage({
               onClick={() => setViewMode("canvas")}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm transition ${
                 viewMode === "canvas"
-                  ? "bg-blue-600 text-white"
+                  ? "bg-accent text-accent-text"
                   : "text-text-muted hover:text-text-primary"
               }`}
             >
