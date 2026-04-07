@@ -13,7 +13,7 @@ import {
   type OnConnect,
   type EdgeMouseHandler,
 } from "@xyflow/react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LayoutDashboard } from "lucide-react";
 import type {
@@ -27,10 +27,14 @@ import { computeTreeLayout, type LayoutDirection } from "./canvasLayout";
 
 const NODE_TYPES = { block: CanvasBlockNode };
 
+const CHILD_EDGE_STYLE = {
+  style: { stroke: "#6b7280", strokeWidth: 1.5, strokeDasharray: "5 4" },
+  markerEnd: { type: "arrowclosed" as const, color: "#6b7280" },
+};
+
 const COLS = 4;
 const COL_GAP = 280;
 const ROW_GAP = 200;
-// Edge IDs encode the relationship so we can reverse-parse on delete
 const edgeId = (parentId: string, childId: string) =>
   `child__${parentId}__${childId}`;
 
@@ -88,8 +92,7 @@ function toRFEdges(
         target: childId,
         sourceHandle,
         targetHandle,
-        style: { stroke: "#6b7280", strokeWidth: 1.5, strokeDasharray: "5 4" },
-        markerEnd: { type: "arrowclosed" as const, color: "#6b7280" },
+        ...CHILD_EDGE_STYLE,
       });
     }
   }
@@ -122,7 +125,6 @@ function CampaignCanvasInner({
   const { t } = useTranslation("campaigns");
   const [layoutDir, setLayoutDir] = useState<LayoutDirection>("TB");
 
-  // Stable refs so the keep-fresh memo can use latest callbacks without re-running
   const onViewBlockRef = useRef(onViewBlock);
   onViewBlockRef.current = onViewBlock;
   const onEditBlockRef = useRef(onEditBlock);
@@ -161,9 +163,7 @@ function CampaignCanvasInner({
   const [rfNodes, setRfNodes, onNodesChange] = useNodesState(initialNodes);
   const [rfEdges, setRfEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Reconcile RF nodes and edges whenever the visible node set, block data, or layout changes.
-  // Uses campaign.nodes as the source of truth so filter changes add/remove nodes correctly.
-  useMemo(() => {
+  useEffect(() => {
     setRfNodes((previousRfNodes) => {
       const previousNodePositions = new Map(
         previousRfNodes.map((rfNode) => [rfNode.id, rfNode.position]),
@@ -190,7 +190,6 @@ function CampaignCanvasInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaign.nodes, blocks, blockTypes, blockIds, layoutDir, readOnly]);
 
-  // NOTE: the 3rd arg to onNodeDragStop is the *dragged* nodes only, not all nodes.
   const handleNodeDragStop = useCallback(
     (_e: unknown, _node: unknown, draggedNodes: Node[]) => {
       const positionMap = new Map(draggedNodes.map((n) => [n.id, n.position]));
@@ -219,12 +218,7 @@ function CampaignCanvasInner({
             target: childId,
             sourceHandle,
             targetHandle,
-            style: {
-              stroke: "#6b7280",
-              strokeWidth: 1.5,
-              strokeDasharray: "5 4",
-            },
-            markerEnd: { type: "arrowclosed" as const, color: "#6b7280" },
+            ...CHILD_EDGE_STYLE,
           },
         ];
       });

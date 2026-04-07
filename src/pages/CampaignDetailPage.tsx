@@ -107,20 +107,16 @@ export default function CampaignDetailPage({
     combatStateManager.listCombat().then(setSavedCombats);
   }, [combatStateManager]);
 
-  // Block IDs in this campaign
   const blockIdsInCampaign = useMemo(
     () => new Set(campaign?.nodes.map((n) => n.blockId) ?? []),
     [campaign],
   );
 
-  // Full block objects for campaign nodes
   const campaignBlocks = useMemo(
     () => combatStateManager.blocks.filter((b) => blockIdsInCampaign.has(b.id)),
     [combatStateManager.blocks, blockIdsInCampaign],
   );
 
-  // Root blocks: in campaign but not listed as a child of another campaign block
-  // Ordered according to campaign.nodes array
   const rootBlocks = useMemo(() => {
     const childIds = new Set(
       campaignBlocks.flatMap((b) =>
@@ -145,14 +141,12 @@ export default function CampaignDetailPage({
     return map;
   }, [campaignBlocks]);
 
-  // Library blocks not yet in the campaign
   const libraryBlocksNotInCampaign = useMemo(
     () =>
       combatStateManager.blocks.filter((b) => !blockIdsInCampaign.has(b.id)),
     [combatStateManager.blocks, blockIdsInCampaign],
   );
 
-  // Types present in this campaign (for filter chips)
   const campaignBlockTypes = useMemo(
     () =>
       combatStateManager.blockTypes.filter((t) =>
@@ -161,7 +155,6 @@ export default function CampaignDetailPage({
     [campaignBlocks, combatStateManager.blockTypes],
   );
 
-  // Tags present in this campaign (for filter chips)
   const allTags = useMemo(() => {
     const set = new Set<string>();
     campaignBlocks.forEach((b) =>
@@ -175,7 +168,6 @@ export default function CampaignDetailPage({
     filterState.selectedTypeIds.length > 0 ||
     filterState.selectedTags.length > 0;
 
-  // Blocks passing all active filters (+ their descendants so canvas shows full subtrees)
   const filteredCampaignBlocks = useMemo(() => {
     if (!hasActiveFilters) return campaignBlocks;
     const searchQuery = filterState.searchQuery.trim().toLowerCase();
@@ -219,7 +211,6 @@ export default function CampaignDetailPage({
     [filteredCampaignBlocks],
   );
 
-  // Campaign with only matching nodes (passed to canvas when filtering)
   const filteredCampaign = useMemo(
     () =>
       hasActiveFilters
@@ -420,7 +411,6 @@ export default function CampaignDetailPage({
           onOpenSettings={() => setShowSettings(true)}
         />
         <div className="flex justify-between gap-2 mb-4">
-          {/* View mode toggle */}
           <div className="flex items-center gap-1 bg-panel-secondary rounded p-0.5 border border-border-secondary">
             <button
               onClick={() => setViewMode("tree")}
@@ -502,7 +492,6 @@ export default function CampaignDetailPage({
           </div>
         </div>
 
-        {/* Filter bar */}
         <CampaignFilterBar
           searchQuery={filterState.searchQuery}
           selectedTypeIds={filterState.selectedTypeIds}
@@ -522,7 +511,6 @@ export default function CampaignDetailPage({
         />
       </div>
 
-      {/* Canvas or Tree */}
       {viewMode === "canvas" && canvasLayout === "desktop" && (
         <div className="flex-1">
           <CampaignCanvas
@@ -538,8 +526,8 @@ export default function CampaignDetailPage({
         </div>
       )}
 
-      {/* Intermediate (640–1023px): overlay + simple header + interactive */}
-      {viewMode === "canvas" && canvasLayout === "intermediate" && (
+      {/* Overlay canvas: mobile (read-only) and intermediate */}
+      {viewMode === "canvas" && canvasLayout !== "desktop" && (
         <div className="fixed inset-0 z-50 bg-app-bg flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border-primary flex-shrink-0">
             <span className="font-semibold text-text-primary truncate">
@@ -562,36 +550,7 @@ export default function CampaignDetailPage({
               onRemoveChild={combatStateManager.removeChildFromBlock}
               onViewBlock={(b) => setModalState({ kind: "view", block: b })}
               onEditBlock={(b) => setModalState({ kind: "edit", block: b })}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Mobile (<640px): overlay + simple header + read-only */}
-      {viewMode === "canvas" && canvasLayout === "mobile" && (
-        <div className="fixed inset-0 z-50 bg-app-bg flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border-primary flex-shrink-0">
-            <span className="font-semibold text-text-primary truncate">
-              {campaign.name}
-            </span>
-            <button
-              onClick={() => setViewMode("tree")}
-              className="p-1 text-text-muted hover:text-text-primary"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="flex-1">
-            <CampaignCanvas
-              campaign={filteredCampaign!}
-              blocks={filteredCampaignBlocks}
-              blockTypes={combatStateManager.blockTypes}
-              onUpdateNodes={combatStateManager.updateCanvasNodes}
-              onAddChild={combatStateManager.addChildToBlock}
-              onRemoveChild={combatStateManager.removeChildFromBlock}
-              onViewBlock={(b) => setModalState({ kind: "view", block: b })}
-              onEditBlock={(b) => setModalState({ kind: "edit", block: b })}
-              readOnly
+              readOnly={canvasLayout === "mobile"}
             />
           </div>
         </div>
@@ -696,7 +655,6 @@ export default function CampaignDetailPage({
         </div>
       )}
 
-      {/* Block Detail Modal */}
       {modalState.kind === "view" && (
         <BlockDetailModal
           block={modalState.block}
@@ -718,7 +676,6 @@ export default function CampaignDetailPage({
         />
       )}
 
-      {/* Block Edit / Create Modal */}
       {(modalState.kind === "create" ||
         modalState.kind === "create-child" ||
         modalState.kind === "edit") && (
@@ -742,7 +699,6 @@ export default function CampaignDetailPage({
         />
       )}
 
-      {/* Library picker */}
       <LibraryModal
         isOpen={modalState.kind === "library"}
         monsters={combatStateManager.monsters}
@@ -774,7 +730,6 @@ export default function CampaignDetailPage({
         isUsedAsTemplate={combatStateManager.isUsedAsTemplate}
         isPlayerUsedAsTemplate={combatStateManager.isPlayerUsedAsTemplate}
       />
-      {/* NPC / Player edit modal */}
       {editingNpc && (
         <LibraryEditModal
           monster={editingNpc}
