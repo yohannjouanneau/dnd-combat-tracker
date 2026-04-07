@@ -5,6 +5,7 @@ import type {
   BuildingBlockInput,
   Campaign,
   CampaignInput,
+  CanvasEdge,
   CanvasNode,
 } from "../../types/campaign";
 import { BUILT_IN_BLOCK_TYPES } from "../../constants";
@@ -155,6 +156,55 @@ export function useCampaignStore() {
     [blocks, updateBlock],
   );
 
+  const _removeChildFromBlock = useCallback(
+    async (parentId: string, childId: string): Promise<void> => {
+      const parent = blocks.find((b) => b.id === parentId);
+      if (!parent) return;
+      await updateBlock(parentId, {
+        children: parent.children.filter((id) => id !== childId),
+      });
+    },
+    [blocks, updateBlock],
+  );
+
+  const updateCanvasNodes = useCallback(
+    async (campaignId: string, nodes: CanvasNode[]): Promise<void> => {
+      const updated = await dataStore.updateCampaign(campaignId, { nodes });
+      setCampaigns((prev) =>
+        prev.map((c) => (c.id === campaignId ? updated : c)),
+      );
+    },
+    [],
+  );
+
+  const addCanvasEdge = useCallback(
+    async (campaignId: string, edge: CanvasEdge): Promise<void> => {
+      const campaign = await dataStore.getCampaign(campaignId);
+      if (!campaign) return;
+      const updated = await dataStore.updateCampaign(campaignId, {
+        edges: [...campaign.edges, edge],
+      });
+      setCampaigns((prev) =>
+        prev.map((c) => (c.id === campaignId ? updated : c)),
+      );
+    },
+    [],
+  );
+
+  const removeCanvasEdge = useCallback(
+    async (campaignId: string, edgeId: string): Promise<void> => {
+      const campaign = await dataStore.getCampaign(campaignId);
+      if (!campaign) return;
+      const updated = await dataStore.updateCampaign(campaignId, {
+        edges: campaign.edges.filter((e) => e.id !== edgeId),
+      });
+      setCampaigns((prev) =>
+        prev.map((c) => (c.id === campaignId ? updated : c)),
+      );
+    },
+    [],
+  );
+
   const reorderCampaignBlocks = useCallback(
     async (campaignId: string, orderedBlockIds: string[]): Promise<void> => {
       const campaign = await dataStore.getCampaign(campaignId);
@@ -195,7 +245,11 @@ export function useCampaignStore() {
     addBlockToCampaign,
     removeBlockFromCampaign,
     addChildToBlock: _addChildToBlock,
+    removeChildFromBlock: _removeChildFromBlock,
     reorderCampaignBlocks,
+    updateCanvasNodes,
+    addCanvasEdge,
+    removeCanvasEdge,
   };
 
   return storeActions;

@@ -8,6 +8,19 @@
     "backToCombats": "Retour",
     "openCampaigns": "Campagnes"
   },
+  "canvas": {
+    "toggle": "Canvas",
+    "tree": "Arbre",
+    "autoLayout": "Disposition auto",
+    "directionTB": "De haut en bas",
+    "directionLR": "De gauche à droite"
+  },
+  "filter": {
+    "searchPlaceholder": "Rechercher par nom…",
+    "clearAll": "Effacer les filtres",
+    "noResults": "Aucun bloc ne correspond aux filtres actifs.",
+    "activeCount": "Filtres actifs — {{count}} bloc(s) sur {{total}}"
+  },
   "detail": {
     "blocks": "Blocs de construction",
     "addBlock": "Ajouter un bloc",
