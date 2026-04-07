@@ -472,7 +472,6 @@ export default function BlockEditModal({
                           : "border-border-secondary text-text-muted hover:text-text-primary",
                         isFromType ? "opacity-60 cursor-default" : "",
                       ].join(" ")}
-                      title={isFromType ? undefined : undefined}
                     >
                       <input
                         type="checkbox"

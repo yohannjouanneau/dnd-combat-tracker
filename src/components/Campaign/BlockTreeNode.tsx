@@ -74,9 +74,13 @@ export default function BlockTreeNode({
       : typeDef.name
     : block.typeId;
 
-  const hasCharacters = typeDef?.features.includes("characters") ?? false;
-  const hasCombat = typeDef?.features.includes("combat") ?? false;
-  const hasLoot = typeDef?.features.includes("loot") ?? false;
+  const allFeatures = [
+    ...(typeDef?.features ?? []),
+    ...(block.extraFeatures ?? []),
+  ];
+  const hasCharacters = allFeatures.includes("characters");
+  const hasCombat = allFeatures.includes("combat");
+  const hasLoot = allFeatures.includes("loot");
 
   const children = block.children
     .map((id) => allBlocks.find((b) => b.id === id))
