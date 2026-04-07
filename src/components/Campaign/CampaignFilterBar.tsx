@@ -29,7 +29,7 @@ export default function CampaignFilterBar({
   onClear,
 }: Props) {
   const { t } = useTranslation(["campaigns", "common"]);
-  const [mobileExpanded, setMobileExpanded] = useState(false);
+  const [chipsExpanded, setChipsExpanded] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const hasActiveFilters =
@@ -125,11 +125,11 @@ export default function CampaignFilterBar({
           )}
         </div>
 
-        {/* Mobile: chips toggle */}
+        {/* Chips toggle — all screen sizes */}
         {(blockTypes.length > 0 || allTags.length > 0) && (
           <button
-            onClick={() => setMobileExpanded((v) => !v)}
-            className={`sm:hidden flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm border transition ${
+            onClick={() => setChipsExpanded((v) => !v)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm border transition ${
               activeChipCount > 0
                 ? "bg-blue-600 border-blue-600 text-white"
                 : "bg-panel-secondary border-border-secondary text-text-muted hover:text-text-primary"
@@ -142,37 +142,23 @@ export default function CampaignFilterBar({
           </button>
         )}
 
-        {/* Clear all — desktop */}
+        {/* Clear all */}
         {hasActiveFilters && (
           <button
             onClick={onClear}
-            className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded text-sm bg-panel-secondary border border-border-secondary text-text-muted hover:text-text-primary transition"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded text-sm bg-panel-secondary border border-border-secondary text-text-muted hover:text-text-primary transition"
           >
             <X className="w-3.5 h-3.5" />
-            <span>{t("campaigns:filter.clearAll")}</span>
+            <span className="hidden sm:inline">
+              {t("campaigns:filter.clearAll")}
+            </span>
           </button>
         )}
       </div>
 
-      {/* Desktop: chips always visible */}
-      {(blockTypes.length > 0 || allTags.length > 0) && (
-        <div className="hidden sm:block">{chipsSection}</div>
-      )}
-
-      {/* Mobile: chips expanded */}
-      {mobileExpanded && (blockTypes.length > 0 || allTags.length > 0) && (
-        <div className="sm:hidden space-y-2">
-          {chipsSection}
-          {hasActiveFilters && (
-            <button
-              onClick={onClear}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded text-sm bg-panel-secondary border border-border-secondary text-text-muted hover:text-text-primary transition"
-            >
-              <X className="w-3.5 h-3.5" />
-              <span>{t("campaigns:filter.clearAll")}</span>
-            </button>
-          )}
-        </div>
+      {/* Chips — shown when expanded */}
+      {chipsExpanded && (blockTypes.length > 0 || allTags.length > 0) && (
+        <div>{chipsSection}</div>
       )}
     </div>
   );

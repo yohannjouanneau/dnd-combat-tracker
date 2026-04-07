@@ -175,25 +175,44 @@ export default function CampaignDetailPage({
     filterState.selectedTypeIds.length > 0 ||
     filterState.selectedTags.length > 0;
 
-  // Blocks passing all active filters
+  // Blocks passing all active filters (+ their descendants so canvas shows full subtrees)
   const filteredCampaignBlocks = useMemo(() => {
     if (!hasActiveFilters) return campaignBlocks;
-    const q = filterState.searchQuery.trim().toLowerCase();
-    return campaignBlocks.filter((b) => {
-      if (q && !b.name.toLowerCase().includes(q)) return false;
+    const searchQuery = filterState.searchQuery.trim().toLowerCase();
+    const directlyMatchingBlocks = campaignBlocks.filter((block) => {
+      if (searchQuery && !block.name.toLowerCase().includes(searchQuery))
+        return false;
       if (
         filterState.selectedTypeIds.length > 0 &&
-        !filterState.selectedTypeIds.includes(b.typeId)
+        !filterState.selectedTypeIds.includes(block.typeId)
       )
         return false;
       if (
         filterState.selectedTags.length > 0 &&
-        !filterState.selectedTags.some((tag) => (b.tags ?? []).includes(tag))
+        !filterState.selectedTags.some((tag) =>
+          (block.tags ?? []).includes(tag),
+        )
       )
         return false;
       return true;
     });
-  }, [campaignBlocks, filterState]);
+    // BFS: include all descendants of matched blocks so canvas arrows are intact
+    const matchingBlockIds = new Set(directlyMatchingBlocks.map((b) => b.id));
+    const bfsQueue = [...directlyMatchingBlocks];
+    while (bfsQueue.length > 0) {
+      const currentBlock = bfsQueue.shift()!;
+      for (const childBlockId of currentBlock.children) {
+        if (!matchingBlockIds.has(childBlockId)) {
+          const childBlock = campaignBlocks.find((b) => b.id === childBlockId);
+          if (childBlock) {
+            matchingBlockIds.add(childBlockId);
+            bfsQueue.push(childBlock);
+          }
+        }
+      }
+    }
+    return campaignBlocks.filter((block) => matchingBlockIds.has(block.id));
+  }, [campaignBlocks, filterState, hasActiveFilters]);
 
   const filteredBlockIds = useMemo(
     () => new Set(filteredCampaignBlocks.map((b) => b.id)),
@@ -211,7 +230,7 @@ export default function CampaignDetailPage({
             ),
           }
         : campaign,
-    [campaign, filteredBlockIds],
+    [campaign, filteredBlockIds, hasActiveFilters],
   ) as Campaign | undefined;
 
   const saveCampaignMeta = useCallback(

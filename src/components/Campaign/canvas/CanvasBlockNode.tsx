@@ -102,7 +102,7 @@ export default function CanvasBlockNode({ data, selected }: NodeProps) {
               key={tag}
               className="text-[10px] text-text-muted bg-panel-secondary px-1.5 py-0.5 rounded border border-border-secondary"
             >
-              {tag}
+              #{tag}
             </span>
           ))}
         </div>

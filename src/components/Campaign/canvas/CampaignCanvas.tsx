@@ -13,7 +13,7 @@ import {
   type OnConnect,
   type EdgeMouseHandler,
 } from "@xyflow/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LayoutDashboard } from "lucide-react";
 import type {
@@ -122,6 +122,12 @@ function CampaignCanvasInner({
   const { t } = useTranslation("campaigns");
   const [layoutDir, setLayoutDir] = useState<LayoutDirection>("TB");
 
+  // Stable refs so the keep-fresh memo can use latest callbacks without re-running
+  const onViewBlockRef = useRef(onViewBlock);
+  onViewBlockRef.current = onViewBlock;
+  const onEditBlockRef = useRef(onEditBlock);
+  onEditBlockRef.current = onEditBlock;
+
   const blockIds = useMemo(
     () => new Set(campaign.nodes.map((n) => n.blockId)),
     [campaign.nodes],
@@ -155,19 +161,34 @@ function CampaignCanvasInner({
   const [rfNodes, setRfNodes, onNodesChange] = useNodesState(initialNodes);
   const [rfEdges, setRfEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Keep node data and edges fresh when blocks change
+  // Reconcile RF nodes and edges whenever the visible node set, block data, or layout changes.
+  // Uses campaign.nodes as the source of truth so filter changes add/remove nodes correctly.
   useMemo(() => {
-    setRfNodes((prev) =>
-      prev.map((node) => {
-        const block = blocks.find((b) => b.id === node.id);
-        if (!block) return node;
+    setRfNodes((previousRfNodes) => {
+      const previousNodePositions = new Map(
+        previousRfNodes.map((rfNode) => [rfNode.id, rfNode.position]),
+      );
+      return campaign.nodes.flatMap((canvasNode) => {
+        const block = blocks.find((b) => b.id === canvasNode.blockId);
+        if (!block) return [];
         const typeDef = blockTypes.find((t) => t.id === block.typeId);
-        return { ...node, data: { ...node.data, block, typeDef, readOnly } };
-      }),
-    );
+        const savedPosition = previousNodePositions.get(canvasNode.blockId);
+        const position = savedPosition ?? { x: canvasNode.x, y: canvasNode.y };
+        const nodeData: CanvasBlockNodeData = {
+          block,
+          typeDef,
+          onView: onViewBlockRef.current,
+          onEdit: onEditBlockRef.current,
+          readOnly,
+        };
+        return [
+          { id: canvasNode.blockId, type: "block", position, data: nodeData },
+        ];
+      });
+    });
     setRfEdges(() => toRFEdges(blocks, blockIds, layoutDir));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blocks, blockTypes, blockIds, layoutDir]);
+  }, [campaign.nodes, blocks, blockTypes, blockIds, layoutDir, readOnly]);
 
   // NOTE: the 3rd arg to onNodeDragStop is the *dragged* nodes only, not all nodes.
   const handleNodeDragStop = useCallback(
