@@ -1,4 +1,5 @@
 import { Edit2, Plus, X } from "lucide-react";
+import BlockTypeDialog from "./BlockTypeDialog";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedCombat, SavedMonster, SavedPlayer } from "../../types";
@@ -106,12 +107,11 @@ export default function BlockEditModal({
     (block?.tags ?? []).join(", "),
   );
 
-  // "Create / edit type" dialog state
   const [showCreateType, setShowCreateType] = useState(false);
-  const [editingTypeId, setEditingTypeId] = useState<string | null>(null); // null = creating new
-  const [newTypeName, setNewTypeName] = useState("");
-  const [newTypeIcon, setNewTypeIcon] = useState("🎲");
-  const [newTypeFeatures, setNewTypeFeatures] = useState<BlockFeatureKey[]>([]);
+  const [editingTypeId, setEditingTypeId] = useState<string | null>(null);
+  const [pendingInitialFeatures, setPendingInitialFeatures] = useState<
+    BlockFeatureKey[]
+  >([]);
 
   const currentTypeDef = blockTypes.find((t) => t.id === formData.typeId);
   // activeFeatures = type's features ∪ block's own extra features
@@ -167,30 +167,27 @@ export default function BlockEditModal({
     if (formData.featureData?.combatId != null) detected.push("combat");
     if ((formData.featureData?.items?.length ?? 0) > 0) detected.push("loot");
     setEditingTypeId(null);
-    setNewTypeName("");
-    setNewTypeIcon("🎲");
-    setNewTypeFeatures(detected);
+    setPendingInitialFeatures(detected);
     setShowCreateType(true);
   };
 
   const openEditTypeDialog = (type: BlockTypeDef) => {
     setEditingTypeId(type.id);
-    setNewTypeName(type.name);
-    setNewTypeIcon(type.icon);
-    setNewTypeFeatures([...type.features]);
+    setPendingInitialFeatures([]);
     setShowCreateType(true);
   };
 
-  const handleCreateType = async () => {
-    if (!newTypeName.trim()) return;
+  const handleTypeConfirm = async (
+    name: string,
+    icon: string,
+    features: BlockFeatureKey[],
+  ) => {
     if (editingTypeId && onUpdateBlockType) {
-      // Editing an existing custom type
       const updated = await onUpdateBlockType(editingTypeId, {
-        name: newTypeName.trim(),
-        icon: newTypeIcon,
-        features: newTypeFeatures,
+        name,
+        icon,
+        features,
       });
-      // If this block uses the edited type, recalculate active feature data
       if (formData.typeId === updated.id) {
         const typeFeatureSet = new Set<BlockFeatureKey>(updated.features);
         const newExtraFeatures = (formData.extraFeatures ?? []).filter(
@@ -225,28 +222,26 @@ export default function BlockEditModal({
         }));
       }
     } else {
-      // Creating a new type
       const created = await onCreateBlockType({
         id: generateId(),
-        name: newTypeName.trim(),
-        icon: newTypeIcon,
-        features: newTypeFeatures,
+        name,
+        icon,
+        features,
       });
-      const newFeatureData: BlockFeatureData | undefined =
-        newTypeFeatures.length
-          ? {
-              linkedNpcIds: newTypeFeatures.includes("characters")
-                ? (formData.featureData?.linkedNpcIds ?? [])
-                : undefined,
-              combatId: newTypeFeatures.includes("combat")
-                ? (formData.featureData?.combatId ?? null)
-                : undefined,
-              items: newTypeFeatures.includes("loot")
-                ? (formData.featureData?.items ?? [])
-                : undefined,
-            }
-          : undefined;
-      const countdown = newTypeFeatures.includes("countdown")
+      const newFeatureData: BlockFeatureData | undefined = features.length
+        ? {
+            linkedNpcIds: features.includes("characters")
+              ? (formData.featureData?.linkedNpcIds ?? [])
+              : undefined,
+            combatId: features.includes("combat")
+              ? (formData.featureData?.combatId ?? null)
+              : undefined,
+            items: features.includes("loot")
+              ? (formData.featureData?.items ?? [])
+              : undefined,
+          }
+        : undefined;
+      const countdown = features.includes("countdown")
         ? formData.countdown
         : undefined;
       setFormData((prev) => ({
@@ -258,12 +253,6 @@ export default function BlockEditModal({
       }));
     }
     setShowCreateType(false);
-  };
-
-  const toggleNewTypeFeature = (key: BlockFeatureKey) => {
-    setNewTypeFeatures((prev) =>
-      prev.includes(key) ? prev.filter((f) => f !== key) : [...prev, key],
-    );
   };
 
   const toggleExtraFeature = (key: BlockFeatureKey) => {
@@ -786,91 +775,17 @@ export default function BlockEditModal({
         </div>
       </div>
 
-      {/* Create / Edit Type Dialog */}
       {showCreateType && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 px-4">
-          <div className="w-full max-w-sm bg-app-bg rounded-xl border border-border-primary shadow-xl p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-text-primary">
-                {editingTypeId
-                  ? t("campaigns:block.blockType.editTitle")
-                  : t("campaigns:block.blockType.new")}
-              </h3>
-              <button
-                onClick={() => setShowCreateType(false)}
-                className="text-text-muted hover:text-text-primary transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <IconPicker
-                value={newTypeIcon === "🎲" ? undefined : newTypeIcon}
-                defaultIcon="🎲"
-                onChange={setNewTypeIcon}
-                onClear={() => setNewTypeIcon("🎲")}
-              />
-              <input
-                type="text"
-                value={newTypeName}
-                placeholder={t("campaigns:block.blockType.namePlaceholder")}
-                onChange={(e) => setNewTypeName(e.target.value)}
-                className="flex-1 bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none text-sm"
-                autoFocus
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-sm text-text-secondary">
-                {t("campaigns:block.blockType.features")}
-              </label>
-              <div className="flex gap-3">
-                {(
-                  [
-                    "characters",
-                    "combat",
-                    "loot",
-                    "countdown",
-                  ] as BlockFeatureKey[]
-                ).map((key) => (
-                  <label
-                    key={key}
-                    className="flex items-center gap-1.5 text-sm text-text-primary cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={newTypeFeatures.includes(key)}
-                      onChange={() => toggleNewTypeFeature(key)}
-                      className="rounded border-border-secondary"
-                    />
-                    {t(
-                      `campaigns:block.blockType.feature${key.charAt(0).toUpperCase() + key.slice(1)}` as `campaigns:block.blockType.feature${string}`,
-                    )}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                onClick={() => setShowCreateType(false)}
-                className="px-3 py-1.5 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary text-sm transition"
-              >
-                {t("common:actions.cancel")}
-              </button>
-              <button
-                onClick={handleCreateType}
-                disabled={!newTypeName.trim()}
-                className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm transition disabled:opacity-50"
-              >
-                {editingTypeId
-                  ? t("campaigns:block.blockType.save")
-                  : t("campaigns:block.blockType.create")}
-              </button>
-            </div>
-          </div>
-        </div>
+        <BlockTypeDialog
+          editingType={
+            editingTypeId
+              ? blockTypes.find((tp) => tp.id === editingTypeId)
+              : undefined
+          }
+          initialFeatures={pendingInitialFeatures}
+          onConfirm={handleTypeConfirm}
+          onCancel={() => setShowCreateType(false)}
+        />
       )}
     </div>
   );
