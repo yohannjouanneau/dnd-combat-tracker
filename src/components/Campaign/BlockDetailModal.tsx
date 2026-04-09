@@ -65,10 +65,14 @@ export default function BlockDetailModal({
 
   const typeDef = blockTypes.find((tp) => tp.id === block.typeId);
   const displayIcon = block.icon ?? typeDef?.icon ?? "📦";
-  const hasCharacters = typeDef?.features.includes("characters") ?? false;
-  const hasCombat = typeDef?.features.includes("combat") ?? false;
-  const hasLoot = typeDef?.features.includes("loot") ?? false;
-  const hasCountdown = typeDef?.features.includes("countdown") ?? false;
+  const allFeatures = [
+    ...(typeDef?.features ?? []),
+    ...(block.extraFeatures ?? []),
+  ];
+  const hasCharacters = allFeatures.includes("characters");
+  const hasCombat = allFeatures.includes("combat");
+  const hasLoot = allFeatures.includes("loot");
+  const hasCountdown = allFeatures.includes("countdown");
 
   const children = block.children
     .map((id) => allBlocks.find((b) => b.id === id))

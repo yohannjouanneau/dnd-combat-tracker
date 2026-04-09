@@ -58,6 +58,10 @@ type Props = {
   onCreateBlockType?: (
     input: Omit<BlockTypeDef, "isBuiltIn">,
   ) => Promise<BlockTypeDef>;
+  onUpdateBlockType?: (
+    id: string,
+    patch: Partial<BlockTypeDef>,
+  ) => Promise<BlockTypeDef>;
   onDeleteBlockType?: (id: string) => Promise<void>;
   onAddBlock?: (block: BuildingBlock) => void;
   onSearchMonsters: (searchName: string) => Promise<SearchResult[]>;
@@ -88,6 +92,7 @@ export default function LibraryModal({
   onUpdateBlock,
   onDeleteBlock,
   onCreateBlockType,
+  onUpdateBlockType,
   onDeleteBlockType,
   onAddBlock,
   onSearchMonsters,
@@ -599,6 +604,7 @@ export default function LibraryModal({
               );
             })
           }
+          onUpdateBlockType={onUpdateBlockType}
           onDeleteBlockType={onDeleteBlockType}
         />
       )}

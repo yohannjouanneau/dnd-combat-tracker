@@ -47,6 +47,17 @@ export function useCampaignStore() {
     [],
   );
 
+  const updateBlockType = useCallback(
+    async (id: string, patch: Partial<BlockTypeDef>): Promise<BlockTypeDef> => {
+      const type = blockTypes.find((t) => t.id === id);
+      if (type?.isBuiltIn) throw new Error("Cannot update built-in block type");
+      const updated = await dataStore.updateBlockType(id, patch);
+      setBlockTypes((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      return updated;
+    },
+    [blockTypes],
+  );
+
   const deleteBlockType = useCallback(
     async (id: string): Promise<void> => {
       const type = blockTypes.find((t) => t.id === id);
@@ -235,6 +246,7 @@ export function useCampaignStore() {
     loadBlocks,
     loadBlockTypes,
     createBlockType,
+    updateBlockType,
     deleteBlockType,
     createCampaign,
     updateCampaignMeta,

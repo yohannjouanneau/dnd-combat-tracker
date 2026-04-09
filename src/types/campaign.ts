@@ -49,6 +49,8 @@ export interface BuildingBlock extends TimestampedEntity {
   featureData?: BlockFeatureData;
   tags?: string[];
   countdown?: CountdownData;
+  /** Additional features enabled on this block beyond what the type definition includes */
+  extraFeatures?: BlockFeatureKey[];
 }
 
 export interface CanvasNode {

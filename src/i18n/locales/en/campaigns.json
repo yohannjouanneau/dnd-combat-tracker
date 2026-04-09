@@ -46,7 +46,10 @@
       "featureCombat": "Combat",
       "featureLoot": "Loot",
       "featureCountdown": "Countdown",
-      "create": "Create type"
+      "create": "Create type",
+      "edit": "Edit",
+      "save": "Save type",
+      "editTitle": "Edit type"
     },
     "new": "New Block",
     "edit": "Edit Block",
@@ -107,7 +110,8 @@
       "mechanics": "Mechanics",
       "characters": "Characters",
       "combat": "Combat",
-      "loot": "Loot"
+      "loot": "Loot",
+      "features": "Additional features"
     }
   },
   "statChecks": {

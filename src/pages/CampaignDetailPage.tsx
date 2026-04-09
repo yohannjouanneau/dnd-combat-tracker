@@ -690,6 +690,7 @@ export default function CampaignDetailPage({
           onSave={handleSaveBlock}
           onCancel={() => setModalState({ kind: "closed" })}
           onCreateBlockType={combatStateManager.createBlockType}
+          onUpdateBlockType={combatStateManager.updateBlockType}
           onDeleteBlockType={combatStateManager.deleteBlockType}
           onOpenNpc={handleOpenNpc}
           onOpenCombat={(combatId) => {
@@ -722,6 +723,7 @@ export default function CampaignDetailPage({
         onUpdateBlock={combatStateManager.updateBlock}
         onDeleteBlock={combatStateManager.deleteBlock}
         onCreateBlockType={combatStateManager.createBlockType}
+        onUpdateBlockType={combatStateManager.updateBlockType}
         onDeleteBlockType={combatStateManager.deleteBlockType}
         onAddBlock={(block) => {
           handleAddFromLibrary(block.id);

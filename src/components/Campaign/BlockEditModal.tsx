@@ -1,4 +1,5 @@
-import { Plus, X } from "lucide-react";
+import { Edit2, Plus, X } from "lucide-react";
+import BlockTypeDialog from "./BlockTypeDialog";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedCombat, SavedMonster, SavedPlayer } from "../../types";
@@ -29,6 +30,10 @@ interface Props {
   onCancel: () => void;
   onCreateBlockType: (
     input: Omit<BlockTypeDef, "isBuiltIn">,
+  ) => Promise<BlockTypeDef>;
+  onUpdateBlockType?: (
+    id: string,
+    patch: Partial<BlockTypeDef>,
   ) => Promise<BlockTypeDef>;
   onDeleteBlockType?: (id: string) => Promise<void>;
   onOpenNpc?: (npcId: string) => void;
@@ -70,6 +75,7 @@ export default function BlockEditModal({
   onSave,
   onCancel,
   onCreateBlockType,
+  onUpdateBlockType,
   onDeleteBlockType,
   onOpenNpc,
   onOpenCombat,
@@ -93,6 +99,7 @@ export default function BlockEditModal({
       tags: [],
       featureData: undefined,
       countdown: undefined,
+      extraFeatures: [],
     };
   });
 
@@ -100,36 +107,48 @@ export default function BlockEditModal({
     (block?.tags ?? []).join(", "),
   );
 
-  // "Create new type" dialog state
   const [showCreateType, setShowCreateType] = useState(false);
-  const [newTypeName, setNewTypeName] = useState("");
-  const [newTypeIcon, setNewTypeIcon] = useState("🎲");
-  const [newTypeFeatures, setNewTypeFeatures] = useState<BlockFeatureKey[]>([]);
+  const [editingTypeId, setEditingTypeId] = useState<string | null>(null);
+  const [pendingInitialFeatures, setPendingInitialFeatures] = useState<
+    BlockFeatureKey[]
+  >([]);
 
   const currentTypeDef = blockTypes.find((t) => t.id === formData.typeId);
-  const hasCharacters =
-    currentTypeDef?.features.includes("characters") ?? false;
-  const hasCombat = currentTypeDef?.features.includes("combat") ?? false;
-  const hasLoot = currentTypeDef?.features.includes("loot") ?? false;
-  const hasCountdown = currentTypeDef?.features.includes("countdown") ?? false;
+  // activeFeatures = type's features ∪ block's own extra features
+  const activeFeatures = new Set<BlockFeatureKey>([
+    ...(currentTypeDef?.features ?? []),
+    ...(formData.extraFeatures ?? []),
+  ]);
+  const hasCharacters = activeFeatures.has("characters");
+  const hasCombat = activeFeatures.has("combat");
+  const hasLoot = activeFeatures.has("loot");
+  const hasCountdown = activeFeatures.has("countdown");
 
   const handleTypeChange = (typeId: string) => {
     const typeDef = blockTypes.find((t) => t.id === typeId);
-    const newFeatureData: BlockFeatureData | undefined = typeDef?.features
-      .length
+    const typeFeatureSet = new Set<BlockFeatureKey>(typeDef?.features ?? []);
+    // Keep only extra features not already covered by the new type
+    const newExtraFeatures = (formData.extraFeatures ?? []).filter(
+      (f) => !typeFeatureSet.has(f),
+    );
+    const newActiveFeatures = new Set<BlockFeatureKey>([
+      ...typeFeatureSet,
+      ...newExtraFeatures,
+    ]);
+    const newFeatureData: BlockFeatureData | undefined = newActiveFeatures.size
       ? {
-          linkedNpcIds: typeDef.features.includes("characters")
+          linkedNpcIds: newActiveFeatures.has("characters")
             ? (formData.featureData?.linkedNpcIds ?? [])
             : undefined,
-          combatId: typeDef.features.includes("combat")
+          combatId: newActiveFeatures.has("combat")
             ? (formData.featureData?.combatId ?? null)
             : undefined,
-          items: typeDef.features.includes("loot")
+          items: newActiveFeatures.has("loot")
             ? (formData.featureData?.items ?? [])
             : undefined,
         }
       : undefined;
-    const countdown = typeDef?.features.includes("countdown")
+    const countdown = newActiveFeatures.has("countdown")
       ? formData.countdown
       : undefined;
     setFormData((prev) => ({
@@ -137,6 +156,7 @@ export default function BlockEditModal({
       typeId,
       featureData: newFeatureData,
       countdown,
+      extraFeatures: newExtraFeatures,
     }));
   };
 
@@ -146,49 +166,129 @@ export default function BlockEditModal({
       detected.push("characters");
     if (formData.featureData?.combatId != null) detected.push("combat");
     if ((formData.featureData?.items?.length ?? 0) > 0) detected.push("loot");
-    setNewTypeName("");
-    setNewTypeIcon("🎲");
-    setNewTypeFeatures(detected);
+    setEditingTypeId(null);
+    setPendingInitialFeatures(detected);
     setShowCreateType(true);
   };
 
-  const handleCreateType = async () => {
-    if (!newTypeName.trim()) return;
-    const created = await onCreateBlockType({
-      id: generateId(),
-      name: newTypeName.trim(),
-      icon: newTypeIcon,
-      features: newTypeFeatures,
-    });
-    const newFeatureData: BlockFeatureData | undefined = newTypeFeatures.length
+  const openEditTypeDialog = (type: BlockTypeDef) => {
+    setEditingTypeId(type.id);
+    setPendingInitialFeatures([]);
+    setShowCreateType(true);
+  };
+
+  const handleTypeConfirm = async (
+    name: string,
+    icon: string,
+    features: BlockFeatureKey[],
+  ) => {
+    if (editingTypeId && onUpdateBlockType) {
+      const updated = await onUpdateBlockType(editingTypeId, {
+        name,
+        icon,
+        features,
+      });
+      if (formData.typeId === updated.id) {
+        const typeFeatureSet = new Set<BlockFeatureKey>(updated.features);
+        const newExtraFeatures = (formData.extraFeatures ?? []).filter(
+          (f) => !typeFeatureSet.has(f),
+        );
+        const newActiveFeatures = new Set<BlockFeatureKey>([
+          ...typeFeatureSet,
+          ...newExtraFeatures,
+        ]);
+        const newFeatureData: BlockFeatureData | undefined =
+          newActiveFeatures.size
+            ? {
+                linkedNpcIds: newActiveFeatures.has("characters")
+                  ? (formData.featureData?.linkedNpcIds ?? [])
+                  : undefined,
+                combatId: newActiveFeatures.has("combat")
+                  ? (formData.featureData?.combatId ?? null)
+                  : undefined,
+                items: newActiveFeatures.has("loot")
+                  ? (formData.featureData?.items ?? [])
+                  : undefined,
+              }
+            : undefined;
+        const countdown = newActiveFeatures.has("countdown")
+          ? formData.countdown
+          : undefined;
+        setFormData((prev) => ({
+          ...prev,
+          featureData: newFeatureData,
+          countdown,
+          extraFeatures: newExtraFeatures,
+        }));
+      }
+    } else {
+      const created = await onCreateBlockType({
+        id: generateId(),
+        name,
+        icon,
+        features,
+      });
+      const newFeatureData: BlockFeatureData | undefined = features.length
+        ? {
+            linkedNpcIds: features.includes("characters")
+              ? (formData.featureData?.linkedNpcIds ?? [])
+              : undefined,
+            combatId: features.includes("combat")
+              ? (formData.featureData?.combatId ?? null)
+              : undefined,
+            items: features.includes("loot")
+              ? (formData.featureData?.items ?? [])
+              : undefined,
+          }
+        : undefined;
+      const countdown = features.includes("countdown")
+        ? formData.countdown
+        : undefined;
+      setFormData((prev) => ({
+        ...prev,
+        typeId: created.id,
+        featureData: newFeatureData,
+        countdown,
+        extraFeatures: [],
+      }));
+    }
+    setShowCreateType(false);
+  };
+
+  const toggleExtraFeature = (key: BlockFeatureKey) => {
+    const typeFeatures = currentTypeDef?.features ?? [];
+    if (typeFeatures.includes(key)) return; // can't toggle off type-defined features here
+    const current = formData.extraFeatures ?? [];
+    const newExtra = current.includes(key)
+      ? current.filter((f) => f !== key)
+      : [...current, key];
+    // Update featureData to reflect the new active features
+    const newActiveFeatures = new Set<BlockFeatureKey>([
+      ...typeFeatures,
+      ...newExtra,
+    ]);
+    const newFeatureData: BlockFeatureData | undefined = newActiveFeatures.size
       ? {
-          linkedNpcIds: newTypeFeatures.includes("characters")
+          linkedNpcIds: newActiveFeatures.has("characters")
             ? (formData.featureData?.linkedNpcIds ?? [])
             : undefined,
-          combatId: newTypeFeatures.includes("combat")
+          combatId: newActiveFeatures.has("combat")
             ? (formData.featureData?.combatId ?? null)
             : undefined,
-          items: newTypeFeatures.includes("loot")
+          items: newActiveFeatures.has("loot")
             ? (formData.featureData?.items ?? [])
             : undefined,
         }
       : undefined;
-    const countdown = newTypeFeatures.includes("countdown")
+    const countdown = newActiveFeatures.has("countdown")
       ? formData.countdown
       : undefined;
     setFormData((prev) => ({
       ...prev,
-      typeId: created.id,
       featureData: newFeatureData,
       countdown,
+      extraFeatures: newExtra,
     }));
-    setShowCreateType(false);
-  };
-
-  const toggleNewTypeFeature = (key: BlockFeatureKey) => {
-    setNewTypeFeatures((prev) =>
-      prev.includes(key) ? prev.filter((f) => f !== key) : [...prev, key],
-    );
   };
 
   const handleTagsChange = (value: string) => {
@@ -291,18 +391,35 @@ export default function BlockEditModal({
                       <span>{type.icon}</span>
                       <span>{getTypeDisplayName(type, t)}</span>
                     </button>
-                    {!type.isBuiltIn && onDeleteBlockType && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteBlockType(type.id);
-                        }}
-                        className="absolute -top-1 -right-1 hidden group-hover/type:flex w-4 h-4 bg-red-600 hover:bg-red-700 text-white rounded-full items-center justify-center text-[10px] leading-none transition z-10"
-                        title="Delete type"
-                      >
-                        ×
-                      </button>
+                    {!type.isBuiltIn && (
+                      <>
+                        {onUpdateBlockType && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEditTypeDialog(type);
+                            }}
+                            className="absolute -top-1 -left-1 hidden group-hover/type:flex w-4 h-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full items-center justify-center transition z-10"
+                            title={t("campaigns:block.blockType.edit")}
+                          >
+                            <Edit2 className="w-2.5 h-2.5" />
+                          </button>
+                        )}
+                        {onDeleteBlockType && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteBlockType(type.id);
+                            }}
+                            className="absolute -top-1 -right-1 hidden group-hover/type:flex w-4 h-4 bg-red-600 hover:bg-red-700 text-white rounded-full items-center justify-center text-[10px] leading-none transition z-10"
+                            title="Delete type"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 ))}
@@ -315,6 +432,51 @@ export default function BlockEditModal({
                 {t("campaigns:block.blockType.new")}
               </button>
             </div>
+
+            {/* Additional feature toggles (for features beyond the type's defaults) */}
+            {formData.typeId !== defaultTypeId && (
+              <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-border-secondary">
+                <span className="text-xs text-text-muted">
+                  {t("campaigns:block.sections.features")}:
+                </span>
+                {(
+                  [
+                    "characters",
+                    "combat",
+                    "loot",
+                    "countdown",
+                  ] as BlockFeatureKey[]
+                ).map((key) => {
+                  const isFromType = (currentTypeDef?.features ?? []).includes(
+                    key,
+                  );
+                  const isActive = activeFeatures.has(key);
+                  return (
+                    <label
+                      key={key}
+                      className={[
+                        "flex items-center gap-1.5 text-xs cursor-pointer select-none px-2 py-1 rounded border transition",
+                        isActive
+                          ? "bg-accent/15 border-accent text-text-primary"
+                          : "border-border-secondary text-text-muted hover:text-text-primary",
+                        isFromType ? "opacity-60 cursor-default" : "",
+                      ].join(" ")}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isActive}
+                        disabled={isFromType}
+                        onChange={() => !isFromType && toggleExtraFeature(key)}
+                        className="rounded border-border-secondary w-3 h-3"
+                      />
+                      {t(
+                        `campaigns:block.blockType.feature${key.charAt(0).toUpperCase() + key.slice(1)}` as `campaigns:block.blockType.feature${string}`,
+                      )}
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </Section>
 
           {/* ── Content ── */}
@@ -613,87 +775,17 @@ export default function BlockEditModal({
         </div>
       </div>
 
-      {/* Create Type Dialog */}
       {showCreateType && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 px-4">
-          <div className="w-full max-w-sm bg-app-bg rounded-xl border border-border-primary shadow-xl p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-text-primary">
-                {t("campaigns:block.blockType.new")}
-              </h3>
-              <button
-                onClick={() => setShowCreateType(false)}
-                className="text-text-muted hover:text-text-primary transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <IconPicker
-                value={newTypeIcon === "🎲" ? undefined : newTypeIcon}
-                defaultIcon="🎲"
-                onChange={setNewTypeIcon}
-                onClear={() => setNewTypeIcon("🎲")}
-              />
-              <input
-                type="text"
-                value={newTypeName}
-                placeholder={t("campaigns:block.blockType.namePlaceholder")}
-                onChange={(e) => setNewTypeName(e.target.value)}
-                className="flex-1 bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none text-sm"
-                autoFocus
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-sm text-text-secondary">
-                {t("campaigns:block.blockType.features")}
-              </label>
-              <div className="flex gap-3">
-                {(
-                  [
-                    "characters",
-                    "combat",
-                    "loot",
-                    "countdown",
-                  ] as BlockFeatureKey[]
-                ).map((key) => (
-                  <label
-                    key={key}
-                    className="flex items-center gap-1.5 text-sm text-text-primary cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={newTypeFeatures.includes(key)}
-                      onChange={() => toggleNewTypeFeature(key)}
-                      className="rounded border-border-secondary"
-                    />
-                    {t(
-                      `campaigns:block.blockType.feature${key.charAt(0).toUpperCase() + key.slice(1)}` as `campaigns:block.blockType.feature${string}`,
-                    )}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                onClick={() => setShowCreateType(false)}
-                className="px-3 py-1.5 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary text-sm transition"
-              >
-                {t("common:actions.cancel")}
-              </button>
-              <button
-                onClick={handleCreateType}
-                disabled={!newTypeName.trim()}
-                className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm transition disabled:opacity-50"
-              >
-                {t("campaigns:block.blockType.create")}
-              </button>
-            </div>
-          </div>
-        </div>
+        <BlockTypeDialog
+          editingType={
+            editingTypeId
+              ? blockTypes.find((tp) => tp.id === editingTypeId)
+              : undefined
+          }
+          initialFeatures={pendingInitialFeatures}
+          onConfirm={handleTypeConfirm}
+          onCancel={() => setShowCreateType(false)}
+        />
       )}
     </div>
   );
