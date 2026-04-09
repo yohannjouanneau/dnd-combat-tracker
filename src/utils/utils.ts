@@ -256,6 +256,13 @@ export function buildPlayerCombatantsForFight(
   return result.sort((a, b) => b.initiative - a.initiative);
 }
 
+export function getLocalStorageSize(): string {
+  const totalMB = Object.keys(localStorage)
+    .map((k) => ((localStorage.getItem(k) ?? "").length * 2) / 1024 / 1024)
+    .reduce((a, b) => a + b, 0);
+  return `${totalMB.toFixed(2)} MB`;
+}
+
 /**
  * Returns a color class based on HP percentage
  * - > 50%: green
