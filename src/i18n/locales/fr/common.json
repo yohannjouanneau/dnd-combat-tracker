@@ -83,6 +83,10 @@
       "title": "Impossible de supprimer le joueur",
       "message": "« {{name}} » ne peut pas être supprimé car il est actuellement utilisé dans un ou plusieurs combats. Retirez-le d'abord de tous les combats."
     },
+    "deleteBlockFromLibrary": {
+      "title": "Supprimer le bloc ?",
+      "message": "Voulez-vous vraiment supprimer définitivement « {{name}} » ? Cette action est irréversible."
+    },
     "addToLibrary": {
       "success": "Ajouté a la bibliothèque"
     },
