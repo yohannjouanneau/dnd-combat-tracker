@@ -25,9 +25,19 @@
     "blocks": "Blocs de construction",
     "addBlock": "Ajouter un bloc",
     "addFromLibrary": "Ajouter depuis la bibliothèque",
+    "importBlocks": "Importer",
     "reorder": "Réorganiser",
     "noBlocks": "Aucun bloc. Ajoutez votre premier bloc !",
     "backToCampaigns": "Retour aux campagnes"
+  },
+  "import": {
+    "title": "Importer des blocs depuis un fichier YAML",
+    "hint": "Collez un fichier YAML au format d'import de campagne. Consultez CAMPAIGN_IMPORT.md pour la spécification complète.",
+    "pickFile": "Cliquez pour sélectionner un fichier YAML",
+    "placeholder": "name: La Cave Sombre\ntype: room\ndescription: Une chambre de pierre humide...",
+    "preview": "{{count}} bloc(s) prêt(s) à importer",
+    "childCount": "+{{count}} enfant(s)",
+    "confirm": "Importer {{count}} bloc(s)"
   },
   "block": {
     "types": {

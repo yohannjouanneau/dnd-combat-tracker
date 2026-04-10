@@ -8,6 +8,7 @@ import {
   GitGraph,
   List,
   X,
+  FileInput,
 } from "lucide-react";
 import TopBar from "../components/TopBar";
 import type { CombatStateManager } from "../store/types";
@@ -25,6 +26,7 @@ import BlockDetailModal from "../components/Campaign/BlockDetailModal";
 import BlockTreeNode, {
   type DragCallbacks,
 } from "../components/Campaign/BlockTreeNode";
+import ImportBlocksModal from "../components/Campaign/ImportBlocksModal";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
 import LibraryModal from "../components/Library/LibraryModal";
 import SettingsModal from "../components/Settings/SettingsModal";
@@ -73,6 +75,7 @@ export default function CampaignDetailPage({
     SavedPlayer | SavedMonster | null
   >(null);
   const [reorderMode, setReorderMode] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [dragState, setDragState] = useState<{
     blockId: string;
     sourceParentId: string | null;
@@ -280,6 +283,23 @@ export default function CampaignDetailPage({
     [campaignId, combatStateManager, t, toast],
   );
 
+  const handleImport = useCallback(
+    async (entries: import("../utils/campaignImporter").ImportedBlock[]) => {
+      setShowImport(false);
+      for (const entry of entries) {
+        await combatStateManager.createBlock(entry.block);
+        await combatStateManager.addBlockToCampaign(campaignId, entry.block.id);
+      }
+      for (const entry of entries) {
+        if (entry.parentId) {
+          await combatStateManager.addChildToBlock(entry.parentId, entry.block.id);
+        }
+      }
+      toast.success(t("campaigns:import.confirm", { count: entries.length }));
+    },
+    [campaignId, combatStateManager, t, toast],
+  );
+
   const handleOpenNpc = useCallback(
     (npcId: string) => {
       const entity =
@@ -468,6 +488,16 @@ export default function CampaignDetailPage({
             )}
             {!reorderMode && (
               <>
+                <button
+                  onClick={() => setShowImport(true)}
+                  className="flex items-center gap-1 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-3 py-2 rounded text-sm transition"
+                  title={t("campaigns:detail.importBlocks")}
+                >
+                  <FileInput className="w-4 h-4" />
+                  <span className="hidden sm:inline">
+                    {t("campaigns:detail.importBlocks")}
+                  </span>
+                </button>
                 <button
                   onClick={() => setModalState({ kind: "library" })}
                   className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm transition"
@@ -760,6 +790,12 @@ export default function CampaignDetailPage({
         syncApi={combatStateManager.syncApi}
         onClose={() => setShowSettings(false)}
       />
+      {showImport && (
+        <ImportBlocksModal
+          onImport={handleImport}
+          onCancel={() => setShowImport(false)}
+        />
+      )}
     </div>
   );
 }
