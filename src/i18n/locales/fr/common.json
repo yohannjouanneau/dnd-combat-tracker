@@ -131,6 +131,10 @@
       "letters": "Lettres (A, B, C...)",
       "numbers": "Nombres (1, 2, 3...)"
     },
+    "storage": {
+      "title": "Stockage local",
+      "used": "Données stockées localement : {{size}}"
+    },
     "googleDrive": {
       "title": "Synchronisez vos combats sur tous vos appareils",
       "connect": "Connectez-vous avec Google",

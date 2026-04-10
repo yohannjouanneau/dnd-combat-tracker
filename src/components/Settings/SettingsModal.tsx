@@ -8,6 +8,7 @@ import LanguageSwitcher from "../common/LanguageSwitcher";
 import SyncButton from "../SyncButton";
 import type { SyncApi } from "../../api/sync/types";
 import type { CombatantIdentifierType } from "../../types";
+import { getLocalStorageSize } from "../../utils/utils";
 
 type Props = {
   isOpen: boolean;
@@ -41,6 +42,8 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
     },
     [updateSettings],
   );
+
+  const storageSize = getLocalStorageSize();
 
   if (!isOpen) return null;
 
@@ -160,6 +163,16 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
                   {t("common:settings.combatantIdentifier.numbers")}
                 </button>
               </div>
+            </div>
+
+            {/* Storage Section */}
+            <div className="space-y-3 pt-3 border-t border-border-primary">
+              <h3 className="text-lg font-semibold text-text-secondary">
+                {t("common:settings.storage.title")}
+              </h3>
+              <p className="text-sm text-text-muted">
+                {t("common:settings.storage.used", { size: storageSize })}
+              </p>
             </div>
 
             {/* Google Drive Section */}
