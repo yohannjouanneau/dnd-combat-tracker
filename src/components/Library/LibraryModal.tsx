@@ -11,7 +11,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 import type {
   MonsterCombatant,
   PlayerCombatant,
@@ -103,6 +104,22 @@ export default function LibraryModal({
   onToggleAutoAdd,
 }: Props) {
   const { t } = useTranslation(["common", "forms"]);
+  const confirmDialog = useConfirmationDialog();
+
+  const handleDeleteBlock = useCallback(
+    async (block: BuildingBlock) => {
+      const confirmed = await confirmDialog({
+        title: t("common:confirmation.deleteBlockFromLibrary.title"),
+        message: t("common:confirmation.deleteBlockFromLibrary.message", {
+          name: block.name,
+        }),
+      });
+      if (confirmed && onDeleteBlock) {
+        await onDeleteBlock(block.id);
+      }
+    },
+    [confirmDialog, onDeleteBlock, t],
+  );
 
   const [filter, setFilter] = useState<FilterType>(initialFilter ?? "monsters");
   const [searchQuery, setSearchQuery] = useState("");
@@ -546,7 +563,7 @@ export default function LibraryModal({
                           </button>
                           {onDeleteBlock && (
                             <button
-                              onClick={() => onDeleteBlock(block.id)}
+                              onClick={() => handleDeleteBlock(block)}
                               className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
                               title={t("common:actions.delete")}
                             >
