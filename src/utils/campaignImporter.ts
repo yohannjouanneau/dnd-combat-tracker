@@ -11,77 +11,114 @@ export interface ImportedBlock {
   parentId: string | null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseBlock(raw: any, parentId: string | null): ImportedBlock[] {
-  if (!raw || typeof raw !== "object") throw new Error("Invalid block entry");
+/**
+ * Raw YAML shapes — all field types are `unknown` since the source is untyped
+ * user input. Runtime checks in parseBlock handle the actual validation.
+ */
+interface RawOutcome {
+  label?: unknown;
+  description?: unknown;
+}
 
-  const name = raw.name;
+interface RawStatCheck {
+  label?: unknown;
+  dc?: unknown;
+  skill?: unknown;
+  outcomes?: unknown;
+}
+
+interface RawCountdown {
+  steps?: unknown;
+  labels?: unknown;
+}
+
+interface RawBlock {
+  name?: unknown;
+  type?: unknown;
+  icon?: unknown;
+  description?: unknown;
+  checks?: unknown;
+  items?: unknown;
+  countdown?: unknown;
+  tags?: unknown;
+  children?: unknown;
+}
+
+function parseBlock(raw: unknown, parentId: string | null): ImportedBlock[] {
+  if (!raw || typeof raw !== "object") throw new Error("Invalid block entry");
+  const r = raw as RawBlock;
+
+  const name = r.name;
   if (!name || typeof name !== "string" || !name.trim()) {
     throw new Error('Each block must have a "name" field');
   }
 
   const typeRaw =
-    raw.type && typeof raw.type === "string" ? raw.type.toLowerCase() : "";
+    r.type && typeof r.type === "string" ? r.type.toLowerCase() : "";
   const typeId = VALID_TYPE_IDS.has(typeRaw) ? typeRaw : "scene";
 
-  const statChecks = Array.isArray(raw.checks)
-    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      raw.checks.map((c: any) => {
-        if (!c.label || typeof c.label !== "string")
+  const statChecks = Array.isArray(r.checks)
+    ? r.checks.map((c: unknown) => {
+        if (!c || typeof c !== "object")
+          throw new Error(`Invalid stat check entry in block "${name}"`);
+        const check = c as RawStatCheck;
+        if (!check.label || typeof check.label !== "string")
           throw new Error(`Stat check missing "label" in block "${name}"`);
-        if (typeof c.dc !== "number")
+        if (typeof check.dc !== "number")
           throw new Error(
-            `Stat check "${c.label}" missing numeric "dc" in block "${name}"`,
+            `Stat check "${check.label}" missing numeric "dc" in block "${name}"`,
           );
         return {
           id: generateId(),
-          label: String(c.label),
-          skill: c.skill ? String(c.skill) : undefined,
-          difficulty: Number(c.dc),
-          outcomes: Array.isArray(c.outcomes)
-            ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              c.outcomes.map((o: any) => ({
-                id: generateId(),
-                label: o.label ? String(o.label) : "",
-                description: o.description ? String(o.description) : "",
-              }))
+          label: String(check.label),
+          skill: check.skill ? String(check.skill) : undefined,
+          difficulty: Number(check.dc),
+          outcomes: Array.isArray(check.outcomes)
+            ? check.outcomes.map((o: unknown) => {
+                const outcome =
+                  o && typeof o === "object" ? (o as RawOutcome) : {};
+                return {
+                  id: generateId(),
+                  label: outcome.label ? String(outcome.label) : "",
+                  description: outcome.description
+                    ? String(outcome.description)
+                    : "",
+                };
+              })
             : [],
         };
       })
     : [];
 
-  const items = Array.isArray(raw.items)
-    ? raw.items.map(String).filter(Boolean)
+  const items = Array.isArray(r.items)
+    ? r.items.map((item: unknown) => String(item)).filter(Boolean)
     : undefined;
 
-  const countdownRaw = raw.countdown;
-  const countdown =
-    countdownRaw &&
-    typeof countdownRaw === "object" &&
-    typeof countdownRaw.steps === "number" &&
-    countdownRaw.steps > 0
-      ? {
-          max: countdownRaw.steps,
-          current: 0,
-          descriptions: Array.isArray(countdownRaw.labels)
-            ? countdownRaw.labels.map(String)
-            : undefined,
-        }
-      : undefined;
+  const countdown = (() => {
+    const cd = r.countdown;
+    if (!cd || typeof cd !== "object") return undefined;
+    const { steps, labels } = cd as RawCountdown;
+    if (typeof steps !== "number" || steps <= 0) return undefined;
+    return {
+      max: steps,
+      current: 0,
+      descriptions: Array.isArray(labels)
+        ? labels.map((l: unknown) => String(l))
+        : undefined,
+    };
+  })();
 
-  const tags = Array.isArray(raw.tags)
-    ? raw.tags.map(String).filter(Boolean)
+  const tags = Array.isArray(r.tags)
+    ? r.tags.map((t: unknown) => String(t)).filter(Boolean)
     : undefined;
 
   const block: BuildingBlockInput = {
     id: generateId(),
     name: name.trim(),
     typeId,
-    icon: raw.icon && typeof raw.icon === "string" ? raw.icon : undefined,
+    icon: r.icon && typeof r.icon === "string" ? r.icon : undefined,
     description:
-      raw.description && typeof raw.description === "string"
-        ? raw.description
-        : "",
+      r.description && typeof r.description === "string" ? r.description : "",
     children: [],
     statChecks,
     tags,
@@ -91,8 +128,8 @@ function parseBlock(raw: any, parentId: string | null): ImportedBlock[] {
 
   const result: ImportedBlock[] = [{ block, parentId }];
 
-  if (Array.isArray(raw.children)) {
-    for (const child of raw.children) {
+  if (Array.isArray(r.children)) {
+    for (const child of r.children) {
       result.push(...parseBlock(child, block.id));
     }
   }
@@ -108,8 +145,7 @@ function parseBlock(raw: any, parentId: string | null): ImportedBlock[] {
  * @throws Error with a descriptive message on parse or validation failure
  */
 export function importBlocksFromYaml(yaml: string): ImportedBlock[] {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let parsed: any;
+  let parsed: unknown;
   try {
     parsed = parseYaml(yaml);
   } catch (e) {
@@ -120,9 +156,9 @@ export function importBlocksFromYaml(yaml: string): ImportedBlock[] {
     throw new Error("File must contain a block or a list of blocks");
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawBlocks: any[] = Array.isArray(parsed.blocks)
-    ? parsed.blocks
+  const root = parsed as Record<string, unknown>;
+  const rawBlocks: unknown[] = Array.isArray(root.blocks)
+    ? root.blocks
     : [parsed];
 
   if (rawBlocks.length === 0) {
