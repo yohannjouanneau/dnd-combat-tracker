@@ -3,6 +3,7 @@
 This document describes the YAML format for importing building blocks into campaigns.
 
 The intended workflow is:
+
 1. Find raw text online (a wiki, an adventure module, your notes…)
 2. Ask an LLM to convert it to this YAML format
 3. Import the file in the app via **Campaign → Import blocks**
@@ -36,30 +37,30 @@ blocks:
 
 ## Block fields
 
-| Field | Required | Description |
-|---|---|---|
-| `name` | yes | Title of the block |
-| `type` | yes | Block category — see types below |
-| `description` | — | Markdown text (use `\|` for multiline) |
-| `icon` | — | A single emoji, overrides the type's default icon |
-| `tags` | — | List of free-form labels for filtering |
-| `checks` | — | Stat checks / skill challenges |
-| `items` | — | List of loot items (use with `type: loot`) |
-| `countdown` | — | Step tracker (use with `type: environment` or `scene`) |
-| `children` | — | Nested sub-blocks — same structure, recursive |
+| Field         | Required | Description                                            |
+| ------------- | -------- | ------------------------------------------------------ |
+| `name`        | yes      | Title of the block                                     |
+| `type`        | yes      | Block category — see types below                       |
+| `description` | —        | Markdown text (use `\|` for multiline)                 |
+| `icon`        | —        | A single emoji, overrides the type's default icon      |
+| `tags`        | —        | List of free-form labels for filtering                 |
+| `checks`      | —        | Stat checks / skill challenges                         |
+| `items`       | —        | List of loot items (use with `type: loot`)             |
+| `countdown`   | —        | Step tracker (use with `type: environment` or `scene`) |
+| `children`    | —        | Nested sub-blocks — same structure, recursive          |
 
 ---
 
 ## Block types
 
-| Value | Default icon | Use for |
-|---|---|---|
-| `room` | 🚪 | Locations, areas, rooms |
-| `character` | 🧙 | NPCs, allies, villains |
-| `combat` | ⚔️ | Encounters, battles |
-| `loot` | 📦 | Treasure, rewards, items |
-| `environment` | 🌍 | Events, hazards, weather, time-limited effects |
-| `scene` | 🎭 | Complex scenes mixing all of the above |
+| Value         | Default icon | Use for                                        |
+| ------------- | ------------ | ---------------------------------------------- |
+| `room`        | 🚪           | Locations, areas, rooms                        |
+| `character`   | 🧙           | NPCs, allies, villains                         |
+| `combat`      | ⚔️           | Encounters, battles                            |
+| `loot`        | 📦           | Treasure, rewards, items                       |
+| `environment` | 🌍           | Events, hazards, weather, time-limited effects |
+| `scene`       | 🎭           | Complex scenes mixing all of the above         |
 
 Unknown type values fall back to `scene`.
 
@@ -69,10 +70,10 @@ Unknown type values fall back to `scene`.
 
 ```yaml
 checks:
-  - label: Perception check        # required — short title
-    skill: Perception              # optional — D&D 5e skill or ability name
-    dc: 15                         # required — difficulty class (integer)
-    outcomes:                      # optional — branching results
+  - label: Perception check # required — short title
+    skill: Perception # optional — D&D 5e skill or ability name
+    dc: 15 # required — difficulty class (integer)
+    outcomes: # optional — branching results
       - label: Success
         description: You notice a tripwire near the door.
       - label: Failure
@@ -87,8 +88,8 @@ A step tracker for environmental changes or event timers.
 
 ```yaml
 countdown:
-  steps: 5                         # required — total number of steps
-  labels:                          # optional — one label per step
+  steps: 5 # required — total number of steps
+  labels: # optional — one label per step
     - "Guards are unaware"
     - "Guards are suspicious"
     - "Guards are on alert"

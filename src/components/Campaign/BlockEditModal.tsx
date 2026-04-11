@@ -296,7 +296,7 @@ export default function BlockEditModal({
     if (!tag) return;
     setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.includes(tag) ? prev.tags : [...prev.tags, tag],
+      tags: prev.tags?.includes(tag) ? prev.tags : [...(prev.tags ?? []), tag],
     }));
     setTagDraft("");
   };
@@ -304,7 +304,7 @@ export default function BlockEditModal({
   const removeTag = (tag: string) => {
     setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter((t) => t !== tag),
+      tags: prev.tags?.filter((t) => t !== tag),
     }));
   };
 

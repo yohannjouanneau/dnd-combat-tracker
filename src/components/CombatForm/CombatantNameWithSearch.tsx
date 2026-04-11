@@ -53,7 +53,7 @@ export default function CombatantNameWithSearch({
         onSearch={handleSearch}
         onSelectItem={(item) => item.raw && onSelectResult(item.raw)}
         placeholder={placeholder}
-        noResultsText={t("monster.noResults", { query: value })}
+        noResultsText={t("combatant.noResults", { query: value })}
       />
     </div>
   );
