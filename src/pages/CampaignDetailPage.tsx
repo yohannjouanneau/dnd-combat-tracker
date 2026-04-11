@@ -5,11 +5,11 @@ import {
   ArrowUpDown,
   Check,
   Plus,
-  Library,
   GitGraph,
   List,
   X,
   FileInput,
+  BookOpen,
 } from "lucide-react";
 import TopBar from "../components/TopBar";
 import type { CombatStateManager } from "../store/types";
@@ -419,7 +419,7 @@ export default function CampaignDetailPage({
                   className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm transition"
                   title={t("campaigns:detail.addFromLibrary")}
                 >
-                  <Library className="w-4 h-4" />
+                  <BookOpen className="w-4 h-4" />
                   <span className="hidden sm:inline">
                     {t("campaigns:detail.addFromLibrary")}
                   </span>
