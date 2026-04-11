@@ -12,6 +12,7 @@ import {
   type Edge,
   type OnConnect,
   type EdgeMouseHandler,
+  type OnSelectionChangeFunc,
 } from "@xyflow/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,6 +31,11 @@ const NODE_TYPES = { block: CanvasBlockNode };
 const CHILD_EDGE_STYLE = {
   style: { stroke: "#6b7280", strokeWidth: 1.5, strokeDasharray: "5 4" },
   markerEnd: { type: "arrowclosed" as const, color: "#6b7280" },
+};
+
+const CHILD_EDGE_HIGHLIGHTED_STYLE = {
+  style: { stroke: "#60a5fa", strokeWidth: 2.5, strokeDasharray: undefined },
+  markerEnd: { type: "arrowclosed" as const, color: "#60a5fa" },
 };
 
 const COLS = 4;
@@ -236,6 +242,21 @@ function CampaignCanvasInner({
     [onRemoveChild, setRfEdges],
   );
 
+  const handleSelectionChange: OnSelectionChangeFunc = useCallback(
+    ({ nodes: selectedNodes }) => {
+      const ids = new Set(selectedNodes.map((n) => n.id));
+      setRfEdges((eds) =>
+        eds.map((e) => {
+          const highlighted = ids.has(e.source) || ids.has(e.target);
+          return highlighted
+            ? { ...e, ...CHILD_EDGE_HIGHLIGHTED_STYLE }
+            : { ...e, ...CHILD_EDGE_STYLE };
+        }),
+      );
+    },
+    [setRfEdges],
+  );
+
   const handleAutoLayout = useCallback(() => {
     const positions = computeTreeLayout(blocks, blockIds, layoutDir);
     setRfNodes((prev) =>
@@ -270,6 +291,7 @@ function CampaignCanvasInner({
         onNodeDragStop={readOnly ? undefined : handleNodeDragStop}
         onConnect={readOnly ? undefined : handleConnect}
         onEdgeClick={readOnly ? undefined : handleEdgeClick}
+        onSelectionChange={handleSelectionChange}
         nodesDraggable={!readOnly}
         nodesConnectable={!readOnly}
         fitView

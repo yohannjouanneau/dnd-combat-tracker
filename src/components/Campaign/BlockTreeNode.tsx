@@ -37,6 +37,8 @@ interface Props {
   depth: number;
   reorderMode?: boolean;
   dragCallbacks?: DragCallbacks;
+  selectedBlockIds?: Set<string>;
+  onSelect?: (blockId: string) => void;
   onView: (block: BuildingBlock) => void;
   onEdit: (block: BuildingBlock) => void;
   onAddChild: (parentId: string) => void;
@@ -55,6 +57,8 @@ export default function BlockTreeNode({
   depth,
   reorderMode,
   dragCallbacks,
+  selectedBlockIds,
+  onSelect,
   onView,
   onEdit,
   onAddChild,
@@ -106,6 +110,7 @@ export default function BlockTreeNode({
     : 0;
 
   const isDragged = dragCallbacks?.draggedId === block.id;
+  const isSelected = selectedBlockIds?.has(block.id) ?? false;
   const dropPos =
     dragCallbacks?.dropTarget?.targetId === block.id && !isDragged
       ? dragCallbacks.dropTarget.position
@@ -129,7 +134,9 @@ export default function BlockTreeNode({
             isDragged ? "opacity-40" : "",
             dropPos === "child"
               ? "border-blue-500 bg-blue-500/5"
-              : "border-border-primary",
+              : isSelected
+                ? "border-blue-400 bg-blue-500/10 ring-2 ring-blue-400"
+                : "border-border-primary",
           ].join(" ")}
           draggable={reorderMode}
           onDragStart={
@@ -164,7 +171,9 @@ export default function BlockTreeNode({
               : undefined
           }
           onDragEnd={reorderMode ? () => dragCallbacks?.onDragEnd() : undefined}
-          onClick={reorderMode ? undefined : () => onView(block)}
+          onClick={
+            reorderMode ? () => onSelect?.(block.id) : () => onView(block)
+          }
         >
           {/* Drag handle or expand toggle */}
           {reorderMode ? (
@@ -336,6 +345,8 @@ export default function BlockTreeNode({
               depth={depth + 1}
               reorderMode={reorderMode}
               dragCallbacks={dragCallbacks}
+              selectedBlockIds={selectedBlockIds}
+              onSelect={onSelect}
               onView={onView}
               onEdit={onEdit}
               onAddChild={onAddChild}

@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useBlockReorder } from "../hooks/useBlockReorder";
 import { useTranslation } from "react-i18next";
 import {
   ArrowUpDown,
   Check,
   Plus,
-  Library,
   GitGraph,
   List,
   X,
+  FileInput,
+  BookOpen,
 } from "lucide-react";
 import TopBar from "../components/TopBar";
 import type { CombatStateManager } from "../store/types";
@@ -22,9 +24,8 @@ import { useToast } from "../components/common/Toast/useToast";
 import { useConfirmationDialog } from "../hooks/useConfirmationDialog";
 import BlockEditModal from "../components/Campaign/BlockEditModal";
 import BlockDetailModal from "../components/Campaign/BlockDetailModal";
-import BlockTreeNode, {
-  type DragCallbacks,
-} from "../components/Campaign/BlockTreeNode";
+import BlockTreeNode from "../components/Campaign/BlockTreeNode";
+import ImportBlocksModal from "../components/Campaign/ImportBlocksModal";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
 import LibraryModal from "../components/Library/LibraryModal";
 import SettingsModal from "../components/Settings/SettingsModal";
@@ -72,15 +73,7 @@ export default function CampaignDetailPage({
   const [editingNpc, setEditingNpc] = useState<
     SavedPlayer | SavedMonster | null
   >(null);
-  const [reorderMode, setReorderMode] = useState(false);
-  const [dragState, setDragState] = useState<{
-    blockId: string;
-    sourceParentId: string | null;
-  } | null>(null);
-  const [dropTarget, setDropTarget] = useState<{
-    targetId: string;
-    position: "before" | "after" | "child";
-  } | null>(null);
+  const [showImport, setShowImport] = useState(false);
 
   const [filterState, setFilterState] = useState<FilterState>({
     searchQuery: "",
@@ -141,6 +134,20 @@ export default function CampaignDetailPage({
     return map;
   }, [campaignBlocks]);
 
+  const {
+    reorderMode,
+    toggleReorderMode,
+    selectedBlockIds,
+    dragCallbacks,
+    handleBlockSelect,
+  } = useBlockReorder({
+    campaignId,
+    campaignBlocks,
+    parentMap,
+    rootBlocks,
+    combatStateManager,
+  });
+
   const libraryBlocksNotInCampaign = useMemo(
     () =>
       combatStateManager.blocks.filter((b) => !blockIdsInCampaign.has(b.id)),
@@ -171,7 +178,7 @@ export default function CampaignDetailPage({
   const filteredCampaignBlocks = useMemo(() => {
     if (!hasActiveFilters) return campaignBlocks;
     const searchQuery = filterState.searchQuery.trim().toLowerCase();
-    const directlyMatchingBlocks = campaignBlocks.filter((block) => {
+    return campaignBlocks.filter((block) => {
       if (searchQuery && !block.name.toLowerCase().includes(searchQuery))
         return false;
       if (
@@ -188,41 +195,7 @@ export default function CampaignDetailPage({
         return false;
       return true;
     });
-    // BFS: include all descendants of matched blocks so canvas arrows are intact
-    const matchingBlockIds = new Set(directlyMatchingBlocks.map((b) => b.id));
-    const bfsQueue = [...directlyMatchingBlocks];
-    while (bfsQueue.length > 0) {
-      const currentBlock = bfsQueue.shift()!;
-      for (const childBlockId of currentBlock.children) {
-        if (!matchingBlockIds.has(childBlockId)) {
-          const childBlock = campaignBlocks.find((b) => b.id === childBlockId);
-          if (childBlock) {
-            matchingBlockIds.add(childBlockId);
-            bfsQueue.push(childBlock);
-          }
-        }
-      }
-    }
-    return campaignBlocks.filter((block) => matchingBlockIds.has(block.id));
   }, [campaignBlocks, filterState, hasActiveFilters]);
-
-  const filteredBlockIds = useMemo(
-    () => new Set(filteredCampaignBlocks.map((b) => b.id)),
-    [filteredCampaignBlocks],
-  );
-
-  const filteredCampaign = useMemo(
-    () =>
-      hasActiveFilters
-        ? {
-            ...campaign,
-            nodes: (campaign?.nodes ?? []).filter((n) =>
-              filteredBlockIds.has(n.blockId),
-            ),
-          }
-        : campaign,
-    [campaign, filteredBlockIds, hasActiveFilters],
-  ) as Campaign | undefined;
 
   const saveCampaignMeta = useCallback(
     async (name: string, description: string) => {
@@ -280,6 +253,31 @@ export default function CampaignDetailPage({
     [campaignId, combatStateManager, t, toast],
   );
 
+  const handleImport = useCallback(
+    async (entries: import("../utils/campaignImporter").ImportedBlock[]) => {
+      setShowImport(false);
+      // Pre-compute each block's children from the flat list (DFS order preserves siblings)
+      const childrenMap = new Map<string, string[]>();
+      for (const entry of entries) childrenMap.set(entry.block.id, []);
+      for (const entry of entries) {
+        if (entry.parentId && childrenMap.has(entry.parentId)) {
+          childrenMap.get(entry.parentId)!.push(entry.block.id);
+        }
+      }
+      // Create blocks with children already set; add all blocks to campaign.nodes
+      // (the tree's root detection reads block.children to distinguish roots from children)
+      for (const entry of entries) {
+        await combatStateManager.createBlock({
+          ...entry.block,
+          children: childrenMap.get(entry.block.id) ?? [],
+        });
+        await combatStateManager.addBlockToCampaign(campaignId, entry.block.id);
+      }
+      toast.success(t("campaigns:import.confirm", { count: entries.length }));
+    },
+    [campaignId, combatStateManager, t, toast],
+  );
+
   const handleOpenNpc = useCallback(
     (npcId: string) => {
       const entity =
@@ -333,64 +331,6 @@ export default function CampaignDetailPage({
     setMetaHasChanges(false);
   }, [localName, localDesc, saveCampaignMeta]);
 
-  const handleGlobalDrop = useCallback(async () => {
-    if (!dragState || !dropTarget) return;
-    const { blockId, sourceParentId } = dragState;
-    const { targetId, position } = dropTarget;
-    if (blockId === targetId) return;
-
-    // Remove from source parent if it had one
-    if (sourceParentId) {
-      const src = campaignBlocks.find((b) => b.id === sourceParentId);
-      if (src) {
-        await combatStateManager.updateBlock(sourceParentId, {
-          children: src.children.filter((id) => id !== blockId),
-        });
-      }
-    }
-
-    if (position === "child") {
-      // Add as last child of target
-      const target = campaignBlocks.find((b) => b.id === targetId);
-      if (target && !target.children.includes(blockId)) {
-        await combatStateManager.updateBlock(targetId, {
-          children: [...target.children, blockId],
-        });
-      }
-    } else {
-      // Insert before or after target at target's level
-      const targetParentId = parentMap.get(targetId) ?? null;
-      if (targetParentId) {
-        const parent = campaignBlocks.find((b) => b.id === targetParentId);
-        if (parent) {
-          const children = parent.children.filter((id) => id !== blockId);
-          const idx = children.indexOf(targetId);
-          children.splice(position === "before" ? idx : idx + 1, 0, blockId);
-          await combatStateManager.updateBlock(targetParentId, { children });
-        }
-      } else {
-        // Target is at root level — reorder campaign.nodes
-        const rootIds = rootBlocks
-          .map((b) => b.id)
-          .filter((id) => id !== blockId);
-        const idx = rootIds.indexOf(targetId);
-        rootIds.splice(position === "before" ? idx : idx + 1, 0, blockId);
-        await combatStateManager.reorderCampaignBlocks(campaignId, rootIds);
-      }
-    }
-
-    setDragState(null);
-    setDropTarget(null);
-  }, [
-    dragState,
-    dropTarget,
-    campaignBlocks,
-    parentMap,
-    rootBlocks,
-    combatStateManager,
-    campaignId,
-  ]);
-
   if (!campaign) {
     return <div className="p-6 text-text-secondary">{t("common:loading")}</div>;
   }
@@ -443,11 +383,7 @@ export default function CampaignDetailPage({
           <div className="flex items-center gap-2">
             {viewMode === "tree" && (
               <button
-                onClick={() => {
-                  setReorderMode((v) => !v);
-                  setDragState(null);
-                  setDropTarget(null);
-                }}
+                onClick={toggleReorderMode}
                 className={`flex items-center gap-1 px-3 py-2 rounded text-sm transition ${
                   reorderMode
                     ? "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary ring-1 ring-border-secondary"
@@ -469,11 +405,21 @@ export default function CampaignDetailPage({
             {!reorderMode && (
               <>
                 <button
+                  onClick={() => setShowImport(true)}
+                  className="flex items-center gap-1 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-3 py-2 rounded text-sm transition"
+                  title={t("campaigns:detail.importBlocks")}
+                >
+                  <FileInput className="w-4 h-4" />
+                  <span className="hidden sm:inline">
+                    {t("campaigns:detail.importBlocks")}
+                  </span>
+                </button>
+                <button
                   onClick={() => setModalState({ kind: "library" })}
                   className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm transition"
                   title={t("campaigns:detail.addFromLibrary")}
                 >
-                  <Library className="w-4 h-4" />
+                  <BookOpen className="w-4 h-4" />
                   <span className="hidden sm:inline">
                     {t("campaigns:detail.addFromLibrary")}
                   </span>
@@ -514,7 +460,7 @@ export default function CampaignDetailPage({
       {viewMode === "canvas" && canvasLayout === "desktop" && (
         <div className="flex-1">
           <CampaignCanvas
-            campaign={filteredCampaign!}
+            campaign={campaign}
             blocks={filteredCampaignBlocks}
             blockTypes={combatStateManager.blockTypes}
             onUpdateNodes={combatStateManager.updateCanvasNodes}
@@ -542,7 +488,7 @@ export default function CampaignDetailPage({
           </div>
           <div className="flex-1">
             <CampaignCanvas
-              campaign={filteredCampaign!}
+              campaign={campaign}
               blocks={filteredCampaignBlocks}
               blockTypes={combatStateManager.blockTypes}
               onUpdateNodes={combatStateManager.updateCanvasNodes}
@@ -619,26 +565,9 @@ export default function CampaignDetailPage({
                   savedMonsters={combatStateManager.monsters}
                   depth={0}
                   reorderMode={reorderMode}
-                  dragCallbacks={
-                    reorderMode
-                      ? ({
-                          onDragStart: (blockId) =>
-                            setDragState({
-                              blockId,
-                              sourceParentId: parentMap.get(blockId) ?? null,
-                            }),
-                          onDragOver: (targetId, position) =>
-                            setDropTarget({ targetId, position }),
-                          onDrop: handleGlobalDrop,
-                          onDragEnd: () => {
-                            setDragState(null);
-                            setDropTarget(null);
-                          },
-                          draggedId: dragState?.blockId ?? null,
-                          dropTarget,
-                        } satisfies DragCallbacks)
-                      : undefined
-                  }
+                  dragCallbacks={reorderMode ? dragCallbacks : undefined}
+                  selectedBlockIds={reorderMode ? selectedBlockIds : undefined}
+                  onSelect={reorderMode ? handleBlockSelect : undefined}
                   onView={(b) => setModalState({ kind: "view", block: b })}
                   onEdit={(b) => setModalState({ kind: "edit", block: b })}
                   onAddChild={(parentId) =>
@@ -682,6 +611,7 @@ export default function CampaignDetailPage({
         <BlockEditModal
           block={modalState.kind === "edit" ? modalState.block : undefined}
           allBlocks={combatStateManager.blocks}
+          allTags={allTags}
           blockTypes={combatStateManager.blockTypes}
           savedCombats={savedCombats}
           savedPlayers={combatStateManager.savedPlayers}
@@ -760,6 +690,12 @@ export default function CampaignDetailPage({
         syncApi={combatStateManager.syncApi}
         onClose={() => setShowSettings(false)}
       />
+      {showImport && (
+        <ImportBlocksModal
+          onImport={handleImport}
+          onCancel={() => setShowImport(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import {
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   Edit2,
   Swords,
@@ -49,10 +50,11 @@ export default function BlockDetailModal({
   onClose,
   onEdit,
   onOpenCombat,
-  onOpenBlock,
   onUpdateBlock,
 }: Props) {
   const { t } = useTranslation(["campaigns", "common"]);
+  const [navStack, setNavStack] = useState<BuildingBlock[]>([]);
+  const [currentBlock, setCurrentBlock] = useState<BuildingBlock>(block);
   const [expandedChecks, setExpandedChecks] = useState<Record<string, boolean>>(
     {},
   );
@@ -63,23 +65,43 @@ export default function BlockDetailModal({
   const toggleCheck = (id: string) =>
     setExpandedChecks((prev) => ({ ...prev, [id]: !prev[id] }));
 
-  const typeDef = blockTypes.find((tp) => tp.id === block.typeId);
-  const displayIcon = block.icon ?? typeDef?.icon ?? "📦";
+  const navigate = (blockId: string) => {
+    const next = allBlocks.find((b) => b.id === blockId);
+    if (!next) return;
+    setNavStack((prev) => [...prev, currentBlock]);
+    setCurrentBlock(next);
+    setExpandedChecks({});
+    setCountdownCurrent(next.countdown?.current ?? 0);
+    setSelectedNpcId(undefined);
+  };
+
+  const goBack = () => {
+    const prev = navStack[navStack.length - 1];
+    if (!prev) return;
+    setNavStack((s) => s.slice(0, -1));
+    setCurrentBlock(prev);
+    setExpandedChecks({});
+    setCountdownCurrent(prev.countdown?.current ?? 0);
+    setSelectedNpcId(undefined);
+  };
+
+  const typeDef = blockTypes.find((tp) => tp.id === currentBlock.typeId);
+  const displayIcon = currentBlock.icon ?? typeDef?.icon ?? "📦";
   const allFeatures = [
     ...(typeDef?.features ?? []),
-    ...(block.extraFeatures ?? []),
+    ...(currentBlock.extraFeatures ?? []),
   ];
   const hasCharacters = allFeatures.includes("characters");
   const hasCombat = allFeatures.includes("combat");
   const hasLoot = allFeatures.includes("loot");
   const hasCountdown = allFeatures.includes("countdown");
 
-  const children = block.children
+  const children = currentBlock.children
     .map((id) => allBlocks.find((b) => b.id === id))
     .filter((b): b is BuildingBlock => Boolean(b));
 
   const linkedNpcIds = hasCharacters
-    ? (block.featureData?.linkedNpcIds ?? [])
+    ? (currentBlock.featureData?.linkedNpcIds ?? [])
     : [];
   const linkedNpcs = linkedNpcIds
     .map(
@@ -93,9 +115,11 @@ export default function BlockDetailModal({
     () => linkedNpcs[0]?.id,
   );
 
-  const combatId = hasCombat ? (block.featureData?.combatId ?? null) : null;
+  const combatId = hasCombat
+    ? (currentBlock.featureData?.combatId ?? null)
+    : null;
   const lootItems = hasLoot
-    ? (block.featureData?.items ?? []).filter(Boolean)
+    ? (currentBlock.featureData?.items ?? []).filter(Boolean)
     : null;
 
   return (
@@ -103,22 +127,31 @@ export default function BlockDetailModal({
       <div className="w-full max-w-2xl bg-app-bg rounded-xl border border-border-primary shadow-xl">
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-border-primary">
+          {navStack.length > 0 && (
+            <button
+              onClick={goBack}
+              className="p-2 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-secondary hover:text-text-primary transition flex-shrink-0"
+              title={t("common:actions.back")}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          )}
           <span className="text-xl flex-shrink-0">{displayIcon}</span>
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-bold text-text-primary truncate">
-              {block.name || (
+              {currentBlock.name || (
                 <span className="italic text-text-muted font-normal">
                   Unnamed
                 </span>
               )}
             </h2>
             <span className="text-xs text-text-muted px-1.5 py-0.5 rounded border border-border-secondary">
-              {getTypeName(typeDef, block.typeId, t)}
+              {getTypeName(typeDef, currentBlock.typeId, t)}
             </span>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
-              onClick={() => onEdit(block)}
+              onClick={() => onEdit(currentBlock)}
               className="p-2 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-secondary hover:text-text-primary transition"
               title={t("common:actions.edit")}
             >
@@ -136,9 +169,9 @@ export default function BlockDetailModal({
         {/* Body */}
         <div className="p-4 space-y-5">
           {/* Tags */}
-          {block.tags && block.tags.length > 0 && (
+          {currentBlock.tags && currentBlock.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
-              {block.tags.map((tag) => (
+              {currentBlock.tags.map((tag) => (
                 <span
                   key={tag}
                   className="text-xs text-text-muted bg-panel-secondary rounded px-2 py-0.5 border border-border-secondary"
@@ -151,9 +184,9 @@ export default function BlockDetailModal({
 
           {/* Description */}
           <div>
-            {block.description ? (
+            {currentBlock.description ? (
               <div className="prose prose-invert prose-sm max-w-none text-text-primary">
-                <MarkdownRenderer content={block.description} />
+                <MarkdownRenderer content={currentBlock.description} />
               </div>
             ) : (
               <p className="text-sm text-text-muted italic">
@@ -270,13 +303,13 @@ export default function BlockDetailModal({
           )}
 
           {/* Stat Checks */}
-          {block.statChecks.length > 0 && (
+          {currentBlock.statChecks.length > 0 && (
             <div>
               <p className="text-sm font-medium text-text-secondary mb-2">
                 {t("campaigns:block.statChecks")}
               </p>
               <div className="space-y-2">
-                {block.statChecks.map((check) => (
+                {currentBlock.statChecks.map((check) => (
                   <div
                     key={check.id}
                     className="border border-border-secondary rounded bg-panel-secondary"
@@ -334,7 +367,7 @@ export default function BlockDetailModal({
                               )}
                               {linked && (
                                 <button
-                                  onClick={() => onOpenBlock?.(linked.id)}
+                                  onClick={() => navigate(linked.id)}
                                   className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition"
                                 >
                                   <span>
@@ -355,79 +388,88 @@ export default function BlockDetailModal({
           )}
 
           {/* Countdown */}
-          {hasCountdown && block.countdown && block.countdown.max > 0 && (
-            <div className="bg-panel-bg rounded-lg border border-border-primary p-3">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Timer className="w-4 h-4 text-text-muted" />
-                  <span className="text-sm font-medium text-text-secondary">
-                    {t("campaigns:block.countdown.label")}
+          {hasCountdown &&
+            currentBlock.countdown &&
+            currentBlock.countdown.max > 0 && (
+              <div className="bg-panel-bg rounded-lg border border-border-primary p-3">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Timer className="w-4 h-4 text-text-muted" />
+                    <span className="text-sm font-medium text-text-secondary">
+                      {t("campaigns:block.countdown.label")}
+                    </span>
+                  </div>
+                  <span className="text-xs text-text-muted">
+                    {t("campaigns:block.countdown.progress", {
+                      current: countdownCurrent,
+                      max: currentBlock.countdown.max,
+                    })}
                   </span>
                 </div>
-                <span className="text-xs text-text-muted">
-                  {t("campaigns:block.countdown.progress", {
-                    current: countdownCurrent,
-                    max: block.countdown.max,
-                  })}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {Array.from({ length: block.countdown.max }, (_, i) => {
-                  const boxIndex = i + 1;
-                  const isElapsed = boxIndex <= countdownCurrent;
-                  const pastHalfway =
-                    countdownCurrent > block.countdown!.max / 2;
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => {
-                        if (!onUpdateBlock || !block.countdown) return;
-                        const next =
-                          boxIndex <= countdownCurrent
-                            ? boxIndex - 1
-                            : boxIndex;
-                        setCountdownCurrent(next);
-                        onUpdateBlock(block.id, {
-                          countdown: { ...block.countdown, current: next },
-                        });
-                      }}
-                      className={[
-                        "w-7 h-7 rounded border transition",
-                        isElapsed
-                          ? "bg-red-700 border-red-600"
-                          : pastHalfway
-                            ? "bg-panel-secondary border-amber-500/60 hover:border-amber-400"
-                            : "bg-panel-secondary border-border-secondary hover:border-border-primary",
-                      ].join(" ")}
-                    />
-                  );
-                })}
-              </div>
-              {block.countdown.descriptions?.some(Boolean) && (
-                <div className="mt-2 space-y-1">
-                  {block.countdown.descriptions.map((desc, i) =>
-                    desc ? (
-                      <div
-                        key={i}
-                        className={[
-                          "flex items-baseline gap-2 text-xs",
-                          i + 1 <= countdownCurrent
-                            ? "text-red-400/70"
-                            : "text-text-muted",
-                        ].join(" ")}
-                      >
-                        <span className="flex-shrink-0 font-medium">
-                          {i + 1}.
-                        </span>
-                        <span>{desc}</span>
-                      </div>
-                    ) : null,
+                <div className="flex flex-wrap gap-1.5">
+                  {Array.from(
+                    { length: currentBlock.countdown.max },
+                    (_, i) => {
+                      const boxIndex = i + 1;
+                      const isElapsed = boxIndex <= countdownCurrent;
+                      const pastHalfway =
+                        countdownCurrent > currentBlock.countdown!.max / 2;
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => {
+                            if (!onUpdateBlock || !currentBlock.countdown)
+                              return;
+                            const next =
+                              boxIndex <= countdownCurrent
+                                ? boxIndex - 1
+                                : boxIndex;
+                            setCountdownCurrent(next);
+                            onUpdateBlock(currentBlock.id, {
+                              countdown: {
+                                ...currentBlock.countdown,
+                                current: next,
+                              },
+                            });
+                          }}
+                          className={[
+                            "w-7 h-7 rounded border transition",
+                            isElapsed
+                              ? "bg-red-700 border-red-600"
+                              : pastHalfway
+                                ? "bg-panel-secondary border-amber-500/60 hover:border-amber-400"
+                                : "bg-panel-secondary border-border-secondary hover:border-border-primary",
+                          ].join(" ")}
+                        />
+                      );
+                    },
                   )}
                 </div>
-              )}
-            </div>
-          )}
+                {currentBlock.countdown.descriptions?.some(Boolean) && (
+                  <div className="mt-2 space-y-1">
+                    {currentBlock.countdown.descriptions.map((desc, i) =>
+                      desc ? (
+                        <div
+                          key={i}
+                          className={[
+                            "flex items-baseline gap-2 text-xs",
+                            i + 1 <= countdownCurrent
+                              ? "text-red-400/70"
+                              : "text-text-muted",
+                          ].join(" ")}
+                        >
+                          <span className="flex-shrink-0 font-medium">
+                            {i + 1}.
+                          </span>
+                          <span>{desc}</span>
+                        </div>
+                      ) : null,
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
           {/* Child Blocks */}
           {children.length > 0 && (
@@ -443,7 +485,7 @@ export default function BlockDetailModal({
                   return (
                     <button
                       key={child.id}
-                      onClick={() => onOpenBlock?.(child.id)}
+                      onClick={() => navigate(child.id)}
                       className="flex items-center gap-1.5 text-sm bg-panel-secondary hover:bg-panel-secondary/80 border border-border-secondary rounded px-2.5 py-1.5 text-text-primary transition"
                     >
                       <span>{child.icon ?? childTypeDef?.icon ?? "📦"}</span>

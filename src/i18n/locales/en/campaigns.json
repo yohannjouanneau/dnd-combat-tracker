@@ -25,9 +25,19 @@
     "blocks": "Building Blocks",
     "addBlock": "Add Block",
     "addFromLibrary": "Add from Library",
+    "importBlocks": "Import",
     "reorder": "Reorder",
     "noBlocks": "No blocks yet. Add your first building block!",
     "backToCampaigns": "Back to Campaigns"
+  },
+  "import": {
+    "title": "Import blocks from YAML",
+    "hint": "Paste a YAML file following the campaign import format. See CAMPAIGN_IMPORT.md for the full spec.",
+    "pickFile": "Click to select a YAML file",
+    "placeholder": "name: The Dark Cellar\ntype: room\ndescription: A damp stone chamber...",
+    "preview": "{{count}} block(s) ready to import",
+    "childCount": "+{{count}} child(ren)",
+    "confirm": "Import {{count}} block(s)"
   },
   "block": {
     "types": {
