@@ -172,6 +172,56 @@ blocks:
         - "Knee-deep (difficult terrain)"
         - "Waist-deep (disadvantage on attacks)"
         - "Neck-deep (swimming required)"
+
+  - name: Vault Guardian Encounter
+    type: combat
+    icon: ⚔️
+    description: |
+      The undead knight rises the moment a living creature enters the vault.
+      It fights until destroyed or the obsidian key is pressed to its breastplate.
+
+      **Tactics:** Focuses melee attacks on the nearest target.
+      Uses its *Parry* reaction when below half HP.
+    tags: [undead, boss, level-2]
+    checks:
+      - label: Arcana — identify weakness
+        skill: Arcana
+        dc: 14
+        outcomes:
+          - label: Success
+            description: You recognize the rune — radiant damage bypasses its resistances.
+          - label: Failure
+            description: The armor's enchantment is inscrutable.
+      - label: Persuasion — invoke the vault's master
+        skill: Persuasion
+        dc: 18
+        outcomes:
+          - label: Success
+            description: The knight hesitates for one round (stunned).
+          - label: Failure
+            description: It does not understand mercy.
+    children:
+      - name: Vault Knight
+        type: character
+        description: |
+          **AC** 18 (plate) | **HP** 52 | **Speed** 30 ft.
+          **STR** 16 | **DEX** 10 | **CON** 14 | **INT** 6 | **WIS** 10 | **CHA** 8
+
+          *Multiattack.* Two longsword attacks {hit:+5} {dmg:1d8+3}.
+          *Undead Fortitude.* On damage that would drop it to 0 HP, CON save DC (5 + damage) to drop to 1 HP instead.
+
+  - name: Vault Hoard
+    type: loot
+    icon: 💎
+    description: Rewards recovered from the Sunken Vault after defeating the guardian.
+    tags: [dungeon, level-2]
+    items:
+      - Gold coins (120 gp)
+      - Silver ingots (40 gp)
+      - Obsidian key (opens the vault's inner sanctum)
+      - Potion of water breathing
+      - Scroll of misty step
+      - Plate armor +1 (stripped from the Vault Knight, requires cleaning)
 ```
 
 ---
