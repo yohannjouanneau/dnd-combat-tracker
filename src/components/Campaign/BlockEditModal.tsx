@@ -21,6 +21,7 @@ import IconPicker from "../common/IconPicker";
 interface Props {
   block?: BuildingBlock;
   allBlocks: BuildingBlock[];
+  allTags?: string[];
   blockTypes: BlockTypeDef[];
   savedCombats: SavedCombat[];
   savedPlayers: SavedPlayer[];
@@ -67,6 +68,7 @@ function getTypeDisplayName(
 export default function BlockEditModal({
   block,
   allBlocks,
+  allTags = [],
   blockTypes,
   savedCombats,
   savedPlayers,
@@ -103,9 +105,7 @@ export default function BlockEditModal({
     };
   });
 
-  const [tagsInput, setTagsInput] = useState<string>(
-    (block?.tags ?? []).join(", "),
-  );
+  const [tagDraft, setTagDraft] = useState("");
 
   const [showCreateType, setShowCreateType] = useState(false);
   const [editingTypeId, setEditingTypeId] = useState<string | null>(null);
@@ -291,13 +291,21 @@ export default function BlockEditModal({
     }));
   };
 
-  const handleTagsChange = (value: string) => {
-    setTagsInput(value);
-    const tags = value
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    setFormData((prev) => ({ ...prev, tags }));
+  const addTag = (raw: string) => {
+    const tag = raw.trim();
+    if (!tag) return;
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.includes(tag) ? prev.tags : [...prev.tags, tag],
+    }));
+    setTagDraft("");
+  };
+
+  const removeTag = (tag: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((t) => t !== tag),
+    }));
   };
 
   const handleSave = () => {
@@ -492,17 +500,70 @@ export default function BlockEditModal({
                 }
               />
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1.5">
               <label className="text-xs text-text-muted">
                 {t("campaigns:block.tags")}
               </label>
-              <input
-                type="text"
-                value={tagsInput}
-                placeholder={t("campaigns:block.tagsPlaceholder")}
-                onChange={(e) => handleTagsChange(e.target.value)}
-                className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none"
-              />
+              <div className="flex flex-wrap items-center gap-1.5 bg-input-bg border border-border-secondary rounded px-2 py-1.5 focus-within:border-blue-500">
+                {(formData.tags ?? []).map((tag) => (
+                  <span
+                    key={tag}
+                    className="flex items-center gap-1 bg-panel-secondary border border-border-primary rounded-full px-2 py-0.5 text-xs text-text-primary"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="text-text-muted hover:text-text-primary transition"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  type="text"
+                  value={tagDraft}
+                  placeholder={
+                    (formData.tags ?? []).length === 0
+                      ? t("campaigns:block.tagsPlaceholder")
+                      : ""
+                  }
+                  onChange={(e) => setTagDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    const tags = formData.tags ?? [];
+                    if (e.key === "Enter" || e.key === ",") {
+                      e.preventDefault();
+                      addTag(tagDraft);
+                    } else if (
+                      e.key === "Backspace" &&
+                      tagDraft === "" &&
+                      tags.length > 0
+                    ) {
+                      removeTag(tags[tags.length - 1]);
+                    }
+                  }}
+                  className="flex-1 min-w-24 bg-transparent text-sm text-text-primary outline-none"
+                />
+              </div>
+              {(() => {
+                const suggestions = allTags.filter(
+                  (t) => !(formData.tags ?? []).includes(t),
+                );
+                return suggestions.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {suggestions.map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => addTag(tag)}
+                        className="text-xs text-text-muted hover:text-text-primary border border-border-secondary rounded-full px-2 py-0.5 transition"
+                      >
+                        + {tag}
+                      </button>
+                    ))}
+                  </div>
+                ) : null;
+              })()}
             </div>
           </Section>
 

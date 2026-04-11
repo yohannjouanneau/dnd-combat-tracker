@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { X, Upload, AlertCircle, FileUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -6,6 +6,69 @@ import {
   type ImportedBlock,
 } from "../../utils/campaignImporter";
 import { BUILT_IN_BLOCK_TYPES } from "../../constants";
+
+function getTypeIcon(typeId: string) {
+  return (
+    BUILT_IN_BLOCK_TYPES.find((t) => t.id === typeId)?.icon ??
+    BUILT_IN_BLOCK_TYPES.find((t) => t.id === "scene")!.icon
+  );
+}
+
+function PreviewNode({
+  entry,
+  allBlocks,
+  depth,
+  expandedIds,
+  onToggle,
+}: {
+  entry: ImportedBlock;
+  allBlocks: ImportedBlock[];
+  depth: number;
+  expandedIds: Set<string>;
+  onToggle: (id: string) => void;
+}) {
+  const children = allBlocks.filter((b) => b.parentId === entry.block.id);
+  const hasChildren = children.length > 0;
+  const isExpanded = expandedIds.has(entry.block.id);
+
+  return (
+    <div>
+      <div
+        className="flex items-center gap-1.5 text-sm text-text-primary py-1 rounded"
+        style={{ paddingLeft: `${depth * 1.25 + 0.25}rem` }}
+      >
+        <button
+          className="w-5 h-5 flex-shrink-0 flex items-center justify-center text-xs font-mono text-text-muted hover:text-text-primary transition"
+          onClick={() => hasChildren && onToggle(entry.block.id)}
+          tabIndex={hasChildren ? 0 : -1}
+        >
+          {hasChildren ? (isExpanded ? "−" : "+") : ""}
+        </button>
+        <span className="flex-shrink-0 text-base leading-none">
+          {entry.block.icon ?? getTypeIcon(entry.block.typeId)}
+        </span>
+        <span className="font-medium truncate">{entry.block.name}</span>
+        <span className="text-text-muted text-xs flex-shrink-0">
+          {entry.block.typeId}
+        </span>
+      </div>
+      {isExpanded && hasChildren && (
+        <div className="border-l border-border-secondary ml-3">
+          {children.map((child) => (
+            <PreviewNode
+              key={child.block.id}
+              entry={child}
+              allBlocks={allBlocks}
+              depth={depth + 1}
+              expandedIds={expandedIds}
+              onToggle={onToggle}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 type Props = {
   onImport: (blocks: ImportedBlock[]) => void;
@@ -20,6 +83,7 @@ export default function ImportBlocksModal({ onImport, onCancel }: Props) {
   const { t } = useTranslation(["campaigns", "common"]);
   const [yaml, setYaml] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const result = useMemo<ParseResult | null>(() => {
@@ -35,26 +99,20 @@ export default function ImportBlocksModal({ onImport, onCancel }: Props) {
     ? result.blocks.filter((b) => b.parentId === null)
     : [];
 
-  function getTypeIcon(typeId: string) {
-    return (
-      BUILT_IN_BLOCK_TYPES.find((t) => t.id === typeId)?.icon ??
-      BUILT_IN_BLOCK_TYPES.find((t) => t.id === "scene")!.icon
-    );
-  }
-
-  function countDescendants(id: string, all: ImportedBlock[]): number {
-    return all
-      .filter((b) => b.parentId === id)
-      .reduce(
-        (acc, child) => acc + 1 + countDescendants(child.block.id, all),
-        0,
-      );
-  }
+  const handleToggle = useCallback((id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
+    setExpandedIds(new Set());
     const reader = new FileReader();
     reader.onload = (ev) => setYaml((ev.target?.result as string) ?? "");
     reader.readAsText(file);
@@ -120,35 +178,18 @@ export default function ImportBlocksModal({ onImport, onCancel }: Props) {
                     count: result.blocks.length,
                   })}
                 </p>
-                <ul className="space-y-1">
-                  {topLevelBlocks.map((entry) => {
-                    const childCount = countDescendants(
-                      entry.block.id,
-                      result.blocks,
-                    );
-                    return (
-                      <li
-                        key={entry.block.id}
-                        className="flex items-center gap-2 text-sm text-text-primary bg-panel-secondary rounded px-3 py-2"
-                      >
-                        <span>
-                          {entry.block.icon ?? getTypeIcon(entry.block.typeId)}
-                        </span>
-                        <span className="font-medium">{entry.block.name}</span>
-                        <span className="text-text-muted text-xs">
-                          {entry.block.typeId}
-                        </span>
-                        {childCount > 0 && (
-                          <span className="ml-auto text-text-muted text-xs">
-                            {t("campaigns:import.childCount", {
-                              count: childCount,
-                            })}
-                          </span>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+                <div className="bg-panel-secondary rounded p-2">
+                  {topLevelBlocks.map((entry) => (
+                    <PreviewNode
+                      key={entry.block.id}
+                      entry={entry}
+                      allBlocks={result.blocks}
+                      depth={0}
+                      expandedIds={expandedIds}
+                      onToggle={handleToggle}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>

@@ -90,9 +90,38 @@ function parseBlock(raw: unknown, parentId: string | null): ImportedBlock[] {
       })
     : [];
 
-  const items = Array.isArray(r.items)
+  const ownItems = Array.isArray(r.items)
     ? r.items.map((item: unknown) => String(item)).filter(Boolean)
-    : undefined;
+    : [];
+
+  // Separate loot-typed children — their items get merged into this block's
+  // featureData instead of creating standalone child blocks.
+  const lootChildren: RawBlock[] = [];
+  const regularChildren: unknown[] = [];
+  if (Array.isArray(r.children)) {
+    for (const child of r.children) {
+      const rc =
+        child && typeof child === "object" ? (child as RawBlock) : null;
+      const childType =
+        rc?.type && typeof rc.type === "string" ? rc.type.toLowerCase() : "";
+      if (childType === "loot") {
+        lootChildren.push(rc!);
+      } else {
+        regularChildren.push(child);
+      }
+    }
+  }
+
+  const lootItems = lootChildren.flatMap((lc) =>
+    Array.isArray(lc.items)
+      ? lc.items.map((i: unknown) => String(i)).filter(Boolean)
+      : [],
+  );
+
+  const allItems = [...ownItems, ...lootItems];
+
+  // Types that already expose the loot feature via their type definition
+  const LOOT_FEATURE_TYPES = new Set(["loot", "scene"]);
 
   const countdown = (() => {
     const cd = r.countdown;
@@ -112,6 +141,9 @@ function parseBlock(raw: unknown, parentId: string | null): ImportedBlock[] {
     ? r.tags.map((t: unknown) => String(t)).filter(Boolean)
     : undefined;
 
+  const needsLootFeature =
+    allItems.length > 0 && !LOOT_FEATURE_TYPES.has(typeId);
+
   const block: BuildingBlockInput = {
     id: generateId(),
     name: name.trim(),
@@ -123,15 +155,14 @@ function parseBlock(raw: unknown, parentId: string | null): ImportedBlock[] {
     statChecks,
     tags,
     countdown,
-    featureData: items ? { items } : undefined,
+    featureData: allItems.length > 0 ? { items: allItems } : undefined,
+    extraFeatures: needsLootFeature ? ["loot"] : undefined,
   };
 
   const result: ImportedBlock[] = [{ block, parentId }];
 
-  if (Array.isArray(r.children)) {
-    for (const child of r.children) {
-      result.push(...parseBlock(child, block.id));
-    }
+  for (const child of regularChildren) {
+    result.push(...parseBlock(child, block.id));
   }
 
   return result;

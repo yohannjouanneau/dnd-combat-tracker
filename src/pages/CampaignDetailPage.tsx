@@ -178,7 +178,7 @@ export default function CampaignDetailPage({
   const filteredCampaignBlocks = useMemo(() => {
     if (!hasActiveFilters) return campaignBlocks;
     const searchQuery = filterState.searchQuery.trim().toLowerCase();
-    const directlyMatchingBlocks = campaignBlocks.filter((block) => {
+    return campaignBlocks.filter((block) => {
       if (searchQuery && !block.name.toLowerCase().includes(searchQuery))
         return false;
       if (
@@ -195,41 +195,7 @@ export default function CampaignDetailPage({
         return false;
       return true;
     });
-    // BFS: include all descendants of matched blocks so canvas arrows are intact
-    const matchingBlockIds = new Set(directlyMatchingBlocks.map((b) => b.id));
-    const bfsQueue = [...directlyMatchingBlocks];
-    while (bfsQueue.length > 0) {
-      const currentBlock = bfsQueue.shift()!;
-      for (const childBlockId of currentBlock.children) {
-        if (!matchingBlockIds.has(childBlockId)) {
-          const childBlock = campaignBlocks.find((b) => b.id === childBlockId);
-          if (childBlock) {
-            matchingBlockIds.add(childBlockId);
-            bfsQueue.push(childBlock);
-          }
-        }
-      }
-    }
-    return campaignBlocks.filter((block) => matchingBlockIds.has(block.id));
   }, [campaignBlocks, filterState, hasActiveFilters]);
-
-  const filteredBlockIds = useMemo(
-    () => new Set(filteredCampaignBlocks.map((b) => b.id)),
-    [filteredCampaignBlocks],
-  );
-
-  const filteredCampaign = useMemo(
-    () =>
-      hasActiveFilters
-        ? {
-            ...campaign,
-            nodes: (campaign?.nodes ?? []).filter((n) =>
-              filteredBlockIds.has(n.blockId),
-            ),
-          }
-        : campaign,
-    [campaign, filteredBlockIds, hasActiveFilters],
-  ) as Campaign | undefined;
 
   const saveCampaignMeta = useCallback(
     async (name: string, description: string) => {
@@ -290,17 +256,22 @@ export default function CampaignDetailPage({
   const handleImport = useCallback(
     async (entries: import("../utils/campaignImporter").ImportedBlock[]) => {
       setShowImport(false);
+      // Pre-compute each block's children from the flat list (DFS order preserves siblings)
+      const childrenMap = new Map<string, string[]>();
+      for (const entry of entries) childrenMap.set(entry.block.id, []);
       for (const entry of entries) {
-        await combatStateManager.createBlock(entry.block);
-        await combatStateManager.addBlockToCampaign(campaignId, entry.block.id);
-      }
-      for (const entry of entries) {
-        if (entry.parentId) {
-          await combatStateManager.addChildToBlock(
-            entry.parentId,
-            entry.block.id,
-          );
+        if (entry.parentId && childrenMap.has(entry.parentId)) {
+          childrenMap.get(entry.parentId)!.push(entry.block.id);
         }
+      }
+      // Create blocks with children already set; add all blocks to campaign.nodes
+      // (the tree's root detection reads block.children to distinguish roots from children)
+      for (const entry of entries) {
+        await combatStateManager.createBlock({
+          ...entry.block,
+          children: childrenMap.get(entry.block.id) ?? [],
+        });
+        await combatStateManager.addBlockToCampaign(campaignId, entry.block.id);
       }
       toast.success(t("campaigns:import.confirm", { count: entries.length }));
     },
@@ -489,7 +460,7 @@ export default function CampaignDetailPage({
       {viewMode === "canvas" && canvasLayout === "desktop" && (
         <div className="flex-1">
           <CampaignCanvas
-            campaign={filteredCampaign!}
+            campaign={campaign}
             blocks={filteredCampaignBlocks}
             blockTypes={combatStateManager.blockTypes}
             onUpdateNodes={combatStateManager.updateCanvasNodes}
@@ -517,7 +488,7 @@ export default function CampaignDetailPage({
           </div>
           <div className="flex-1">
             <CampaignCanvas
-              campaign={filteredCampaign!}
+              campaign={campaign}
               blocks={filteredCampaignBlocks}
               blockTypes={combatStateManager.blockTypes}
               onUpdateNodes={combatStateManager.updateCanvasNodes}
@@ -640,6 +611,7 @@ export default function CampaignDetailPage({
         <BlockEditModal
           block={modalState.kind === "edit" ? modalState.block : undefined}
           allBlocks={combatStateManager.blocks}
+          allTags={allTags}
           blockTypes={combatStateManager.blockTypes}
           savedCombats={savedCombats}
           savedPlayers={combatStateManager.savedPlayers}
