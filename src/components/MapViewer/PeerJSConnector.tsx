@@ -95,7 +95,7 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
   };
 
   return (
-    <div className="absolute inset-0 z-30 bg-black/70 flex items-center justify-center p-4">
+    <div className="absolute inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-panel-bg border border-border-primary rounded-xl p-6 w-full max-w-sm flex flex-col gap-5 relative">
         <button
           onClick={handleClose}
@@ -113,24 +113,24 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-4 rounded-lg transition font-semibold flex items-center gap-3"
             >
               <Radio className="w-5 h-5 shrink-0" />
-              <div className="text-left">
+              <span className="text-left">
                 <p>Start as DM</p>
                 <p className="text-xs text-red-200 font-normal">
                   Host the session — share a room code
                 </p>
-              </div>
+              </span>
             </button>
             <button
               onClick={() => setStep({ kind: "player-ready", input: "" })}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-4 rounded-lg transition font-semibold flex items-center gap-3"
             >
               <Wifi className="w-5 h-5 shrink-0" />
-              <div className="text-left">
+              <span className="text-left">
                 <p>Join as Player</p>
                 <p className="text-xs text-blue-200 font-normal">
                   Enter the room code from the DM
                 </p>
-              </div>
+              </span>
             </button>
           </div>
         )}

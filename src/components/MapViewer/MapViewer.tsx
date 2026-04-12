@@ -12,6 +12,8 @@ import type {
 } from "./types";
 
 const STORAGE_KEY = "dnd-ct:map-state:v1";
+// Image stored separately so frequent token/fog updates don't re-serialize large base64 data
+const IMAGE_STORAGE_KEY = "dnd-ct:map-image:v1";
 const FOG_DM_OPACITY = 0.4;
 const FOG_PLAYER_OPACITY = 1;
 
@@ -24,7 +26,10 @@ const DEFAULT_MAP_STATE: MapState = {
 function loadFromStorage(): MapState | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as MapState) : null;
+    if (!raw) return null;
+    const state = JSON.parse(raw) as Omit<MapState, "imageDataUrl">;
+    const imageDataUrl = localStorage.getItem(IMAGE_STORAGE_KEY);
+    return { ...state, imageDataUrl };
   } catch {
     return null;
   }
@@ -86,6 +91,9 @@ export default function MapViewer({ transport: transportProp }: Props) {
   const draggingTokenPosRef = useRef<{ x: number; y: number } | null>(null);
   const isPanningRef = useRef(false);
   const lastPanPosRef = useRef({ x: 0, y: 0 });
+  // Touch / pinch refs
+  const lastPinchDistRef = useRef<number | null>(null);
+  const lastPinchCenterRef = useRef<{ x: number; y: number } | null>(null);
 
   // Transport ref — populated inside the sync effect so it's always a live channel
   const transportRef = useRef<MapTransport | null>(null);
@@ -103,9 +111,21 @@ export default function MapViewer({ transport: transportProp }: Props) {
     };
   }, [mapState.imageDataUrl]);
 
-  // Persist on state change
+  // Persist image separately — only re-runs when the image actually changes,
+  // so frequent token/fog updates don't re-serialize potentially large base64 data.
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(mapState));
+    if (mapState.imageDataUrl) {
+      localStorage.setItem(IMAGE_STORAGE_KEY, mapState.imageDataUrl);
+    } else {
+      localStorage.removeItem(IMAGE_STORAGE_KEY);
+    }
+  }, [mapState.imageDataUrl]);
+
+  // Persist everything except imageDataUrl on state change
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { imageDataUrl: _img, ...rest } = mapState;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(rest));
   }, [mapState]);
 
   // Sync effect — re-runs when transport changes (BroadcastChannel → PeerJS swap)
@@ -240,40 +260,33 @@ export default function MapViewer({ transport: transportProp }: Props) {
       fogCtx.fillStyle = "#000";
       fogCtx.fillRect(0, 0, w, h);
 
-      // Add live drag zone so DM sees fog update while dragging
-      const zones: RevealedZone[] =
-        isDraggingTokenRef.current && draggingTokenPosRef.current
-          ? [
-              ...revealedZones,
-              {
-                x: draggingTokenPosRef.current.x,
-                y: draggingTokenPosRef.current.y,
-                radius: revealRadiusRef.current,
-              },
-            ]
-          : revealedZones;
+      const dragPos = isDraggingTokenRef.current
+        ? draggingTokenPosRef.current
+        : null;
 
-      if (zones.length > 0) {
+      if (revealedZones.length > 0 || dragPos) {
         fogCtx.save();
         fogCtx.setTransform(scale, 0, 0, scale, panX, panY);
         fogCtx.globalCompositeOperation = "destination-out";
-        for (const zone of zones) {
-          const grad = fogCtx.createRadialGradient(
-            zone.x,
-            zone.y,
-            0,
-            zone.x,
-            zone.y,
-            zone.radius,
-          );
+
+        const drawFogZone = (x: number, y: number, radius: number) => {
+          const grad = fogCtx.createRadialGradient(x, y, 0, x, y, radius);
           grad.addColorStop(0, "rgba(0,0,0,1)");
           grad.addColorStop(0.7, "rgba(0,0,0,0.8)");
           grad.addColorStop(1, "rgba(0,0,0,0)");
           fogCtx.fillStyle = grad;
           fogCtx.beginPath();
-          fogCtx.arc(zone.x, zone.y, zone.radius, 0, Math.PI * 2);
+          fogCtx.arc(x, y, radius, 0, Math.PI * 2);
           fogCtx.fill();
+        };
+
+        for (const zone of revealedZones) {
+          drawFogZone(zone.x, zone.y, zone.radius);
         }
+        if (dragPos) {
+          drawFogZone(dragPos.x, dragPos.y, revealRadiusRef.current);
+        }
+
         fogCtx.restore();
       }
 
@@ -301,45 +314,65 @@ export default function MapViewer({ transport: transportProp }: Props) {
     return () => cancelAnimationFrame(rafId);
   }, [view]);
 
-  // --- Interaction handlers ---
+  // --- Interaction helpers (shared by mouse and touch handlers) ---
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
-      if (e.button !== 0) return;
-      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
-      const sx = e.clientX - rect.left;
-      const sy = e.clientY - rect.top;
+  const startPointerInteraction = useCallback(
+    (sx: number, sy: number, clientX: number, clientY: number) => {
       const world = screenToWorld(sx, sy, cameraRef.current);
       const { token } = mapStateRef.current;
-
-      const dist = Math.hypot(world.x - token.x, world.y - token.y);
-      if (view === "dm" && dist <= token.radius * 1.5) {
+      if (
+        view === "dm" &&
+        Math.hypot(world.x - token.x, world.y - token.y) <= token.radius * 1.5
+      ) {
         isDraggingTokenRef.current = true;
         draggingTokenPosRef.current = { x: token.x, y: token.y };
       } else {
         isPanningRef.current = true;
-        lastPanPosRef.current = { x: e.clientX, y: e.clientY };
+        lastPanPosRef.current = { x: clientX, y: clientY };
       }
     },
     [view],
   );
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const updatePointerInteraction = useCallback(
+    (sx: number, sy: number, clientX: number, clientY: number) => {
       if (isDraggingTokenRef.current) {
-        const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
-        const sx = e.clientX - rect.left;
-        const sy = e.clientY - rect.top;
-        // Update ref only — RAF loop reads it directly for smooth rendering
         draggingTokenPosRef.current = screenToWorld(sx, sy, cameraRef.current);
       } else if (isPanningRef.current) {
-        const dx = e.clientX - lastPanPosRef.current.x;
-        const dy = e.clientY - lastPanPosRef.current.y;
-        lastPanPosRef.current = { x: e.clientX, y: e.clientY };
+        const dx = clientX - lastPanPosRef.current.x;
+        const dy = clientY - lastPanPosRef.current.y;
+        lastPanPosRef.current = { x: clientX, y: clientY };
         setCamera((c) => ({ ...c, x: c.x + dx, y: c.y + dy }));
       }
     },
     [],
+  );
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (e.button !== 0) return;
+      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+      startPointerInteraction(
+        e.clientX - rect.left,
+        e.clientY - rect.top,
+        e.clientX,
+        e.clientY,
+      );
+    },
+    [startPointerInteraction],
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+      updatePointerInteraction(
+        e.clientX - rect.left,
+        e.clientY - rect.top,
+        e.clientX,
+        e.clientY,
+      );
+    },
+    [updatePointerInteraction],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -358,7 +391,7 @@ export default function MapViewer({ transport: transportProp }: Props) {
         // Update ref immediately so next render frame is correct
         mapStateRef.current = { ...mapStateRef.current, token, revealedZones };
         setMapState(mapStateRef.current);
-        setUndoStack((s) => [...s, prevZones]);
+        setUndoStack((s) => [...s.slice(-49), prevZones]);
         setRedoStack([]);
 
         transportRef.current?.send({ type: "TOKEN_MOVED", token });
@@ -368,12 +401,26 @@ export default function MapViewer({ transport: transportProp }: Props) {
     isPanningRef.current = false;
   }, [revealRadius]);
 
-  const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
-    const sx = e.clientX - rect.left;
-    const sy = e.clientY - rect.top;
-    const zoomFactor = Math.pow(0.999, e.deltaY);
+  const applyFogHistory = useCallback(
+    (
+      fromStack: RevealedZone[][],
+      setFromStack: React.Dispatch<React.SetStateAction<RevealedZone[][]>>,
+      setToStack: React.Dispatch<React.SetStateAction<RevealedZone[][]>>,
+    ) => {
+      if (fromStack.length === 0) return;
+      const revealedZones = fromStack[fromStack.length - 1];
+      setFromStack((s) => s.slice(0, -1));
+      setToStack((s) => [...s, mapStateRef.current.revealedZones]);
+      const newState = { ...mapStateRef.current, revealedZones };
+      mapStateRef.current = newState;
+      setMapState(newState);
+      transportRef.current?.send({ type: "FOG_UPDATED", revealedZones });
+    },
+    [],
+  );
+
+  const applyZoom = useCallback((deltaY: number, sx: number, sy: number) => {
+    const zoomFactor = Math.pow(0.999, deltaY);
     const world = screenToWorld(sx, sy, cameraRef.current);
     setCamera((c) => {
       const newScale = Math.min(5, Math.max(0.1, c.scale * zoomFactor));
@@ -384,6 +431,129 @@ export default function MapViewer({ transport: transportProp }: Props) {
       };
     });
   }, []);
+
+  const handleWheel = useCallback(
+    (e: React.WheelEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+      const sx = e.clientX - rect.left;
+      const sy = e.clientY - rect.top;
+
+      if (e.ctrlKey) {
+        // Trackpad pinch-to-zoom (browser sets ctrlKey for pinch gestures)
+        applyZoom(e.deltaY, sx, sy);
+      } else if (e.deltaMode === 0) {
+        // Trackpad two-finger scroll (smooth, pixel-level deltas) → pan
+        setCamera((c) => ({ ...c, x: c.x - e.deltaX, y: c.y - e.deltaY }));
+      } else {
+        // Mouse scroll wheel (discrete steps, deltaMode === 1) → zoom
+        applyZoom(e.deltaY, sx, sy);
+      }
+    },
+    [applyZoom],
+  );
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+        startPointerInteraction(
+          touch.clientX - rect.left,
+          touch.clientY - rect.top,
+          touch.clientX,
+          touch.clientY,
+        );
+        lastPinchDistRef.current = null;
+      } else if (e.touches.length === 2) {
+        isDraggingTokenRef.current = false;
+        isPanningRef.current = false;
+        const t0 = e.touches[0];
+        const t1 = e.touches[1];
+        lastPinchDistRef.current = Math.hypot(
+          t1.clientX - t0.clientX,
+          t1.clientY - t0.clientY,
+        );
+        lastPinchCenterRef.current = {
+          x: (t0.clientX + t1.clientX) / 2,
+          y: (t0.clientY + t1.clientY) / 2,
+        };
+      }
+    },
+    [startPointerInteraction],
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+        updatePointerInteraction(
+          touch.clientX - rect.left,
+          touch.clientY - rect.top,
+          touch.clientX,
+          touch.clientY,
+        );
+      } else if (
+        e.touches.length === 2 &&
+        lastPinchDistRef.current !== null &&
+        lastPinchCenterRef.current !== null
+      ) {
+        const t0 = e.touches[0];
+        const t1 = e.touches[1];
+        const newDist = Math.hypot(
+          t1.clientX - t0.clientX,
+          t1.clientY - t0.clientY,
+        );
+        const newCenter = {
+          x: (t0.clientX + t1.clientX) / 2,
+          y: (t0.clientY + t1.clientY) / 2,
+        };
+        const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+        const sx = newCenter.x - rect.left;
+        const sy = newCenter.y - rect.top;
+        const zoomFactor = newDist / lastPinchDistRef.current;
+        const panDx = newCenter.x - lastPinchCenterRef.current.x;
+        const panDy = newCenter.y - lastPinchCenterRef.current.y;
+        const world = screenToWorld(sx, sy, cameraRef.current);
+        setCamera((c) => {
+          const newScale = Math.min(5, Math.max(0.1, c.scale * zoomFactor));
+          return {
+            scale: newScale,
+            x: sx - world.x * newScale + panDx,
+            y: sy - world.y * newScale + panDy,
+          };
+        });
+        lastPinchDistRef.current = newDist;
+        lastPinchCenterRef.current = newCenter;
+      }
+    },
+    [updatePointerInteraction],
+  );
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      if (e.touches.length === 0) {
+        // Last finger lifted — commit any token drag
+        handleMouseUp();
+        lastPinchDistRef.current = null;
+        lastPinchCenterRef.current = null;
+      } else if (e.touches.length === 1) {
+        // Went from 2 fingers to 1 — end pinch, start panning
+        lastPinchDistRef.current = null;
+        lastPinchCenterRef.current = null;
+        isPanningRef.current = true;
+        lastPanPosRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+      }
+    },
+    [handleMouseUp],
+  );
 
   const handleImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -477,22 +647,9 @@ export default function MapViewer({ transport: transportProp }: Props) {
               </label>
               <span className="w-px h-4 bg-border-primary mx-0.5" />
               <button
-                onClick={() => {
-                  if (undoStack.length === 0) return;
-                  const revealedZones = undoStack[undoStack.length - 1];
-                  setUndoStack((s) => s.slice(0, -1));
-                  setRedoStack((s) => [
-                    ...s,
-                    mapStateRef.current.revealedZones,
-                  ]);
-                  const newState = { ...mapStateRef.current, revealedZones };
-                  mapStateRef.current = newState;
-                  setMapState(newState);
-                  transportRef.current?.send({
-                    type: "FOG_UPDATED",
-                    revealedZones,
-                  });
-                }}
+                onClick={() =>
+                  applyFogHistory(undoStack, setUndoStack, setRedoStack)
+                }
                 disabled={undoStack.length === 0}
                 className="hover:bg-panel-secondary disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
                 title="Undo last reveal"
@@ -501,22 +658,9 @@ export default function MapViewer({ transport: transportProp }: Props) {
                 Undo
               </button>
               <button
-                onClick={() => {
-                  if (redoStack.length === 0) return;
-                  const revealedZones = redoStack[redoStack.length - 1];
-                  setRedoStack((s) => s.slice(0, -1));
-                  setUndoStack((s) => [
-                    ...s,
-                    mapStateRef.current.revealedZones,
-                  ]);
-                  const newState = { ...mapStateRef.current, revealedZones };
-                  mapStateRef.current = newState;
-                  setMapState(newState);
-                  transportRef.current?.send({
-                    type: "FOG_UPDATED",
-                    revealedZones,
-                  });
-                }}
+                onClick={() =>
+                  applyFogHistory(redoStack, setRedoStack, setUndoStack)
+                }
                 disabled={redoStack.length === 0}
                 className="hover:bg-panel-secondary disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
                 title="Redo last reveal"
@@ -613,12 +757,15 @@ export default function MapViewer({ transport: transportProp }: Props) {
       <canvas
         ref={canvasRef}
         className="w-full h-full"
-        style={{ cursor: cursorStyle }}
+        style={{ cursor: cursorStyle, touchAction: "none" }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       />
     </div>
   );
