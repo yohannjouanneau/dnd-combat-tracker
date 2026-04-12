@@ -1,5 +1,6 @@
-import { RotateCcw, Trash2, Upload } from "lucide-react";
+import { RotateCcw, Trash2, Upload, Wifi } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import PeerJSConnector from "./PeerJSConnector";
 import { BroadcastChannelTransport } from "./transport";
 import type {
   Camera,
@@ -44,11 +45,16 @@ interface Props {
   transport?: MapTransport;
 }
 
-const PLAYER_WINDOW_NAME = "dnd-map-player-view";
+export const PLAYER_WINDOW_NAME = "dnd-map-player-view";
 
 export default function MapViewer({ transport: transportProp }: Props) {
   // window.name is set by window.open(url, name) and persists in the opened tab
-  const view = window.name === PLAYER_WINDOW_NAME ? "player" : "dm";
+  const [view, setView] = useState<"dm" | "player">(
+    window.name === PLAYER_WINDOW_NAME ? "player" : "dm",
+  );
+  // PeerJS modal + override transport (replaces BroadcastChannel when connected)
+  const [peerModalOpen, setPeerModalOpen] = useState(false);
+  const [peerTransport, setPeerTransport] = useState<MapTransport | null>(null);
 
   const [mapState, setMapState] = useState<MapState>(
     // Player view always starts empty — waits for DM sync
@@ -102,10 +108,14 @@ export default function MapViewer({ transport: transportProp }: Props) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(mapState));
   }, [mapState]);
 
-  // BroadcastChannel sync — transport is created here so React Strict Mode's
-  // effect double-invoke creates a fresh (open) channel after the cleanup
+  // Sync effect — re-runs when transport changes (BroadcastChannel → PeerJS swap)
+  // BroadcastChannelTransport is created here so Strict Mode's double-invoke gets a
+  // fresh channel each time. PeerJSTransport is provided externally and must NOT be
+  // closed in the cleanup — Strict Mode would kill the live connection prematurely.
   useEffect(() => {
-    const transport = transportProp ?? new BroadcastChannelTransport();
+    const isLocalTransport = !peerTransport && !transportProp;
+    const transport =
+      peerTransport ?? transportProp ?? new BroadcastChannelTransport();
     transportRef.current = transport;
 
     // Register listener BEFORE sending, to avoid missing a fast response
@@ -143,9 +153,11 @@ export default function MapViewer({ transport: transportProp }: Props) {
 
     return () => {
       unsub();
-      transport.close();
+      if (isLocalTransport) {
+        transport.close();
+      }
     };
-  }, [view, transportProp]);
+  }, [view, transportProp, peerTransport]);
 
   // Resize canvas to fill container
   useEffect(() => {
@@ -408,127 +420,176 @@ export default function MapViewer({ transport: transportProp }: Props) {
   return (
     <div className="w-full h-screen bg-black flex flex-col relative overflow-hidden">
       {/* Toolbar */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-2 flex-wrap">
-        <button
-          onClick={() => {
-            location.hash = "";
-          }}
-          className="bg-panel-bg/90 hover:bg-panel-bg text-text-primary px-3 py-1.5 rounded text-sm transition border border-border-primary"
-        >
-          ← Back
-        </button>
-
-        <span
-          className={`px-2 py-1 rounded text-xs font-bold tracking-wide ${
-            view === "dm" ? "bg-red-600 text-white" : "bg-blue-600 text-white"
-          }`}
-        >
-          {view === "dm" ? "DM View" : "Player View"}
-        </span>
-
-        <span className="bg-panel-bg/90 text-text-primary px-2 py-1 rounded text-xs border border-border-primary tabular-nums">
-          {Math.round(camera.scale * 100)}%
-        </span>
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-1 flex-wrap">
+        {/* Section 1 — navigation & status */}
+        <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
+          <button
+            onClick={() => {
+              location.hash = "";
+            }}
+            className="hover:text-text-primary text-text-muted px-2 py-0.5 rounded text-sm transition"
+          >
+            ← Back
+          </button>
+          <span className="w-px h-4 bg-border-primary mx-1" />
+          <span
+            className={`px-2 py-0.5 rounded text-xs font-bold tracking-wide ${
+              view === "dm" ? "bg-red-600 text-white" : "bg-blue-600 text-white"
+            }`}
+          >
+            {view === "dm" ? "DM View" : "Player View"}
+          </span>
+          <span className="text-text-muted text-xs tabular-nums ml-1">
+            {Math.round(camera.scale * 100)}%
+          </span>
+        </div>
 
         {view === "dm" && (
           <>
-            <label className="bg-panel-bg/90 hover:bg-panel-bg text-text-primary px-3 py-1.5 rounded text-sm cursor-pointer transition border border-border-primary flex items-center gap-1.5">
-              <Upload className="w-4 h-4" />
-              Import Map
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImport}
-              />
-            </label>
-            <label className="bg-panel-bg/90 text-text-primary px-3 py-1.5 rounded text-sm border border-border-primary flex items-center gap-2">
-              <span className="whitespace-nowrap">Visibility</span>
-              <input
-                type="range"
-                min={20}
-                max={300}
-                value={revealRadius}
-                onChange={(e) => setRevealRadius(Number(e.target.value))}
-                className="w-20 accent-blue-400"
-              />
-              <span className="tabular-nums w-8 text-right text-text-muted">
-                {revealRadius}
+            {/* Section 2 — fog controls */}
+            <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
+              <label className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm cursor-pointer transition flex items-center gap-1.5">
+                <Upload className="w-4 h-4" />
+                Import Map
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImport}
+                />
+              </label>
+              <span className="w-px h-4 bg-border-primary mx-0.5" />
+              <label className="text-text-primary px-2 py-1 rounded text-sm flex items-center gap-2">
+                <span className="whitespace-nowrap text-text-muted text-xs">
+                  Visibility
+                </span>
+                <input
+                  type="range"
+                  min={20}
+                  max={300}
+                  value={revealRadius}
+                  onChange={(e) => setRevealRadius(Number(e.target.value))}
+                  className="w-20 accent-blue-400"
+                />
+                <span className="tabular-nums w-8 text-right text-text-muted text-xs">
+                  {revealRadius}
+                </span>
+              </label>
+              <span className="w-px h-4 bg-border-primary mx-0.5" />
+              <button
+                onClick={() => {
+                  if (undoStack.length === 0) return;
+                  const revealedZones = undoStack[undoStack.length - 1];
+                  setUndoStack((s) => s.slice(0, -1));
+                  setRedoStack((s) => [
+                    ...s,
+                    mapStateRef.current.revealedZones,
+                  ]);
+                  const newState = { ...mapStateRef.current, revealedZones };
+                  mapStateRef.current = newState;
+                  setMapState(newState);
+                  transportRef.current?.send({
+                    type: "FOG_UPDATED",
+                    revealedZones,
+                  });
+                }}
+                disabled={undoStack.length === 0}
+                className="hover:bg-panel-secondary disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
+                title="Undo last reveal"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Undo
+              </button>
+              <button
+                onClick={() => {
+                  if (redoStack.length === 0) return;
+                  const revealedZones = redoStack[redoStack.length - 1];
+                  setRedoStack((s) => s.slice(0, -1));
+                  setUndoStack((s) => [
+                    ...s,
+                    mapStateRef.current.revealedZones,
+                  ]);
+                  const newState = { ...mapStateRef.current, revealedZones };
+                  mapStateRef.current = newState;
+                  setMapState(newState);
+                  transportRef.current?.send({
+                    type: "FOG_UPDATED",
+                    revealedZones,
+                  });
+                }}
+                disabled={redoStack.length === 0}
+                className="hover:bg-panel-secondary disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
+                title="Redo last reveal"
+              >
+                <RotateCcw className="w-4 h-4 scale-x-[-1]" />
+                Redo
+              </button>
+              <button
+                onClick={() => {
+                  const prevZones = mapStateRef.current.revealedZones;
+                  if (prevZones.length === 0) return;
+                  setUndoStack((s) => [...s, prevZones]);
+                  setRedoStack([]);
+                  const revealedZones: RevealedZone[] = [];
+                  const newState = { ...mapStateRef.current, revealedZones };
+                  mapStateRef.current = newState;
+                  setMapState(newState);
+                  transportRef.current?.send({
+                    type: "FOG_UPDATED",
+                    revealedZones,
+                  });
+                }}
+                disabled={mapState.revealedZones.length === 0}
+                className="hover:bg-panel-secondary disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
+                title="Reset all fog"
+              >
+                <Trash2 className="w-4 h-4" />
+                Reset Fog
+              </button>
+            </div>
+
+            {/* Section 3 — sync */}
+            <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
+              <span className="text-xs text-text-muted px-1 select-none">
+                Local
               </span>
-            </label>
-            <button
-              onClick={() => {
-                if (undoStack.length === 0) return;
-                const revealedZones = undoStack[undoStack.length - 1];
-                setUndoStack((s) => s.slice(0, -1));
-                setRedoStack((s) => [...s, mapStateRef.current.revealedZones]);
-                const newState = { ...mapStateRef.current, revealedZones };
-                mapStateRef.current = newState;
-                setMapState(newState);
-                transportRef.current?.send({
-                  type: "FOG_UPDATED",
-                  revealedZones,
-                });
-              }}
-              disabled={undoStack.length === 0}
-              className="bg-panel-bg/90 hover:bg-panel-bg disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-3 py-1.5 rounded text-sm transition border border-border-primary flex items-center gap-1.5"
-              title="Undo last reveal"
-            >
-              <RotateCcw className="w-4 h-4" />
-              Undo
-            </button>
-            <button
-              onClick={() => {
-                if (redoStack.length === 0) return;
-                const revealedZones = redoStack[redoStack.length - 1];
-                setRedoStack((s) => s.slice(0, -1));
-                setUndoStack((s) => [...s, mapStateRef.current.revealedZones]);
-                const newState = { ...mapStateRef.current, revealedZones };
-                mapStateRef.current = newState;
-                setMapState(newState);
-                transportRef.current?.send({
-                  type: "FOG_UPDATED",
-                  revealedZones,
-                });
-              }}
-              disabled={redoStack.length === 0}
-              className="bg-panel-bg/90 hover:bg-panel-bg disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-3 py-1.5 rounded text-sm transition border border-border-primary flex items-center gap-1.5"
-              title="Redo last reveal"
-            >
-              <RotateCcw className="w-4 h-4 scale-x-[-1]" />
-              Redo
-            </button>
-            <button
-              onClick={() => {
-                const prevZones = mapStateRef.current.revealedZones;
-                if (prevZones.length === 0) return;
-                setUndoStack((s) => [...s, prevZones]);
-                setRedoStack([]);
-                const revealedZones: RevealedZone[] = [];
-                const newState = { ...mapStateRef.current, revealedZones };
-                mapStateRef.current = newState;
-                setMapState(newState);
-                transportRef.current?.send({
-                  type: "FOG_UPDATED",
-                  revealedZones,
-                });
-              }}
-              disabled={mapState.revealedZones.length === 0}
-              className="bg-panel-bg/90 hover:bg-panel-bg disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-3 py-1.5 rounded text-sm transition border border-border-primary flex items-center gap-1.5"
-              title="Reset all fog"
-            >
-              <Trash2 className="w-4 h-4" />
-              Reset Fog
-            </button>
-            <button
-              onClick={openPlayerView}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm transition font-semibold"
-            >
-              Open Player View
-            </button>
+              <button
+                onClick={openPlayerView}
+                className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm transition"
+              >
+                Open Player View
+              </button>
+              <span className="w-px h-4 bg-border-primary mx-1" />
+              <span className="text-xs text-text-muted px-1 select-none">
+                Online
+              </span>
+              <button
+                onClick={() => setPeerModalOpen(true)}
+                className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
+                title="Connect online via PeerJS"
+              >
+                <Wifi className="w-4 h-4" />
+                Connect Online
+              </button>
+            </div>
           </>
         )}
       </div>
+
+      {peerModalOpen && (
+        <PeerJSConnector
+          onConnected={(transport, role) => {
+            setPeerTransport(transport);
+            if (role === "player") {
+              window.name = PLAYER_WINDOW_NAME;
+              setView("player");
+              setSynced(false);
+            }
+            setPeerModalOpen(false);
+          }}
+          onClose={() => setPeerModalOpen(false)}
+        />
+      )}
 
       {/* Waiting for DM overlay (player view, not yet synced) */}
       {view === "player" && !synced && (
