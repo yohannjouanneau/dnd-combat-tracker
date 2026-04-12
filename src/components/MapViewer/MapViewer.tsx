@@ -12,8 +12,6 @@ import type {
 } from "./types";
 
 const STORAGE_KEY = "dnd-ct:map-state:v1";
-// Image stored separately so frequent token/fog updates don't re-serialize large base64 data
-const IMAGE_STORAGE_KEY = "dnd-ct:map-image:v1";
 const FOG_DM_OPACITY = 0.4;
 const FOG_PLAYER_OPACITY = 1;
 
@@ -27,9 +25,9 @@ function loadFromStorage(): MapState | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
+    // imageDataUrl is never persisted — too large for localStorage
     const state = JSON.parse(raw) as Omit<MapState, "imageDataUrl">;
-    const imageDataUrl = localStorage.getItem(IMAGE_STORAGE_KEY);
-    return { ...state, imageDataUrl };
+    return { ...state, imageDataUrl: null };
   } catch {
     return null;
   }
@@ -60,6 +58,7 @@ export default function MapViewer({ transport: transportProp }: Props) {
   // PeerJS modal + override transport (replaces BroadcastChannel when connected)
   const [peerModalOpen, setPeerModalOpen] = useState(false);
   const [peerTransport, setPeerTransport] = useState<MapTransport | null>(null);
+  const [peerDisconnected, setPeerDisconnected] = useState(false);
 
   const [mapState, setMapState] = useState<MapState>(
     // Player view always starts empty — waits for DM sync
@@ -98,6 +97,18 @@ export default function MapViewer({ transport: transportProp }: Props) {
   // Transport ref — populated inside the sync effect so it's always a live channel
   const transportRef = useRef<MapTransport | null>(null);
 
+  // Warn before leaving when a map is loaded — the image is not persisted
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (mapStateRef.current.imageDataUrl) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
+
   // Load map image when imageDataUrl changes
   useEffect(() => {
     if (!mapState.imageDataUrl) {
@@ -111,17 +122,7 @@ export default function MapViewer({ transport: transportProp }: Props) {
     };
   }, [mapState.imageDataUrl]);
 
-  // Persist image separately — only re-runs when the image actually changes,
-  // so frequent token/fog updates don't re-serialize potentially large base64 data.
-  useEffect(() => {
-    if (mapState.imageDataUrl) {
-      localStorage.setItem(IMAGE_STORAGE_KEY, mapState.imageDataUrl);
-    } else {
-      localStorage.removeItem(IMAGE_STORAGE_KEY);
-    }
-  }, [mapState.imageDataUrl]);
-
-  // Persist everything except imageDataUrl on state change
+  // Persist token position and fog zones — image is intentionally excluded
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { imageDataUrl: _img, ...rest } = mapState;
@@ -171,8 +172,14 @@ export default function MapViewer({ transport: transportProp }: Props) {
       transport.send({ type: "REQUEST_FULL_STATE" });
     }
 
+    const unsubClose = transport.onClose(() => {
+      setPeerTransport(null);
+      setPeerDisconnected(true);
+    });
+
     return () => {
       unsub();
+      unsubClose();
       if (isLocalTransport) {
         transport.close();
       }
@@ -733,6 +740,28 @@ export default function MapViewer({ transport: transportProp }: Props) {
           }}
           onClose={() => setPeerModalOpen(false)}
         />
+      )}
+
+      {/* Disconnected banner — shown when PeerJS connection drops (e.g. device sleep) */}
+      {peerDisconnected && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-panel-bg border border-border-primary rounded-lg px-4 py-3 shadow-lg">
+          <span className="text-sm text-text-primary">Connection lost</span>
+          <button
+            onClick={() => {
+              setPeerDisconnected(false);
+              setPeerModalOpen(true);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition font-semibold"
+          >
+            Reconnect
+          </button>
+          <button
+            onClick={() => setPeerDisconnected(false)}
+            className="text-text-muted hover:text-text-primary transition text-sm"
+          >
+            Dismiss
+          </button>
+        </div>
       )}
 
       {/* Waiting for DM overlay (player view, not yet synced) */}

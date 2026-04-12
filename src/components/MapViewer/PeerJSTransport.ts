@@ -21,6 +21,11 @@ export class PeerJSTransport implements MapTransport {
     return () => this.handlers.delete(handler);
   }
 
+  onClose(handler: () => void): () => void {
+    this.conn.on("close", handler);
+    return () => this.conn.off("close", handler);
+  }
+
   close() {
     this.conn.close();
     // Intentionally not calling peer.destroy() here:

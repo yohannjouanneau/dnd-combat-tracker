@@ -15,6 +15,12 @@ export class BroadcastChannelTransport implements MapTransport {
     return () => this.channel.removeEventListener("message", listener);
   }
 
+  // BroadcastChannel never "drops" — no-op
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onClose(_handler: () => void): () => void {
+    return () => {};
+  }
+
   close() {
     this.channel.close();
   }
