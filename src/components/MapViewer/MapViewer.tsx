@@ -1,4 +1,15 @@
-import { RotateCcw, Trash2, Upload, Wifi } from "lucide-react";
+import {
+  CircleUser,
+  Eye,
+  EyeOff,
+  MapPin,
+  Plus,
+  RotateCcw,
+  Trash2,
+  Upload,
+  Wifi,
+  X,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PeerJSConnector from "./PeerJSConnector";
 import { BroadcastChannelTransport } from "./transport";
@@ -11,27 +22,26 @@ import type {
   Token,
 } from "./types";
 
-const STORAGE_KEY = "dnd-ct:map-state:v1";
 const FOG_DM_OPACITY = 0.4;
 const FOG_PLAYER_OPACITY = 1;
 
 const DEFAULT_MAP_STATE: MapState = {
   imageDataUrl: null,
-  token: { x: 400, y: 300, radius: 20, color: "#4ade80" },
+  tokens: [
+    {
+      id: "player",
+      x: 400,
+      y: 300,
+      radius: 20,
+      color: "#4ade80",
+      hidden: false,
+      revealsFog: true,
+    },
+  ],
   revealedZones: [],
 };
 
-function loadFromStorage(): MapState | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    // imageDataUrl is never persisted — too large for localStorage
-    const state = JSON.parse(raw) as Omit<MapState, "imageDataUrl">;
-    return { ...state, imageDataUrl: null };
-  } catch {
-    return null;
-  }
-}
+type HistoryEntry = { tokens: Token[]; revealedZones: RevealedZone[] };
 
 function screenToWorld(
   sx: number,
@@ -44,6 +54,10 @@ function screenToWorld(
   };
 }
 
+function tokenLabel(token: Token): string {
+  return token.label || (token.id === "player" ? "Player Token" : "Token");
+}
+
 interface Props {
   transport?: MapTransport;
 }
@@ -51,32 +65,24 @@ interface Props {
 export const PLAYER_WINDOW_NAME = "dnd-map-player-view";
 
 export default function MapViewer({ transport: transportProp }: Props) {
-  // window.name is set by window.open(url, name) and persists in the opened tab
   const [view, setView] = useState<"dm" | "player">(
     window.name === PLAYER_WINDOW_NAME ? "player" : "dm",
   );
-  // PeerJS modal + override transport (replaces BroadcastChannel when connected)
   const [peerModalOpen, setPeerModalOpen] = useState(false);
   const [peerTransport, setPeerTransport] = useState<MapTransport | null>(null);
   const [peerDisconnected, setPeerDisconnected] = useState(false);
 
-  const [mapState, setMapState] = useState<MapState>(
-    // Player view always starts empty — waits for DM sync
-    () =>
-      view === "player"
-        ? DEFAULT_MAP_STATE
-        : (loadFromStorage() ?? DEFAULT_MAP_STATE),
-  );
-  const [synced, setSynced] = useState(view === "dm"); // player waits for first FULL_STATE_RESPONSE
+  const [mapState, setMapState] = useState<MapState>(DEFAULT_MAP_STATE);
+  const [synced, setSynced] = useState(view === "dm");
   const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, scale: 1 });
-  // Undo/redo history — DM only, not persisted or synced
-  const [undoStack, setUndoStack] = useState<RevealedZone[][]>([]);
-  const [redoStack, setRedoStack] = useState<RevealedZone[][]>([]);
+
+  const [undoStack, setUndoStack] = useState<HistoryEntry[]>([]);
+  const [redoStack, setRedoStack] = useState<HistoryEntry[]>([]);
   const [revealRadius, setRevealRadius] = useState(80);
   const revealRadiusRef = useRef(revealRadius);
   revealRadiusRef.current = revealRadius;
 
-  // Refs for RAF loop (avoids stale closures)
+  // Refs for RAF loop
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fogCanvasRef = useRef<OffscreenCanvas | null>(null);
   const mapImageRef = useRef<HTMLImageElement | null>(null);
@@ -85,31 +91,46 @@ export default function MapViewer({ transport: transportProp }: Props) {
   const cameraRef = useRef(camera);
   cameraRef.current = camera;
 
-  // Interaction refs (avoid re-renders on every mouse move)
-  const isDraggingTokenRef = useRef(false);
+  // Token images — keyed by imageDataUrl so multiple tokens can share an image
+  const tokenImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
+
+  // Interaction refs
+  const draggingTokenIdRef = useRef<string | null>(null);
   const draggingTokenPosRef = useRef<{ x: number; y: number } | null>(null);
   const isPanningRef = useRef(false);
   const lastPanPosRef = useRef({ x: 0, y: 0 });
-  // Touch / pinch refs
+  const pointerDownScreenRef = useRef<{ sx: number; sy: number } | null>(null);
   const lastPinchDistRef = useRef<number | null>(null);
   const lastPinchCenterRef = useRef<{ x: number; y: number } | null>(null);
 
-  // Transport ref — populated inside the sync effect so it's always a live channel
+  // Token management modal
+  const [tokenModalOpen, setTokenModalOpen] = useState(false);
+  const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
+
+  // Pointer ping tool
+  const [isPointerMode, setIsPointerMode] = useState(false);
+  const isPointerModeRef = useRef(isPointerMode);
+  isPointerModeRef.current = isPointerMode;
+  const pingsRef = useRef<
+    { id: number; x: number; y: number; startedAt: number }[]
+  >([]);
+  const nextPingIdRef = useRef(0);
+
+  // Transport ref
   const transportRef = useRef<MapTransport | null>(null);
 
-  // Warn before leaving when a map is loaded — the image is not persisted
+  // Warn before leaving when a map is loaded
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
       if (mapStateRef.current.imageDataUrl) {
         e.preventDefault();
-        e.returnValue = "";
       }
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, []);
 
-  // Load map image when imageDataUrl changes
+  // Load map image
   useEffect(() => {
     if (!mapState.imageDataUrl) {
       mapImageRef.current = null;
@@ -122,25 +143,36 @@ export default function MapViewer({ transport: transportProp }: Props) {
     };
   }, [mapState.imageDataUrl]);
 
-  // Persist token position and fog zones — image is intentionally excluded
+  // Load/update token images (keyed by dataUrl)
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { imageDataUrl: _img, ...rest } = mapState;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(rest));
-  }, [mapState]);
+    const usedUrls = new Set<string>();
+    for (const token of mapState.tokens) {
+      if (!token.imageDataUrl) continue;
+      usedUrls.add(token.imageDataUrl);
+      if (!tokenImagesRef.current.has(token.imageDataUrl)) {
+        const img = new Image();
+        const url = token.imageDataUrl;
+        img.src = url;
+        img.onload = () => {
+          tokenImagesRef.current.set(url, img);
+        };
+      }
+    }
+    // Prune unused
+    for (const url of tokenImagesRef.current.keys()) {
+      if (!usedUrls.has(url)) tokenImagesRef.current.delete(url);
+    }
+  }, [mapState.tokens]);
 
-  // Sync effect — re-runs when transport changes (BroadcastChannel → PeerJS swap)
-  // BroadcastChannelTransport is created here so Strict Mode's double-invoke gets a
-  // fresh channel each time. PeerJSTransport is provided externally and must NOT be
-  // closed in the cleanup — Strict Mode would kill the live connection prematurely.
+  // Sync effect
   useEffect(() => {
     const isLocalTransport = !peerTransport && !transportProp;
     const transport =
       peerTransport ?? transportProp ?? new BroadcastChannelTransport();
     transportRef.current = transport;
 
-    // Register listener BEFORE sending, to avoid missing a fast response
     const unsub = transport.onMessage((msg: MapMessage) => {
+      if (view === "player") setSynced(true);
       switch (msg.type) {
         case "REQUEST_FULL_STATE":
           if (view === "dm") {
@@ -156,14 +188,22 @@ export default function MapViewer({ transport: transportProp }: Props) {
             setSynced(true);
           }
           break;
-        case "TOKEN_MOVED":
-          setMapState((s) => ({ ...s, token: msg.token }));
+        case "TOKENS_UPDATED":
+          setMapState((s) => ({ ...s, tokens: msg.tokens }));
           break;
         case "FOG_UPDATED":
           setMapState((s) => ({ ...s, revealedZones: msg.revealedZones }));
           break;
         case "MAP_LOADED":
           setMapState((s) => ({ ...s, imageDataUrl: msg.imageDataUrl }));
+          break;
+        case "POINTER_PING":
+          pingsRef.current.push({
+            id: nextPingIdRef.current++,
+            x: msg.x,
+            y: msg.y,
+            startedAt: performance.now(),
+          });
           break;
       }
     });
@@ -186,7 +226,7 @@ export default function MapViewer({ transport: transportProp }: Props) {
     };
   }, [view, transportProp, peerTransport]);
 
-  // Resize canvas to fill container
+  // Resize canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -216,24 +256,17 @@ export default function MapViewer({ transport: transportProp }: Props) {
       }
 
       const { x: panX, y: panY, scale } = cameraRef.current;
-      const { token, revealedZones } = mapStateRef.current;
-
-      // Use live drag position if currently dragging
-      const tokenPos =
-        isDraggingTokenRef.current && draggingTokenPosRef.current
-          ? draggingTokenPosRef.current
-          : token;
+      const { tokens, revealedZones } = mapStateRef.current;
 
       // 1. Clear
       ctx.clearRect(0, 0, w, h);
 
-      // 2. Apply camera + draw map
+      // 2. Map
       ctx.setTransform(scale, 0, 0, scale, panX, panY);
-      const img = mapImageRef.current;
-      if (img) {
-        ctx.drawImage(img, 0, 0);
+      const mapImg = mapImageRef.current;
+      if (mapImg) {
+        ctx.drawImage(mapImg, 0, 0);
       } else {
-        // Placeholder grid when no map is loaded
         ctx.fillStyle = "#1a1a2e";
         ctx.fillRect(0, 0, 2000, 2000);
         ctx.strokeStyle = "#2a2a4e";
@@ -252,9 +285,8 @@ export default function MapViewer({ transport: transportProp }: Props) {
         }
       }
 
-      // 3. Fog layer — draw on offscreen canvas then composite onto main
+      // 3. Fog layer
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-
       if (
         !fogCanvasRef.current ||
         fogCanvasRef.current.width !== w ||
@@ -267,11 +299,14 @@ export default function MapViewer({ transport: transportProp }: Props) {
       fogCtx.fillStyle = "#000";
       fogCtx.fillRect(0, 0, w, h);
 
-      const dragPos = isDraggingTokenRef.current
-        ? draggingTokenPosRef.current
+      const draggingId = draggingTokenIdRef.current;
+      const dragPos = draggingId ? draggingTokenPosRef.current : null;
+      const draggingToken = draggingId
+        ? tokens.find((t) => t.id === draggingId)
         : null;
+      const showDragFog = dragPos && draggingToken?.revealsFog;
 
-      if (revealedZones.length > 0 || dragPos) {
+      if (revealedZones.length > 0 || showDragFog) {
         fogCtx.save();
         fogCtx.setTransform(scale, 0, 0, scale, panX, panY);
         fogCtx.globalCompositeOperation = "destination-out";
@@ -290,10 +325,9 @@ export default function MapViewer({ transport: transportProp }: Props) {
         for (const zone of revealedZones) {
           drawFogZone(zone.x, zone.y, zone.radius);
         }
-        if (dragPos) {
+        if (showDragFog) {
           drawFogZone(dragPos.x, dragPos.y, revealRadiusRef.current);
         }
-
         fogCtx.restore();
       }
 
@@ -301,17 +335,96 @@ export default function MapViewer({ transport: transportProp }: Props) {
       ctx.drawImage(fogCanvasRef.current, 0, 0);
       ctx.globalAlpha = 1;
 
-      // 4. Token
+      // 4. Tokens
       ctx.setTransform(scale, 0, 0, scale, panX, panY);
-      ctx.beginPath();
-      ctx.arc(tokenPos.x, tokenPos.y, token.radius, 0, Math.PI * 2);
-      ctx.fillStyle = token.color;
-      ctx.fill();
-      ctx.strokeStyle = "#fff";
-      ctx.lineWidth = 2 / scale;
-      ctx.stroke();
+      ctx.textAlign = "center";
+      const visibleTokens =
+        view === "dm" ? tokens : tokens.filter((t) => !t.hidden);
 
-      // 5. Reset transform
+      for (const token of visibleTokens) {
+        const pos =
+          draggingTokenIdRef.current === token.id && draggingTokenPosRef.current
+            ? draggingTokenPosRef.current
+            : token;
+        const { x: tx, y: ty } = pos;
+        const tr = token.radius;
+
+        if (token.hidden) ctx.globalAlpha = 0.5;
+
+        const tokenImg = token.imageDataUrl
+          ? tokenImagesRef.current.get(token.imageDataUrl)
+          : undefined;
+
+        if (tokenImg) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(tx, ty, tr, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(tokenImg, tx - tr, ty - tr, tr * 2, tr * 2);
+          ctx.restore();
+        } else {
+          ctx.beginPath();
+          ctx.arc(tx, ty, tr, 0, Math.PI * 2);
+          ctx.fillStyle = token.color;
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(tx, ty, tr, 0, Math.PI * 2);
+        if (token.hidden) {
+          ctx.setLineDash([4 / scale, 4 / scale]);
+          ctx.strokeStyle = "#fbbf24";
+        } else {
+          ctx.setLineDash([]);
+          ctx.strokeStyle = "#fff";
+        }
+        ctx.lineWidth = 2 / scale;
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+
+        if (token.label) {
+          ctx.font = `bold ${12 / scale}px sans-serif`;
+          ctx.fillStyle = token.hidden ? "#fbbf24" : "#fff";
+          ctx.shadowColor = "#000";
+          ctx.shadowBlur = 3 / scale;
+          ctx.fillText(token.label, tx, ty + tr + 14 / scale);
+          ctx.shadowBlur = 0;
+        }
+      }
+
+      // 5. Pointer pings
+      const now = performance.now();
+      const PING_DURATION = 1200;
+      pingsRef.current = pingsRef.current.filter(
+        (p) => now - p.startedAt < PING_DURATION,
+      );
+      if (pingsRef.current.length > 0) {
+        ctx.setTransform(scale, 0, 0, scale, panX, panY);
+        for (const ping of pingsRef.current) {
+          const t = (now - ping.startedAt) / PING_DURATION;
+          const maxRadius = 60;
+          for (let ring = 0; ring < 2; ring++) {
+            const rt = Math.min(1, t * 1.5 + ring * 0.15);
+            const radius = rt * maxRadius;
+            const alpha = (1 - rt) * 0.85;
+            ctx.beginPath();
+            ctx.arc(ping.x, ping.y, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(250,204,21,${alpha})`;
+            ctx.lineWidth = (2.5 - ring * 0.5) / scale;
+            ctx.stroke();
+          }
+          const dotAlpha = Math.max(0, 1 - t * 3);
+          if (dotAlpha > 0) {
+            ctx.beginPath();
+            ctx.arc(ping.x, ping.y, 5 / scale, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(250,204,21,${dotAlpha})`;
+            ctx.fill();
+          }
+        }
+      }
+
+      // 6. Reset transform
       ctx.setTransform(1, 0, 0, 1, 0, 0);
 
       rafId = requestAnimationFrame(render);
@@ -321,29 +434,54 @@ export default function MapViewer({ transport: transportProp }: Props) {
     return () => cancelAnimationFrame(rafId);
   }, [view]);
 
-  // --- Interaction helpers (shared by mouse and touch handlers) ---
+  // --- Interaction helpers ---
+
+  const emitPing = useCallback((sx: number, sy: number) => {
+    const { x, y } = screenToWorld(sx, sy, cameraRef.current);
+    pingsRef.current.push({
+      id: nextPingIdRef.current++,
+      x,
+      y,
+      startedAt: performance.now(),
+    });
+    transportRef.current?.send({ type: "POINTER_PING", x, y });
+  }, []);
 
   const startPointerInteraction = useCallback(
     (sx: number, sy: number, clientX: number, clientY: number) => {
-      const world = screenToWorld(sx, sy, cameraRef.current);
-      const { token } = mapStateRef.current;
-      if (
-        view === "dm" &&
-        Math.hypot(world.x - token.x, world.y - token.y) <= token.radius * 1.5
-      ) {
-        isDraggingTokenRef.current = true;
-        draggingTokenPosRef.current = { x: token.x, y: token.y };
-      } else {
+      if (isPointerModeRef.current) {
+        pointerDownScreenRef.current = { sx, sy };
         isPanningRef.current = true;
         lastPanPosRef.current = { x: clientX, y: clientY };
+        return;
       }
+      if (view === "dm") {
+        const world = screenToWorld(sx, sy, cameraRef.current);
+        const { tokens } = mapStateRef.current;
+        let closest: Token | null = null;
+        let closestDist = Infinity;
+        for (const token of tokens) {
+          const d = Math.hypot(world.x - token.x, world.y - token.y);
+          if (d <= token.radius * 1.5 && d < closestDist) {
+            closestDist = d;
+            closest = token;
+          }
+        }
+        if (closest) {
+          draggingTokenIdRef.current = closest.id;
+          draggingTokenPosRef.current = { x: closest.x, y: closest.y };
+          return;
+        }
+      }
+      isPanningRef.current = true;
+      lastPanPosRef.current = { x: clientX, y: clientY };
     },
     [view],
   );
 
   const updatePointerInteraction = useCallback(
     (sx: number, sy: number, clientX: number, clientY: number) => {
-      if (isDraggingTokenRef.current) {
+      if (draggingTokenIdRef.current) {
         draggingTokenPosRef.current = screenToWorld(sx, sy, cameraRef.current);
       } else if (isPanningRef.current) {
         const dx = clientX - lastPanPosRef.current.x;
@@ -353,6 +491,72 @@ export default function MapViewer({ transport: transportProp }: Props) {
       }
     },
     [],
+  );
+
+  const endInteraction = useCallback(
+    (sx?: number, sy?: number) => {
+      // Pointer mode tap
+      if (isPointerModeRef.current && pointerDownScreenRef.current !== null) {
+        const down = pointerDownScreenRef.current;
+        pointerDownScreenRef.current = null;
+        if (
+          sx !== undefined &&
+          sy !== undefined &&
+          Math.hypot(sx - down.sx, sy - down.sy) < 6
+        ) {
+          emitPing(sx, sy);
+        }
+        isPanningRef.current = false;
+        return;
+      }
+      pointerDownScreenRef.current = null;
+
+      if (draggingTokenIdRef.current !== null) {
+        const tokenId = draggingTokenIdRef.current;
+        draggingTokenIdRef.current = null;
+        const finalPos = draggingTokenPosRef.current;
+        draggingTokenPosRef.current = null;
+
+        if (finalPos) {
+          const prevTokens = mapStateRef.current.tokens;
+          const draggingToken = prevTokens.find((t) => t.id === tokenId);
+          if (draggingToken) {
+            const tokens = prevTokens.map((t) =>
+              t.id === tokenId ? { ...t, ...finalPos } : t,
+            );
+            const prevZones = mapStateRef.current.revealedZones;
+            const revealedZones = draggingToken.revealsFog
+              ? [
+                  ...prevZones,
+                  { x: finalPos.x, y: finalPos.y, radius: revealRadius },
+                ]
+              : prevZones;
+
+            mapStateRef.current = {
+              ...mapStateRef.current,
+              tokens,
+              revealedZones,
+            };
+            setMapState(mapStateRef.current);
+            setUndoStack((s) => [
+              ...s.slice(-49),
+              { tokens: prevTokens, revealedZones: prevZones },
+            ]);
+            setRedoStack([]);
+
+            transportRef.current?.send({ type: "TOKENS_UPDATED", tokens });
+            if (draggingToken.revealsFog) {
+              transportRef.current?.send({
+                type: "FOG_UPDATED",
+                revealedZones,
+              });
+            }
+          }
+        }
+      }
+      isPanningRef.current = false;
+    },
+    [revealRadius, emitPing],
   );
 
   const handleMouseDown = useCallback(
@@ -382,46 +586,80 @@ export default function MapViewer({ transport: transportProp }: Props) {
     [updatePointerInteraction],
   );
 
-  const handleMouseUp = useCallback(() => {
-    if (isDraggingTokenRef.current) {
-      isDraggingTokenRef.current = false;
-      const finalPos = draggingTokenPosRef.current;
-      draggingTokenPosRef.current = null;
+  const handleMouseUp = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+      endInteraction(e.clientX - rect.left, e.clientY - rect.top);
+    },
+    [endInteraction],
+  );
 
-      if (finalPos) {
-        const token: Token = { ...mapStateRef.current.token, ...finalPos };
-        const prevZones = mapStateRef.current.revealedZones;
-        const revealedZones: RevealedZone[] = [
-          ...prevZones,
-          { x: finalPos.x, y: finalPos.y, radius: revealRadius },
-        ];
-        // Update ref immediately so next render frame is correct
-        mapStateRef.current = { ...mapStateRef.current, token, revealedZones };
-        setMapState(mapStateRef.current);
-        setUndoStack((s) => [...s.slice(-49), prevZones]);
-        setRedoStack([]);
+  const updateToken = useCallback((id: string, patch: Partial<Token>) => {
+    const tokens = mapStateRef.current.tokens.map((t) =>
+      t.id === id ? { ...t, ...patch } : t,
+    );
+    mapStateRef.current = { ...mapStateRef.current, tokens };
+    setMapState(mapStateRef.current);
+    transportRef.current?.send({ type: "TOKENS_UPDATED", tokens });
+  }, []);
 
-        transportRef.current?.send({ type: "TOKEN_MOVED", token });
-        transportRef.current?.send({ type: "FOG_UPDATED", revealedZones });
-      }
-    }
-    isPanningRef.current = false;
-  }, [revealRadius]);
+  const addToken = useCallback(() => {
+    const id = crypto.randomUUID();
+    const newToken: Token = {
+      id,
+      x: 500,
+      y: 300,
+      radius: 20,
+      color: "#ef4444",
+      hidden: true,
+      revealsFog: false,
+    };
+    const tokens = [...mapStateRef.current.tokens, newToken];
+    mapStateRef.current = { ...mapStateRef.current, tokens };
+    setMapState(mapStateRef.current);
+    transportRef.current?.send({ type: "TOKENS_UPDATED", tokens });
+    setSelectedTokenId(id);
+  }, []);
 
-  const applyFogHistory = useCallback(
+  const removeToken = useCallback((id: string) => {
+    const tokens = mapStateRef.current.tokens.filter((t) => t.id !== id);
+    mapStateRef.current = { ...mapStateRef.current, tokens };
+    setMapState(mapStateRef.current);
+    transportRef.current?.send({ type: "TOKENS_UPDATED", tokens });
+    setSelectedTokenId((prev) => (prev === id ? null : prev));
+  }, []);
+
+  const applyHistory = useCallback(
     (
-      fromStack: RevealedZone[][],
-      setFromStack: React.Dispatch<React.SetStateAction<RevealedZone[][]>>,
-      setToStack: React.Dispatch<React.SetStateAction<RevealedZone[][]>>,
+      fromStack: HistoryEntry[],
+      setFromStack: React.Dispatch<React.SetStateAction<HistoryEntry[]>>,
+      setToStack: React.Dispatch<React.SetStateAction<HistoryEntry[]>>,
     ) => {
       if (fromStack.length === 0) return;
-      const revealedZones = fromStack[fromStack.length - 1];
+      const entry = fromStack[fromStack.length - 1];
       setFromStack((s) => s.slice(0, -1));
-      setToStack((s) => [...s, mapStateRef.current.revealedZones]);
-      const newState = { ...mapStateRef.current, revealedZones };
+      setToStack((s) => [
+        ...s,
+        {
+          tokens: mapStateRef.current.tokens,
+          revealedZones: mapStateRef.current.revealedZones,
+        },
+      ]);
+      const newState = {
+        ...mapStateRef.current,
+        tokens: entry.tokens,
+        revealedZones: entry.revealedZones,
+      };
       mapStateRef.current = newState;
       setMapState(newState);
-      transportRef.current?.send({ type: "FOG_UPDATED", revealedZones });
+      transportRef.current?.send({
+        type: "TOKENS_UPDATED",
+        tokens: entry.tokens,
+      });
+      transportRef.current?.send({
+        type: "FOG_UPDATED",
+        revealedZones: entry.revealedZones,
+      });
     },
     [],
   );
@@ -447,13 +685,10 @@ export default function MapViewer({ transport: transportProp }: Props) {
       const sy = e.clientY - rect.top;
 
       if (e.ctrlKey) {
-        // Trackpad pinch-to-zoom (browser sets ctrlKey for pinch gestures)
         applyZoom(e.deltaY, sx, sy);
       } else if (e.deltaMode === 0) {
-        // Trackpad two-finger scroll (smooth, pixel-level deltas) → pan
         setCamera((c) => ({ ...c, x: c.x - e.deltaX, y: c.y - e.deltaY }));
       } else {
-        // Mouse scroll wheel (discrete steps, deltaMode === 1) → zoom
         applyZoom(e.deltaY, sx, sy);
       }
     },
@@ -474,7 +709,7 @@ export default function MapViewer({ transport: transportProp }: Props) {
         );
         lastPinchDistRef.current = null;
       } else if (e.touches.length === 2) {
-        isDraggingTokenRef.current = false;
+        draggingTokenIdRef.current = null;
         isPanningRef.current = false;
         const t0 = e.touches[0];
         const t1 = e.touches[1];
@@ -544,12 +779,12 @@ export default function MapViewer({ transport: transportProp }: Props) {
     (e: React.TouchEvent<HTMLCanvasElement>) => {
       e.preventDefault();
       if (e.touches.length === 0) {
-        // Last finger lifted — commit any token drag
-        handleMouseUp();
+        const changed = e.changedTouches[0];
+        const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+        endInteraction(changed.clientX - rect.left, changed.clientY - rect.top);
         lastPinchDistRef.current = null;
         lastPinchCenterRef.current = null;
       } else if (e.touches.length === 1) {
-        // Went from 2 fingers to 1 — end pinch, start panning
         lastPinchDistRef.current = null;
         lastPinchCenterRef.current = null;
         isPanningRef.current = true;
@@ -559,7 +794,7 @@ export default function MapViewer({ transport: transportProp }: Props) {
         };
       }
     },
-    [handleMouseUp],
+    [endInteraction],
   );
 
   const handleImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -578,21 +813,22 @@ export default function MapViewer({ transport: transportProp }: Props) {
       transportRef.current?.send({ type: "MAP_LOADED", imageDataUrl });
     };
     reader.readAsDataURL(file);
-    // Reset input so the same file can be re-imported
     e.target.value = "";
   }, []);
 
   const openPlayerView = useCallback(() => {
-    // Open the same URL with a named window — the name is how MapViewer detects player mode
     window.open(window.location.href, PLAYER_WINDOW_NAME);
   }, []);
 
-  const cursorStyle =
-    view === "player"
+  const cursorStyle = isPointerMode
+    ? "crosshair"
+    : view === "player"
       ? "grab"
-      : isDraggingTokenRef.current
+      : draggingTokenIdRef.current
         ? "grabbing"
         : "crosshair";
+
+  const selectedToken = mapState.tokens.find((t) => t.id === selectedTokenId);
 
   return (
     <div className="w-full h-screen bg-black flex flex-col relative overflow-hidden">
@@ -602,6 +838,13 @@ export default function MapViewer({ transport: transportProp }: Props) {
         <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
           <button
             onClick={() => {
+              if (
+                mapStateRef.current.imageDataUrl &&
+                !window.confirm(
+                  "Leave the map? The imported image will be lost.",
+                )
+              )
+                return;
               location.hash = "";
             }}
             className="hover:text-text-primary text-text-muted px-2 py-0.5 rounded text-sm transition"
@@ -619,6 +862,18 @@ export default function MapViewer({ transport: transportProp }: Props) {
           <span className="text-text-muted text-xs tabular-nums ml-1">
             {Math.round(camera.scale * 100)}%
           </span>
+          <span className="w-px h-4 bg-border-primary mx-1" />
+          <button
+            onClick={() => setIsPointerMode((v) => !v)}
+            className={`px-2 py-0.5 rounded text-sm transition flex items-center gap-1.5 ${
+              isPointerMode
+                ? "bg-amber-500 text-white"
+                : "text-text-muted hover:text-text-primary"
+            }`}
+            title="Pointer tool — click to ping a location"
+          >
+            <MapPin className="w-4 h-4" />
+          </button>
         </div>
 
         {view === "dm" && (
@@ -655,22 +910,22 @@ export default function MapViewer({ transport: transportProp }: Props) {
               <span className="w-px h-4 bg-border-primary mx-0.5" />
               <button
                 onClick={() =>
-                  applyFogHistory(undoStack, setUndoStack, setRedoStack)
+                  applyHistory(undoStack, setUndoStack, setRedoStack)
                 }
                 disabled={undoStack.length === 0}
                 className="hover:bg-panel-secondary disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
-                title="Undo last reveal"
+                title="Undo"
               >
                 <RotateCcw className="w-4 h-4" />
                 Undo
               </button>
               <button
                 onClick={() =>
-                  applyFogHistory(redoStack, setRedoStack, setUndoStack)
+                  applyHistory(redoStack, setRedoStack, setUndoStack)
                 }
                 disabled={redoStack.length === 0}
                 className="hover:bg-panel-secondary disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
-                title="Redo last reveal"
+                title="Redo"
               >
                 <RotateCcw className="w-4 h-4 scale-x-[-1]" />
                 Redo
@@ -679,7 +934,13 @@ export default function MapViewer({ transport: transportProp }: Props) {
                 onClick={() => {
                   const prevZones = mapStateRef.current.revealedZones;
                   if (prevZones.length === 0) return;
-                  setUndoStack((s) => [...s, prevZones]);
+                  setUndoStack((s) => [
+                    ...s,
+                    {
+                      tokens: mapStateRef.current.tokens,
+                      revealedZones: prevZones,
+                    },
+                  ]);
                   setRedoStack([]);
                   const revealedZones: RevealedZone[] = [];
                   const newState = { ...mapStateRef.current, revealedZones };
@@ -699,7 +960,27 @@ export default function MapViewer({ transport: transportProp }: Props) {
               </button>
             </div>
 
-            {/* Section 3 — sync */}
+            {/* Section 3 — tokens */}
+            <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
+              <button
+                onClick={() => {
+                  setTokenModalOpen(true);
+                  if (!selectedTokenId && mapState.tokens.length > 0) {
+                    setSelectedTokenId(mapState.tokens[0].id);
+                  }
+                }}
+                className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
+                title="Manage tokens"
+              >
+                <CircleUser className="w-4 h-4" />
+                Tokens
+                <span className="text-xs text-text-muted tabular-nums">
+                  {mapState.tokens.length}
+                </span>
+              </button>
+            </div>
+
+            {/* Section 4 — sync */}
             <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
               <span className="text-xs text-text-muted px-1 select-none">
                 Local
@@ -742,7 +1023,225 @@ export default function MapViewer({ transport: transportProp }: Props) {
         />
       )}
 
-      {/* Disconnected banner — shown when PeerJS connection drops (e.g. device sleep) */}
+      {/* Token management modal */}
+      {tokenModalOpen && (
+        <div className="absolute inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-start justify-start p-4 pointer-events-none">
+          <div className="mt-14 bg-panel-bg border border-border-primary rounded-xl p-4 w-72 flex flex-col gap-3 relative pointer-events-auto shadow-xl max-h-[80vh] overflow-y-auto">
+            <button
+              onClick={() => setTokenModalOpen(false)}
+              className="absolute top-3 right-3 text-text-muted hover:text-text-primary transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <h2 className="text-sm font-bold text-text-primary pr-6">Tokens</h2>
+
+            {/* Token list */}
+            <div className="flex flex-col gap-1">
+              {mapState.tokens.map((token) => (
+                <div
+                  key={token.id}
+                  onClick={() =>
+                    setSelectedTokenId(
+                      selectedTokenId === token.id ? null : token.id,
+                    )
+                  }
+                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition ${
+                    selectedTokenId === token.id
+                      ? "bg-panel-secondary"
+                      : "hover:bg-panel-secondary/50"
+                  }`}
+                >
+                  {/* Color swatch / image preview */}
+                  {token.imageDataUrl ? (
+                    <img
+                      src={token.imageDataUrl}
+                      className="w-6 h-6 rounded-full object-cover shrink-0"
+                      alt=""
+                    />
+                  ) : (
+                    <span
+                      className="w-6 h-6 rounded-full shrink-0 border border-white/20"
+                      style={{ background: token.color }}
+                    />
+                  )}
+                  <span className="flex-1 text-xs text-text-primary truncate">
+                    {tokenLabel(token)}
+                  </span>
+                  {/* Hide/reveal toggle */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateToken(token.id, { hidden: !token.hidden });
+                    }}
+                    className={`p-1 rounded transition ${
+                      token.hidden
+                        ? "text-text-muted hover:text-amber-400"
+                        : "text-green-400 hover:text-text-muted"
+                    }`}
+                    title={
+                      token.hidden
+                        ? "Hidden — click to reveal"
+                        : "Visible — click to hide"
+                    }
+                  >
+                    {token.hidden ? (
+                      <EyeOff className="w-3.5 h-3.5" />
+                    ) : (
+                      <Eye className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                  {/* Delete — not for the party token */}
+                  {token.id !== "player" && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeToken(token.id);
+                      }}
+                      className="p-1 rounded text-text-muted hover:text-red-400 transition"
+                      title="Delete token"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Add token */}
+            <button
+              onClick={addToken}
+              className="flex items-center justify-center gap-1.5 bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary px-3 py-1.5 rounded-lg text-xs transition"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Token
+            </button>
+
+            {/* Edit panel for selected token */}
+            {selectedToken && (
+              <>
+                <div className="h-px bg-border-primary" />
+                <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">
+                  Edit: {tokenLabel(selectedToken)}
+                </p>
+
+                {/* Label */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-text-muted">Label</span>
+                  <input
+                    type="text"
+                    value={selectedToken.label ?? ""}
+                    onChange={(e) =>
+                      updateToken(selectedToken.id, {
+                        label: e.target.value || undefined,
+                      })
+                    }
+                    placeholder="e.g. Goblin 1"
+                    className="bg-panel-secondary text-text-primary px-2 py-1 rounded text-xs border border-border-primary focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                {/* Color */}
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-text-muted">Color</span>
+                  <input
+                    type="color"
+                    value={selectedToken.color}
+                    onChange={(e) =>
+                      updateToken(selectedToken.id, { color: e.target.value })
+                    }
+                    className="w-10 h-8 rounded cursor-pointer border border-border-primary bg-transparent"
+                  />
+                </div>
+
+                {/* Image */}
+                <div className="flex flex-col gap-2">
+                  <span className="text-xs text-text-muted">Image</span>
+                  <div className="flex items-center gap-2">
+                    <label className="flex-1 bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary px-3 py-1.5 rounded text-xs cursor-pointer transition text-center">
+                      Upload
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            updateToken(selectedToken.id, {
+                              imageDataUrl: ev.target?.result as string,
+                            });
+                          };
+                          reader.readAsDataURL(file);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                    {selectedToken.imageDataUrl && (
+                      <button
+                        onClick={() =>
+                          updateToken(selectedToken.id, {
+                            imageDataUrl: undefined,
+                          })
+                        }
+                        className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-muted hover:text-text-primary px-3 py-1.5 rounded text-xs transition"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  {selectedToken.imageDataUrl && (
+                    <img
+                      src={selectedToken.imageDataUrl}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-border-primary mx-auto"
+                      alt="Token preview"
+                    />
+                  )}
+                </div>
+
+                {/* Size */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-text-muted">Size</span>
+                    <span className="text-xs tabular-nums text-text-muted">
+                      {selectedToken.radius}px
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={10}
+                    max={80}
+                    value={selectedToken.radius}
+                    onChange={(e) =>
+                      updateToken(selectedToken.id, {
+                        radius: Number(e.target.value),
+                      })
+                    }
+                    className="w-full accent-blue-400"
+                  />
+                </div>
+
+                {/* Reveals fog */}
+                <label className="flex items-center justify-between gap-3 cursor-pointer">
+                  <span className="text-xs text-text-muted">Reveals fog</span>
+                  <input
+                    type="checkbox"
+                    checked={selectedToken.revealsFog}
+                    onChange={(e) =>
+                      updateToken(selectedToken.id, {
+                        revealsFog: e.target.checked,
+                      })
+                    }
+                    className="accent-blue-400 w-4 h-4"
+                  />
+                </label>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Disconnected banner */}
       {peerDisconnected && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-panel-bg border border-border-primary rounded-lg px-4 py-3 shadow-lg">
           <span className="text-sm text-text-primary">Connection lost</span>
@@ -764,7 +1263,7 @@ export default function MapViewer({ transport: transportProp }: Props) {
         </div>
       )}
 
-      {/* Waiting for DM overlay (player view, not yet synced) */}
+      {/* Waiting for DM overlay */}
       {view === "player" && !synced && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/90 z-20">
           <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
@@ -790,7 +1289,7 @@ export default function MapViewer({ transport: transportProp }: Props) {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={() => endInteraction()}
         onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
