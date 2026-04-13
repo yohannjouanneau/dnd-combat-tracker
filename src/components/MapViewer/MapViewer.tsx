@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import PeerJSConnector from "./PeerJSConnector";
 import MapToolbar from "./components/MapToolbar";
 import TokenModal from "./components/TokenModal";
@@ -134,6 +135,8 @@ export default function MapViewer() {
     pingsRef,
   });
 
+  const { t } = useTranslation("map");
+
   const cursorStyle = isPointerMode
     ? "crosshair"
     : view === "player"
@@ -199,7 +202,9 @@ export default function MapViewer() {
       {/* Disconnected banner */}
       {peerDisconnected && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-panel-bg border border-border-primary rounded-lg px-4 py-3 shadow-lg">
-          <span className="text-sm text-text-primary">Connection lost</span>
+          <span className="text-sm text-text-primary">
+            {t("overlay.connectionLost")}
+          </span>
           <button
             onClick={() => {
               setPeerDisconnected(false);
@@ -207,13 +212,13 @@ export default function MapViewer() {
             }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition font-semibold"
           >
-            Reconnect
+            {t("overlay.reconnect")}
           </button>
           <button
             onClick={() => setPeerDisconnected(false)}
             className="text-text-muted hover:text-text-primary transition text-sm"
           >
-            Dismiss
+            {t("overlay.dismiss")}
           </button>
         </div>
       )}
@@ -222,8 +227,10 @@ export default function MapViewer() {
       {view === "player" && !synced && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/90 z-20">
           <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-          <p className="text-white/70 text-sm">Waiting for DM…</p>
-          <p className="text-white/30 text-xs">Make sure the DM tab is open</p>
+          <p className="text-white/70 text-sm">{t("overlay.waitingForDm")}</p>
+          <p className="text-white/30 text-xs">
+            {t("overlay.waitingForDmHint")}
+          </p>
         </div>
       )}
 
@@ -231,7 +238,7 @@ export default function MapViewer() {
       {!mapState.imageDataUrl && view === "dm" && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <p className="text-white/30 text-lg select-none">
-            Import a map to get started
+            {t("overlay.importMapHint")}
           </p>
         </div>
       )}

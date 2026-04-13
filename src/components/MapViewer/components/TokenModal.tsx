@@ -1,8 +1,13 @@
 import { Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Token } from "../types";
 
-function tokenLabel(token: Token): string {
-  return token.label || (token.id === "player" ? "Player Token" : "Token");
+function tokenLabel(
+  token: Token,
+  playerToken: string,
+  defaultToken: string,
+): string {
+  return token.label || (token.id === "player" ? playerToken : defaultToken);
 }
 
 interface Props {
@@ -24,6 +29,7 @@ export default function TokenModal({
   onRemoveToken,
   onUpdateToken,
 }: Props) {
+  const { t } = useTranslation("map");
   const selectedToken = tokens.find((t) => t.id === selectedTokenId);
 
   return (
@@ -35,7 +41,9 @@ export default function TokenModal({
         >
           <X className="w-4 h-4" />
         </button>
-        <h2 className="text-sm font-bold text-text-primary pr-6">Tokens</h2>
+        <h2 className="text-sm font-bold text-text-primary pr-6">
+          {t("token.modalTitle")}
+        </h2>
 
         {/* Token list */}
         <div className="flex flex-col gap-1">
@@ -64,7 +72,7 @@ export default function TokenModal({
                 />
               )}
               <span className="flex-1 text-xs text-text-primary truncate">
-                {tokenLabel(token)}
+                {tokenLabel(token, t("token.playerToken"), t("token.token"))}
               </span>
               <button
                 onClick={(e) => {
@@ -78,8 +86,8 @@ export default function TokenModal({
                 }`}
                 title={
                   token.hidden
-                    ? "Hidden — click to reveal"
-                    : "Visible — click to hide"
+                    ? t("token.hiddenTitle")
+                    : t("token.visibleTitle")
                 }
               >
                 {token.hidden ? (
@@ -95,7 +103,7 @@ export default function TokenModal({
                     onRemoveToken(token.id);
                   }}
                   className="p-1 rounded text-text-muted hover:text-red-400 transition"
-                  title="Delete token"
+                  title={t("token.deleteTitle")}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -109,19 +117,27 @@ export default function TokenModal({
           className="flex items-center justify-center gap-1.5 bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary px-3 py-1.5 rounded-lg text-xs transition"
         >
           <Plus className="w-3.5 h-3.5" />
-          Add Token
+          {t("token.addToken")}
         </button>
 
         {selectedToken && (
           <>
             <div className="h-px bg-border-primary" />
             <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">
-              Edit: {tokenLabel(selectedToken)}
+              {t("token.edit", {
+                name: tokenLabel(
+                  selectedToken,
+                  t("token.playerToken"),
+                  t("token.token"),
+                ),
+              })}
             </p>
 
             {/* Label */}
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-text-muted">Label</span>
+              <span className="text-xs text-text-muted">
+                {t("token.label")}
+              </span>
               <input
                 type="text"
                 value={selectedToken.label ?? ""}
@@ -130,14 +146,16 @@ export default function TokenModal({
                     label: e.target.value || undefined,
                   })
                 }
-                placeholder="e.g. Goblin 1"
+                placeholder={t("token.labelPlaceholder")}
                 className="bg-panel-secondary text-text-primary px-2 py-1 rounded text-xs border border-border-primary focus:outline-none focus:border-blue-500"
               />
             </div>
 
             {/* Color */}
             <div className="flex items-center justify-between gap-3">
-              <span className="text-xs text-text-muted">Color</span>
+              <span className="text-xs text-text-muted">
+                {t("token.color")}
+              </span>
               <input
                 type="color"
                 value={selectedToken.color}
@@ -150,10 +168,12 @@ export default function TokenModal({
 
             {/* Image */}
             <div className="flex flex-col gap-2">
-              <span className="text-xs text-text-muted">Image</span>
+              <span className="text-xs text-text-muted">
+                {t("token.image")}
+              </span>
               <div className="flex items-center gap-2">
                 <label className="flex-1 bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary px-3 py-1.5 rounded text-xs cursor-pointer transition text-center">
-                  Upload
+                  {t("token.upload")}
                   <input
                     type="file"
                     accept="image/*"
@@ -181,7 +201,7 @@ export default function TokenModal({
                     }
                     className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-muted hover:text-text-primary px-3 py-1.5 rounded text-xs transition"
                   >
-                    Clear
+                    {t("token.clear")}
                   </button>
                 )}
               </div>
@@ -189,7 +209,7 @@ export default function TokenModal({
                 <img
                   src={selectedToken.imageDataUrl}
                   className="w-16 h-16 rounded-full object-cover border-2 border-border-primary mx-auto"
-                  alt="Token preview"
+                  alt={t("token.imagePreviewAlt")}
                 />
               )}
             </div>
@@ -197,7 +217,9 @@ export default function TokenModal({
             {/* Size */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-text-muted">Size</span>
+                <span className="text-xs text-text-muted">
+                  {t("token.size")}
+                </span>
                 <span className="text-xs tabular-nums text-text-muted">
                   {selectedToken.radius}px
                 </span>
@@ -218,7 +240,9 @@ export default function TokenModal({
 
             {/* Reveals fog */}
             <label className="flex items-center justify-between gap-3 cursor-pointer">
-              <span className="text-xs text-text-muted">Reveals fog</span>
+              <span className="text-xs text-text-muted">
+                {t("token.revealsFog")}
+              </span>
               <input
                 type="checkbox"
                 checked={selectedToken.revealsFog}

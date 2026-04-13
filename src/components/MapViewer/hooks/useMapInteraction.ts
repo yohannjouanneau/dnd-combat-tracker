@@ -1,3 +1,4 @@
+import i18n from "i18next";
 import { useCallback, useRef, useState } from "react";
 import { PLAYER_WINDOW_NAME } from "../MapViewer";
 import type {
@@ -551,7 +552,7 @@ export function useMapInteraction({
   const handleBack = useCallback(() => {
     if (
       mapStateRef.current!.imageDataUrl &&
-      !window.confirm("Leave the map? The imported image will be lost.")
+      !window.confirm(i18n.t("map:confirm.leaveMap"))
     )
       return;
     location.hash = "";

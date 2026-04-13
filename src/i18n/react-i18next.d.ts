@@ -5,7 +5,8 @@ import common from "./locales/en/common.json";
 import combat from "./locales/en/combat.json";
 import forms from "./locales/en/forms.json";
 import conditions from "./locales/en/conditions.json";
-import conditions from "./locales/en/colors.json";
+import colors from "./locales/en/colors.json";
+import map from "./locales/en/map.json";
 
 declare module "react-i18next" {
   interface CustomTypeOptions {
@@ -16,6 +17,7 @@ declare module "react-i18next" {
       forms: typeof forms;
       conditions: typeof conditions;
       colors: typeof colors;
+      map: typeof map;
     };
   }
 }

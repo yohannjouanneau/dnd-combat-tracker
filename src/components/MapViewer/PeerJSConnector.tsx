@@ -1,6 +1,7 @@
 import { Copy, Loader2, Radio, Wifi, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Peer from "peerjs";
+import { useTranslation } from "react-i18next";
 import { PeerJSTransport } from "./PeerJSTransport";
 import type { MapTransport } from "./types";
 
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export default function PeerJSConnector({ onConnected, onClose }: Props) {
+  const { t } = useTranslation("map");
   const [step, setStep] = useState<Step>({ kind: "choosing" });
   const [copied, setCopied] = useState(false);
   const peerRef = useRef<InstanceType<typeof Peer> | null>(null);
@@ -43,12 +45,32 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
     onClose();
   };
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== "visible") return;
+      const peer = peerRef.current;
+      if (!peer || peer.destroyed) return;
+      if (peer.disconnected && step.kind === "dm-waiting") {
+        peer.reconnect();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [step.kind]);
+
   const startAsDM = () => {
     const peer = new Peer();
     peerRef.current = peer;
 
     peer.on("open", (id) => {
-      setStep({ kind: "dm-waiting", roomCode: id });
+      // Also fires after peer.reconnect(). Skip update only if ID is unchanged —
+      // if the server assigned a new ID, update the displayed room code.
+      setStep((prev) =>
+        prev.kind === "dm-waiting" && prev.roomCode === id
+          ? prev
+          : { kind: "dm-waiting", roomCode: id },
+      );
     });
 
     peer.on("connection", (conn) => {
@@ -63,6 +85,14 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
 
     peer.on("error", (err) => {
       setStep({ kind: "error", message: err.message });
+    });
+
+    // Silently reconnect to the signaling server when the WebSocket drops
+    // (e.g. iOS Safari backgrounding). peer.id is preserved across disconnects.
+    peer.on("disconnected", () => {
+      if (!peer.destroyed) {
+        peer.reconnect();
+      }
     });
   };
 
@@ -104,7 +134,13 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-bold text-text-primary">Connect Online</h2>
+        <h2 className="text-lg font-bold text-text-primary">
+          {t("connector.title")}
+        </h2>
+
+        <p className="text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-2">
+          {t("connector.sameNetworkWarning")}
+        </p>
 
         {step.kind === "choosing" && (
           <div className="flex flex-col gap-3">
@@ -114,9 +150,9 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
             >
               <Radio className="w-5 h-5 shrink-0" />
               <span className="text-left">
-                <p>Start as DM</p>
+                <p>{t("connector.startAsDm")}</p>
                 <p className="text-xs text-red-200 font-normal">
-                  Host the session — share a room code
+                  {t("connector.startAsDmHint")}
                 </p>
               </span>
             </button>
@@ -126,9 +162,9 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
             >
               <Wifi className="w-5 h-5 shrink-0" />
               <span className="text-left">
-                <p>Join as Player</p>
+                <p>{t("connector.joinAsPlayer")}</p>
                 <p className="text-xs text-blue-200 font-normal">
-                  Enter the room code from the DM
+                  {t("connector.joinAsPlayerHint")}
                 </p>
               </span>
             </button>
@@ -139,11 +175,11 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-7 h-7 text-text-muted animate-spin" />
             <p className="text-text-muted text-sm">
-              Waiting for player to connect…
+              {t("connector.waitingForPlayer")}
             </p>
             <div className="w-full">
               <p className="text-xs text-text-muted mb-2 text-center">
-                Room code
+                {t("connector.roomCode")}
               </p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 bg-panel-secondary text-text-primary px-3 py-2 rounded-lg text-base font-mono tracking-widest text-center select-all">
@@ -152,14 +188,14 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
                 <button
                   onClick={() => copyRoomCode(step.roomCode)}
                   className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary p-2 rounded-lg transition"
-                  title="Copy room code"
+                  title={t("connector.copyRoomCode")}
                 >
                   <Copy className="w-4 h-4" />
                 </button>
               </div>
               {copied && (
                 <p className="text-xs text-green-400 text-center mt-1">
-                  Copied!
+                  {t("connector.copied")}
                 </p>
               )}
             </div>
@@ -167,7 +203,7 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
               onClick={reset}
               className="text-xs text-text-muted hover:text-text-primary transition"
             >
-              Cancel
+              {t("connector.cancel")}
             </button>
           </div>
         )}
@@ -180,7 +216,7 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
               onChange={(e) =>
                 setStep({ kind: "player-ready", input: e.target.value })
               }
-              placeholder="Paste room code from DM…"
+              placeholder={t("connector.roomCodePlaceholder")}
               disabled={step.kind === "connecting"}
               className="bg-panel-secondary text-text-primary px-3 py-2 rounded-lg font-mono text-center tracking-widest border border-border-primary focus:outline-none focus:border-blue-500 disabled:opacity-50"
               onKeyDown={(e) => {
@@ -204,13 +240,15 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
               {step.kind === "connecting" && (
                 <Loader2 className="w-4 h-4 animate-spin" />
               )}
-              {step.kind === "connecting" ? "Connecting…" : "Connect"}
+              {step.kind === "connecting"
+                ? t("connector.connecting")
+                : t("connector.connect")}
             </button>
             <button
               onClick={reset}
               className="text-xs text-text-muted hover:text-text-primary transition text-center"
             >
-              Cancel
+              {t("connector.cancel")}
             </button>
           </div>
         )}
@@ -218,7 +256,7 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
         {step.kind === "error" && (
           <div className="flex flex-col items-center gap-3">
             <p className="text-red-400 font-semibold text-sm">
-              Connection failed
+              {t("connector.connectionFailed")}
             </p>
             <p className="text-text-muted text-xs text-center">
               {step.message}
@@ -227,7 +265,7 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
               onClick={reset}
               className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary px-4 py-2 rounded-lg transition text-sm"
             >
-              Try again
+              {t("connector.tryAgain")}
             </button>
           </div>
         )}

@@ -1,0 +1,69 @@
+{
+  "toolbar": {
+    "back": "Retour",
+    "dmView": "Vue MJ",
+    "playerView": "Vue Joueur",
+    "pointerTool": "Outil pointeur — cliquez pour signaler un emplacement",
+    "importMap": "Importer la carte",
+    "visibility": "Visibilité",
+    "undo": "Annuler",
+    "redo": "Rétablir",
+    "resetFog": "Réinitialiser le brouillard",
+    "resetFogTitle": "Réinitialiser tout le brouillard",
+    "tokens": "Pions",
+    "manageTokens": "Gérer les pions",
+    "local": "Local",
+    "openPlayerView": "Ouvrir la vue joueur",
+    "online": "En ligne",
+    "connectOnline": "Connexion en ligne",
+    "connectOnlineTitle": "Se connecter en ligne via PeerJS"
+  },
+  "overlay": {
+    "waitingForDm": "En attente du MJ…",
+    "waitingForDmHint": "Assurez-vous que l'onglet du MJ est ouvert",
+    "importMapHint": "Importez une carte pour commencer",
+    "connectionLost": "Connexion perdue",
+    "reconnect": "Reconnecter",
+    "dismiss": "Ignorer"
+  },
+  "confirm": {
+    "leaveMap": "Quitter la carte ? L'image importée sera perdue."
+  },
+  "connector": {
+    "title": "Connexion en ligne",
+    "sameNetworkWarning": "Tous les appareils doivent être sur le même réseau Wi-Fi.",
+    "startAsDm": "Démarrer en tant que MJ",
+    "startAsDmHint": "Héberger la session — partager un code de salle",
+    "joinAsPlayer": "Rejoindre en tant que Joueur",
+    "joinAsPlayerHint": "Entrez le code de salle du MJ",
+    "waitingForPlayer": "En attente d'un joueur…",
+    "roomCode": "Code de salle",
+    "copyRoomCode": "Copier le code de salle",
+    "copied": "Copié !",
+    "cancel": "Annuler",
+    "roomCodePlaceholder": "Collez le code de salle du MJ…",
+    "connect": "Connecter",
+    "connecting": "Connexion…",
+    "connectionFailed": "Connexion échouée",
+    "tryAgain": "Réessayer"
+  },
+  "token": {
+    "playerToken": "Pion du Joueur",
+    "token": "Pion",
+    "hiddenTitle": "Caché — cliquez pour révéler",
+    "visibleTitle": "Visible — cliquez pour masquer",
+    "deleteTitle": "Supprimer le pion",
+    "addToken": "Ajouter un pion",
+    "edit": "Modifier : {{name}}",
+    "label": "Étiquette",
+    "labelPlaceholder": "ex. Gobelin 1",
+    "color": "Couleur",
+    "image": "Image",
+    "upload": "Télécharger",
+    "clear": "Effacer",
+    "imagePreviewAlt": "Aperçu du pion",
+    "size": "Taille",
+    "revealsFog": "Révèle le brouillard",
+    "modalTitle": "Pions"
+  }
+}

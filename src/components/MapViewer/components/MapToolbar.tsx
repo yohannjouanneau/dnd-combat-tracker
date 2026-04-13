@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   CircleUser,
   MapPin,
   RotateCcw,
@@ -6,15 +7,14 @@ import {
   Upload,
   Wifi,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
-  // Section 1 — nav & status
   view: "dm" | "player";
   cameraScale: number;
   isPointerMode: boolean;
   onTogglePointerMode: () => void;
   onBack: () => void;
-  // Section 2 — fog controls (DM only)
   revealRadius: number;
   onRevealRadiusChange: (r: number) => void;
   canUndo: boolean;
@@ -24,10 +24,8 @@ interface Props {
   canResetFog: boolean;
   onResetFog: () => void;
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  // Section 3 — tokens (DM only)
   tokenCount: number;
   onOpenTokenModal: () => void;
-  // Section 4 — sync (DM only)
   onOpenPlayerView: () => void;
   onOpenPeerModal: () => void;
 }
@@ -52,15 +50,19 @@ export default function MapToolbar({
   onOpenPlayerView,
   onOpenPeerModal,
 }: Props) {
+  const { t } = useTranslation("map");
+
   return (
     <div className="absolute top-3 left-3 z-10 flex items-center gap-1 flex-wrap">
       {/* Section 1 — navigation & status */}
       <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
         <button
           onClick={onBack}
-          className="hover:text-text-primary text-text-muted px-2 py-0.5 rounded text-sm transition"
+          className="hover:text-text-primary text-text-muted px-2 py-0.5 rounded text-sm transition flex items-center gap-1.5"
+          title={t("toolbar.back")}
         >
-          ← Back
+          <ArrowLeft className="w-4 h-4" />
+          {t("toolbar.back")}
         </button>
         <span className="w-px h-4 bg-border-primary mx-1" />
         <span
@@ -68,7 +70,7 @@ export default function MapToolbar({
             view === "dm" ? "bg-red-600 text-white" : "bg-blue-600 text-white"
           }`}
         >
-          {view === "dm" ? "DM View" : "Player View"}
+          {view === "dm" ? t("toolbar.dmView") : t("toolbar.playerView")}
         </span>
         <span className="text-text-muted text-xs tabular-nums ml-1">
           {Math.round(cameraScale * 100)}%
@@ -81,7 +83,7 @@ export default function MapToolbar({
               ? "bg-amber-500 text-white"
               : "text-text-muted hover:text-text-primary"
           }`}
-          title="Pointer tool — click to ping a location"
+          title={t("toolbar.pointerTool")}
         >
           <MapPin className="w-4 h-4" />
         </button>
@@ -93,7 +95,7 @@ export default function MapToolbar({
           <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
             <label className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm cursor-pointer transition flex items-center gap-1.5">
               <Upload className="w-4 h-4" />
-              Import Map
+              {t("toolbar.importMap")}
               <input
                 type="file"
                 accept="image/*"
@@ -104,7 +106,7 @@ export default function MapToolbar({
             <span className="w-px h-4 bg-border-primary mx-0.5" />
             <label className="text-text-primary px-2 py-1 rounded text-sm flex items-center gap-2">
               <span className="whitespace-nowrap text-text-muted text-xs">
-                Visibility
+                {t("toolbar.visibility")}
               </span>
               <input
                 type="range"
@@ -123,28 +125,28 @@ export default function MapToolbar({
               onClick={onUndo}
               disabled={!canUndo}
               className="hover:bg-panel-secondary disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
-              title="Undo"
+              title={t("toolbar.undo")}
             >
               <RotateCcw className="w-4 h-4" />
-              Undo
+              {t("toolbar.undo")}
             </button>
             <button
               onClick={onRedo}
               disabled={!canRedo}
               className="hover:bg-panel-secondary disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
-              title="Redo"
+              title={t("toolbar.redo")}
             >
               <RotateCcw className="w-4 h-4 scale-x-[-1]" />
-              Redo
+              {t("toolbar.redo")}
             </button>
             <button
               onClick={onResetFog}
               disabled={!canResetFog}
               className="hover:bg-panel-secondary disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
-              title="Reset all fog"
+              title={t("toolbar.resetFogTitle")}
             >
               <Trash2 className="w-4 h-4" />
-              Reset Fog
+              {t("toolbar.resetFog")}
             </button>
           </div>
 
@@ -153,10 +155,10 @@ export default function MapToolbar({
             <button
               onClick={onOpenTokenModal}
               className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
-              title="Manage tokens"
+              title={t("toolbar.manageTokens")}
             >
               <CircleUser className="w-4 h-4" />
-              Tokens
+              {t("toolbar.tokens")}
               <span className="text-xs text-text-muted tabular-nums">
                 {tokenCount}
               </span>
@@ -166,25 +168,25 @@ export default function MapToolbar({
           {/* Section 4 — sync */}
           <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
             <span className="text-xs text-text-muted px-1 select-none">
-              Local
+              {t("toolbar.local")}
             </span>
             <button
               onClick={onOpenPlayerView}
               className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm transition"
             >
-              Open Player View
+              {t("toolbar.openPlayerView")}
             </button>
             <span className="w-px h-4 bg-border-primary mx-1" />
             <span className="text-xs text-text-muted px-1 select-none">
-              Online
+              {t("toolbar.online")}
             </span>
             <button
               onClick={onOpenPeerModal}
               className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
-              title="Connect online via PeerJS"
+              title={t("toolbar.connectOnlineTitle")}
             >
               <Wifi className="w-4 h-4" />
-              Connect Online
+              {t("toolbar.connectOnline")}
             </button>
           </div>
         </>
