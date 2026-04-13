@@ -36,6 +36,18 @@ export type MapMessage =
   | { type: "FULL_STATE_RESPONSE"; state: MapState }
   | { type: "POINTER_PING"; x: number; y: number };
 
+export interface HistoryEntry {
+  tokens: Token[];
+  revealedZones: RevealedZone[];
+}
+
+export interface PingEntry {
+  id: number;
+  x: number;
+  y: number;
+  startedAt: number;
+}
+
 // Transport abstraction — swap BroadcastChannel for WebRTC/PeerJS without touching MapViewer
 export interface MapTransport {
   send(msg: MapMessage): void;

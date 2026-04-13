@@ -6,13 +6,13 @@ MapViewer is a canvas-based fog-of-war map viewer for D&D sessions. It supports 
 
 ## Files
 
-| File | Role |
-|---|---|
-| `MapViewer.tsx` | Main component — state, interaction, rendering |
-| `types.ts` | Shared types: `Token`, `MapState`, `MapMessage`, `MapTransport`, `Camera`, `RevealedZone` |
-| `transport.ts` | `BroadcastChannelTransport` — same-origin local sync |
-| `PeerJSTransport.ts` | `PeerJSTransport` — WebRTC peer-to-peer sync |
-| `PeerJSConnector.tsx` | UI for establishing a PeerJS connection (room code flow) |
+| File                  | Role                                                                                      |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| `MapViewer.tsx`       | Main component — state, interaction, rendering                                            |
+| `types.ts`            | Shared types: `Token`, `MapState`, `MapMessage`, `MapTransport`, `Camera`, `RevealedZone` |
+| `transport.ts`        | `BroadcastChannelTransport` — same-origin local sync                                      |
+| `PeerJSTransport.ts`  | `PeerJSTransport` — WebRTC peer-to-peer sync                                              |
+| `PeerJSConnector.tsx` | UI for establishing a PeerJS connection (room code flow)                                  |
 
 ---
 
@@ -24,8 +24,8 @@ The single source of truth for what is on the map:
 
 ```ts
 interface MapState {
-  imageDataUrl: string | null;   // the background map image (data URL)
-  tokens: Token[];               // all tokens (enemies, party, NPCs)
+  imageDataUrl: string | null; // the background map image (data URL)
+  tokens: Token[]; // all tokens (enemies, party, NPCs)
   revealedZones: RevealedZone[]; // permanent fog holes (accumulated on token drop)
 }
 ```
@@ -36,21 +36,26 @@ interface MapState {
 
 ```ts
 interface Token {
-  id: string;           // stable ID — "player" for the party token
-  x: number; y: number; // world-space position
-  radius: number;       // display radius in world pixels
-  color: string;        // fill color when no image
-  imageDataUrl?: string;// circular portrait (data URL)
-  label?: string;       // text shown below the token
-  hidden: boolean;      // DM-only until revealed; player view skips hidden tokens
-  revealsFog: boolean;  // moving this token clears fog on drop
+  id: string; // stable ID — "player" for the party token
+  x: number;
+  y: number; // world-space position
+  radius: number; // display radius in world pixels
+  color: string; // fill color when no image
+  imageDataUrl?: string; // circular portrait (data URL)
+  label?: string; // text shown below the token
+  hidden: boolean; // DM-only until revealed; player view skips hidden tokens
+  revealsFog: boolean; // moving this token clears fog on drop
 }
 ```
 
 ### `Camera`
 
 ```ts
-interface Camera { x: number; y: number; scale: number; }
+interface Camera {
+  x: number;
+  y: number;
+  scale: number;
+}
 ```
 
 Transforms world coordinates to screen: `screen = world * scale + (x, y)`. `screenToWorld` inverts this.
@@ -98,17 +103,18 @@ A single `requestAnimationFrame` loop runs for the lifetime of the component. It
 
 All pointer/touch events are routed through three canonical helpers:
 
-| Helper | Trigger |
-|---|---|
-| `startPointerInteraction(sx, sy, clientX, clientY)` | mousedown / touchstart |
-| `updatePointerInteraction(sx, sy, clientX, clientY)` | mousemove / touchmove |
-| `endInteraction(sx?, sy?)` | mouseup / touchend / mouseleave |
+| Helper                                               | Trigger                         |
+| ---------------------------------------------------- | ------------------------------- |
+| `startPointerInteraction(sx, sy, clientX, clientY)`  | mousedown / touchstart          |
+| `updatePointerInteraction(sx, sy, clientX, clientY)` | mousemove / touchmove           |
+| `endInteraction(sx?, sy?)`                           | mouseup / touchend / mouseleave |
 
 ### Token drag (DM only)
 
 On `startPointerInteraction`, the DM view finds the nearest token within `radius × 1.5`. If found, `draggingTokenIdRef` is set to its ID and `draggingTokenPosRef` tracks the live world position.
 
 On `endInteraction`:
+
 - The dragged token's `x/y` is committed to `mapState`.
 - If `token.revealsFog`, a new `RevealedZone` at the drop position is appended to `revealedZones`.
 - A history snapshot is pushed.
@@ -134,7 +140,7 @@ Toggle button switches `isPointerMode`. In pointer mode, press+release with < 6 
 interface MapTransport {
   send(msg: MapMessage): void;
   onMessage(handler: (msg: MapMessage) => void): () => void; // returns unsubscribe
-  onClose(handler: () => void): () => void;                  // returns unsubscribe
+  onClose(handler: () => void): () => void; // returns unsubscribe
   close(): void;
 }
 ```
@@ -153,10 +159,10 @@ Used for **online** play across devices. Wraps a PeerJS `DataConnection`. `close
 
 ```ts
 type MapMessage =
-  | { type: "TOKENS_UPDATED"; tokens: Token[] }    // full token array after any change
+  | { type: "TOKENS_UPDATED"; tokens: Token[] } // full token array after any change
   | { type: "FOG_UPDATED"; revealedZones: RevealedZone[] }
   | { type: "MAP_LOADED"; imageDataUrl: string }
-  | { type: "REQUEST_FULL_STATE" }                 // player → DM on connect
+  | { type: "REQUEST_FULL_STATE" } // player → DM on connect
   | { type: "FULL_STATE_RESPONSE"; state: MapState } // DM → player
   | { type: "POINTER_PING"; x: number; y: number };
 ```
@@ -188,12 +194,12 @@ DM tab                        PeerJS server                  Player tab
 
 ## DM vs Player rendering
 
-| Concern | DM | Player |
-|---|---|---|
-| `synced` initial value | `true` | `false` (shows spinner until first message) |
-| Hidden tokens | Rendered at 50% alpha, amber dashed stroke | Filtered out entirely |
-| Fog opacity | 40% (can see through) | 100% (fully opaque) |
-| Interaction | Full drag + all toolbar controls | Pan / pinch / zoom only |
-| Token management modal | Visible | Hidden |
+| Concern                | DM                                         | Player                                      |
+| ---------------------- | ------------------------------------------ | ------------------------------------------- |
+| `synced` initial value | `true`                                     | `false` (shows spinner until first message) |
+| Hidden tokens          | Rendered at 50% alpha, amber dashed stroke | Filtered out entirely                       |
+| Fog opacity            | 40% (can see through)                      | 100% (fully opaque)                         |
+| Interaction            | Full drag + all toolbar controls           | Pan / pinch / zoom only                     |
+| Token management modal | Visible                                    | Hidden                                      |
 
 The "Waiting for DM" overlay appears when `view === "player" && !synced`. `synced` is set to `true` on **any** incoming message (not just `FULL_STATE_RESPONSE`) to handle a race where `REQUEST_FULL_STATE` is sent between the DM's effect cleanup and re-subscription.
