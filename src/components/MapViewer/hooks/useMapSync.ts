@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BroadcastChannelTransport } from "../transport";
+import { BroadcastChannelTransport } from "../BroadcastChannelTransport";
 import type { MapMessage, MapState, MapTransport, PingEntry } from "../types";
 
 interface Params {
