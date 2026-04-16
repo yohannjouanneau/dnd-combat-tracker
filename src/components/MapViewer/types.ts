@@ -5,6 +5,7 @@ export interface Token {
   radius: number;
   color: string;
   imageDataUrl?: string;
+  portraitDataUrl?: string;
   label?: string;
   hidden: boolean;
   revealsFog: boolean;

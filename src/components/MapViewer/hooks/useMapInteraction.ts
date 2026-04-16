@@ -37,6 +37,7 @@ interface Params {
   setUndoStack: React.Dispatch<React.SetStateAction<HistoryEntry[]>>;
   setRedoStack: React.Dispatch<React.SetStateAction<HistoryEntry[]>>;
   setSelectedTokenId: React.Dispatch<React.SetStateAction<string | null>>;
+  onTokenTap: (tokenId: string) => void;
 }
 
 export function useMapInteraction({
@@ -54,10 +55,15 @@ export function useMapInteraction({
   setUndoStack,
   setRedoStack,
   setSelectedTokenId,
+  onTokenTap,
 }: Params) {
   // Owned refs — internal to interaction logic
   const draggingTokenIdRef = useRef<string | null>(null);
   const draggingTokenPosRef = useRef<{ x: number; y: number } | null>(null);
+  const tokenDragStartScreenRef = useRef<{ sx: number; sy: number } | null>(
+    null,
+  );
+  const tapTokenIdRef = useRef<string | null>(null);
   const isPanningRef = useRef(false);
   const lastPanPosRef = useRef({ x: 0, y: 0 });
   const pointerDownScreenRef = useRef<{ sx: number; sy: number } | null>(null);
@@ -94,19 +100,23 @@ export function useMapInteraction({
         lastPanPosRef.current = { x: clientX, y: clientY };
         return;
       }
-      if (view === "dm") {
-        const world = screenToWorld(sx, sy, cameraRef.current!);
-        const { tokens } = mapStateRef.current!;
-        let closest: Token | null = null;
-        let closestDist = Infinity;
-        for (const token of tokens) {
-          const d = Math.hypot(world.x - token.x, world.y - token.y);
-          if (d <= token.radius * 1.5 && d < closestDist) {
-            closestDist = d;
-            closest = token;
-          }
+      const world = screenToWorld(sx, sy, cameraRef.current!);
+      const { tokens } = mapStateRef.current!;
+      const visibleTokens =
+        view === "player" ? tokens.filter((t) => !t.hidden) : tokens;
+      let closest: Token | null = null;
+      let closestDist = Infinity;
+      for (const token of visibleTokens) {
+        const d = Math.hypot(world.x - token.x, world.y - token.y);
+        if (d <= token.radius * 1.5 && d < closestDist) {
+          closestDist = d;
+          closest = token;
         }
-        if (closest) {
+      }
+      if (closest) {
+        tapTokenIdRef.current = closest.id;
+        tokenDragStartScreenRef.current = { sx, sy };
+        if (view === "dm") {
           draggingTokenIdRef.current = closest.id;
           draggingTokenPosRef.current = { x: closest.x, y: closest.y };
           return;
@@ -148,6 +158,24 @@ export function useMapInteraction({
         return;
       }
       pointerDownScreenRef.current = null;
+
+      const tapTokenId = tapTokenIdRef.current;
+      const dragStart = tokenDragStartScreenRef.current;
+      tapTokenIdRef.current = null;
+      tokenDragStartScreenRef.current = null;
+      if (
+        tapTokenId &&
+        dragStart &&
+        sx !== undefined &&
+        sy !== undefined &&
+        Math.hypot(sx - dragStart.sx, sy - dragStart.sy) < 6
+      ) {
+        draggingTokenIdRef.current = null;
+        draggingTokenPosRef.current = null;
+        isPanningRef.current = false;
+        onTokenTap(tapTokenId);
+        return;
+      }
 
       if (draggingTokenIdRef.current !== null) {
         const tokenId = draggingTokenIdRef.current;
@@ -200,6 +228,7 @@ export function useMapInteraction({
     },
     [
       emitPing,
+      onTokenTap,
       mapStateRef,
       revealRadiusRef,
       transportRef,

@@ -214,6 +214,54 @@ export default function TokenModal({
               )}
             </div>
 
+            {/* Portrait */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs text-text-muted">
+                {t("token.portrait")}
+              </span>
+              <div className="flex items-center gap-2">
+                <label className="flex-1 bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary px-3 py-1.5 rounded text-xs cursor-pointer transition text-center">
+                  {t("token.upload")}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        onUpdateToken(selectedToken.id, {
+                          portraitDataUrl: ev.target?.result as string,
+                        });
+                      };
+                      reader.readAsDataURL(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                {selectedToken.portraitDataUrl && (
+                  <button
+                    onClick={() =>
+                      onUpdateToken(selectedToken.id, {
+                        portraitDataUrl: undefined,
+                      })
+                    }
+                    className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-muted hover:text-text-primary px-3 py-1.5 rounded text-xs transition"
+                  >
+                    {t("token.clear")}
+                  </button>
+                )}
+              </div>
+              {selectedToken.portraitDataUrl && (
+                <img
+                  src={selectedToken.portraitDataUrl}
+                  className="rounded-lg max-h-40 object-contain border border-border-primary mx-auto"
+                  alt={t("token.portrait")}
+                />
+              )}
+            </div>
+
             {/* Size */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PeerJSConnector from "./PeerJSConnector";
 import MapToolbar from "./components/MapToolbar";
@@ -47,6 +48,9 @@ export default function MapViewer() {
   const [revealRadius, setRevealRadius] = useState(80);
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
+  const [portraitViewTokenId, setPortraitViewTokenId] = useState<string | null>(
+    null,
+  );
 
   // Shared refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -120,6 +124,10 @@ export default function MapViewer() {
     setUndoStack,
     setRedoStack,
     setSelectedTokenId,
+    onTokenTap: useCallback((tokenId: string) => {
+      const token = mapStateRef.current!.tokens.find((t) => t.id === tokenId);
+      if (token?.portraitDataUrl) setPortraitViewTokenId(tokenId);
+    }, []),
   });
 
   useMapRenderer({
@@ -136,6 +144,10 @@ export default function MapViewer() {
   });
 
   const { t } = useTranslation("map");
+
+  const portraitToken = portraitViewTokenId
+    ? (mapState.tokens.find((t) => t.id === portraitViewTokenId) ?? null)
+    : null;
 
   const cursorStyle = isPointerMode
     ? "crosshair"
@@ -240,6 +252,26 @@ export default function MapViewer() {
           <p className="text-white/30 text-lg select-none">
             {t("overlay.importMapHint")}
           </p>
+        </div>
+      )}
+
+      {portraitToken?.portraitDataUrl && (
+        <div
+          className="absolute inset-0 z-40 bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setPortraitViewTokenId(null)}
+        >
+          <button
+            onClick={() => setPortraitViewTokenId(null)}
+            className="absolute top-4 right-4 text-white/70 hover:text-white transition"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            src={portraitToken.portraitDataUrl}
+            alt={portraitToken.label ?? ""}
+            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
 
