@@ -5,6 +5,7 @@ import CombatsPage from "./pages/CombatsPage";
 import CampaignListPage from "./pages/CampaignListPage";
 import CampaignDetailPage from "./pages/CampaignDetailPage";
 import LandingPage from "./pages/LandingPage";
+import MapViewer from "./components/MapViewer/MapViewer";
 import { useCombatState } from "./store/state";
 
 function App() {
@@ -61,6 +62,11 @@ function App() {
   const openCampaign = (id: string) => {
     location.hash = `#campaigns/${id}`;
   };
+
+  // Map viewer
+  if (route === "#map") {
+    return <MapViewer />;
+  }
 
   // Campaign detail page
   const campaignDetailMatch = route.match(/^#campaigns\/([a-zA-Z0-9]+)$/);
@@ -128,6 +134,9 @@ function App() {
       }}
       onOpenCampaigns={() => {
         location.hash = "#campaigns";
+      }}
+      onOpenMap={() => {
+        location.hash = "#map";
       }}
       onOpenCombat={openCombat}
       onOpenCampaign={openCampaign}

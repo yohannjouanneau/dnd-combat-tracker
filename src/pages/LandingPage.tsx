@@ -1,4 +1,12 @@
-import { Leaf, Map, Moon, Settings, Sun, Swords } from "lucide-react";
+import {
+  Crosshair,
+  Leaf,
+  Map,
+  Moon,
+  Settings,
+  Sun,
+  Swords,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.png";
@@ -22,6 +30,7 @@ function formatRelativeTime(ts: number): string {
 type Props = {
   onOpenCombats: () => void;
   onOpenCampaigns: () => void;
+  onOpenMap: () => void;
   onOpenCombat: (id: string) => void;
   onOpenCampaign: (id: string) => void;
   syncApi: SyncApi;
@@ -31,6 +40,7 @@ type Props = {
 export default function LandingPage({
   onOpenCombats,
   onOpenCampaigns,
+  onOpenMap,
   onOpenCombat,
   onOpenCampaign,
   syncApi,
@@ -99,7 +109,7 @@ export default function LandingPage({
         D&D Combat Tracker
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
         {/* Combat Tracker panel */}
         <div className="bg-panel-bg border border-border-primary rounded-xl p-6 flex flex-col gap-4 hover:border-border-secondary transition">
           <div className="flex items-center gap-3">
@@ -143,11 +153,33 @@ export default function LandingPage({
             {t("common:landing.campaignButton")}
           </button>
         </div>
+
+        {/* Map Viewer panel */}
+        <div className="bg-panel-bg border border-border-primary rounded-xl p-6 flex flex-col gap-4 hover:border-border-secondary transition">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-lg bg-blue-600/20">
+              <Crosshair className="w-7 h-7 text-blue-400" />
+            </div>
+            <h2 className="text-xl font-bold text-text-primary">
+              {t("common:landing.mapTitle")}
+            </h2>
+          </div>
+          <p className="text-text-muted text-sm flex-1">
+            {t("common:landing.mapDescription")}
+          </p>
+          <button
+            onClick={onOpenMap}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition font-semibold flex items-center justify-center gap-2"
+          >
+            <Crosshair className="w-5 h-5" />
+            {t("common:landing.mapButton")}
+          </button>
+        </div>
       </div>
 
       {/* Continue your adventures */}
       {hasRecent && (
-        <div className="w-full max-w-3xl bg-panel-bg border border-border-primary rounded-xl p-6 flex flex-col gap-4">
+        <div className="w-full max-w-4xl bg-panel-bg border border-border-primary rounded-xl p-6 flex flex-col gap-4">
           <h2 className="text-lg font-bold text-text-primary">
             {t("common:landing.continueTitle")}
           </h2>

@@ -1,0 +1,70 @@
+{
+  "toolbar": {
+    "back": "Back",
+    "dmView": "DM View",
+    "playerView": "Player View",
+    "pointerTool": "Pointer tool — click to ping a location",
+    "importMap": "Import Map",
+    "visibility": "Visibility",
+    "undo": "Undo",
+    "redo": "Redo",
+    "resetFog": "Reset Fog",
+    "resetFogTitle": "Reset all fog",
+    "tokens": "Tokens",
+    "manageTokens": "Manage tokens",
+    "local": "Local",
+    "openPlayerView": "Open Player View",
+    "online": "Online",
+    "connectOnline": "Connect Online",
+    "connectOnlineTitle": "Connect online via PeerJS"
+  },
+  "overlay": {
+    "waitingForDm": "Waiting for DM…",
+    "waitingForDmHint": "Make sure the DM tab is open",
+    "importMapHint": "Import a map to get started",
+    "connectionLost": "Connection lost",
+    "reconnect": "Reconnect",
+    "dismiss": "Dismiss"
+  },
+  "confirm": {
+    "leaveMap": "Leave the map? The imported image will be lost."
+  },
+  "connector": {
+    "title": "Connect Online",
+    "sameNetworkWarning": "All devices must be on the same Wi-Fi network.",
+    "startAsDm": "Start as DM",
+    "startAsDmHint": "Host the session — share a room code",
+    "joinAsPlayer": "Join as Player",
+    "joinAsPlayerHint": "Enter the room code from the DM",
+    "waitingForPlayer": "Waiting for player to connect…",
+    "roomCode": "Room code",
+    "copyRoomCode": "Copy room code",
+    "copied": "Copied!",
+    "cancel": "Cancel",
+    "roomCodePlaceholder": "Paste room code from DM…",
+    "connect": "Connect",
+    "connecting": "Connecting…",
+    "connectionFailed": "Connection failed",
+    "tryAgain": "Try again"
+  },
+  "token": {
+    "playerToken": "Player Token",
+    "token": "Token",
+    "hiddenTitle": "Hidden — click to reveal",
+    "visibleTitle": "Visible — click to hide",
+    "deleteTitle": "Delete token",
+    "addToken": "Add Token",
+    "edit": "Edit: {{name}}",
+    "label": "Label",
+    "labelPlaceholder": "e.g. Goblin 1",
+    "color": "Color",
+    "image": "Image",
+    "upload": "Upload",
+    "clear": "Clear",
+    "imagePreviewAlt": "Token preview",
+    "size": "Size",
+    "revealsFog": "Reveals fog",
+    "portrait": "Portrait",
+    "modalTitle": "Tokens"
+  }
+}

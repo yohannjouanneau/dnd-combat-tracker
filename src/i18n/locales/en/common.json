@@ -29,7 +29,10 @@
     "campaignTitle": "Campaign Manager",
     "campaignDescription": "Organise your world into building blocks — environments, rooms, NPCs, and encounters. Structure your entire campaign.",
     "campaignButton": "Open Campaigns",
-    "continueTitle": "Continue your adventures"
+    "continueTitle": "Continue your adventures",
+    "mapTitle": "Map Viewer",
+    "mapDescription": "Display a tactical battle map with fog of war. Move the party token to reveal areas. Open a player view in a second tab to sync in real time.",
+    "mapButton": "Open Map Viewer"
   },
   "noData": "No data available",
   "error": "An error occurred",

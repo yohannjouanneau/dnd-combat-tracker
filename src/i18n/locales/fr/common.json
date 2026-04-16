@@ -29,7 +29,10 @@
     "campaignTitle": "Gestionnaire de campagne",
     "campaignDescription": "Organisez votre monde en blocs de construction — environnements, salles, PNJ et rencontres. Structurez toute votre campagne.",
     "campaignButton": "Ouvrir les campagnes",
-    "continueTitle": "Continuez vos aventures"
+    "continueTitle": "Continuez vos aventures",
+    "mapTitle": "Visualiseur de carte",
+    "mapDescription": "Affichez une carte de combat tactique avec brouillard de guerre. Déplacez le jeton du groupe pour révéler les zones. Ouvrez une vue joueur dans un second onglet pour synchroniser en temps réel.",
+    "mapButton": "Ouvrir le visualiseur"
   },
   "noData": "Aucune donnée disponible",
   "error": "Une erreur s'est produite",
