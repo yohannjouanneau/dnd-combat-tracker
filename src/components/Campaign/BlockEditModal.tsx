@@ -522,6 +522,7 @@ export default function BlockEditModal({
                 ))}
                 <input
                   type="text"
+                  enterKeyHint="done"
                   value={tagDraft}
                   placeholder={
                     (formData.tags ?? []).length === 0
@@ -544,6 +545,15 @@ export default function BlockEditModal({
                   }}
                   className="flex-1 min-w-24 bg-transparent text-sm text-text-primary outline-none"
                 />
+                {tagDraft.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => addTag(tagDraft)}
+                    className="text-text-muted hover:text-text-primary transition"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                )}
               </div>
               {(() => {
                 const suggestions = allTags.filter(
