@@ -12,6 +12,7 @@ interface Params {
   setMapState: React.Dispatch<React.SetStateAction<MapState>>;
   setPeerTransport: React.Dispatch<React.SetStateAction<MapTransport | null>>;
   setPeerDisconnected: React.Dispatch<React.SetStateAction<boolean>>;
+  onCenterCamera: (x: number, y: number) => void;
 }
 
 export function useMapSync({
@@ -24,6 +25,7 @@ export function useMapSync({
   setMapState,
   setPeerTransport,
   setPeerDisconnected,
+  onCenterCamera,
 }: Params): { synced: boolean } {
   const [synced, setSynced] = useState(view === "dm");
 
@@ -66,6 +68,9 @@ export function useMapSync({
             startedAt: performance.now(),
           });
           break;
+        case "FOCUS_TOKEN":
+          if (view === "player") onCenterCamera(msg.x, msg.y);
+          break;
       }
     });
 
@@ -95,6 +100,7 @@ export function useMapSync({
     setMapState,
     setPeerTransport,
     setPeerDisconnected,
+    onCenterCamera,
   ]);
 
   return { synced };

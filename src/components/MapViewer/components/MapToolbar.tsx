@@ -1,6 +1,8 @@
 import {
   ArrowLeft,
   CircleUser,
+  Crosshair,
+  LocateFixed,
   MapPin,
   RotateCcw,
   Trash2,
@@ -14,6 +16,9 @@ interface Props {
   cameraScale: number;
   isPointerMode: boolean;
   onTogglePointerMode: () => void;
+  isFocusMode: boolean;
+  onToggleFocusMode: () => void;
+  onRecenterOnPlayer: () => void;
   onBack: () => void;
   revealRadius: number;
   onRevealRadiusChange: (r: number) => void;
@@ -35,6 +40,9 @@ export default function MapToolbar({
   cameraScale,
   isPointerMode,
   onTogglePointerMode,
+  isFocusMode,
+  onToggleFocusMode,
+  onRecenterOnPlayer,
   onBack,
   revealRadius,
   onRevealRadiusChange,
@@ -87,6 +95,28 @@ export default function MapToolbar({
         >
           <MapPin className="w-4 h-4" />
         </button>
+        {view === "player" && (
+          <button
+            onClick={onRecenterOnPlayer}
+            className="px-2 py-0.5 rounded text-sm transition flex items-center gap-1.5 text-text-muted hover:text-text-primary"
+            title={t("toolbar.recenterOnPlayer")}
+          >
+            <LocateFixed className="w-4 h-4" />
+          </button>
+        )}
+        {view === "dm" && (
+          <button
+            onClick={onToggleFocusMode}
+            className={`px-2 py-0.5 rounded text-sm transition flex items-center gap-1.5 ${
+              isFocusMode
+                ? "bg-amber-500 text-white"
+                : "text-text-muted hover:text-text-primary"
+            }`}
+            title={t("toolbar.focusTool")}
+          >
+            <Crosshair className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {view === "dm" && (

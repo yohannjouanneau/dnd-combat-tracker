@@ -35,7 +35,8 @@ export type MapMessage =
   | { type: "MAP_LOADED"; imageDataUrl: string }
   | { type: "REQUEST_FULL_STATE" }
   | { type: "FULL_STATE_RESPONSE"; state: MapState }
-  | { type: "POINTER_PING"; x: number; y: number };
+  | { type: "POINTER_PING"; x: number; y: number }
+  | { type: "FOCUS_TOKEN"; x: number; y: number };
 
 export interface HistoryEntry {
   tokens: Token[];

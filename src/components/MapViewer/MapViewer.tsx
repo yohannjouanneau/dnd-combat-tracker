@@ -1,4 +1,13 @@
 import { X } from "lucide-react";
+
+function centerCameraOn(
+  x: number,
+  y: number,
+  canvas: HTMLCanvasElement,
+  scale: number,
+) {
+  return { x: canvas.width / 2 - x * scale, y: canvas.height / 2 - y * scale };
+}
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PeerJSConnector from "./PeerJSConnector";
@@ -45,7 +54,7 @@ export default function MapViewer() {
   const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, scale: 1 });
   const [undoStack, setUndoStack] = useState<HistoryEntry[]>([]);
   const [redoStack, setRedoStack] = useState<HistoryEntry[]>([]);
-  const [revealRadius, setRevealRadius] = useState(80);
+  const [revealRadius, setRevealRadius] = useState(145);
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
   const [portraitViewTokenId, setPortraitViewTokenId] = useState<string | null>(
@@ -85,12 +94,24 @@ export default function MapViewer() {
     setMapState,
     setPeerTransport,
     setPeerDisconnected,
+    onCenterCamera: useCallback(
+      (x: number, y: number) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        setCamera((prev) => ({
+          ...prev,
+          ...centerCameraOn(x, y, canvas, prev.scale),
+        }));
+      },
+      [setCamera],
+    ),
   });
 
   const {
     draggingTokenIdRef,
     draggingTokenPosRef,
     isPointerMode,
+    isFocusMode,
     setIsPointerMode,
     handleMouseDown,
     handleMouseMove,
@@ -105,6 +126,7 @@ export default function MapViewer() {
     handleImport,
     openPlayerView,
     handleBack,
+    setIsFocusMode,
   } = useMapInteraction({
     view,
     canvasRef,
@@ -125,6 +147,9 @@ export default function MapViewer() {
       const token = mapStateRef.current!.tokens.find((t) => t.id === tokenId);
       if (token?.portraitDataUrl) setPortraitViewTokenId(tokenId);
     }, []),
+    onFocusToken: useCallback((x: number, y: number) => {
+      transportRef.current?.send({ type: "FOCUS_TOKEN", x, y });
+    }, []),
   });
 
   useMapRenderer({
@@ -139,6 +164,19 @@ export default function MapViewer() {
     revealRadiusRef,
     pingsRef,
   });
+
+  const recenterOnPlayer = useCallback(() => {
+    const tokens = mapStateRef.current!.tokens;
+    const token =
+      tokens.find((t) => t.id === "player") ?? tokens.find((t) => !t.hidden);
+    if (!token) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    setCamera((prev) => ({
+      ...prev,
+      ...centerCameraOn(token.x, token.y, canvas, prev.scale),
+    }));
+  }, [mapStateRef, setCamera]);
 
   const { t } = useTranslation("map");
 
@@ -161,6 +199,9 @@ export default function MapViewer() {
         cameraScale={camera.scale}
         isPointerMode={isPointerMode}
         onTogglePointerMode={() => setIsPointerMode((v) => !v)}
+        isFocusMode={isFocusMode}
+        onToggleFocusMode={() => setIsFocusMode((v: boolean) => !v)}
+        onRecenterOnPlayer={recenterOnPlayer}
         onBack={handleBack}
         revealRadius={revealRadius}
         onRevealRadiusChange={setRevealRadius}

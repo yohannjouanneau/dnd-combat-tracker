@@ -39,6 +39,7 @@ interface Params {
   setRedoStack: React.Dispatch<React.SetStateAction<HistoryEntry[]>>;
   setSelectedTokenId: React.Dispatch<React.SetStateAction<string | null>>;
   onTokenTap: (tokenId: string) => void;
+  onFocusToken: (x: number, y: number) => void;
 }
 
 export function useMapInteraction({
@@ -58,6 +59,7 @@ export function useMapInteraction({
   setRedoStack,
   setSelectedTokenId,
   onTokenTap,
+  onFocusToken,
 }: Params) {
   // Owned refs — internal to interaction logic
   const draggingTokenIdRef = useRef<string | null>(null);
@@ -75,6 +77,10 @@ export function useMapInteraction({
   const [isPointerMode, setIsPointerMode] = useState(false);
   const isPointerModeRef = useRef(isPointerMode);
   isPointerModeRef.current = isPointerMode;
+
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const isFocusModeRef = useRef(isFocusMode);
+  isFocusModeRef.current = isFocusMode;
 
   // --- Ping ---
 
@@ -175,6 +181,14 @@ export function useMapInteraction({
         draggingTokenIdRef.current = null;
         draggingTokenPosRef.current = null;
         isPanningRef.current = false;
+        if (isFocusModeRef.current) {
+          const token = mapStateRef.current!.tokens.find(
+            (t) => t.id === tapTokenId,
+          );
+          if (token) onFocusToken(token.x, token.y);
+          setIsFocusMode(false);
+          return;
+        }
         onTokenTap(tapTokenId);
         return;
       }
@@ -231,6 +245,7 @@ export function useMapInteraction({
     [
       emitPing,
       onTokenTap,
+      onFocusToken,
       mapStateRef,
       revealRadiusRef,
       transportRef,
@@ -617,6 +632,8 @@ export function useMapInteraction({
     draggingTokenIdRef,
     draggingTokenPosRef,
     isPointerMode,
+    isFocusMode,
+    setIsFocusMode,
     setIsPointerMode,
     handleMouseDown,
     handleMouseMove,
