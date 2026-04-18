@@ -27,6 +27,7 @@
     "connectionLost": "Connection lost",
     "reconnect": "Reconnect",
     "reconnecting": "Reconnecting…",
+    "reconnectFailed": "Reconnect failed",
     "dismiss": "Dismiss"
   },
   "confirm": {

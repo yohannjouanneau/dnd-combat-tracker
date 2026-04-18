@@ -104,6 +104,7 @@ export default function MapToolbar({
             <LocateFixed className="w-4 h-4" />
           </button>
         )}
+        <span className="w-px h-4 bg-border-primary mx-1" />
         {view === "dm" && (
           <button
             onClick={onToggleFocusMode}

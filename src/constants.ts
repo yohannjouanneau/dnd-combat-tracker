@@ -89,6 +89,7 @@ export const SETTINGS_STORAGE_KEY = "dnd-ct:settings:v1";
 export const BUILDING_BLOCK_STORAGE_KEY = "dnd-ct:blocks:v1";
 export const CAMPAIGN_STORAGE_KEY = "dnd-ct:campaigns:v1";
 export const BLOCK_TYPE_STORAGE_KEY = "dnd-ct:block-types:v1";
+export const MAP_ROOM_CODE_STORAGE_KEY = "dnd-ct:map-room-code";
 
 export const BUILT_IN_BLOCK_TYPES: BlockTypeDef[] = [
   {

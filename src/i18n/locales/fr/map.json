@@ -27,6 +27,7 @@
     "connectionLost": "Connexion perdue",
     "reconnect": "Reconnecter",
     "reconnecting": "Reconnexion…",
+    "reconnectFailed": "Reconnexion échouée",
     "dismiss": "Ignorer"
   },
   "confirm": {

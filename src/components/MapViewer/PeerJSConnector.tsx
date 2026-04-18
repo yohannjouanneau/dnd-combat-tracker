@@ -67,13 +67,6 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
     const peer = new Peer();
     peerRef.current = peer;
 
-    peer.on("disconnected", () => {
-      console.log(`DEBUG ==> [DM] peer "disconnected" event (signaling server lost)`);
-    });
-    peer.on("close", () => {
-      console.log(`DEBUG ==> [DM] peer "close" event (peer destroyed)`);
-    });
-
     peer.on("open", (id) => {
       // Also fires after peer.reconnect(). Skip update only if ID is unchanged —
       // if the server assigned a new ID, update the displayed room code.
@@ -112,28 +105,18 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
     const peer = new Peer();
     peerRef.current = peer;
 
-    peer.on("open", (id) => {
-      console.log(`DEBUG ==> [Player] peer "open", peerId=${id}, connecting to room=${roomCode.trim()}`);
+    peer.on("open", () => {
       const conn = peer.connect(roomCode.trim());
       conn.on("open", () => {
-        console.log(`DEBUG ==> [Player] conn "open" — connected to DM`);
         connectedRef.current = true;
         onConnected(new PeerJSTransport(conn), "player", roomCode.trim());
       });
       conn.on("error", (err) => {
-        console.log(`DEBUG ==> [Player] conn "error":`, err);
         setStep({ kind: "error", message: err.message });
       });
     });
 
-    peer.on("disconnected", () => {
-      console.log(`DEBUG ==> [Player] peer "disconnected" event (signaling server lost)`);
-    });
-    peer.on("close", () => {
-      console.log(`DEBUG ==> [Player] peer "close" event (peer destroyed)`);
-    });
     peer.on("error", (err) => {
-      console.log(`DEBUG ==> [Player] peer "error":`, err);
       setStep({ kind: "error", message: err.message });
     });
   };
