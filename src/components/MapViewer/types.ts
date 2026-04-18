@@ -55,5 +55,6 @@ export interface MapTransport {
   send(msg: MapMessage): void;
   onMessage(handler: (msg: MapMessage) => void): () => void; // returns unsubscribe fn
   onClose(handler: () => void): () => void; // returns unsubscribe fn
+  isConnected(): boolean;
   close(): void;
 }

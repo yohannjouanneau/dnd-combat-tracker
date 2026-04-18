@@ -26,6 +26,7 @@
     "importMapHint": "Import a map to get started",
     "connectionLost": "Connection lost",
     "reconnect": "Reconnect",
+    "reconnecting": "Reconnecting…",
     "dismiss": "Dismiss"
   },
   "confirm": {

@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 
 function centerCameraOn(
   x: number,
@@ -8,9 +8,11 @@ function centerCameraOn(
 ) {
   return { x: canvas.width / 2 - x * scale, y: canvas.height / 2 - y * scale };
 }
+import Peer from "peerjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PeerJSConnector from "./PeerJSConnector";
+import { PeerJSTransport } from "./PeerJSTransport";
 import MapToolbar from "./components/MapToolbar";
 import TokenModal from "./components/TokenModal";
 import { useMapInteraction } from "./hooks/useMapInteraction";
@@ -49,6 +51,12 @@ export default function MapViewer() {
   const [peerModalOpen, setPeerModalOpen] = useState(false);
   const [peerTransport, setPeerTransport] = useState<MapTransport | null>(null);
   const [peerDisconnected, setPeerDisconnected] = useState(false);
+  const [lastRoomCode, setLastRoomCode] = useState<string | null>(
+    () => localStorage.getItem("dnd-ct:map-room-code") ?? null,
+  );
+  const [isReconnecting, setIsReconnecting] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
+  const [debugLog, setDebugLog] = useState<string[]>([]);
 
   const [mapState, setMapState] = useState<MapState>(DEFAULT_MAP_STATE);
   const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, scale: 1 });
@@ -72,6 +80,13 @@ export default function MapViewer() {
   const transportRef = useRef<MapTransport | null>(null);
   const pingsRef = useRef<PingEntry[]>([]);
   const nextPingIdRef = useRef(0);
+
+  // Persist room code to localStorage so reconnect survives a page refresh
+  useEffect(() => {
+    if (lastRoomCode) {
+      localStorage.setItem("dnd-ct:map-room-code", lastRoomCode);
+    }
+  }, [lastRoomCode]);
 
   // Warn before leaving when a map is loaded
   useEffect(() => {
@@ -178,6 +193,91 @@ export default function MapViewer() {
     }));
   }, [mapStateRef, setCamera]);
 
+  const reconnectToRoom = useCallback((roomCode: string) => {
+    console.log(`DEBUG ==> reconnectToRoom called, roomCode=${roomCode}`);
+    setIsReconnecting(true);
+    const peer = new Peer();
+    peer.on("open", (id) => {
+      console.log(
+        `DEBUG ==> [reconnect] peer open id=${id}, connecting to room=${roomCode}`,
+      );
+      const conn = peer.connect(roomCode);
+      conn.on("open", () => {
+        console.log(`DEBUG ==> [reconnect] conn open — reconnected to DM`);
+        setPeerTransport(new PeerJSTransport(conn));
+        setPeerDisconnected(false);
+        setIsReconnecting(false);
+      });
+      conn.on("error", (err) => {
+        console.log(`DEBUG ==> [reconnect] conn error:`, err);
+        setIsReconnecting(false);
+      });
+    });
+    peer.on("error", (err) => {
+      console.log(`DEBUG ==> [reconnect] peer error:`, err);
+      setIsReconnecting(false);
+    });
+  }, []);
+
+  // On mount: if we were previously connected as a player, auto-reconnect
+  const autoReconnectAttempted = useRef(false);
+  useEffect(() => {
+    if (autoReconnectAttempted.current) return;
+    autoReconnectAttempted.current = true;
+    if (view === "player" && lastRoomCode) {
+      console.log(`DEBUG ==> mount auto-reconnect, roomCode=${lastRoomCode}`);
+      reconnectToRoom(lastRoomCode);
+    }
+  }, [view, lastRoomCode, reconnectToRoom]);
+
+  useEffect(() => {
+    const handler = () => {
+      const transport = transportRef.current;
+      const connAlive = transport ? transport.isConnected() : false;
+      const addLog = (msg: string) => {
+        const entry = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        console.log(`DEBUG ==> ${entry}`);
+        setDebugLog((prev) => [...prev.slice(-19), entry]);
+      };
+
+      addLog(
+        `vis=${document.visibilityState} alive=${connAlive} disconnected=${peerDisconnected} reconnecting=${isReconnecting}`,
+      );
+
+      if (document.visibilityState !== "visible") return;
+
+      // On iOS, WebRTC connections die silently when the browser is backgrounded —
+      // conn.on("close") never fires. Actively check isConnected() (checks both
+      // conn.open and iceConnectionState) when coming back to the foreground.
+      if (
+        lastRoomCode &&
+        !isReconnecting &&
+        transport &&
+        !transport.isConnected()
+      ) {
+        addLog("→ connection dead, reconnecting");
+        setPeerDisconnected(true);
+        reconnectToRoom(lastRoomCode);
+        return;
+      }
+
+      if (peerDisconnected && lastRoomCode && !isReconnecting) {
+        console.log(
+          `DEBUG ==> visibilitychange → peerDisconnected=true, triggering auto-reconnect`,
+        );
+        reconnectToRoom(lastRoomCode);
+      }
+    };
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, [
+    peerDisconnected,
+    lastRoomCode,
+    isReconnecting,
+    reconnectToRoom,
+    transportRef,
+  ]);
+
   const { t } = useTranslation("map");
 
   const portraitToken = portraitViewTokenId
@@ -225,12 +325,15 @@ export default function MapViewer() {
 
       {peerModalOpen && (
         <PeerJSConnector
-          onConnected={(transport, role) => {
+          onConnected={(transport, role, roomCode) => {
             setPeerTransport(transport);
             if (role === "player") {
               window.name = PLAYER_WINDOW_NAME;
               setView("player");
+              if (roomCode) setLastRoomCode(roomCode);
             }
+            setPeerDisconnected(false);
+            setIsReconnecting(false);
             setPeerModalOpen(false);
           }}
           onClose={() => setPeerModalOpen(false)}
@@ -249,27 +352,42 @@ export default function MapViewer() {
         />
       )}
 
-      {/* Disconnected banner */}
-      {peerDisconnected && (
+      {/* Disconnected / reconnecting banner */}
+      {(peerDisconnected || isReconnecting) && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-panel-bg border border-border-primary rounded-lg px-4 py-3 shadow-lg">
-          <span className="text-sm text-text-primary">
-            {t("overlay.connectionLost")}
-          </span>
-          <button
-            onClick={() => {
-              setPeerDisconnected(false);
-              setPeerModalOpen(true);
-            }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition font-semibold"
-          >
-            {t("overlay.reconnect")}
-          </button>
-          <button
-            onClick={() => setPeerDisconnected(false)}
-            className="text-text-muted hover:text-text-primary transition text-sm"
-          >
-            {t("overlay.dismiss")}
-          </button>
+          {isReconnecting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin text-text-muted" />
+              <span className="text-sm text-text-primary">
+                {t("overlay.reconnecting")}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-sm text-text-primary">
+                {t("overlay.connectionLost")}
+              </span>
+              <button
+                onClick={() => {
+                  if (lastRoomCode) {
+                    reconnectToRoom(lastRoomCode);
+                  } else {
+                    setPeerDisconnected(false);
+                    setPeerModalOpen(true);
+                  }
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition font-semibold"
+              >
+                {t("overlay.reconnect")}
+              </button>
+              <button
+                onClick={() => setPeerDisconnected(false)}
+                className="text-text-muted hover:text-text-primary transition text-sm"
+              >
+                {t("overlay.dismiss")}
+              </button>
+            </>
+          )}
         </div>
       )}
 
@@ -281,6 +399,40 @@ export default function MapViewer() {
           <p className="text-white/30 text-xs">
             {t("overlay.waitingForDmHint")}
           </p>
+        </div>
+      )}
+
+      {/* Debug toggle button */}
+      <button
+        onClick={() => setShowDebug((v) => !v)}
+        className="absolute bottom-16 right-2 z-50 bg-black/60 text-green-400 text-xs font-mono px-2 py-1 rounded border border-green-400/40"
+      >
+        DBG
+      </button>
+
+      {/* Debug panel */}
+      {showDebug && (
+        <div className="absolute bottom-24 right-2 z-50 bg-black/90 text-green-400 text-xs font-mono p-2 rounded border border-green-400/30 w-72 max-h-64 overflow-y-auto">
+          <div className="mb-1 text-green-300 font-bold">Connection state</div>
+          <div>view: {view}</div>
+          <div>transport: {peerTransport ? "connected" : "none"}</div>
+          <div>
+            isConnected:{" "}
+            {peerTransport ? String(peerTransport.isConnected()) : "n/a"}
+          </div>
+          <div>peerDisconnected: {String(peerDisconnected)}</div>
+          <div>isReconnecting: {String(isReconnecting)}</div>
+          <div>lastRoomCode: {lastRoomCode ?? "none"}</div>
+          <div className="mt-2 text-green-300 font-bold">Visibility log</div>
+          {debugLog.length === 0 ? (
+            <div className="text-green-600">no events yet</div>
+          ) : (
+            debugLog.map((entry, i) => (
+              <div key={i} className="break-all">
+                {entry}
+              </div>
+            ))
+          )}
         </div>
       )}
 

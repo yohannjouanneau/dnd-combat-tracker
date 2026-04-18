@@ -31,14 +31,17 @@ export function useMapSync({
 
   useEffect(() => {
     const isLocalTransport = !peerTransport;
+    console.log(`DEBUG ==> useMapSync effect, view=${view}, hasPeerTransport=${!!peerTransport}`);
     const transport = peerTransport ?? new BroadcastChannelTransport();
     transportRef.current = transport;
 
     const unsub = transport.onMessage((msg: MapMessage) => {
+      console.log(`DEBUG ==> useMapSync received msg: ${msg.type}, view=${view}`);
       if (view === "player") setSynced(true);
       switch (msg.type) {
         case "REQUEST_FULL_STATE":
           if (view === "dm") {
+            console.log(`DEBUG ==> [DM] responding to REQUEST_FULL_STATE`);
             transport.send({
               type: "FULL_STATE_RESPONSE",
               state: mapStateRef.current!,
@@ -75,10 +78,12 @@ export function useMapSync({
     });
 
     if (view === "player") {
+      console.log(`DEBUG ==> [Player] sending REQUEST_FULL_STATE`);
       transport.send({ type: "REQUEST_FULL_STATE" });
     }
 
     const unsubClose = transport.onClose(() => {
+      console.log(`DEBUG ==> useMapSync onClose fired, view=${view}`);
       setPeerTransport(null);
       setPeerDisconnected(true);
     });

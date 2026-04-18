@@ -26,6 +26,7 @@
     "importMapHint": "Importez une carte pour commencer",
     "connectionLost": "Connexion perdue",
     "reconnect": "Reconnecter",
+    "reconnecting": "Reconnexion…",
     "dismiss": "Ignorer"
   },
   "confirm": {
