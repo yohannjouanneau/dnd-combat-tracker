@@ -1,5 +1,5 @@
 import i18n from "i18next";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { PLAYER_WINDOW_NAME } from "../MapViewer";
 import type {
   Camera,
@@ -24,6 +24,7 @@ function screenToWorld(
 
 interface Params {
   view: "dm" | "player";
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
   mapStateRef: React.RefObject<MapState>;
   cameraRef: React.RefObject<Camera>;
   transportRef: React.RefObject<MapTransport | null>;
@@ -42,6 +43,7 @@ interface Params {
 
 export function useMapInteraction({
   view,
+  canvasRef,
   mapStateRef,
   cameraRef,
   transportRef,
@@ -298,13 +300,13 @@ export function useMapInteraction({
   );
 
   const handleWheel = useCallback(
-    (e: React.WheelEvent<HTMLCanvasElement>) => {
+    (e: WheelEvent) => {
       e.preventDefault();
       const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
       const sx = e.clientX - rect.left;
       const sy = e.clientY - rect.top;
-      if (e.ctrlKey) {
-        applyZoom(e.deltaY, sx, sy);
+      if (e.ctrlKey || e.shiftKey) {
+        applyZoom(e.deltaY * 3, sx, sy);
       } else if (e.deltaMode === 0) {
         setCamera((c) => ({ ...c, x: c.x - e.deltaX, y: c.y - e.deltaY }));
       } else {
@@ -317,7 +319,7 @@ export function useMapInteraction({
   // --- Touch handlers ---
 
   const handleTouchStart = useCallback(
-    (e: React.TouchEvent<HTMLCanvasElement>) => {
+    (e: TouchEvent) => {
       e.preventDefault();
       if (e.touches.length === 1) {
         const touch = e.touches[0];
@@ -348,7 +350,7 @@ export function useMapInteraction({
   );
 
   const handleTouchMove = useCallback(
-    (e: React.TouchEvent<HTMLCanvasElement>) => {
+    (e: TouchEvent) => {
       e.preventDefault();
       if (e.touches.length === 1) {
         const touch = e.touches[0];
@@ -397,7 +399,7 @@ export function useMapInteraction({
   );
 
   const handleTouchEnd = useCallback(
-    (e: React.TouchEvent<HTMLCanvasElement>) => {
+    (e: TouchEvent) => {
       e.preventDefault();
       if (e.touches.length === 0) {
         const changed = e.changedTouches[0];
@@ -417,6 +419,30 @@ export function useMapInteraction({
     },
     [endInteraction],
   );
+
+  // Register wheel/touch listeners as non-passive so preventDefault() blocks
+  // browser pinch-to-zoom and page-scroll gestures.
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const opts = { passive: false } as const;
+    canvas.addEventListener("wheel", handleWheel, opts);
+    canvas.addEventListener("touchstart", handleTouchStart, opts);
+    canvas.addEventListener("touchmove", handleTouchMove, opts);
+    canvas.addEventListener("touchend", handleTouchEnd, opts);
+    return () => {
+      canvas.removeEventListener("wheel", handleWheel);
+      canvas.removeEventListener("touchstart", handleTouchStart);
+      canvas.removeEventListener("touchmove", handleTouchMove);
+      canvas.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [
+    canvasRef,
+    handleWheel,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+  ]);
 
   // --- Token CRUD ---
 
@@ -596,10 +622,6 @@ export function useMapInteraction({
     handleMouseMove,
     handleMouseUp,
     handleMouseLeave,
-    handleWheel,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
     updateToken,
     addToken,
     removeToken,
