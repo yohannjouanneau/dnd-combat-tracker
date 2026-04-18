@@ -4,6 +4,8 @@
     "dmView": "Vue MJ",
     "playerView": "Vue Joueur",
     "pointerTool": "Outil pointeur — cliquez pour signaler un emplacement",
+    "focusTool": "Focus — appuyez sur un pion pour centrer la vue joueur",
+    "recenterOnPlayer": "Recentrer sur le pion joueur",
     "importMap": "Importer la carte",
     "visibility": "Visibilité",
     "undo": "Annuler",

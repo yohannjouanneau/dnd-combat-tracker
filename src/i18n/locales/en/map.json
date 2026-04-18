@@ -4,6 +4,8 @@
     "dmView": "DM View",
     "playerView": "Player View",
     "pointerTool": "Pointer tool — click to ping a location",
+    "focusTool": "Focus — tap a token to center player view",
+    "recenterOnPlayer": "Recenter on player token",
     "importMap": "Import Map",
     "visibility": "Visibility",
     "undo": "Undo",
