@@ -96,10 +96,6 @@ export default function MapViewer() {
     handleMouseMove,
     handleMouseUp,
     handleMouseLeave,
-    handleWheel,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
     updateToken,
     addToken,
     removeToken,
@@ -111,6 +107,7 @@ export default function MapViewer() {
     handleBack,
   } = useMapInteraction({
     view,
+    canvasRef,
     mapStateRef,
     cameraRef,
     transportRef,
@@ -283,10 +280,6 @@ export default function MapViewer() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-        onWheel={handleWheel}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       />
     </div>
   );
