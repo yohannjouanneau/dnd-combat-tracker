@@ -61,6 +61,8 @@ export default function MapViewer() {
   const [undoStack, setUndoStack] = useState<HistoryEntry[]>([]);
   const [redoStack, setRedoStack] = useState<HistoryEntry[]>([]);
   const [revealRadius, setRevealRadius] = useState(145);
+  const isRadiusPreviewActiveRef = useRef(false);
+  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
   const [portraitViewTokenId, setPortraitViewTokenId] = useState<string | null>(
@@ -179,6 +181,7 @@ export default function MapViewer() {
     draggingTokenIdRef,
     draggingTokenPosRef,
     revealRadiusRef,
+    isRadiusPreviewActiveRef,
     pingsRef,
   });
 
@@ -285,7 +288,15 @@ export default function MapViewer() {
         onRecenterOnPlayer={recenterOnPlayer}
         onBack={handleBack}
         revealRadius={revealRadius}
-        onRevealRadiusChange={setRevealRadius}
+        onRevealRadiusChange={(r: number) => {
+          setRevealRadius(r);
+          isRadiusPreviewActiveRef.current = true;
+          if (previewTimeoutRef.current)
+            clearTimeout(previewTimeoutRef.current);
+          previewTimeoutRef.current = setTimeout(() => {
+            isRadiusPreviewActiveRef.current = false;
+          }, 1500);
+        }}
         canUndo={undoStack.length > 0}
         canRedo={redoStack.length > 0}
         onUndo={undo}

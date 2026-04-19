@@ -18,6 +18,7 @@ interface Params {
   draggingTokenIdRef: React.RefObject<string | null>;
   draggingTokenPosRef: React.RefObject<{ x: number; y: number } | null>;
   revealRadiusRef: React.RefObject<number>;
+  isRadiusPreviewActiveRef: React.RefObject<boolean>;
   pingsRef: React.RefObject<PingEntry[]>;
 }
 
@@ -190,6 +191,28 @@ function drawTokens(
   }
 }
 
+function drawRadiusPreview(
+  ctx: CanvasRenderingContext2D,
+  scale: number,
+  panX: number,
+  panY: number,
+  tokens: Token[],
+  revealRadiusRef: React.RefObject<number>,
+) {
+  const radius = revealRadiusRef.current!;
+  ctx.setTransform(scale, 0, 0, scale, panX, panY);
+  ctx.setLineDash([6 / scale, 4 / scale]);
+  ctx.strokeStyle = "rgba(96, 165, 250, 0.85)";
+  ctx.lineWidth = 2 / scale;
+  for (const token of tokens) {
+    if (!token.revealsFog) continue;
+    ctx.beginPath();
+    ctx.arc(token.x, token.y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+}
+
 function drawPings(
   ctx: CanvasRenderingContext2D,
   scale: number,
@@ -239,6 +262,7 @@ export function useMapRenderer({
   draggingTokenIdRef,
   draggingTokenPosRef,
   revealRadiusRef,
+  isRadiusPreviewActiveRef,
   pingsRef,
 }: Params): void {
   const fogCanvasRef = useRef<OffscreenCanvas | null>(null);
@@ -346,10 +370,15 @@ export function useMapRenderer({
         draggingTokenPosRef,
       );
 
-      // 5. Pointer pings
+      // 5. Radius preview (while adjusting the slider)
+      if (isRadiusPreviewActiveRef.current && view === "dm") {
+        drawRadiusPreview(ctx, scale, panX, panY, stateTokens, revealRadiusRef);
+      }
+
+      // 6. Pointer pings
       drawPings(ctx, scale, panX, panY, pingsRef);
 
-      // 6. Reset transform
+      // 7. Reset transform
       ctx.setTransform(1, 0, 0, 1, 0, 0);
 
       rafId = requestAnimationFrame(render);
@@ -365,6 +394,7 @@ export function useMapRenderer({
     draggingTokenIdRef,
     draggingTokenPosRef,
     revealRadiusRef,
+    isRadiusPreviewActiveRef,
     pingsRef,
   ]);
 }
