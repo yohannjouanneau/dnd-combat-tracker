@@ -49,6 +49,7 @@ export default function MapViewer() {
   );
   const [peerModalOpen, setPeerModalOpen] = useState(false);
   const [peerTransport, setPeerTransport] = useState<MapTransport | null>(null);
+  const [isPeerOnline, setIsPeerOnline] = useState(false);
   const [peerDisconnected, setPeerDisconnected] = useState(false);
   const [lastRoomCode, setLastRoomCode] = useState<string | null>(
     () => localStorage.getItem(MAP_ROOM_CODE_STORAGE_KEY) ?? null,
@@ -208,6 +209,24 @@ export default function MapViewer() {
     }
   }, [peerDisconnected, lastRoomCode, isReconnecting, reconnectToRoom]);
 
+  // Track live connection status without touching peerTransport or room state.
+  // WebRTC "close" events are unreliable when the remote tab is killed — ICE
+  // can take 30+ seconds to time out. Polling isConnected() (which checks
+  // conn.open + ICE state) catches the drop within a few seconds so the
+  // indicator clears promptly. The player can still reconnect to the same room.
+  useEffect(() => {
+    if (!peerTransport) {
+      setIsPeerOnline(false);
+      return;
+    }
+    setIsPeerOnline(true);
+    const id = setInterval(() => {
+      const next = transportRef.current?.isConnected() ?? false;
+      setIsPeerOnline((prev) => (prev === next ? prev : next));
+    }, 3000);
+    return () => clearInterval(id);
+  }, [peerTransport]);
+
   useEffect(() => {
     const handler = () => {
       if (document.visibilityState !== "visible") return;
@@ -281,8 +300,9 @@ export default function MapViewer() {
             setSelectedTokenId(mapState.tokens[0].id);
           }
         }}
-        onOpenPlayerView={openPlayerView}
         onOpenPeerModal={() => setPeerModalOpen(true)}
+        isPeerConnected={isPeerOnline}
+        isReconnecting={isReconnecting}
       />
 
       {peerModalOpen && (
@@ -298,6 +318,7 @@ export default function MapViewer() {
             setIsReconnecting(false);
             setPeerModalOpen(false);
           }}
+          onOpenLocalView={openPlayerView}
           onClose={() => setPeerModalOpen(false)}
         />
       )}

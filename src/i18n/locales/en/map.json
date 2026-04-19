@@ -14,11 +14,10 @@
     "resetFogTitle": "Reset all fog",
     "tokens": "Tokens",
     "manageTokens": "Manage tokens",
-    "local": "Local",
-    "openPlayerView": "Open Player View",
-    "online": "Online",
-    "connectOnline": "Connect Online",
-    "connectOnlineTitle": "Connect online via PeerJS"
+    "connect": "Connect",
+    "connectTitle": "Connect players",
+    "playerConnected": "Player connected",
+    "connectedToDm": "Connected to DM"
   },
   "overlay": {
     "waitingForDm": "Waiting for DM…",
@@ -40,6 +39,8 @@
     "startAsDmHint": "Host the session — share a room code",
     "joinAsPlayer": "Join as Player",
     "joinAsPlayerHint": "Enter the room code from the DM",
+    "openLocalView": "Open Local Player View",
+    "openLocalViewHint": "Same device — no network needed",
     "waitingForPlayer": "Waiting for player to connect…",
     "roomCode": "Room code",
     "copyRoomCode": "Copy room code",
