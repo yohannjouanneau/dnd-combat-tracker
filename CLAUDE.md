@@ -17,6 +17,17 @@ npx prettier --write .  # format all files
 npm run lint && npx prettier --write .
 ```
 
+## Testing
+
+```bash
+npm test   # Jest unit tests
+```
+
+- Test files live in a `tests/` subfolder next to the code they test (e.g. `src/api/sync/gdrive/tests/mergeSyncData.test.ts`)
+- Never place `.test.ts` files directly alongside source files
+- After updating code that has tests, run the related tests to confirm nothing is broken
+- After any code change, evaluate test coverage and add tests if important cases are uncovered
+
 ## Tech stack
 
 - React 19, TypeScript 5.9

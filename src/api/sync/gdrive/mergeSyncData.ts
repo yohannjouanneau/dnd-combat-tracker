@@ -86,8 +86,8 @@ export function mergeSyncData(
     remoteRaw.blockTypes ?? null,
   ).filter((t) => !t.isBuiltIn);
   const mergedBlockTypes = mergeEntities(
-    localBlockTypes as AnyEntity[],
-    remoteBlockTypes as AnyEntity[],
+    localBlockTypes as unknown as AnyEntity[],
+    remoteBlockTypes as unknown as AnyEntity[],
     localLastSynced,
   );
 
