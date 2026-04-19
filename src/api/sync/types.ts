@@ -15,4 +15,6 @@ export interface SyncApi {
   synchronise: () => Promise<boolean>;
   getLastSyncTime: () => number | undefined;
   logout: () => Promise<boolean>;
+  restoreBackup: () => Promise<boolean>;
+  getLastBackupTime: () => number | undefined;
 }

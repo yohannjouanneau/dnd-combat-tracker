@@ -117,20 +117,24 @@ export class GoogleDriveSyncClient {
   }
 
   /**
-   * Save JSON data to Google Drive appDataFolder
+   * Save JSON data to Google Drive appDataFolder (uses this.fileName)
    */
   async save<T = unknown>(data: T): Promise<string> {
+    return this.saveToFile(this.fileName, data);
+  }
+
+  /**
+   * Save JSON data to a specific file in appDataFolder
+   */
+  async saveToFile<T = unknown>(fileName: string, data: T): Promise<string> {
     if (!this.accessToken || !this.gapiInitialized) {
       throw new Error("Not authorized. Call authorize() first.");
     }
 
-    // Check if file already exists
-    const existingFile = await this.findFile();
-
+    const existingFile = await this.findFileByName(fileName);
     const content = JSON.stringify(data, null, 2);
 
     if (existingFile) {
-      // Update existing file content
       await fetch(
         `https://www.googleapis.com/upload/drive/v3/files/${existingFile.id}?uploadType=media`,
         {
@@ -142,13 +146,11 @@ export class GoogleDriveSyncClient {
           body: content,
         },
       );
-
       return existingFile.id || "";
     } else {
-      // Step 1: Create file with metadata
       const response = await gapi.client.drive.files.create({
         resource: {
-          name: this.fileName,
+          name: fileName,
           mimeType: "application/json",
           parents: ["appDataFolder"],
         },
@@ -156,12 +158,8 @@ export class GoogleDriveSyncClient {
       });
 
       const fileId = response.result.id;
+      if (!fileId) throw new Error("Failed to create file: no ID returned");
 
-      if (!fileId) {
-        throw new Error("Failed to create file: no ID returned");
-      }
-
-      // Step 2: Upload content
       await fetch(
         `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,
         {
@@ -173,33 +171,35 @@ export class GoogleDriveSyncClient {
           body: content,
         },
       );
-
       return fileId;
     }
   }
 
   /**
-   * Load JSON data from Google Drive appDataFolder
+   * Load JSON data from Google Drive appDataFolder (uses this.fileName)
    * Returns null if file doesn't exist
    */
   async load<T = unknown>(): Promise<T | null> {
+    return this.loadFromFile<T>(this.fileName);
+  }
+
+  /**
+   * Load JSON data from a specific file in appDataFolder
+   * Returns null if file doesn't exist
+   */
+  async loadFromFile<T = unknown>(fileName: string): Promise<T | null> {
     if (!this.accessToken || !this.gapiInitialized) {
       throw new Error("Not authorized. Call authorize() first.");
     }
 
-    const file = await this.findFile();
-
-    if (!file) {
-      return null;
-    }
+    const file = await this.findFileByName(fileName);
+    if (!file) return null;
 
     try {
       const response = await gapi.client.drive.files.get({
         fileId: file.id ?? "",
         alt: "media",
       });
-
-      // Parse the response body which contains the JSON content
       return response.result as T;
     } catch (error) {
       console.error("Failed to load file:", error);
@@ -215,17 +215,18 @@ export class GoogleDriveSyncClient {
   }
 
   /**
-   * Find existing file in appDataFolder
+   * Find existing file by name in appDataFolder
    */
-  private async findFile(): Promise<gapi.client.drive.File | null> {
+  private async findFileByName(
+    name: string,
+  ): Promise<gapi.client.drive.File | null> {
     try {
       const response = await gapi.client.drive.files.list({
         spaces: "appDataFolder",
-        q: `name='${this.fileName}'`,
+        q: `name='${name}'`,
         fields: "files(id, name)",
         pageSize: 1,
       });
-
       const files = response.result.files;
       return files && files.length > 0 ? files[0] : null;
     } catch (error) {

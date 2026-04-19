@@ -1,7 +1,11 @@
 import type { BlockTypeDef } from "../types/campaign";
+import type { TimestampedEntity } from "../types";
 import { safeParse, safeStringify } from "../utils/utils";
 
-type CustomTypeInput = Omit<BlockTypeDef, "isBuiltIn">;
+export type CustomTypeInput = Omit<
+  BlockTypeDef,
+  "isBuiltIn" | keyof TimestampedEntity
+>;
 
 export class BlockTypeStorageProvider {
   private key: string;
@@ -23,7 +27,13 @@ export class BlockTypeStorageProvider {
   }
 
   async create(data: CustomTypeInput): Promise<BlockTypeDef> {
-    const item: BlockTypeDef = { ...data, isBuiltIn: false };
+    const now = Date.now();
+    const item: BlockTypeDef = {
+      ...data,
+      isBuiltIn: false,
+      createdAt: now,
+      updatedAt: now,
+    };
     const items = this.readAll();
     items.push(item);
     this.writeAll(items);
@@ -37,7 +47,11 @@ export class BlockTypeStorageProvider {
     const items = this.readAll();
     const idx = items.findIndex((i) => i.id === id);
     if (idx < 0) throw new Error("Not found");
-    const merged: BlockTypeDef = { ...items[idx], ...patch };
+    const merged: BlockTypeDef = {
+      ...items[idx],
+      ...patch,
+      updatedAt: Date.now(),
+    };
     items[idx] = merged;
     this.writeAll(items);
     return merged;

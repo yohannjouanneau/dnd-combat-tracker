@@ -11,11 +11,22 @@ npm run lint     # ESLint
 npx prettier --write .  # format all files
 ```
 
-**After every code change**, run ESLint and Prettier to keep the codebase clean:
+**After every code change**, run ESLint, Prettier, and verify the build:
 
 ```bash
-npm run lint && npx prettier --write .
+npm run lint && npx prettier --write . && npm run build
 ```
+
+## Testing
+
+```bash
+npm test   # Jest unit tests
+```
+
+- Test files live in a `tests/` subfolder next to the code they test (e.g. `src/api/sync/gdrive/tests/mergeSyncData.test.ts`)
+- Never place `.test.ts` files directly alongside source files
+- After updating code that has tests, run the related tests to confirm nothing is broken
+- After any code change, evaluate test coverage and add tests if important cases are uncovered
 
 ## Tech stack
 

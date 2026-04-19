@@ -65,6 +65,24 @@ export function useSyncApi(props?: UseSyncApiProps): SyncApi {
     }
   };
 
+  const restoreBackup = async () => {
+    try {
+      await dataStore.restoreBackup();
+      if (props?.onSyncSuccess) {
+        await props.onSyncSuccess();
+      }
+      toastApi.success(t("toast.sync.restoreSuccess"));
+      return true;
+    } catch (error) {
+      toastApi.error(t("toast.sync.restoreError", { error: String(error) }));
+      return false;
+    }
+  };
+
+  const getLastBackupTime = () => {
+    return dataStore.getLastBackupTime();
+  };
+
   return {
     isSyncAuthorized,
     authorizeSync,
@@ -72,5 +90,7 @@ export function useSyncApi(props?: UseSyncApiProps): SyncApi {
     synchronise,
     getLastSyncTime,
     logout,
+    restoreBackup,
+    getLastBackupTime,
   };
 }

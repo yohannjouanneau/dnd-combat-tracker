@@ -12,6 +12,7 @@ import type {
   CountdownData,
   StatCheck,
 } from "../../types/campaign";
+import type { CustomTypeInput } from "../../persistence/BlockTypeStorageProvider";
 import { generateId } from "../../utils/utils";
 import MarkdownEditor from "../common/mardown/MarkdownEditor";
 import StatCheckSection from "./StatCheckSection";
@@ -29,9 +30,7 @@ interface Props {
   isCreating: boolean;
   onSave: (data: BuildingBlockInput) => void;
   onCancel: () => void;
-  onCreateBlockType: (
-    input: Omit<BlockTypeDef, "isBuiltIn">,
-  ) => Promise<BlockTypeDef>;
+  onCreateBlockType: (input: CustomTypeInput) => Promise<BlockTypeDef>;
   onUpdateBlockType?: (
     id: string,
     patch: Partial<BlockTypeDef>,

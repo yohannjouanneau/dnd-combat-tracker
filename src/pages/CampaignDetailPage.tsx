@@ -339,7 +339,6 @@ export default function CampaignDetailPage({
     <div className="mx-auto text-white h-screen flex flex-col bg-app-bg">
       <div className="p-4 md:p-6 flex-shrink-0">
         <TopBar
-          logo
           name={localName}
           description={localDesc}
           onChange={handleMetaChange}

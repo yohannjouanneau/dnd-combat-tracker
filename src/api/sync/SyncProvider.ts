@@ -7,4 +7,6 @@ export interface SyncProvider {
   hasNewRemoteData(): Promise<boolean>;
   sync(): Promise<void>;
   getLastSyncTime(): number | undefined;
+  restoreBackup(): Promise<void>;
+  getLastBackupTime(): number | undefined;
 }

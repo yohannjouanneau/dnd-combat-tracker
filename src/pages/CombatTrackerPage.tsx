@@ -277,7 +277,6 @@ export default function CombatTrackerPage({
           }`}
         >
           <TopBar
-            logo
             name={combatStateManager.state.combatName ?? ""}
             description={combatStateManager.state.combatDescription ?? ""}
             onChange={(patch) =>

@@ -1,4 +1,4 @@
-import { X, LogOut, Moon, Sun, Leaf } from "lucide-react";
+import { X, LogOut, Moon, Sun, Leaf, RotateCcw, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import gdriveSignIn from "../../assets/web_neutral_rd_SI@2x.png";
 import { useCallback, useEffect, useState } from "react";
@@ -19,6 +19,8 @@ type Props = {
 export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
   const { t } = useTranslation(["common"]);
   const [isReadyToSync, setIsReadyToSync] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const [confirmingRestore, setConfirmingRestore] = useState(false);
   const { settings, updateSettings } = useSettings();
   const { theme, setTheme } = useTheme();
 
@@ -36,6 +38,13 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
     setIsReadyToSync(!isLoggedOut);
   }, [syncApi]);
 
+  const handleRestoreBackup = useCallback(async () => {
+    setIsRestoring(true);
+    setConfirmingRestore(false);
+    await syncApi.restoreBackup();
+    setIsRestoring(false);
+  }, [syncApi]);
+
   const handleIdentifierTypeChange = useCallback(
     (type: CombatantIdentifierType) => {
       updateSettings({ combatantIdentifierType: type });
@@ -44,6 +53,7 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
   );
 
   const storageSize = getLocalStorageSize();
+  const lastBackupTime = syncApi.getLastBackupTime();
 
   if (!isOpen) return null;
 
@@ -200,6 +210,58 @@ export default function SettingsModal({ isOpen, syncApi, onClose }: Props) {
                 <div className="bg-app-bg border-border-primary rounded-lg p-4 space-y-3">
                   {/* Sync with Drive Button */}
                   <SyncButton syncApi={syncApi} variant="full" />
+
+                  {/* Backup Section */}
+                  <div className="border-t border-border-primary pt-3 space-y-2">
+                    <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">
+                      {t("common:settings.googleDrive.backup.title")}
+                    </p>
+                    <p className="text-xs text-text-muted">
+                      {lastBackupTime
+                        ? t("common:settings.googleDrive.backup.lastBackup", {
+                            date: new Date(lastBackupTime).toLocaleString(),
+                          })
+                        : t("common:settings.googleDrive.backup.neverBacked")}
+                    </p>
+                    <p className="text-xs text-text-muted italic">
+                      {t("common:settings.googleDrive.backup.restoreWarning")}
+                    </p>
+                    {confirmingRestore ? (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleRestoreBackup}
+                          disabled={isRestoring}
+                          className="flex-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white px-3 py-2 rounded text-sm font-medium transition flex items-center justify-center gap-2"
+                        >
+                          {isRestoring ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <RotateCcw className="w-4 h-4" />
+                          )}
+                          {t(
+                            "common:settings.googleDrive.backup.confirmRestore",
+                          )}
+                        </button>
+                        <button
+                          onClick={() => setConfirmingRestore(false)}
+                          className="text-text-muted hover:text-text-primary text-sm transition px-2"
+                        >
+                          {t(
+                            "common:settings.googleDrive.backup.cancelRestore",
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmingRestore(true)}
+                        disabled={!lastBackupTime || isRestoring}
+                        className="w-full bg-panel-secondary hover:bg-panel-secondary/80 disabled:opacity-40 disabled:cursor-not-allowed text-text-primary px-3 py-2 rounded text-sm font-medium transition flex items-center justify-center gap-2"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        {t("common:settings.googleDrive.backup.restoreBackup")}
+                      </button>
+                    )}
+                  </div>
 
                   {/* Logout Button */}
                   <button

@@ -10,6 +10,7 @@ import type {
 } from "../../types/campaign";
 import { BUILT_IN_BLOCK_TYPES } from "../../constants";
 import { dataStore } from "../../persistence/storage";
+import type { CustomTypeInput } from "../../persistence/BlockTypeStorageProvider";
 
 export function useCampaignStore() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -39,7 +40,7 @@ export function useCampaignStore() {
   }, [loadCampaigns, loadBlockTypes, loadBlocks]);
 
   const createBlockType = useCallback(
-    async (input: Omit<BlockTypeDef, "isBuiltIn">): Promise<BlockTypeDef> => {
+    async (input: CustomTypeInput): Promise<BlockTypeDef> => {
       const created = await dataStore.createBlockType(input);
       setBlockTypes((prev) => [...prev, created]);
       return created;

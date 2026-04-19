@@ -1,9 +1,11 @@
 // src/persistence/GoogleDriveSyncProvider.ts
 import {
+  BACKUP_FILE_NAME,
   BLOCK_TYPE_STORAGE_KEY,
   BUILDING_BLOCK_STORAGE_KEY,
   CAMPAIGN_STORAGE_KEY,
   COMBAT_STORAGE_KEY,
+  LAST_BACKUP_STORAGE_KEY,
   LAST_SYNC_STORAGE_KEY,
   MONSTER_STORAGE_KEY,
   PLAYER_STORAGE_KEY,
@@ -11,6 +13,7 @@ import {
 import type { SyncProvider } from "../SyncProvider";
 import type { SyncData } from "../types";
 import { GoogleDriveSyncClient } from "./GoogleDriveSyncClient";
+import { mergeSyncData } from "./mergeSyncData";
 
 export class GoogleDriveSyncProvider implements SyncProvider {
   private client: GoogleDriveSyncClient;
@@ -42,22 +45,8 @@ export class GoogleDriveSyncProvider implements SyncProvider {
     return this.client.isAuthorized();
   }
 
-  /**
-   * Upload current localStorage data to Google Drive
-   */
-  async upload(): Promise<void> {
-    if (this.syncInProgress) {
-      throw new Error("Sync already in progress");
-    }
-
-    await this.uploadInternal();
-  }
-
-  /**
-   * Internal upload without lock check
-   */
-  private async uploadInternal(): Promise<void> {
-    const data: SyncData = {
+  private getLocalSyncData(): SyncData {
+    return {
       combats: localStorage.getItem(COMBAT_STORAGE_KEY),
       players: localStorage.getItem(PLAYER_STORAGE_KEY),
       monsters: localStorage.getItem(MONSTER_STORAGE_KEY),
@@ -66,8 +55,17 @@ export class GoogleDriveSyncProvider implements SyncProvider {
       blockTypes: localStorage.getItem(BLOCK_TYPE_STORAGE_KEY),
       lastSynced: Date.now(),
     };
+  }
 
-    await this.client.save(data);
+  async upload(): Promise<void> {
+    if (this.syncInProgress) {
+      throw new Error("Sync already in progress");
+    }
+    await this.uploadInternal();
+  }
+
+  private async uploadInternal(): Promise<void> {
+    await this.client.save(this.getLocalSyncData());
   }
 
   /**
@@ -81,36 +79,10 @@ export class GoogleDriveSyncProvider implements SyncProvider {
     await this.downloadInternal();
   }
 
-  /**
-   * Internal download without lock check
-   */
   private async downloadInternal(): Promise<void> {
     const data = await this.client.load<SyncData>();
-
-    if (!data) {
-      console.log("No data found in Google Drive");
-      return;
-    }
-
-    // Restore each key if it exists
-    if (data.combats) {
-      localStorage.setItem(COMBAT_STORAGE_KEY, data.combats);
-    }
-    if (data.players) {
-      localStorage.setItem(PLAYER_STORAGE_KEY, data.players);
-    }
-    if (data.monsters) {
-      localStorage.setItem(MONSTER_STORAGE_KEY, data.monsters);
-    }
-    if (data.blocks) {
-      localStorage.setItem(BUILDING_BLOCK_STORAGE_KEY, data.blocks);
-    }
-    if (data.campaigns) {
-      localStorage.setItem(CAMPAIGN_STORAGE_KEY, data.campaigns);
-    }
-    if (data.blockTypes) {
-      localStorage.setItem(BLOCK_TYPE_STORAGE_KEY, data.blockTypes);
-    }
+    if (!data) return;
+    this.applyRemoteData(data);
   }
 
   private async loadData(): Promise<SyncData | null> {
@@ -136,9 +108,32 @@ export class GoogleDriveSyncProvider implements SyncProvider {
     return this.lastRemoteData.lastSynced > localLastSynced;
   }
 
-  /**
-   * Uses "last write wins" strategy based on timestamps
-   */
+  // Errors are swallowed so a backup failure never blocks the main sync.
+  private async createBackupInternal(): Promise<void> {
+    try {
+      await this.client.saveToFile(BACKUP_FILE_NAME, this.getLocalSyncData());
+      localStorage.setItem(LAST_BACKUP_STORAGE_KEY, Date.now().toString());
+    } catch (error) {
+      console.error("Backup failed (non-blocking):", error);
+    }
+  }
+
+  async restoreBackup(): Promise<void> {
+    if (this.syncInProgress) {
+      throw new Error("Sync already in progress");
+    }
+    const data = await this.client.loadFromFile<SyncData>(BACKUP_FILE_NAME);
+    if (!data) throw new Error("No backup found on Google Drive");
+
+    this.applyRemoteData(data);
+    localStorage.setItem(LAST_SYNC_STORAGE_KEY, Date.now().toString());
+  }
+
+  getLastBackupTime(): number | undefined {
+    const time = localStorage.getItem(LAST_BACKUP_STORAGE_KEY);
+    return time ? parseInt(time) : undefined;
+  }
+
   async sync(): Promise<void> {
     if (this.syncInProgress) {
       throw new Error("Sync already in progress");
@@ -146,11 +141,13 @@ export class GoogleDriveSyncProvider implements SyncProvider {
 
     this.syncInProgress = true;
     try {
+      await this.createBackupInternal();
+
       const remoteData = this.lastRemoteData ?? (await this.loadData());
 
       if (!remoteData) {
-        // No remote data, upload local
         await this.uploadInternal();
+        localStorage.setItem(LAST_SYNC_STORAGE_KEY, Date.now().toString());
         return;
       }
 
@@ -158,28 +155,34 @@ export class GoogleDriveSyncProvider implements SyncProvider {
         localStorage.getItem(LAST_SYNC_STORAGE_KEY) || "0",
       );
 
-      // If remote is newer, download
-      if (remoteData.lastSynced > localLastSynced) {
-        await this.downloadInternal();
-        localStorage.setItem(
-          LAST_SYNC_STORAGE_KEY,
-          remoteData.lastSynced.toString(),
-        );
-      } else {
-        // Local is newer or same, upload
-        await this.uploadInternal();
-        localStorage.setItem(LAST_SYNC_STORAGE_KEY, Date.now().toString());
-      }
+      const merged = mergeSyncData(
+        { ...this.getLocalSyncData(), lastSynced: localLastSynced },
+        remoteData,
+        localLastSynced,
+      );
+
+      this.applyRemoteData(merged);
+      await this.client.save(merged);
+      localStorage.setItem(LAST_SYNC_STORAGE_KEY, merged.lastSynced.toString());
     } finally {
       this.syncInProgress = false;
     }
   }
 
-  /**
-   * Get last sync timestamp
-   */
   getLastSyncTime(): number | undefined {
     const time = localStorage.getItem(LAST_SYNC_STORAGE_KEY);
     return time ? parseInt(time) : undefined;
+  }
+
+  private applyRemoteData(data: SyncData): void {
+    if (data.combats) localStorage.setItem(COMBAT_STORAGE_KEY, data.combats);
+    if (data.players) localStorage.setItem(PLAYER_STORAGE_KEY, data.players);
+    if (data.monsters) localStorage.setItem(MONSTER_STORAGE_KEY, data.monsters);
+    if (data.blocks)
+      localStorage.setItem(BUILDING_BLOCK_STORAGE_KEY, data.blocks);
+    if (data.campaigns)
+      localStorage.setItem(CAMPAIGN_STORAGE_KEY, data.campaigns);
+    if (data.blockTypes)
+      localStorage.setItem(BLOCK_TYPE_STORAGE_KEY, data.blockTypes);
   }
 }
