@@ -1,5 +1,9 @@
-import { useEffect, useState } from "react";
+import Peer from "peerjs";
+import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useToast } from "../../common/Toast/useToast";
 import { BroadcastChannelTransport } from "../BroadcastChannelTransport";
+import { PeerJSTransport } from "../PeerJSTransport";
 import type { MapMessage, MapState, MapTransport, PingEntry } from "../types";
 
 interface Params {
@@ -12,6 +16,7 @@ interface Params {
   setMapState: React.Dispatch<React.SetStateAction<MapState>>;
   setPeerTransport: React.Dispatch<React.SetStateAction<MapTransport | null>>;
   setPeerDisconnected: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsReconnecting: React.Dispatch<React.SetStateAction<boolean>>;
   onCenterCamera: (x: number, y: number) => void;
 }
 
@@ -25,9 +30,38 @@ export function useMapSync({
   setMapState,
   setPeerTransport,
   setPeerDisconnected,
+  setIsReconnecting,
   onCenterCamera,
-}: Params): { synced: boolean } {
+}: Params): { synced: boolean; reconnectToRoom: (roomCode: string) => void } {
   const [synced, setSynced] = useState(view === "dm");
+  const toast = useToast();
+  const { t } = useTranslation("map");
+
+  const reconnectToRoom = useCallback(
+    (roomCode: string) => {
+      setIsReconnecting(true);
+      const peer = new Peer();
+      peer.on("open", () => {
+        const conn = peer.connect(roomCode);
+        conn.on("open", () => {
+          setPeerTransport(new PeerJSTransport(conn));
+          setPeerDisconnected(false);
+          setIsReconnecting(false);
+        });
+        conn.on("error", (err) => {
+          peer.destroy();
+          setIsReconnecting(false);
+          toast.error(`${t("overlay.reconnectFailed")}: ${err.type}`);
+        });
+      });
+      peer.on("error", (err) => {
+        peer.destroy();
+        setIsReconnecting(false);
+        toast.error(`${t("overlay.reconnectFailed")}: ${err.type}`);
+      });
+    },
+    [toast, t, setIsReconnecting, setPeerTransport, setPeerDisconnected],
+  );
 
   useEffect(() => {
     const isLocalTransport = !peerTransport;
@@ -103,5 +137,5 @@ export function useMapSync({
     onCenterCamera,
   ]);
 
-  return { synced };
+  return { synced, reconnectToRoom };
 }

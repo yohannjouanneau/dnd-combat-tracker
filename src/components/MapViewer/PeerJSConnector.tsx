@@ -1,4 +1,4 @@
-import { Copy, Loader2, Radio, Wifi, X } from "lucide-react";
+import { Copy, Loader2, Monitor, Radio, Wifi, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Peer from "peerjs";
 import { useTranslation } from "react-i18next";
@@ -13,11 +13,20 @@ type Step =
   | { kind: "error"; message: string };
 
 interface Props {
-  onConnected: (transport: MapTransport, role: "dm" | "player") => void;
+  onConnected: (
+    transport: MapTransport,
+    role: "dm" | "player",
+    roomCode?: string,
+  ) => void;
+  onOpenLocalView: () => void;
   onClose: () => void;
 }
 
-export default function PeerJSConnector({ onConnected, onClose }: Props) {
+export default function PeerJSConnector({
+  onConnected,
+  onOpenLocalView,
+  onClose,
+}: Props) {
   const { t } = useTranslation("map");
   const [step, setStep] = useState<Step>({ kind: "choosing" });
   const [copied, setCopied] = useState(false);
@@ -105,7 +114,7 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
       const conn = peer.connect(roomCode.trim());
       conn.on("open", () => {
         connectedRef.current = true;
-        onConnected(new PeerJSTransport(conn), "player");
+        onConnected(new PeerJSTransport(conn), "player", roomCode.trim());
       });
       conn.on("error", (err) => {
         setStep({ kind: "error", message: err.message });
@@ -124,6 +133,12 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
     });
   };
 
+  const networkWarning = (
+    <p className="text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-2 w-full text-center">
+      {t("connector.sameNetworkWarning")}
+    </p>
+  );
+
   return (
     <div className="absolute inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-panel-bg border border-border-primary rounded-xl p-6 w-full max-w-sm flex flex-col gap-5 relative">
@@ -137,10 +152,6 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
         <h2 className="text-lg font-bold text-text-primary">
           {t("connector.title")}
         </h2>
-
-        <p className="text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-2">
-          {t("connector.sameNetworkWarning")}
-        </p>
 
         {step.kind === "choosing" && (
           <div className="flex flex-col gap-3">
@@ -168,11 +179,27 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
                 </p>
               </span>
             </button>
+            <button
+              onClick={() => {
+                onOpenLocalView();
+                onClose();
+              }}
+              className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary px-4 py-4 rounded-lg transition font-semibold flex items-center gap-3"
+            >
+              <Monitor className="w-5 h-5 shrink-0" />
+              <span className="text-left">
+                <p>{t("connector.openLocalView")}</p>
+                <p className="text-xs text-text-muted font-normal">
+                  {t("connector.openLocalViewHint")}
+                </p>
+              </span>
+            </button>
           </div>
         )}
 
         {step.kind === "dm-waiting" && (
           <div className="flex flex-col items-center gap-4">
+            {networkWarning}
             <Loader2 className="w-7 h-7 text-text-muted animate-spin" />
             <p className="text-text-muted text-sm">
               {t("connector.waitingForPlayer")}
@@ -210,6 +237,7 @@ export default function PeerJSConnector({ onConnected, onClose }: Props) {
 
         {(step.kind === "player-ready" || step.kind === "connecting") && (
           <div className="flex flex-col gap-3">
+            {networkWarning}
             <input
               type="text"
               value={step.input}

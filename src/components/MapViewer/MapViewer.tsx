@@ -1,15 +1,7 @@
-import { X } from "lucide-react";
-
-function centerCameraOn(
-  x: number,
-  y: number,
-  canvas: HTMLCanvasElement,
-  scale: number,
-) {
-  return { x: canvas.width / 2 - x * scale, y: canvas.height / 2 - y * scale };
-}
+import { Loader2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MAP_ROOM_CODE_STORAGE_KEY } from "../../constants";
 import PeerJSConnector from "./PeerJSConnector";
 import MapToolbar from "./components/MapToolbar";
 import TokenModal from "./components/TokenModal";
@@ -23,6 +15,15 @@ import type {
   MapTransport,
   PingEntry,
 } from "./types";
+
+function centerCameraOn(
+  x: number,
+  y: number,
+  canvas: HTMLCanvasElement,
+  scale: number,
+) {
+  return { x: canvas.width / 2 - x * scale, y: canvas.height / 2 - y * scale };
+}
 
 const DEFAULT_MAP_STATE: MapState = {
   imageDataUrl: null,
@@ -48,7 +49,12 @@ export default function MapViewer() {
   );
   const [peerModalOpen, setPeerModalOpen] = useState(false);
   const [peerTransport, setPeerTransport] = useState<MapTransport | null>(null);
+  const [isPeerOnline, setIsPeerOnline] = useState(false);
   const [peerDisconnected, setPeerDisconnected] = useState(false);
+  const [lastRoomCode, setLastRoomCode] = useState<string | null>(
+    () => localStorage.getItem(MAP_ROOM_CODE_STORAGE_KEY) ?? null,
+  );
+  const [isReconnecting, setIsReconnecting] = useState(false);
 
   const [mapState, setMapState] = useState<MapState>(DEFAULT_MAP_STATE);
   const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, scale: 1 });
@@ -73,6 +79,15 @@ export default function MapViewer() {
   const pingsRef = useRef<PingEntry[]>([]);
   const nextPingIdRef = useRef(0);
 
+  // Persist room code to localStorage so reconnect survives a page refresh
+  useEffect(() => {
+    if (lastRoomCode) {
+      localStorage.setItem(MAP_ROOM_CODE_STORAGE_KEY, lastRoomCode);
+    } else {
+      localStorage.removeItem(MAP_ROOM_CODE_STORAGE_KEY);
+    }
+  }, [lastRoomCode]);
+
   // Warn before leaving when a map is loaded
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -84,7 +99,7 @@ export default function MapViewer() {
     return () => window.removeEventListener("beforeunload", handler);
   }, []);
 
-  const { synced } = useMapSync({
+  const { synced, reconnectToRoom } = useMapSync({
     view,
     peerTransport,
     mapStateRef,
@@ -94,6 +109,7 @@ export default function MapViewer() {
     setMapState,
     setPeerTransport,
     setPeerDisconnected,
+    setIsReconnecting,
     onCenterCamera: useCallback(
       (x: number, y: number) => {
         const canvas = canvasRef.current;
@@ -127,6 +143,7 @@ export default function MapViewer() {
     openPlayerView,
     handleBack,
     setIsFocusMode,
+    recenterOnPlayer,
   } = useMapInteraction({
     view,
     canvasRef,
@@ -165,20 +182,84 @@ export default function MapViewer() {
     pingsRef,
   });
 
-  const recenterOnPlayer = useCallback(() => {
-    const tokens = mapStateRef.current!.tokens;
-    const token =
-      tokens.find((t) => t.id === "player") ?? tokens.find((t) => !t.hidden);
-    if (!token) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    setCamera((prev) => ({
-      ...prev,
-      ...centerCameraOn(token.x, token.y, canvas, prev.scale),
-    }));
-  }, [mapStateRef, setCamera]);
-
   const { t } = useTranslation("map");
+
+  // On mount: if we were previously connected as a player, auto-reconnect
+  const autoReconnectAttempted = useRef(false);
+  useEffect(() => {
+    if (autoReconnectAttempted.current) return;
+    autoReconnectAttempted.current = true;
+    if (view === "player" && lastRoomCode) {
+      reconnectToRoom(lastRoomCode);
+    }
+  }, [view, lastRoomCode, reconnectToRoom]);
+
+  // Auto-reconnect whenever peerDisconnected flips to true (ICE failure, close
+  // event, or visibilitychange check). One shot per disconnection — if it fails
+  // the user sees the banner and can retry manually.
+  const hasAutoReconnectedRef = useRef(false);
+  useEffect(() => {
+    if (!peerDisconnected) {
+      hasAutoReconnectedRef.current = false;
+      return;
+    }
+    if (lastRoomCode && !isReconnecting && !hasAutoReconnectedRef.current) {
+      hasAutoReconnectedRef.current = true;
+      reconnectToRoom(lastRoomCode);
+    }
+  }, [peerDisconnected, lastRoomCode, isReconnecting, reconnectToRoom]);
+
+  // Track live connection status without touching peerTransport or room state.
+  // WebRTC "close" events are unreliable when the remote tab is killed — ICE
+  // can take 30+ seconds to time out. Polling isConnected() (which checks
+  // conn.open + ICE state) catches the drop within a few seconds so the
+  // indicator clears promptly. The player can still reconnect to the same room.
+  useEffect(() => {
+    if (!peerTransport) {
+      setIsPeerOnline(false);
+      return;
+    }
+    setIsPeerOnline(true);
+    const id = setInterval(() => {
+      const next = transportRef.current?.isConnected() ?? false;
+      setIsPeerOnline((prev) => (prev === next ? prev : next));
+    }, 3000);
+    return () => clearInterval(id);
+  }, [peerTransport]);
+
+  useEffect(() => {
+    const handler = () => {
+      if (document.visibilityState !== "visible") return;
+
+      const transport = transportRef.current;
+
+      // On device, WebRTC connections die silently when the browser is backgrounded —
+      // conn.on("close") never fires. Actively check isConnected() (checks both
+      // conn.open and iceConnectionState) when coming back to the foreground.
+      // Setting peerDisconnected=true is enough — the effect below handles reconnect.
+      if (
+        lastRoomCode &&
+        !isReconnecting &&
+        transport &&
+        !transport.isConnected()
+      ) {
+        setPeerDisconnected(true);
+        return;
+      }
+
+      if (peerDisconnected && lastRoomCode && !isReconnecting) {
+        reconnectToRoom(lastRoomCode);
+      }
+    };
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, [
+    peerDisconnected,
+    lastRoomCode,
+    isReconnecting,
+    reconnectToRoom,
+    transportRef,
+  ]);
 
   const portraitToken = portraitViewTokenId
     ? (mapState.tokens.find((t) => t.id === portraitViewTokenId) ?? null)
@@ -219,20 +300,25 @@ export default function MapViewer() {
             setSelectedTokenId(mapState.tokens[0].id);
           }
         }}
-        onOpenPlayerView={openPlayerView}
         onOpenPeerModal={() => setPeerModalOpen(true)}
+        isPeerConnected={isPeerOnline}
+        isReconnecting={isReconnecting}
       />
 
       {peerModalOpen && (
         <PeerJSConnector
-          onConnected={(transport, role) => {
+          onConnected={(transport, role, roomCode) => {
             setPeerTransport(transport);
             if (role === "player") {
               window.name = PLAYER_WINDOW_NAME;
               setView("player");
+              if (roomCode) setLastRoomCode(roomCode);
             }
+            setPeerDisconnected(false);
+            setIsReconnecting(false);
             setPeerModalOpen(false);
           }}
+          onOpenLocalView={openPlayerView}
           onClose={() => setPeerModalOpen(false)}
         />
       )}
@@ -249,27 +335,42 @@ export default function MapViewer() {
         />
       )}
 
-      {/* Disconnected banner */}
-      {peerDisconnected && (
+      {/* Disconnected / reconnecting banner */}
+      {(peerDisconnected || isReconnecting) && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-panel-bg border border-border-primary rounded-lg px-4 py-3 shadow-lg">
-          <span className="text-sm text-text-primary">
-            {t("overlay.connectionLost")}
-          </span>
-          <button
-            onClick={() => {
-              setPeerDisconnected(false);
-              setPeerModalOpen(true);
-            }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition font-semibold"
-          >
-            {t("overlay.reconnect")}
-          </button>
-          <button
-            onClick={() => setPeerDisconnected(false)}
-            className="text-text-muted hover:text-text-primary transition text-sm"
-          >
-            {t("overlay.dismiss")}
-          </button>
+          {isReconnecting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin text-text-muted" />
+              <span className="text-sm text-text-primary">
+                {t("overlay.reconnecting")}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-sm text-text-primary">
+                {t("overlay.connectionLost")}
+              </span>
+              <button
+                onClick={() => {
+                  if (lastRoomCode) {
+                    reconnectToRoom(lastRoomCode);
+                  } else {
+                    setPeerDisconnected(false);
+                    setPeerModalOpen(true);
+                  }
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition font-semibold"
+              >
+                {t("overlay.reconnect")}
+              </button>
+              <button
+                onClick={() => setPeerDisconnected(false)}
+                className="text-text-muted hover:text-text-primary transition text-sm"
+              >
+                {t("overlay.dismiss")}
+              </button>
+            </>
+          )}
         </div>
       )}
 

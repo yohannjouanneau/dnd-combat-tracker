@@ -628,6 +628,20 @@ export function useMapInteraction({
     location.hash = "";
   }, [mapStateRef]);
 
+  const recenterOnPlayer = useCallback(() => {
+    const tokens = mapStateRef.current!.tokens;
+    const token =
+      tokens.find((t) => t.id === "player") ?? tokens.find((t) => !t.hidden);
+    if (!token) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    setCamera((prev) => ({
+      ...prev,
+      x: canvas.width / 2 - token.x * prev.scale,
+      y: canvas.height / 2 - token.y * prev.scale,
+    }));
+  }, [mapStateRef, canvasRef, setCamera]);
+
   return {
     draggingTokenIdRef,
     draggingTokenPosRef,
@@ -648,5 +662,6 @@ export function useMapInteraction({
     handleImport,
     openPlayerView,
     handleBack,
+    recenterOnPlayer,
   };
 }

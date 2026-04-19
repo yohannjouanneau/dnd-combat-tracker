@@ -21,6 +21,10 @@ export class BroadcastChannelTransport implements MapTransport {
     return () => {};
   }
 
+  isConnected(): boolean {
+    return true;
+  }
+
   close() {
     this.channel.close();
   }

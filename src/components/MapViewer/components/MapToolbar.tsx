@@ -31,8 +31,9 @@ interface Props {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   tokenCount: number;
   onOpenTokenModal: () => void;
-  onOpenPlayerView: () => void;
   onOpenPeerModal: () => void;
+  isPeerConnected: boolean;
+  isReconnecting: boolean;
 }
 
 export default function MapToolbar({
@@ -55,8 +56,9 @@ export default function MapToolbar({
   onImport,
   tokenCount,
   onOpenTokenModal,
-  onOpenPlayerView,
   onOpenPeerModal,
+  isPeerConnected,
+  isReconnecting,
 }: Props) {
   const { t } = useTranslation("map");
 
@@ -80,6 +82,16 @@ export default function MapToolbar({
         >
           {view === "dm" ? t("toolbar.dmView") : t("toolbar.playerView")}
         </span>
+        {view === "player" && (isReconnecting || isPeerConnected) && (
+          <span
+            className={`w-2 h-2 rounded-full ${isReconnecting ? "bg-orange-400 animate-pulse" : "bg-green-400"}`}
+            title={
+              isReconnecting
+                ? t("overlay.reconnecting")
+                : t("toolbar.connectedToDm")
+            }
+          />
+        )}
         <span className="text-text-muted text-xs tabular-nums ml-1">
           {Math.round(cameraScale * 100)}%
         </span>
@@ -104,6 +116,7 @@ export default function MapToolbar({
             <LocateFixed className="w-4 h-4" />
           </button>
         )}
+        <span className="w-px h-4 bg-border-primary mx-1" />
         {view === "dm" && (
           <button
             onClick={onToggleFocusMode}
@@ -195,29 +208,26 @@ export default function MapToolbar({
             </button>
           </div>
 
-          {/* Section 4 — sync */}
+          {/* Section 4 — connect */}
           <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
-            <span className="text-xs text-text-muted px-1 select-none">
-              {t("toolbar.local")}
-            </span>
-            <button
-              onClick={onOpenPlayerView}
-              className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm transition"
-            >
-              {t("toolbar.openPlayerView")}
-            </button>
-            <span className="w-px h-4 bg-border-primary mx-1" />
-            <span className="text-xs text-text-muted px-1 select-none">
-              {t("toolbar.online")}
-            </span>
             <button
               onClick={onOpenPeerModal}
               className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
-              title={t("toolbar.connectOnlineTitle")}
+              title={t("toolbar.connectTitle")}
             >
               <Wifi className="w-4 h-4" />
-              {t("toolbar.connectOnline")}
+              {t("toolbar.connect")}
             </button>
+            {(isPeerConnected || isReconnecting) && (
+              <span className="flex items-center gap-1.5 px-2 py-1 text-xs text-text-muted">
+                {isReconnecting ? (
+                  <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
+                ) : (
+                  <span className="w-2 h-2 rounded-full bg-green-400" />
+                )}
+                {!isReconnecting && t("toolbar.playerConnected")}
+              </span>
+            )}
           </div>
         </>
       )}
