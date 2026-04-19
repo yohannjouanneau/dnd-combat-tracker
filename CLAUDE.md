@@ -11,10 +11,10 @@ npm run lint     # ESLint
 npx prettier --write .  # format all files
 ```
 
-**After every code change**, run ESLint and Prettier to keep the codebase clean:
+**After every code change**, run ESLint, Prettier, and verify the build:
 
 ```bash
-npm run lint && npx prettier --write .
+npm run lint && npx prettier --write . && npm run build
 ```
 
 ## Testing

@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { ArrowLeft, Moon, Sun, Leaf, Pencil, Check } from "lucide-react";
 import type { SyncApi } from "../api/sync/types";
-import logoSrc from "../assets/logo.png";
 
 type Props = {
   name: string;
@@ -14,7 +13,6 @@ type Props = {
   onBack: () => void;
   onSave: () => Promise<void>;
   hasChanges: boolean;
-  logo?: boolean;
   syncApi?: SyncApi;
   onOpenSettings?: () => void;
   actions?: React.ReactNode;
@@ -29,7 +27,6 @@ export default function TopBar({
   onBack,
   onSave,
   hasChanges,
-  logo,
   syncApi,
   onOpenSettings,
   actions,
@@ -55,59 +52,14 @@ export default function TopBar({
 
   return (
     <div className="w-full bg-panel-bg rounded-lg p-4 mb-6 border border-border-primary">
-      {/* Mobile: back button + centered logo row */}
-      {logo && (
-        <div className="flex items-center mb-4 md:hidden">
-          <button
-            onClick={onBack}
-            className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
-            title={t("common:actions.back")}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="flex-1 flex justify-center">
-            <img
-              src={logoSrc}
-              alt="D&D Combat Tracker Logo"
-              className="h-20 rounded-xl"
-            />
-          </div>
-          {/* Spacer to balance the back button */}
-          <div className="w-9 flex-shrink-0" />
-        </div>
-      )}
-
       <div className="flex items-center gap-3">
-        {/* Back button — far left (desktop, or mobile without logo) */}
-        {!logo && (
-          <button
-            onClick={onBack}
-            className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
-            title={t("common:actions.back")}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-        )}
-        {logo && (
-          <button
-            onClick={onBack}
-            className="hidden md:flex bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
-            title={t("common:actions.back")}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-        )}
-
-        {/* Desktop logo */}
-        {logo && (
-          <div className="hidden md:flex flex-shrink-0">
-            <img
-              src={logoSrc}
-              alt="D&D Combat Tracker Logo"
-              className="h-24 rounded-xl"
-            />
-          </div>
-        )}
+        <button
+          onClick={onBack}
+          className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
+          title={t("common:actions.back")}
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
 
         {/* Title / inputs + right buttons */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-3 flex-1 min-w-0">

@@ -102,7 +102,7 @@ export default function LandingPage({
       <img
         src={logo}
         alt="DnD Combat Tracker"
-        className="w-24 h-24 object-contain"
+        className="h-20 md:h-40 rounded-xl"
       />
 
       <h1 className="text-3xl md:text-4xl font-bold text-text-primary text-center">
