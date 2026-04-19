@@ -90,6 +90,8 @@ export const BUILDING_BLOCK_STORAGE_KEY = "dnd-ct:blocks:v1";
 export const CAMPAIGN_STORAGE_KEY = "dnd-ct:campaigns:v1";
 export const BLOCK_TYPE_STORAGE_KEY = "dnd-ct:block-types:v1";
 export const MAP_ROOM_CODE_STORAGE_KEY = "dnd-ct:map-room-code";
+export const BACKUP_FILE_NAME = "dnd-combat-tracker.backup.json";
+export const LAST_BACKUP_STORAGE_KEY = "dnd-ct:lastBackup";
 
 export const BUILT_IN_BLOCK_TYPES: BlockTypeDef[] = [
   {
@@ -98,14 +100,26 @@ export const BUILT_IN_BLOCK_TYPES: BlockTypeDef[] = [
     icon: "🌍",
     features: ["countdown"],
     isBuiltIn: true,
+    createdAt: 0,
+    updatedAt: 0,
   },
-  { id: "room", name: "room", icon: "🚪", features: [], isBuiltIn: true },
+  {
+    id: "room",
+    name: "room",
+    icon: "🚪",
+    features: [],
+    isBuiltIn: true,
+    createdAt: 0,
+    updatedAt: 0,
+  },
   {
     id: "character",
     name: "character",
     icon: "🧙",
     features: ["characters"],
     isBuiltIn: true,
+    createdAt: 0,
+    updatedAt: 0,
   },
   {
     id: "combat",
@@ -113,8 +127,18 @@ export const BUILT_IN_BLOCK_TYPES: BlockTypeDef[] = [
     icon: "⚔️",
     features: ["combat"],
     isBuiltIn: true,
+    createdAt: 0,
+    updatedAt: 0,
   },
-  { id: "loot", name: "loot", icon: "📦", features: ["loot"], isBuiltIn: true },
+  {
+    id: "loot",
+    name: "loot",
+    icon: "📦",
+    features: ["loot"],
+    isBuiltIn: true,
+    createdAt: 0,
+    updatedAt: 0,
+  },
   // "scene" is the hidden default: all features enabled, no specific type selected
   {
     id: "scene",
@@ -122,6 +146,8 @@ export const BUILT_IN_BLOCK_TYPES: BlockTypeDef[] = [
     icon: "🎭",
     features: ["characters", "combat", "loot", "countdown"],
     isBuiltIn: true,
+    createdAt: 0,
+    updatedAt: 0,
   },
 ];
 

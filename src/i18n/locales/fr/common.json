@@ -149,13 +149,22 @@
       "connected": "Dernière synchronisation : {{lastSync}}",
       "syncExlpaination": "Connectez votre compte Google Drive pour sauvegarder et synchroniser vos combats, vos personnages et votre bibliothèque de monstres sur tous vos appareils. Ne perdez plus jamais vos données !",
       "syncing": "Synchronisation...",
-      "uploadData": "Envoyer les données",
-      "downloadData": "Télécharger les données"
+      "uploadData": "Synchroniser",
+      "downloadData": "Fusionner & synchroniser",
+      "backup": {
+        "title": "Sauvegarde",
+        "lastBackup": "Dernière sauvegarde : {{date}}",
+        "neverBacked": "Aucune sauvegarde",
+        "restoreBackup": "Restaurer depuis la sauvegarde",
+        "confirmRestore": "Confirmer la restauration ?",
+        "cancelRestore": "Annuler",
+        "restoreWarning": "Vos données locales seront remplacées par la sauvegarde."
+      }
     },
     "sync": {
       "notConnected": "Se connecter à Google Drive",
-      "uploadData": "Envoyer vers Google Drive",
-      "downloadAvailable": "Télécharger depuis Google Drive",
+      "uploadData": "Synchroniser avec Google Drive",
+      "downloadAvailable": "Modifications distantes disponibles — fusion & sync",
       "syncing": "Synchronisation...",
       "checkingRemote": "Vérification du serveur..."
     }
@@ -167,7 +176,9 @@
       "syncSuccess": "Synchronisation réussie",
       "syncError": "Erreur lors de la synchronisation : {{error}}",
       "logoutSuccess": "Déconnexion réussie",
-      "logoutError": "Erreur lors de la déconnexion : {{error}}"
+      "logoutError": "Erreur lors de la déconnexion : {{error}}",
+      "restoreSuccess": "Restauration depuis la sauvegarde réussie",
+      "restoreError": "Échec de la restauration : {{error}}"
     }
   }
 }

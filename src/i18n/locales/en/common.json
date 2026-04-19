@@ -149,13 +149,22 @@
       "connected": "Last sync : {{lastSync}}",
       "syncExlpaination": "Connect your Google Drive account to backup and sync your combat encounters, saved players, and monster library across all your devices. Never lose your data again!",
       "syncing": "Synchronizing...",
-      "uploadData": "Upload data",
-      "downloadData": "Download data"
+      "uploadData": "Sync",
+      "downloadData": "Merge & sync",
+      "backup": {
+        "title": "Backup",
+        "lastBackup": "Last backup: {{date}}",
+        "neverBacked": "No backup yet",
+        "restoreBackup": "Restore from backup",
+        "confirmRestore": "Confirm restore?",
+        "cancelRestore": "Cancel",
+        "restoreWarning": "This will replace your local data with the backup."
+      }
     },
     "sync": {
       "notConnected": "Connect to Google Drive",
-      "uploadData": "Upload to Google Drive",
-      "downloadAvailable": "Download from Google Drive",
+      "uploadData": "Sync to Google Drive",
+      "downloadAvailable": "Remote changes available — will merge & sync",
       "syncing": "Synchronizing...",
       "checkingRemote": "Checking remote..."
     }
@@ -167,7 +176,9 @@
       "syncSuccess": "Sync successful",
       "syncError": "Error syncing data: {{error}}",
       "logoutSuccess": "Logged out successfully",
-      "logoutError": "Error logging out: {{error}}"
+      "logoutError": "Error logging out: {{error}}",
+      "restoreSuccess": "Restored from backup",
+      "restoreError": "Restore failed: {{error}}"
     }
   }
 }

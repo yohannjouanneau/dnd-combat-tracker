@@ -2,7 +2,7 @@ import type { TimestampedEntity } from "../types";
 
 export type BlockFeatureKey = "characters" | "combat" | "loot" | "countdown";
 
-export interface BlockTypeDef {
+export interface BlockTypeDef extends TimestampedEntity {
   id: string;
   name: string; // i18n key for built-ins, user string for custom
   icon: string;

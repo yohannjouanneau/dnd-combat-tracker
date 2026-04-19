@@ -24,7 +24,10 @@ import type {
 import { CombatStorageProvider } from "./CombatStorageProvider";
 import { CombatantTemplateStorageProvider } from "./CombatantTemplateStorageProvider";
 import { BuildingBlockStorageProvider } from "./BuildingBlockStorageProvider";
-import { BlockTypeStorageProvider } from "./BlockTypeStorageProvider";
+import {
+  BlockTypeStorageProvider,
+  type CustomTypeInput,
+} from "./BlockTypeStorageProvider";
 import { CampaignStorageProvider } from "./CampaignStorageProvider";
 import {
   cleanCombatStateForStorage,
@@ -113,6 +116,17 @@ export class DataStore {
 
   getLastSyncTime(): number | undefined {
     return this.syncProvider?.getLastSyncTime();
+  }
+
+  async restoreBackup() {
+    if (!this.syncProvider) {
+      throw new Error("Sync not initialized. Call initSync() first.");
+    }
+    await this.syncProvider.restoreBackup();
+  }
+
+  getLastBackupTime(): number | undefined {
+    return this.syncProvider?.getLastBackupTime();
   }
 
   // Combat methods
@@ -236,9 +250,7 @@ export class DataStore {
   listBlockTypes(): Promise<BlockTypeDef[]> {
     return this.blockTypeProvider.list();
   }
-  createBlockType(
-    input: Omit<BlockTypeDef, "isBuiltIn">,
-  ): Promise<BlockTypeDef> {
+  createBlockType(input: CustomTypeInput): Promise<BlockTypeDef> {
     return this.blockTypeProvider.create(input);
   }
   updateBlockType(

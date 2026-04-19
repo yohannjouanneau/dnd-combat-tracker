@@ -24,6 +24,7 @@ import type {
   CanvasEdge,
   CanvasNode,
 } from "../types/campaign";
+import type { CustomTypeInput } from "../persistence/BlockTypeStorageProvider";
 
 export type CombatStateManager = {
   // State
@@ -107,9 +108,7 @@ export type CombatStateManager = {
   loadCampaigns: () => Promise<void>;
   loadBlocks: () => Promise<void>;
   loadBlockTypes: () => Promise<void>;
-  createBlockType: (
-    input: Omit<BlockTypeDef, "isBuiltIn">,
-  ) => Promise<BlockTypeDef>;
+  createBlockType: (input: CustomTypeInput) => Promise<BlockTypeDef>;
   updateBlockType: (
     id: string,
     patch: Partial<BlockTypeDef>,

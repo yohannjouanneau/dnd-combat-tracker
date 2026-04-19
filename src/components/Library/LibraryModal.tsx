@@ -26,6 +26,7 @@ import type {
   BuildingBlock,
   BuildingBlockInput,
 } from "../../types/campaign";
+import type { CustomTypeInput } from "../../persistence/BlockTypeStorageProvider";
 import LibraryListItem from "./LibraryListItem";
 import LibraryEditModal from "./LibraryEditModal";
 import BlockEditModal from "../Campaign/BlockEditModal";
@@ -56,9 +57,7 @@ type Props = {
     patch: Partial<BuildingBlock>,
   ) => Promise<BuildingBlock>;
   onDeleteBlock?: (id: string) => Promise<void>;
-  onCreateBlockType?: (
-    input: Omit<BlockTypeDef, "isBuiltIn">,
-  ) => Promise<BlockTypeDef>;
+  onCreateBlockType?: (input: CustomTypeInput) => Promise<BlockTypeDef>;
   onUpdateBlockType?: (
     id: string,
     patch: Partial<BlockTypeDef>,
