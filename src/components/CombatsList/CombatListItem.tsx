@@ -2,6 +2,7 @@ import { FolderOpen, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SavedCombat } from "../../types";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
+import Button from "../common/Button";
 
 interface Props {
   combat: SavedCombat;
@@ -40,20 +41,22 @@ export default function CombatListItem({ combat, onOpen, onDelete }: Props) {
         )}
       </div>
       <div className="grid grid-cols-2 md:flex gap-2 flex-shrink-0">
-        <button
+        <Button
+          variant="success"
           onClick={() => onOpen(combat.id)}
-          className="bg-green-600 hover:bg-green-700 px-3 md:px-4 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1"
+          className="px-3 md:px-4 flex items-center justify-center gap-1"
         >
           <FolderOpen className="w-4 h-4" />
           <span className="hidden sm:inline">{t("common:actions.open")}</span>
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="danger"
           onClick={() => confirmRemove()}
-          className="bg-red-600 hover:bg-red-700 px-3 md:px-4 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1"
+          className="px-3 md:px-4 flex items-center justify-center gap-1"
         >
           <Trash2 className="w-4 h-4" />
           <span className="hidden sm:inline">{t("common:actions.delete")}</span>
-        </button>
+        </Button>
       </div>
     </div>
   );

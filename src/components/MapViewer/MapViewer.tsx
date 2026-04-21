@@ -1,4 +1,5 @@
 import { Loader2, X } from "lucide-react";
+import Button from "../common/Button";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MAP_ROOM_CODE_STORAGE_KEY } from "../../constants";
@@ -361,7 +362,9 @@ export default function MapViewer() {
               <span className="text-sm text-text-primary">
                 {t("overlay.connectionLost")}
               </span>
-              <button
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={() => {
                   if (lastRoomCode) {
                     reconnectToRoom(lastRoomCode);
@@ -370,16 +373,17 @@ export default function MapViewer() {
                     setPeerModalOpen(true);
                   }
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition font-semibold"
+                className="font-semibold"
               >
                 {t("overlay.reconnect")}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setPeerDisconnected(false)}
-                className="text-text-muted hover:text-text-primary transition text-sm"
               >
                 {t("overlay.dismiss")}
-              </button>
+              </Button>
             </>
           )}
         </div>

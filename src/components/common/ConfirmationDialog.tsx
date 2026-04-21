@@ -1,5 +1,6 @@
-import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import Modal from "./Modal";
+import Button from "./Button";
 
 type Props = {
   isOpen: boolean;
@@ -24,64 +25,28 @@ export default function ConfirmationDialog({
 }: Props) {
   const { t } = useTranslation(["common"]);
 
-  if (!isOpen) return null;
-
-  const confirmButtonClass =
-    variant === "danger"
-      ? "bg-red-600 hover:bg-red-700"
-      : "bg-orange-600 hover:bg-orange-700";
-
   const confirm = confirmText ?? t("common:confirmation.confirm");
   const cancel = cancelText ?? t("common:confirmation.cancel");
 
-  const confirmButton = onConfirm ? (
-    <button
-      onClick={onConfirm}
-      className={`flex-1 ${confirmButtonClass} text-white px-4 py-2 rounded transition`}
-    >
-      {confirm}
-    </button>
-  ) : null;
-
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="!mt-0 fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-        onClick={onCancel}
-      />
-
-      {/* Dialog */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-panel-bg rounded-lg border border-border-primary max-w-md w-full shadow-xl">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border-primary">
-            <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
-            <button
-              onClick={onCancel}
-              className="text-text-muted hover:text-text-primary transition"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Content */}
-          <div className="p-4">
-            <p className="text-text-secondary">{message}</p>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-2 p-4 border-t border-border-primary">
-            <button
-              onClick={onCancel}
-              className="flex-1 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-2 rounded transition"
-            >
-              {cancel}
-            </button>
-            {confirmButton}
-          </div>
-        </div>
-      </div>
-    </>
+    <Modal open={isOpen} onClose={onCancel} title={title} layer="dialog">
+      <Modal.Body>
+        <p className="text-text-secondary">{message}</p>
+      </Modal.Body>
+      <Modal.Footer className="flex gap-2">
+        <Button variant="secondary" onClick={onCancel} className="flex-1">
+          {cancel}
+        </Button>
+        {onConfirm && (
+          <Button
+            variant={variant === "warning" ? "warning" : "danger"}
+            onClick={onConfirm}
+            className="flex-1"
+          >
+            {confirm}
+          </Button>
+        )}
+      </Modal.Footer>
+    </Modal>
   );
 }

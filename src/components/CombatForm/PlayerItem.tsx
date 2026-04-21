@@ -4,6 +4,7 @@ import type { SavedPlayer } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { useTranslation } from "react-i18next";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
+import Button from "../common/Button";
 
 type Props = {
   player: SavedPlayer;
@@ -123,27 +124,33 @@ export default function PlayerItem({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          <button
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => onInclude(player)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center transition min-w-[44px]"
             title={t("forms:players:editTooltip")}
+            className="flex items-center justify-center min-w-[44px]"
           >
             <Edit className="w-4 h-4" />
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => onFight(player)}
-            className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center transition min-w-[44px]"
             title={t("forms:players:fightTooltip")}
+            className="bg-lime-600 hover:bg-lime-700 flex items-center justify-center min-w-[44px]"
           >
             <Sword className="w-4 h-4" />
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
             onClick={() => confirmRemove()}
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition min-w-[44px] flex items-center justify-center"
             title={t("forms:players:deleteTooltip")}
+            className="flex items-center justify-center min-w-[44px]"
           >
             <UserMinus className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

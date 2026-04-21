@@ -8,6 +8,8 @@ import {
   UserCircle,
   X,
 } from "lucide-react";
+import Button from "../common/Button";
+import IconButton from "../common/IconButton";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster, SavedPlayer } from "../../types";
@@ -128,13 +130,13 @@ export default function BlockDetailModal({
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-border-primary">
           {navStack.length > 0 && (
-            <button
+            <IconButton
               onClick={goBack}
-              className="p-2 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-secondary hover:text-text-primary transition flex-shrink-0"
+              className="flex-shrink-0"
               title={t("common:actions.back")}
             >
               <ChevronLeft className="w-4 h-4" />
-            </button>
+            </IconButton>
           )}
           <span className="text-xl flex-shrink-0">{displayIcon}</span>
           <div className="flex-1 min-w-0">
@@ -150,19 +152,15 @@ export default function BlockDetailModal({
             </span>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <button
+            <IconButton
               onClick={() => onEdit(currentBlock)}
-              className="p-2 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-secondary hover:text-text-primary transition"
               title={t("common:actions.edit")}
             >
               <Edit2 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-secondary hover:text-text-primary transition"
-            >
+            </IconButton>
+            <IconButton onClick={onClose}>
               <X className="w-4 h-4" />
-            </button>
+            </IconButton>
           </div>
         </div>
 
@@ -202,13 +200,15 @@ export default function BlockDetailModal({
                 {t("campaigns:block.combatFeature.linked")}
               </span>
               {combatId ? (
-                <button
+                <Button
+                  variant="danger"
+                  size="sm"
                   onClick={() => onOpenCombat?.(combatId)}
-                  className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm transition"
+                  className="flex items-center gap-1.5"
                 >
                   <Swords className="w-4 h-4" />
                   {t("campaigns:block.combatFeature.openCombat")}
-                </button>
+                </Button>
               ) : (
                 <span className="text-sm text-text-muted italic">
                   {t("campaigns:block.combatFeature.unlinked")}
@@ -483,16 +483,18 @@ export default function BlockDetailModal({
                     (tp) => tp.id === child.typeId,
                   );
                   return (
-                    <button
+                    <Button
                       key={child.id}
+                      variant="secondary"
+                      size="sm"
                       onClick={() => navigate(child.id)}
-                      className="flex items-center gap-1.5 text-sm bg-panel-secondary hover:bg-panel-secondary/80 border border-border-secondary rounded px-2.5 py-1.5 text-text-primary transition"
+                      className="flex items-center gap-1.5 border border-border-secondary"
                     >
                       <span>{child.icon ?? childTypeDef?.icon ?? "📦"}</span>
                       {child.name || (
                         <span className="italic text-text-muted">Unnamed</span>
                       )}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -502,12 +504,9 @@ export default function BlockDetailModal({
 
         {/* Footer */}
         <div className="flex justify-end p-4 border-t border-border-primary">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary text-sm transition"
-          >
+          <Button variant="secondary" onClick={onClose}>
             {t("common:actions.close")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

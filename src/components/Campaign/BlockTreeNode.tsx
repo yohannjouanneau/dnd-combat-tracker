@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedMonster, SavedPlayer } from "../../types";
 import type { BlockTypeDef, BuildingBlock } from "../../types/campaign";
+import IconButton from "../common/IconButton";
 
 export interface DragCallbacks {
   onDragStart: (blockId: string) => void;
@@ -181,8 +182,10 @@ export default function BlockTreeNode({
               <GripVertical className="w-4 h-4" />
             </span>
           ) : (
-            <button
-              className="flex-shrink-0 text-text-muted hover:text-text-primary transition w-5"
+            <IconButton
+              variant="ghost"
+              size="sm"
+              className="flex-shrink-0 w-5 flex items-center justify-center"
               onClick={(e) => {
                 e.stopPropagation();
                 if (hasChildren) setExpanded((v) => !v);
@@ -197,7 +200,7 @@ export default function BlockTreeNode({
               ) : (
                 <span className="w-4 h-4 inline-block" />
               )}
-            </button>
+            </IconButton>
           )}
 
           {/* Type icon */}
@@ -299,27 +302,32 @@ export default function BlockTreeNode({
                 className="flex items-center gap-1"
                 onClick={(e) => e.stopPropagation()}
               >
-                <button
+                <IconButton
+                  variant="filled"
+                  size="sm"
                   onClick={() => onEdit(block)}
-                  className="p-1.5 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-secondary hover:text-text-primary transition"
                   title={t("common:actions.edit")}
                 >
                   <Edit2 className="w-3.5 h-3.5" />
-                </button>
-                <button
+                </IconButton>
+                <IconButton
+                  variant="filled"
+                  size="sm"
                   onClick={() => onAddChild(block.id)}
-                  className="p-1.5 rounded bg-panel-secondary hover:bg-blue-900/30 text-text-secondary hover:text-blue-400 transition"
+                  className="hover:bg-blue-900/30 hover:text-blue-400"
                   title={t("campaigns:block.addChild")}
                 >
                   <Plus className="w-3.5 h-3.5" />
-                </button>
-                <button
+                </IconButton>
+                <IconButton
+                  variant="filled"
+                  size="sm"
                   onClick={() => onRemove(block.id)}
-                  className="p-1.5 rounded bg-panel-secondary hover:bg-red-900/30 text-text-secondary hover:text-red-400 transition"
+                  className="hover:bg-red-900/30 hover:text-red-400"
                   title={t("common:actions.delete")}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                </IconButton>
               </div>
             </>
           )}

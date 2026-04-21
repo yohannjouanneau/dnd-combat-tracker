@@ -136,7 +136,6 @@ export default function CombatantCard({
             imageUrl={combatant.imageUrl}
             name={combatant.displayName}
             color={combatant.color}
-            size="md"
           />
         </div>
 

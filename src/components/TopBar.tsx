@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { ArrowLeft, Moon, Sun, Leaf, Pencil, Check } from "lucide-react";
 import type { SyncApi } from "../api/sync/types";
+import Button from "./common/Button";
+import IconButton from "./common/IconButton";
 
 type Props = {
   name: string;
@@ -53,13 +55,13 @@ export default function TopBar({
   return (
     <div className="w-full bg-panel-bg rounded-lg p-4 mb-6 border border-border-primary">
       <div className="flex items-center gap-3">
-        <button
+        <IconButton
           onClick={onBack}
-          className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
+          className="flex-shrink-0"
           title={t("common:actions.back")}
         >
           <ArrowLeft className="w-5 h-5" />
-        </button>
+        </IconButton>
 
         {/* Title / inputs + right buttons */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-3 flex-1 min-w-0">
@@ -100,21 +102,19 @@ export default function TopBar({
           <div className="flex gap-2 flex-shrink-0 w-full md:w-auto justify-end items-center">
             {actions}
             {isEditing ? (
-              <button
+              <IconButton
                 onClick={() => setIsEditing(false)}
-                className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
                 title={t("common:actions.confirm")}
               >
                 <Check className="w-5 h-5" />
-              </button>
+              </IconButton>
             ) : (
-              <button
+              <IconButton
                 onClick={() => setIsEditing(true)}
-                className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
                 title={t("common:actions.edit")}
               >
                 <Pencil className="w-5 h-5" />
-              </button>
+              </IconButton>
             )}
             {syncApi && (
               <SyncButton
@@ -124,9 +124,8 @@ export default function TopBar({
                 onSave={onSave}
               />
             )}
-            <button
+            <IconButton
               onClick={toggleTheme}
-              className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
               title={
                 theme === "dark"
                   ? t("common:theme.switchTo.light")
@@ -142,14 +141,15 @@ export default function TopBar({
               ) : (
                 <Leaf className="w-5 h-5" />
               )}
-            </button>
-            <button
+            </IconButton>
+            <Button
+              variant="primary"
               onClick={onSave}
-              className="disabled:opacity-50 disabled:pointer-events-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition font-medium h-[38px] flex items-center justify-center"
               disabled={!hasChanges}
+              className="h-[38px] flex items-center justify-center"
             >
               {t("common:actions.save")}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

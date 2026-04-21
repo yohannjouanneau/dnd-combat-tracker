@@ -1,4 +1,5 @@
 import { X, ExternalLink, Loader2 } from "lucide-react";
+import IconButton from "./IconButton";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useDebounce } from "../../hooks/useDebounce";
 
@@ -235,23 +236,23 @@ export default function SearchSelect<T = unknown>({
       <div className="flex gap-2 items-center">
         <div className="flex-1 flex items-center gap-2 bg-input-bg border border-border-secondary rounded px-3 py-2 text-sm text-text-primary">
           <span className="flex-1 truncate">{selectedLabel ?? value}</span>
-          <button
-            type="button"
+          <IconButton
+            variant="ghost"
+            size="sm"
             onClick={handleClear}
-            className="text-text-muted hover:text-text-primary transition flex-shrink-0"
+            className="flex-shrink-0"
           >
             <X className="w-4 h-4" />
-          </button>
+          </IconButton>
         </div>
         {onOpenSelected && (
-          <button
-            type="button"
+          <IconButton
+            variant="filled"
             onClick={() => onOpenSelected(value)}
-            className="p-2 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-secondary hover:text-text-primary transition flex-shrink-0"
             title={openSelectedTitle}
           >
             <ExternalLink className="w-4 h-4" />
-          </button>
+          </IconButton>
         )}
       </div>
     );
