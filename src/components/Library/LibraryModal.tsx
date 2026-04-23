@@ -13,6 +13,9 @@ import {
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useCallback } from "react";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
+import Button from "../common/Button";
+import IconButton from "../common/IconButton";
+import Select from "../common/Select";
 import type {
   MonsterCombatant,
   PlayerCombatant,
@@ -326,63 +329,68 @@ export default function LibraryModal({
             </div>
             <div className="flex items-center gap-2">
               {filter === "monsters" && (
-                <button
+                <Button
+                  variant="success"
+                  size="md"
                   onClick={() => setIsCreating(true)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-3 md:px-4 py-2 rounded transition font-medium flex items-center gap-2"
                   title={t("forms:library.newHint")}
+                  className="px-3 md:px-4 flex items-center gap-2"
                 >
                   <Plus className="w-5 h-5" />
                   <span className="hidden sm:inline">
                     {t("forms:library.new")}
                   </span>
-                </button>
+                </Button>
               )}
               {filter === "players" && onCreatePlayer && (
-                <button
+                <Button
+                  variant="primary"
+                  size="md"
                   onClick={() => setIsCreatingPlayer(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 md:px-4 py-2 rounded transition font-medium flex items-center gap-2"
                   title={t("forms:library.newPlayerHint")}
+                  className="px-3 md:px-4 bg-purple-600 hover:bg-purple-700 flex items-center gap-2"
                 >
                   <Users className="w-5 h-5" />
                   <span className="hidden sm:inline">
                     {t("forms:library.newPlayer")}
                   </span>
-                </button>
+                </Button>
               )}
               {filter === "players" &&
                 onAddPlayerToFight &&
                 filteredPlayers.length > 0 && (
-                  <button
+                  <Button
+                    variant="primary"
+                    size="md"
                     onClick={() =>
                       filteredPlayers.forEach((p) => onAddPlayerToFight(p))
                     }
-                    className="bg-lime-600 hover:bg-lime-700 text-white px-3 md:px-4 py-2 rounded transition font-medium flex items-center gap-2"
                     title={t("forms:library.addAllHint")}
+                    className="px-3 md:px-4 bg-lime-600 hover:bg-lime-700 flex items-center gap-2"
                   >
                     <Swords className="w-5 h-5" />
                     <span className="hidden sm:inline">
                       {t("forms:library.addAll")}
                     </span>
-                  </button>
+                  </Button>
                 )}
               {filter === "blocks" && onCreateBlock && (
-                <button
+                <Button
+                  variant="primary"
+                  size="md"
                   onClick={() => setIsCreatingBlock(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-2 rounded transition font-medium flex items-center gap-2"
                   title={t("forms:library.newBlockHint")}
+                  className="px-3 md:px-4 flex items-center gap-2"
                 >
                   <Plus className="w-5 h-5" />
                   <span className="hidden sm:inline">
                     {t("forms:library.newBlock")}
                   </span>
-                </button>
+                </Button>
               )}
-              <button
-                onClick={onClose}
-                className="text-text-muted hover:text-text-primary transition"
-              >
+              <IconButton variant="ghost" onClick={onClose}>
                 <X className="w-6 h-6" />
-              </button>
+              </IconButton>
             </div>
           </div>
 
@@ -422,14 +430,14 @@ export default function LibraryModal({
                     className="pl-7 pr-2 py-1 text-sm bg-input-bg border border-border-secondary rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:border-amber-400 w-full sm:w-28 md:w-40"
                   />
                 </div>
-                <select
+                <Select
                   value={sortField}
                   onChange={(e) =>
                     setSortField(
                       e.target.value as "name" | "hp" | "ac" | "createdAt",
                     )
                   }
-                  className="text-sm bg-input-bg border border-border-secondary rounded px-2 py-1 text-text-primary focus:outline-none focus:border-amber-400"
+                  className="text-sm px-2 py-1 focus:border-amber-400"
                 >
                   <option value="name">{t("forms:library.sort.name")}</option>
                   {filter !== "blocks" && (
@@ -441,12 +449,13 @@ export default function LibraryModal({
                   <option value="createdAt">
                     {t("forms:library.sort.createdAt")}
                   </option>
-                </select>
-                <button
+                </Select>
+                <IconButton
+                  variant="ghost"
+                  size="sm"
                   onClick={() =>
                     setSortDir((d) => (d === "asc" ? "desc" : "asc"))
                   }
-                  className="p-1 rounded text-text-muted hover:text-text-primary transition"
                   title={
                     sortDir === "asc"
                       ? t("forms:library.sort.desc")
@@ -458,7 +467,7 @@ export default function LibraryModal({
                   ) : (
                     <ArrowDown className="w-4 h-4" />
                   )}
-                </button>
+                </IconButton>
               </div>
             </div>
           </div>
@@ -545,29 +554,35 @@ export default function LibraryModal({
                         </span>
                         <div className="flex gap-2 flex-shrink-0">
                           {onAddBlock && (
-                            <button
+                            <Button
+                              variant="success"
+                              size="sm"
                               onClick={() => onAddBlock(block)}
-                              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
                               title={t("common:actions.add")}
+                              className="flex items-center justify-center gap-1 min-w-[44px]"
                             >
                               <Plus className="w-4 h-4" />
-                            </button>
+                            </Button>
                           )}
-                          <button
+                          <Button
+                            variant="primary"
+                            size="sm"
                             onClick={() => setEditingBlock(block)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
                             title={t("common:actions.edit")}
+                            className="flex items-center justify-center gap-1 min-w-[44px]"
                           >
                             <Edit2 className="w-4 h-4" />
-                          </button>
+                          </Button>
                           {onDeleteBlock && (
-                            <button
+                            <Button
+                              variant="danger"
+                              size="sm"
                               onClick={() => handleDeleteBlock(block)}
-                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
                               title={t("common:actions.delete")}
+                              className="flex items-center justify-center gap-1 min-w-[44px]"
                             >
                               <Trash2 className="w-4 h-4" />
-                            </button>
+                            </Button>
                           )}
                         </div>
                       </div>
@@ -580,12 +595,13 @@ export default function LibraryModal({
 
           {/* Footer */}
           <div className="border-t border-border-primary p-4 md:p-6">
-            <button
+            <Button
+              variant="secondary"
               onClick={onClose}
-              className="w-full md:w-auto bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-6 py-2 rounded transition font-medium"
+              className="w-full md:w-auto px-6"
             >
               {t("common:actions.close")}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

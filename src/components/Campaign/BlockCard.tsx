@@ -1,6 +1,7 @@
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { BuildingBlock } from "../../types/campaign";
+import Button from "../common/Button";
 
 const TYPE_COLORS: Record<string, string> = {
   environment:
@@ -63,33 +64,36 @@ export default function BlockCard({ block, onEdit, onDelete, onAdd }: Props) {
 
       <div className="flex gap-2 flex-shrink-0">
         {onAdd && (
-          <button
+          <Button
+            variant="success"
             onClick={() => onAdd(block)}
-            className="bg-green-600 hover:bg-green-700 px-3 md:px-4 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1"
+            className="px-3 md:px-4 flex items-center justify-center gap-1"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">{t("common:actions.add")}</span>
-          </button>
+          </Button>
         )}
         {onEdit && (
-          <button
+          <Button
+            variant="secondary"
             onClick={() => onEdit(block)}
-            className="bg-panel-secondary hover:bg-panel-secondary/80 px-3 md:px-4 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1"
+            className="px-3 md:px-4 flex items-center justify-center gap-1"
           >
             <Edit2 className="w-4 h-4" />
             <span className="hidden sm:inline">{t("common:actions.edit")}</span>
-          </button>
+          </Button>
         )}
         {onDelete && (
-          <button
+          <Button
+            variant="danger"
             onClick={() => onDelete(block)}
-            className="bg-red-600 hover:bg-red-700 px-3 md:px-4 py-2 rounded transition font-medium text-sm flex items-center justify-center gap-1"
+            className="px-3 md:px-4 flex items-center justify-center gap-1"
           >
             <Trash2 className="w-4 h-4" />
             <span className="hidden sm:inline">
               {t("common:actions.delete")}
             </span>
-          </button>
+          </Button>
         )}
       </div>
     </div>

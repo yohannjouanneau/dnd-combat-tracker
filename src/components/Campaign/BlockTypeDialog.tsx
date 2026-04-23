@@ -1,4 +1,6 @@
 import { X } from "lucide-react";
+import Button from "../common/Button";
+import IconButton from "../common/IconButton";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { BlockFeatureKey, BlockTypeDef } from "../../types/campaign";
@@ -39,12 +41,9 @@ export default function BlockTypeDialog({
               ? t("campaigns:block.blockType.editTitle")
               : t("campaigns:block.blockType.new")}
           </h3>
-          <button
-            onClick={onCancel}
-            className="text-text-muted hover:text-text-primary transition"
-          >
+          <IconButton variant="ghost" size="sm" onClick={onCancel}>
             <X className="w-4 h-4" />
-          </button>
+          </IconButton>
         </div>
 
         <div className="flex items-center gap-3">
@@ -91,23 +90,21 @@ export default function BlockTypeDialog({
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button
-            onClick={onCancel}
-            className="px-3 py-1.5 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary text-sm transition"
-          >
+          <Button variant="secondary" size="sm" onClick={onCancel}>
             {t("common:actions.cancel")}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() =>
               name.trim() && onConfirm(name.trim(), icon, features)
             }
             disabled={!name.trim()}
-            className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm transition disabled:opacity-50"
           >
             {editingType
               ? t("campaigns:block.blockType.save")
               : t("campaigns:block.blockType.create")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

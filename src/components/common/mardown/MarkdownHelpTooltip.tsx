@@ -1,6 +1,7 @@
 import { HelpCircle, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import IconButton from "../IconButton";
 
 export default function MarkdownHelpTooltip() {
   const { t } = useTranslation(["forms"]);
@@ -32,12 +33,13 @@ export default function MarkdownHelpTooltip() {
               <h3 className="text-sm font-semibold text-text-primary">
                 {t("forms:library.notes.help.header")}
               </h3>
-              <button
+              <IconButton
+                variant="ghost"
                 onClick={() => setIsOpen(false)}
-                className="text-text-muted hover:text-text-primary transition"
+                aria-label="Close"
               >
                 <X className="w-4 h-4" />
-              </button>
+              </IconButton>
             </div>
 
             {/* Content */}

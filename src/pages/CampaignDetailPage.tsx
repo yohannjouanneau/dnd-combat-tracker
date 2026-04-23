@@ -11,6 +11,8 @@ import {
   FileInput,
   BookOpen,
 } from "lucide-react";
+import Button from "../components/common/Button";
+import IconButton from "../components/common/IconButton";
 import TopBar from "../components/TopBar";
 import type { CombatStateManager } from "../store/types";
 import type { SavedCombat } from "../types";
@@ -381,13 +383,11 @@ export default function CampaignDetailPage({
 
           <div className="flex items-center gap-2">
             {viewMode === "tree" && (
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={toggleReorderMode}
-                className={`flex items-center gap-1 px-3 py-2 rounded text-sm transition ${
-                  reorderMode
-                    ? "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary ring-1 ring-border-secondary"
-                    : "bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary"
-                }`}
+                className={`flex items-center gap-1 ${reorderMode ? "ring-1 ring-border-secondary" : ""}`}
               >
                 {reorderMode ? (
                   <Check className="w-4 h-4" />
@@ -399,39 +399,45 @@ export default function CampaignDetailPage({
                     ? t("common:actions.confirm")
                     : t("campaigns:detail.reorder")}
                 </span>
-              </button>
+              </Button>
             )}
             {!reorderMode && (
               <>
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setShowImport(true)}
-                  className="flex items-center gap-1 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-3 py-2 rounded text-sm transition"
                   title={t("campaigns:detail.importBlocks")}
+                  className="flex items-center gap-1"
                 >
                   <FileInput className="w-4 h-4" />
                   <span className="hidden sm:inline">
                     {t("campaigns:detail.importBlocks")}
                   </span>
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="warning"
+                  size="sm"
                   onClick={() => setModalState({ kind: "library" })}
-                  className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm transition"
                   title={t("campaigns:detail.addFromLibrary")}
+                  className="flex items-center gap-1"
                 >
                   <BookOpen className="w-4 h-4" />
                   <span className="hidden sm:inline">
                     {t("campaigns:detail.addFromLibrary")}
                   </span>
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
                   onClick={() => setModalState({ kind: "create" })}
-                  className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition"
+                  className="flex items-center gap-1"
                 >
                   <Plus className="w-4 h-4" />
                   <span className="hidden sm:inline">
                     {t("campaigns:detail.addBlock")}
                   </span>
-                </button>
+                </Button>
               </>
             )}
           </div>
@@ -478,12 +484,13 @@ export default function CampaignDetailPage({
             <span className="font-semibold text-text-primary truncate">
               {campaign.name}
             </span>
-            <button
+            <IconButton
+              variant="ghost"
+              size="sm"
               onClick={() => setViewMode("tree")}
-              className="p-1 text-text-muted hover:text-text-primary"
             >
               <X className="w-5 h-5" />
-            </button>
+            </IconButton>
           </div>
           <div className="flex-1">
             <CampaignCanvas

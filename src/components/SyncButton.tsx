@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useConfirmationDialog } from "../hooks/useConfirmationDialog";
 import { getReadableTimestamp } from "../utils/utils";
 import type { SyncApi } from "../api/sync/types";
+import Button from "./common/Button";
+import IconButton from "./common/IconButton";
 
 type SyncButtonVariant = "icon" | "full";
 
@@ -166,14 +168,16 @@ export default function SyncButton({
   if (variant === "full") {
     return (
       <div className={className}>
-        <button
+        <Button
+          variant="primary"
+          size="lg"
           onClick={handleClick}
           disabled={isSyncing || isCheckingRemoteData || !isAuthorized}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white px-4 py-3 rounded font-medium transition flex items-center justify-center gap-3"
+          className="w-full flex items-center justify-center gap-3 disabled:bg-blue-800"
         >
           <RefreshCw className={`w-5 h-5 ${isSyncing ? "animate-spin" : ""}`} />
           {getSyncText()}
-        </button>
+        </Button>
 
         {lastSyncTime && (
           <div className="text-sm text-text-primary mt-2">
@@ -188,13 +192,13 @@ export default function SyncButton({
 
   // Icon variant (default)
   return (
-    <button
+    <IconButton
       onClick={handleClick}
       disabled={isSyncing || isCheckingRemoteData}
-      className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+      className="flex-shrink-0"
       title={getTooltip()}
     >
       {getIcon()}
-    </button>
+    </IconButton>
   );
 }

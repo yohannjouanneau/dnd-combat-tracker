@@ -1,4 +1,6 @@
 import { Copy, Loader2, Monitor, Radio, Wifi, X } from "lucide-react";
+import Button from "../common/Button";
+import IconButton from "../common/IconButton";
 import { useEffect, useRef, useState } from "react";
 import Peer from "peerjs";
 import { useTranslation } from "react-i18next";
@@ -142,12 +144,14 @@ export default function PeerJSConnector({
   return (
     <div className="absolute inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-panel-bg border border-border-primary rounded-xl p-6 w-full max-w-sm flex flex-col gap-5 relative">
-        <button
+        <IconButton
+          variant="ghost"
           onClick={handleClose}
-          className="absolute top-3 right-3 text-text-muted hover:text-text-primary transition"
+          className="absolute top-3 right-3"
+          aria-label="Close"
         >
           <X className="w-5 h-5" />
-        </button>
+        </IconButton>
 
         <h2 className="text-lg font-bold text-text-primary">
           {t("connector.title")}
@@ -155,9 +159,11 @@ export default function PeerJSConnector({
 
         {step.kind === "choosing" && (
           <div className="flex flex-col gap-3">
-            <button
+            <Button
+              variant="danger"
+              size="lg"
               onClick={startAsDM}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-4 rounded-lg transition font-semibold flex items-center gap-3"
+              className="rounded-lg flex items-center gap-3 font-semibold"
             >
               <Radio className="w-5 h-5 shrink-0" />
               <span className="text-left">
@@ -166,10 +172,12 @@ export default function PeerJSConnector({
                   {t("connector.startAsDmHint")}
                 </p>
               </span>
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
+              size="lg"
               onClick={() => setStep({ kind: "player-ready", input: "" })}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-4 rounded-lg transition font-semibold flex items-center gap-3"
+              className="rounded-lg flex items-center gap-3 font-semibold"
             >
               <Wifi className="w-5 h-5 shrink-0" />
               <span className="text-left">
@@ -178,13 +186,15 @@ export default function PeerJSConnector({
                   {t("connector.joinAsPlayerHint")}
                 </p>
               </span>
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
               onClick={() => {
                 onOpenLocalView();
                 onClose();
               }}
-              className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary px-4 py-4 rounded-lg transition font-semibold flex items-center gap-3"
+              className="rounded-lg flex items-center gap-3 font-semibold hover:bg-panel-secondary/70"
             >
               <Monitor className="w-5 h-5 shrink-0" />
               <span className="text-left">
@@ -193,7 +203,7 @@ export default function PeerJSConnector({
                   {t("connector.openLocalViewHint")}
                 </p>
               </span>
-            </button>
+            </Button>
           </div>
         )}
 
@@ -212,13 +222,13 @@ export default function PeerJSConnector({
                 <code className="flex-1 bg-panel-secondary text-text-primary px-3 py-2 rounded-lg text-base font-mono tracking-widest text-center select-all">
                   {step.roomCode}
                 </code>
-                <button
+                <IconButton
                   onClick={() => copyRoomCode(step.roomCode)}
-                  className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary p-2 rounded-lg transition"
                   title={t("connector.copyRoomCode")}
+                  className="rounded-lg"
                 >
                   <Copy className="w-4 h-4" />
-                </button>
+                </IconButton>
               </div>
               {copied && (
                 <p className="text-xs text-green-400 text-center mt-1">
@@ -226,12 +236,14 @@ export default function PeerJSConnector({
                 </p>
               )}
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={reset}
-              className="text-xs text-text-muted hover:text-text-primary transition"
+              className="text-xs"
             >
               {t("connector.cancel")}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -258,12 +270,13 @@ export default function PeerJSConnector({
               }}
               autoFocus
             />
-            <button
+            <Button
+              variant="primary"
               onClick={() =>
                 step.kind === "player-ready" && connectAsPlayer(step.input)
               }
               disabled={!step.input.trim() || step.kind === "connecting"}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition font-semibold flex items-center justify-center gap-2"
+              className="rounded-lg font-semibold flex items-center justify-center gap-2"
             >
               {step.kind === "connecting" && (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -271,13 +284,15 @@ export default function PeerJSConnector({
               {step.kind === "connecting"
                 ? t("connector.connecting")
                 : t("connector.connect")}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={reset}
-              className="text-xs text-text-muted hover:text-text-primary transition text-center"
+              className="text-xs text-center"
             >
               {t("connector.cancel")}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -289,12 +304,9 @@ export default function PeerJSConnector({
             <p className="text-text-muted text-xs text-center">
               {step.message}
             </p>
-            <button
-              onClick={reset}
-              className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-primary px-4 py-2 rounded-lg transition text-sm"
-            >
+            <Button variant="secondary" onClick={reset}>
               {t("connector.tryAgain")}
-            </button>
+            </Button>
           </div>
         )}
       </div>

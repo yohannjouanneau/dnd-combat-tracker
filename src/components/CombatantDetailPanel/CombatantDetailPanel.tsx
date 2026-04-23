@@ -1,4 +1,5 @@
 import { X, ExternalLink } from "lucide-react";
+import IconButton from "../common/IconButton";
 import { useState, useEffect } from "react";
 import type { Combatant } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
@@ -47,13 +48,15 @@ export default function CombatantDetailPanel({
     >
       {/* Close button - Mobile only */}
       {onClose && (
-        <button
+        <IconButton
+          variant="ghost"
+          size="lg"
           onClick={onClose}
-          className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition md:hidden"
+          className="absolute top-4 right-4 md:hidden"
           title="Close details"
         >
           <X className="w-6 h-6" />
-        </button>
+        </IconButton>
       )}
 
       {/* Avatar */}
@@ -72,8 +75,8 @@ export default function CombatantDetailPanel({
           {combatant.displayName}
         </h2>
         {combatant.externalResourceUrl && (
-          <button
-            type="button"
+          <IconButton
+            variant="ghost"
             onClick={() =>
               window.open(
                 combatant.externalResourceUrl,
@@ -81,11 +84,11 @@ export default function CombatantDetailPanel({
                 "noopener,noreferrer",
               )
             }
-            className="p-2 rounded hover:bg-panel-secondary transition text-text-muted hover:text-text-primary flex-shrink-0"
+            className="flex-shrink-0 hover:bg-panel-secondary"
             title={t("combat:combatant.details.openInNewTab")}
           >
             <ExternalLink className="w-5 h-5" />
-          </button>
+          </IconButton>
         )}
       </div>
 

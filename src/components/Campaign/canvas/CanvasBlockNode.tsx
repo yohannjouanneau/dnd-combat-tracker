@@ -2,6 +2,7 @@ import { Handle, Position } from "@xyflow/react";
 import type { NodeProps } from "@xyflow/react";
 import { Edit2 } from "lucide-react";
 import type { BuildingBlock, BlockTypeDef } from "../../../types/campaign";
+import IconButton from "../../common/IconButton";
 
 const TYPE_BORDER_COLORS: Record<string, string> = {
   environment: "border-l-green-500",
@@ -80,16 +81,17 @@ export default function CanvasBlockNode({ data, selected }: NodeProps) {
               )}
             </span>
           </div>
-          <button
-            type="button"
-            className="flex-shrink-0 p-0.5 rounded text-text-muted hover:text-text-primary hover:bg-panel-secondary transition"
+          <IconButton
+            variant="ghost"
+            size="sm"
+            className="flex-shrink-0 hover:bg-panel-secondary p-0.5"
             onClick={(e) => {
               e.stopPropagation();
               onEdit(block);
             }}
           >
             <Edit2 className="w-3 h-3" />
-          </button>
+          </IconButton>
         </div>
 
         {/* Type badge + tags */}

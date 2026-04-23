@@ -1,4 +1,6 @@
 import { X, Save, ExternalLink } from "lucide-react";
+import Button from "../common/Button";
+import IconButton from "../common/IconButton";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type {
@@ -123,12 +125,9 @@ export default function LibraryEditModal({
             <h3 className="text-lg md:text-xl font-bold text-text-primary">
               {title}
             </h3>
-            <button
-              onClick={onCancel}
-              className="text-text-muted hover:text-text-primary transition"
-            >
+            <IconButton variant="ghost" onClick={onCancel}>
               <X className="w-5 h-5" />
-            </button>
+            </IconButton>
           </div>
 
           {/* Form */}
@@ -308,21 +307,19 @@ export default function LibraryEditModal({
 
           {/* Footer */}
           <div className="flex gap-2 p-4 md:p-6 border-t border-border-primary sticky bottom-0 bg-panel-bg">
-            <button
-              onClick={onCancel}
-              className="flex-1 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-2 rounded transition font-medium"
-            >
+            <Button variant="secondary" onClick={onCancel} className="flex-1">
               {t("common:actions.cancel")}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
               onClick={handleSave}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition font-medium flex items-center justify-center gap-2"
+              className="flex-1 flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4" />
               {isCreating
                 ? t("common:actions.create")
                 : t("common:actions.save")}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

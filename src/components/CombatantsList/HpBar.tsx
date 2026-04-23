@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { getHpColorClass } from "../../utils/utils";
+import Button from "../common/Button";
 
 type Props = {
   inputId: string;
@@ -130,14 +131,16 @@ export default function HpBar({
           placeholder={t("combat:hpBar.placeholder")}
           className="bg-input-bg text-text-primary rounded px-3 py-2 border border-border-secondary focus:border-blue-500 focus:outline-none w-24 text-center"
         />
-        <button
+        <Button
+          variant="primary"
+          size="lg"
           onClick={handleApply}
           disabled={!inputValue}
-          className="bg-blue-600 hover:bg-blue-700 disabled:bg-panel-secondary disabled:cursor-not-allowed text-white px-3 py-3 rounded transition flex items-center gap-1"
           title={t("combat:hpBar.apply")}
+          className="flex items-center gap-1 disabled:bg-panel-secondary"
         >
           <Check className="w-4 h-4" />
-        </button>
+        </Button>
       </div>
     </div>
   );
