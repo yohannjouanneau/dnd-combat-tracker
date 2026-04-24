@@ -65,8 +65,16 @@ Hash-based routing in `App.tsx`:
 
 `DataStore` class (`src/persistence/storage.ts`) — single instance exported as `dataStore`.
 
-- Storage keys: `dnd-ct:combats:v1`, `dnd-ct:players:v1`, `dnd-ct:monsters:v1`, `dnd-ct:blocks:v1`, `dnd-ct:campaigns:v1`, `dnd-ct:block-types:v1`
-- Backed by `CombatStorageProvider` / `CombatantTemplateStorageProvider` / `BuildingBlockStorageProvider` / `CampaignStorageProvider` / `BlockTypeStorageProvider` (all localStorage)
+- Storage keys: `dnd-ct:combats:v1`, `dnd-ct:players:v1`, `dnd-ct:monsters:v1`, `dnd-ct:blocks:v1`, `dnd-ct:campaigns:v1`, `dnd-ct:block-types:v1`, `dnd-ct:map-state:v1`
+- All keys are constants in `src/constants.ts` — always add new keys there, never inline strings
+- Backed by one `*StorageProvider` class per entity type (all localStorage) — see `src/persistence/`
+
+**IMPORTANT — how to add persistence for a new data type:**
+1. Add a storage key constant to `src/constants.ts` following the `dnd-ct:<entity>:v<version>` pattern
+2. Create `src/persistence/<Entity>StorageProvider.ts` — a plain class with `get`/`set` (single object) or `list`/`get`/`create`/`update`/`delete` (collection). See `MapStateStorageProvider` (single object) or `CampaignStorageProvider` (collection) for reference.
+3. Inject the provider into `DataStore` (constructor default + private field) and expose methods on it
+4. **Never** bypass `DataStore` by writing to `localStorage` directly in components or hooks — all persistence goes through `dataStore.*` calls
+5. Wire into sync: add the field to `SyncData` (`src/api/sync/types.ts`), include it in `getLocalSyncData()` and `applyRemoteData()` in `GoogleDriveSyncProvider.ts`, and handle it in `mergeSyncData.ts`
 
 **Storage optimization** (`src/persistence/combatStateOptimizer.ts`): combatants from libraries/parked groups are stored as lightweight references (`isReference: true`) with only delta fields vs. the template. Restored to full objects via `restoreCombatState()` on load.
 

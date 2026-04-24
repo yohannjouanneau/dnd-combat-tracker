@@ -2,6 +2,7 @@ import { Loader2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MAP_ROOM_CODE_STORAGE_KEY } from "../../constants";
+import { dataStore } from "../../persistence/storage";
 import PeerJSConnector from "./PeerJSConnector";
 import MapToolbar from "./components/MapToolbar";
 import TokenModal from "./components/TokenModal";
@@ -44,6 +45,8 @@ const DEFAULT_MAP_STATE: MapState = {
 export const PLAYER_WINDOW_NAME = "dnd-map-player-view";
 
 export default function MapViewer() {
+  const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [view, setView] = useState<"dm" | "player">(
     window.name === PLAYER_WINDOW_NAME ? "player" : "dm",
   );
@@ -56,8 +59,20 @@ export default function MapViewer() {
   );
   const [isReconnecting, setIsReconnecting] = useState(false);
 
-  const [mapState, setMapState] = useState<MapState>(DEFAULT_MAP_STATE);
-  const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, scale: 1 });
+  const [mapState, setMapState] = useState<MapState>(() => {
+    const saved = dataStore.getMapState();
+    return saved
+      ? {
+          imageDataUrl: null,
+          tokens: saved.tokens,
+          revealedZones: saved.revealedZones,
+        }
+      : DEFAULT_MAP_STATE;
+  });
+  const [camera, setCamera] = useState<Camera>(() => {
+    const saved = dataStore.getMapState();
+    return saved?.camera ?? { x: 0, y: 0, scale: 1 };
+  });
   const [undoStack, setUndoStack] = useState<HistoryEntry[]>([]);
   const [redoStack, setRedoStack] = useState<HistoryEntry[]>([]);
   const [revealRadius, setRevealRadius] = useState(145);
@@ -89,6 +104,29 @@ export default function MapViewer() {
       localStorage.removeItem(MAP_ROOM_CODE_STORAGE_KEY);
     }
   }, [lastRoomCode]);
+
+  // Auto-save token positions, fog zones, and camera (debounced)
+  useEffect(() => {
+    if (saveDebounceRef.current !== null) clearTimeout(saveDebounceRef.current);
+    saveDebounceRef.current = setTimeout(() => {
+      dataStore.setMapState({
+        tokens: mapState.tokens.map(
+          ({ id, x, y, radius, color, label, hidden, revealsFog }) => ({
+            id,
+            x,
+            y,
+            radius,
+            color,
+            label,
+            hidden,
+            revealsFog,
+          }),
+        ),
+        revealedZones: mapState.revealedZones,
+        camera,
+      });
+    }, 500);
+  }, [mapState, camera]);
 
   // Warn before leaving when a map is loaded
   useEffect(() => {

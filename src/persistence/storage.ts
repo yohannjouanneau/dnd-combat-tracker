@@ -5,6 +5,7 @@ import {
   BUILDING_BLOCK_STORAGE_KEY,
   CAMPAIGN_STORAGE_KEY,
   COMBAT_STORAGE_KEY,
+  MAP_STATE_STORAGE_KEY,
   MONSTER_STORAGE_KEY,
   PLAYER_STORAGE_KEY,
 } from "../constants";
@@ -30,6 +31,10 @@ import {
 } from "./BlockTypeStorageProvider";
 import { CampaignStorageProvider } from "./CampaignStorageProvider";
 import {
+  MapStateStorageProvider,
+  type PersistedMapMeta,
+} from "./MapStateStorageProvider";
+import {
   cleanCombatStateForStorage,
   restoreCombatState,
 } from "./combatStateOptimizer";
@@ -41,6 +46,7 @@ export class DataStore {
   private blockProvider: BuildingBlockStorageProvider;
   private blockTypeProvider: BlockTypeStorageProvider;
   private campaignProvider: CampaignStorageProvider;
+  private mapStateProvider: MapStateStorageProvider;
   private syncProvider: SyncProvider;
 
   constructor(
@@ -63,6 +69,9 @@ export class DataStore {
     campaignProvider: CampaignStorageProvider = new CampaignStorageProvider(
       CAMPAIGN_STORAGE_KEY,
     ),
+    mapStateProvider: MapStateStorageProvider = new MapStateStorageProvider(
+      MAP_STATE_STORAGE_KEY,
+    ),
   ) {
     this.combatProvider = combatProvider;
     this.playerProvider = playerProvider;
@@ -70,6 +79,7 @@ export class DataStore {
     this.blockProvider = blockProvider;
     this.blockTypeProvider = blockTypeProvider;
     this.campaignProvider = campaignProvider;
+    this.mapStateProvider = mapStateProvider;
     this.syncProvider = new GoogleDriveSyncProvider(clientId);
   }
 
@@ -278,6 +288,14 @@ export class DataStore {
   }
   deleteCampaign(id: string): Promise<void> {
     return this.campaignProvider.delete(id);
+  }
+
+  // Map state methods
+  getMapState(): PersistedMapMeta | null {
+    return this.mapStateProvider.get();
+  }
+  setMapState(meta: PersistedMapMeta): void {
+    this.mapStateProvider.set(meta);
   }
 }
 
