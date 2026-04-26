@@ -90,6 +90,7 @@ export const BUILDING_BLOCK_STORAGE_KEY = "dnd-ct:blocks:v1";
 export const CAMPAIGN_STORAGE_KEY = "dnd-ct:campaigns:v1";
 export const BLOCK_TYPE_STORAGE_KEY = "dnd-ct:block-types:v1";
 export const MAP_ROOM_CODE_STORAGE_KEY = "dnd-ct:map-room-code";
+export const MAP_STATE_STORAGE_KEY = "dnd-ct:map-state:v1";
 export const BACKUP_FILE_NAME = "dnd-combat-tracker.backup.json";
 export const LAST_BACKUP_STORAGE_KEY = "dnd-ct:lastBackup";
 

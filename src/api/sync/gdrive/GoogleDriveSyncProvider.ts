@@ -7,6 +7,7 @@ import {
   COMBAT_STORAGE_KEY,
   LAST_BACKUP_STORAGE_KEY,
   LAST_SYNC_STORAGE_KEY,
+  MAP_STATE_STORAGE_KEY,
   MONSTER_STORAGE_KEY,
   PLAYER_STORAGE_KEY,
 } from "../../../constants";
@@ -53,6 +54,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
       blocks: localStorage.getItem(BUILDING_BLOCK_STORAGE_KEY),
       campaigns: localStorage.getItem(CAMPAIGN_STORAGE_KEY),
       blockTypes: localStorage.getItem(BLOCK_TYPE_STORAGE_KEY),
+      mapState: localStorage.getItem(MAP_STATE_STORAGE_KEY),
       lastSynced: Date.now(),
     };
   }
@@ -184,5 +186,7 @@ export class GoogleDriveSyncProvider implements SyncProvider {
       localStorage.setItem(CAMPAIGN_STORAGE_KEY, data.campaigns);
     if (data.blockTypes)
       localStorage.setItem(BLOCK_TYPE_STORAGE_KEY, data.blockTypes);
+    if (data.mapState)
+      localStorage.setItem(MAP_STATE_STORAGE_KEY, data.mapState);
   }
 }

@@ -24,6 +24,7 @@ const syncWith = (field: keyof SyncData, entities: Entity[]): SyncData => ({
   blocks: null,
   campaigns: null,
   blockTypes: null,
+  mapState: null,
   lastSynced: 0,
   [field]: JSON.stringify(entities),
 });

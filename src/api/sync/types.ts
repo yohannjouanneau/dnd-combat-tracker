@@ -5,6 +5,7 @@ export interface SyncData {
   blocks: string | null;
   campaigns: string | null;
   blockTypes?: string | null;
+  mapState?: string | null;
   lastSynced: number;
 }
 

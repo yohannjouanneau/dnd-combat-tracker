@@ -98,6 +98,8 @@ export function mergeSyncData(
     blocks: mergeField(localRaw.blocks, remoteRaw.blocks),
     campaigns: mergeField(localRaw.campaigns, remoteRaw.campaigns),
     blockTypes: safeStringify(mergedBlockTypes),
+    // Single global object — remote wins, fallback to local
+    mapState: remoteRaw.mapState ?? localRaw.mapState ?? null,
     lastSynced: Date.now(),
   };
 }
