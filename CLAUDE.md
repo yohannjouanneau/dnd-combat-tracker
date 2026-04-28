@@ -57,7 +57,7 @@ Hash-based routing in `App.tsx`:
 | `useCombatantFormStore` | New combatant form state, initiative groups               |
 | `usePlayerStore`        | Player library + linking players to a combat              |
 | `useMonsterStore`       | Monster library + DnD5e API search                        |
-| `useParkedGroupStore`   | Parked groups (pre-staged, not yet in fight)              |
+| `useParkedGroupStore`   | Combatant pool (pre-staged, not yet in fight)             |
 | `useSyncApi`            | Google Drive sync                                         |
 | `useCampaignStore`      | Campaigns + building blocks + block types CRUD            |
 
@@ -76,19 +76,19 @@ Hash-based routing in `App.tsx`:
 4. **Never** bypass `DataStore` by writing to `localStorage` directly in components or hooks — all persistence goes through `dataStore.*` calls
 5. Wire into sync: add the field to `SyncData` (`src/api/sync/types.ts`), include it in `getLocalSyncData()` and `applyRemoteData()` in `GoogleDriveSyncProvider.ts`, and handle it in `mergeSyncData.ts`
 
-**Storage optimization** (`src/persistence/combatStateOptimizer.ts`): combatants from libraries/parked groups are stored as lightweight references (`isReference: true`) with only delta fields vs. the template. Restored to full objects via `restoreCombatState()` on load.
+**Storage optimization** (`src/persistence/combatStateOptimizer.ts`): combatants from libraries/combatant pool are stored as lightweight references (`isReference: true`) with only delta fields vs. the template. Restored to full objects via `restoreCombatState()` on load.
 
 ## Key types (`src/types.ts`)
 
 - `Combatant` — in-fight entity (id: number, initiative, HP, conditions, deathSaves, groupIndex, templateOrigin)
 - `CombatantTemplate<T>` — base for `SavedPlayer` / `SavedMonster`
-- `NewCombatant` — form state / parked group (pre-fight)
+- `NewCombatant` — form state / combatant pool entry (pre-fight)
 - `CombatState` — full combat snapshot (combatants, currentTurn, round, parkedGroups, linkedPlayerIds)
 - `TemplateOrigin.origin` — `"player_library" | "monster_library" | "parked_group" | "no_template"`
 
 ## Key concepts
 
-- **Parked Groups** — pre-staged combatant groups stored aside, added to fight on demand
+- **Combatant Pool** — pre-staged combatants stored aside, added to fight on demand
 - **Linked Players** — player templates linked to the combat, shown in `PlayerPanel`
 - **Initiative Groups** — a single form submission can spawn multiple groups with different initiatives/counts
 - **Focus Mode** — hides UI chrome, shows only turn controls + combatants; toggle: `F` key

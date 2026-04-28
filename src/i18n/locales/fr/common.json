@@ -59,8 +59,8 @@
       "message": "Êtes-vous sûr de vouloir retirer tous les combattants du combat ? Cette action est irréversible."
     },
     "removeParkedGroup": {
-      "title": "Retirer le groupe mis en attente",
-      "message": "Êtes-vous sûr de vouloir retirer {{name}} des groupes en attente ?"
+      "title": "Retirer du groupe de combattants",
+      "message": "Êtes-vous sûr de vouloir retirer {{name}} du groupe de combattants ?"
     },
     "removePlayer": {
       "title": "Retirer du combat",
@@ -103,7 +103,7 @@
       "success": "Joueur sauvegardé"
     },
     "addedToParkedGroup": {
-      "success": "Ajouté au groupe mis en attente"
+      "success": "Ajouté au groupe de combattants"
     },
     "syncWithUnsavedChanges": {
       "title": "Modifications non sauvegardées",

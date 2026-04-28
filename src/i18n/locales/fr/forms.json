@@ -68,8 +68,8 @@
     "addNew": "Ajouter un joueur"
   },
   "parkedGroups": {
-    "title": "Groupes en attente",
-    "empty": "Mettez des combattants en attente pour les utiliser plus tard dans ce combat",
+    "title": "Groupe de combattants",
+    "empty": "Ajoutez des combattants au groupe pour les utiliser plus tard dans ce combat",
     "edit": "Modifier",
     "fight": "Combat",
     "remove": "Retirer",
