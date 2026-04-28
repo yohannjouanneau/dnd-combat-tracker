@@ -47,32 +47,34 @@ export default function CombatTimer({ onRunningChange }: Props) {
   };
 
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex flex-col items-center gap-1">
       <span className="font-mono text-lg md:text-xl font-bold text-text-primary tabular-nums tracking-wide">
         {formatTime(seconds)}
       </span>
-      <button
-        onClick={toggleTimer}
-        className={`p-2 rounded transition ${
-          isRunning
-            ? "bg-red-600 active:bg-red-700 md:hover:bg-red-700 text-white"
-            : "bg-panel-secondary active:bg-panel-secondary/80 md:hover:bg-panel-secondary/80 text-text-primary"
-        }`}
-        title={isRunning ? t("combat:timer.stop") : t("combat:timer.start")}
-      >
-        {isRunning ? (
-          <Pause className="w-4 h-4" />
-        ) : (
-          <Play className="w-4 h-4" />
-        )}
-      </button>
-      <button
-        onClick={resetTimer}
-        className="p-2 rounded transition bg-panel-secondary active:bg-panel-secondary/80 md:hover:bg-panel-secondary/80 text-text-primary"
-        title={t("combat:timer.reset")}
-      >
-        <RotateCcw className="w-4 h-4" />
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={toggleTimer}
+          className={`p-2 rounded transition ${
+            isRunning
+              ? "bg-red-600 active:bg-red-700 md:hover:bg-red-700 text-white"
+              : "bg-panel-secondary active:bg-panel-secondary/80 md:hover:bg-panel-secondary/80 text-text-primary"
+          }`}
+          title={isRunning ? t("combat:timer.stop") : t("combat:timer.start")}
+        >
+          {isRunning ? (
+            <Pause className="w-4 h-4" />
+          ) : (
+            <Play className="w-4 h-4" />
+          )}
+        </button>
+        <button
+          onClick={resetTimer}
+          className="p-2 rounded transition bg-panel-secondary active:bg-panel-secondary/80 md:hover:bg-panel-secondary/80 text-text-primary"
+          title={t("combat:timer.reset")}
+        >
+          <RotateCcw className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 }
