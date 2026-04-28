@@ -16,6 +16,8 @@ import { useTheme } from "../hooks/useTheme";
 import type { SyncApi } from "../api/sync/types";
 import type { CombatStateManager } from "../store/types";
 import type { SavedCombat } from "../types";
+import Button from "../components/common/Button";
+import IconButton from "../components/common/IconButton";
 
 function formatRelativeTime(ts: number): string {
   const diff = (ts - Date.now()) / 1000;
@@ -67,9 +69,8 @@ export default function LandingPage({
   return (
     <div className="min-h-screen bg-app-bg flex flex-col items-center justify-center p-6 gap-8 relative">
       <div className="absolute top-4 right-4 flex gap-2">
-        <button
+        <IconButton
           onClick={toggleTheme}
-          className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
           title={
             theme === "dark"
               ? t("common:theme.switchTo.light")
@@ -85,18 +86,17 @@ export default function LandingPage({
           ) : (
             <Leaf className="w-5 h-5" />
           )}
-        </button>
+        </IconButton>
         <SyncButton
           syncApi={syncApi}
           onOpenSettings={() => setShowSettings(true)}
         />
-        <button
+        <IconButton
           onClick={() => setShowSettings(true)}
-          className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition"
           title={t("common:settings.title")}
         >
           <Settings className="w-5 h-5" />
-        </button>
+        </IconButton>
       </div>
 
       <img
@@ -123,13 +123,15 @@ export default function LandingPage({
           <p className="text-text-muted text-sm flex-1">
             {t("common:landing.combatDescription")}
           </p>
-          <button
+          <Button
+            variant="danger"
+            size="lg"
             onClick={onOpenCombats}
-            className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg transition font-semibold flex items-center justify-center gap-2"
+            className="w-full rounded-lg flex items-center justify-center gap-2 font-semibold"
           >
             <Swords className="w-5 h-5" />
             {t("common:landing.combatButton")}
-          </button>
+          </Button>
         </div>
 
         {/* Campaign Manager panel */}
@@ -145,13 +147,15 @@ export default function LandingPage({
           <p className="text-text-muted text-sm flex-1">
             {t("common:landing.campaignDescription")}
           </p>
-          <button
+          <Button
+            variant="warning"
+            size="lg"
             onClick={onOpenCampaigns}
-            className="w-full bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded-lg transition font-semibold flex items-center justify-center gap-2"
+            className="w-full rounded-lg flex items-center justify-center gap-2 font-semibold"
           >
             <Map className="w-5 h-5" />
             {t("common:landing.campaignButton")}
-          </button>
+          </Button>
         </div>
 
         {/* Map Viewer panel */}
@@ -167,13 +171,15 @@ export default function LandingPage({
           <p className="text-text-muted text-sm flex-1">
             {t("common:landing.mapDescription")}
           </p>
-          <button
+          <Button
+            variant="primary"
+            size="lg"
             onClick={onOpenMap}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition font-semibold flex items-center justify-center gap-2"
+            className="w-full rounded-lg flex items-center justify-center gap-2 font-semibold"
           >
             <Crosshair className="w-5 h-5" />
             {t("common:landing.mapButton")}
-          </button>
+          </Button>
         </div>
       </div>
 

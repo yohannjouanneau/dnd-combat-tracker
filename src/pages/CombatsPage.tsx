@@ -5,6 +5,8 @@ import LabeledTextInput from "../components/common/LabeledTextInput";
 import logo from "../assets/logo.png";
 import { ArrowLeft, BookOpen, Plus } from "lucide-react";
 import CombatList from "../components/CombatsList/CombatList";
+import Button from "../components/common/Button";
+import IconButton from "../components/common/IconButton";
 import LibraryModal from "../components/Library/LibraryModal";
 import {
   buildPlayerCombatantsForFight,
@@ -90,13 +92,13 @@ export default function CombatsPage({
       <div className="bg-app-bg flex flex-col h-full">
         {/* Header Section with Logo and Inputs */}
         <div className="p-4 md:p-6 flex-shrink-0 relative">
-          <button
+          <IconButton
             onClick={onBack}
-            className="absolute top-4 left-4 md:top-6 md:left-6 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
+            className="absolute top-4 left-4 md:top-6 md:left-6 flex-shrink-0"
             title={t("common:actions.back")}
           >
             <ArrowLeft className="w-5 h-5" />
-          </button>
+          </IconButton>
           <div className="flex flex-col gap-4">
             {/* Logo - centered on mobile */}
             <div className="flex justify-center">
@@ -134,21 +136,23 @@ export default function CombatsPage({
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 md:items-end">
-                  <button
+                  <Button
+                    variant="primary"
                     onClick={create}
-                    className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
+                    className="flex-1 md:flex-none px-6 py-3 md:py-2 font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
                   >
                     <Plus className="w-5 h-5" />
                     <span>{t("common:actions.create")}</span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="warning"
                     onClick={() => setShowLibrary(true)}
-                    className="flex-1 md:flex-none bg-amber-600 hover:bg-amber-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
+                    className="flex-1 md:flex-none px-6 py-3 md:py-2 font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
                     title={t("common:actions.library")}
                   >
                     <BookOpen className="w-5 h-5" />
                     <span className="hidden sm:inline">Library</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

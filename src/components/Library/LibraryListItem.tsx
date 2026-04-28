@@ -4,6 +4,7 @@ import type { SavedMonster, SavedPlayer } from "../../types";
 import CombatantAvatar from "../common/CombatantAvatar";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 import { AbilityScore } from "../common/AbilityScore";
+import Button from "../common/Button";
 
 type Props = {
   monster: SavedMonster | SavedPlayer;
@@ -124,9 +125,11 @@ export default function LibraryListItem({
         <div className="flex gap-2 flex-shrink-0">
           {/* Edit Button */}
           {onEdit && (
-            <button
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => onEdit(monster)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+              className="flex items-center justify-center gap-1 min-w-[44px]"
               title={
                 isPlayer
                   ? t("library.listItem.actions.editPlayer")
@@ -134,35 +137,41 @@ export default function LibraryListItem({
               }
             >
               <Edit className="w-4 h-4" />
-            </button>
+            </Button>
           )}
 
           {/* Load to Form Button */}
           {canLoadToForm && onLoadToForm && !isPlayer && (
-            <button
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => onLoadToForm(monster as SavedMonster)}
-              className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+              className="bg-lime-600 hover:bg-lime-700 flex items-center justify-center gap-1 min-w-[44px]"
               title={t("library.listItem.actions.load")}
             >
               <ClipboardPaste className="w-4 h-4" />
-            </button>
+            </Button>
           )}
 
           {/* Add Player to Fight Button */}
           {isPlayer && onAddToFight && (
-            <button
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => onAddToFight(monster as SavedPlayer)}
-              className="bg-lime-600 hover:bg-lime-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+              className="bg-lime-600 hover:bg-lime-700 flex items-center justify-center gap-1 min-w-[44px]"
               title={t("library.listItem.actions.addPlayerToFight")}
             >
               <Sword className="w-4 h-4" />
-            </button>
+            </Button>
           )}
 
           {/* Delete Button */}
-          <button
+          <Button
+            variant="danger"
+            size="sm"
             onClick={() => confirmRemove()}
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm flex items-center justify-center gap-1 transition min-w-[44px]"
+            className="flex items-center justify-center gap-1 min-w-[44px]"
             title={
               isPlayer
                 ? t("library.listItem.actions.deletePlayer")
@@ -170,7 +179,7 @@ export default function LibraryListItem({
             }
           >
             <Trash2 className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
 
         {/* Auto-add checkbox (players only) */}

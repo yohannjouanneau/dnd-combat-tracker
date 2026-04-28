@@ -1,4 +1,5 @@
 import { Edit2, Plus, X } from "lucide-react";
+import Button from "../common/Button";
 import BlockTypeDialog from "./BlockTypeDialog";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -829,19 +830,16 @@ export default function BlockEditModal({
 
         {/* Footer */}
         <div className="flex justify-end gap-2 p-4 border-t border-border-primary">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 rounded bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary text-sm transition"
-          >
+          <Button variant="secondary" onClick={onCancel}>
             {t("common:actions.cancel")}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
             onClick={handleSave}
             disabled={!formData.name.trim()}
-            className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t("common:actions.save")}
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -163,6 +163,107 @@ In `BlockEditModal`, the "New type" button opens a `CreateTypeDialog`:
 | `src/pages/CampaignDetailPage.tsx`             | Campaign detail — tree of blocks, modals, drag-and-drop                                   |
 | `src/pages/CampaignListPage.tsx`               | Campaign list                                                                             |
 
+## Design system primitives (`src/components/common/`)
+
+Five reusable primitives cover the vast majority of interactive UI. **Always use these instead of raw `<button>`, `<select>`, or `<textarea>` elements.**
+
+### `Button`
+
+```tsx
+<Button variant="primary" size="md" onClick={...}>Label</Button>
+```
+
+| Prop        | Values                                                     | Notes                                             |
+| ----------- | ---------------------------------------------------------- | ------------------------------------------------- |
+| `variant`   | `primary` `secondary` `danger` `success` `warning` `ghost` | Default: `secondary`                              |
+| `size`      | `sm` `md` `lg`                                             | Default: `md`                                     |
+| `disabled`  | boolean                                                    | Applies `opacity-50 cursor-not-allowed`           |
+| `className` | string                                                     | Merged via `cn()` — safe to override color/layout |
+
+- Use `primary` for the main CTA in a form or modal footer.
+- Use `secondary` for cancel / neutral actions.
+- Use `danger` for destructive actions (delete, logout).
+- Use `ghost` for low-emphasis text-only actions (e.g. "Cancel" next to a warning button).
+- Non-standard accent colors (lime, sky, purple): pass `variant="primary"` + `className="bg-lime-600 hover:bg-lime-700"` — `tailwind-merge` resolves the conflict.
+
+### `IconButton`
+
+Square icon-only button. No label.
+
+```tsx
+<IconButton variant="ghost" size="sm" onClick={...} aria-label="Close">
+  <X className="w-4 h-4" />
+</IconButton>
+```
+
+| Prop      | Values           | Notes                                                   |
+| --------- | ---------------- | ------------------------------------------------------- |
+| `variant` | `filled` `ghost` | `filled` has `bg-panel-secondary`; `ghost` is text-only |
+| `size`    | `sm` `md` `lg`   | Padding only: `p-1.5` / `p-2` / `p-2.5`. Default: `md`  |
+
+- Use `ghost` for close buttons, expand/collapse toggles, and inline clear buttons.
+- Use `filled` for toolbar actions that need a visible background at rest.
+- Always pass `aria-label` when there is no visible text.
+- For active/inactive toggle buttons with conditional coloring (e.g. toolbar tools), inline the ternary className — `IconButton` does not model state.
+
+### `Modal`
+
+Portal-rendered modal with backdrop, Escape key, and compound sub-components.
+
+```tsx
+<Modal open={isOpen} onClose={onClose} title="Title" size="md">
+  <Modal.Body>...</Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={onClose}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
+```
+
+| Prop            | Values                          | Notes                                                      |
+| --------------- | ------------------------------- | ---------------------------------------------------------- |
+| `size`          | `sm` `md` `lg` `xl` `full`      | Controls `max-w-*`                                         |
+| `layer`         | `base` `library` `dialog` `top` | Z-index stacking: 20 / 30 / 40-50 / 60-70. Default: `base` |
+| `headerActions` | `ReactNode`                     | Rendered between title and close button in the header      |
+
+- Use `layer="dialog"` for modals opened from inside another modal.
+- `Modal.Body` is `overflow-y-auto flex-1` — put all scrollable content inside it.
+- `Modal.Footer` has a top border and `flex-shrink-0` — always put action buttons here.
+
+### `Select`
+
+Styled native `<select>`.
+
+```tsx
+<Select label="Type" value={val} onChange={...}>
+  <option value="a">Option A</option>
+</Select>
+```
+
+Pass `label` for the labeled variant (renders a `<label>` + `<select>` in a flex-col wrapper).
+
+### `Textarea`
+
+Styled `<textarea>` with `resize-y`.
+
+```tsx
+<Textarea label="Notes" value={val} onChange={...} rows={4} />
+```
+
+Same `label` pattern as `Select`.
+
+---
+
+### `cn()` utility
+
+`src/utils/cn.ts` — combines `clsx` + `tailwind-merge`. Use it in all components that accept a `className` prop so overrides resolve correctly (last class wins):
+
+```ts
+import { cn } from "../../utils/cn";
+className={cn("base-classes", conditionalClass && "extra", className)}
+```
+
 ## Component map (`src/components/`)
 
 ```

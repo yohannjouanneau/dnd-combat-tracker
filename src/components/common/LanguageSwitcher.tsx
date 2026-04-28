@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import Select from "./Select";
 
 const languages = [
   { code: "en", flag: "🇬🇧", name: "English" },
@@ -10,19 +11,19 @@ export default function LanguageSwitcher() {
   const currentLanguage = i18n.language.split("-")[0];
   return (
     <div className="flex items-center gap-2">
-      <select
+      <Select
         id="lang-select"
         onChange={(e) => i18n.changeLanguage(e.target.value)}
-        className="bg-input-bg text-text-primary rounded px-2 py-1 text-sm border border-border-secondary focus:border-blue-500 focus:outline-none cursor-pointer"
         aria-label="Select language"
         value={currentLanguage}
+        className="px-2 py-1"
       >
         {languages.map((lang) => (
           <option key={lang.code} value={lang.code}>
             {lang.flag} {lang.name}
           </option>
         ))}
-      </select>
+      </Select>
     </div>
   );
 }

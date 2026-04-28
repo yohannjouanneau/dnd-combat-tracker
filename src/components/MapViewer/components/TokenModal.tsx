@@ -1,6 +1,7 @@
 import { Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Token } from "../types";
+import IconButton from "../../common/IconButton";
 
 function tokenLabel(
   token: Token,
@@ -35,12 +36,14 @@ export default function TokenModal({
   return (
     <div className="absolute inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-start justify-start p-4 pointer-events-none">
       <div className="mt-14 bg-panel-bg border border-border-primary rounded-xl p-4 w-72 flex flex-col gap-3 relative pointer-events-auto shadow-xl max-h-[80vh] overflow-y-auto">
-        <button
+        <IconButton
+          variant="ghost"
           onClick={onClose}
-          className="absolute top-3 right-3 text-text-muted hover:text-text-primary transition"
+          className="absolute top-3 right-3"
+          aria-label="Close"
         >
           <X className="w-4 h-4" />
-        </button>
+        </IconButton>
         <h2 className="text-sm font-bold text-text-primary pr-6">
           {t("token.modalTitle")}
         </h2>
@@ -199,7 +202,7 @@ export default function TokenModal({
                         imageDataUrl: undefined,
                       })
                     }
-                    className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-muted hover:text-text-primary px-3 py-1.5 rounded text-xs transition"
+                    className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-3 py-1.5 rounded text-xs transition"
                   >
                     {t("token.clear")}
                   </button>
@@ -247,7 +250,7 @@ export default function TokenModal({
                         portraitDataUrl: undefined,
                       })
                     }
-                    className="bg-panel-secondary hover:bg-panel-secondary/70 text-text-muted hover:text-text-primary px-3 py-1.5 rounded text-xs transition"
+                    className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-3 py-1.5 rounded text-xs transition"
                   >
                     {t("token.clear")}
                   </button>

@@ -1,6 +1,8 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, BookOpen, FolderOpen, Plus } from "lucide-react";
+import Button from "../components/common/Button";
+import IconButton from "../components/common/IconButton";
 import logo from "../assets/logo.png";
 import type { CombatStateManager } from "../store/types";
 import { generateId } from "../utils/utils";
@@ -59,13 +61,13 @@ export default function CampaignListPage({
       <div className="bg-app-bg flex flex-col h-full">
         {/* Header */}
         <div className="p-4 md:p-6 flex-shrink-0 relative">
-          <button
+          <IconButton
             onClick={onBackToCombats}
-            className="absolute top-4 left-4 md:top-6 md:left-6 bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary p-2 rounded transition flex-shrink-0"
+            className="absolute top-4 left-4 md:top-6 md:left-6 flex-shrink-0"
             title={t("common:actions.back")}
           >
             <ArrowLeft className="w-5 h-5" />
-          </button>
+          </IconButton>
           <div className="flex flex-col gap-4">
             <div className="flex justify-center">
               <img
@@ -117,21 +119,23 @@ export default function CampaignListPage({
                   </div>
                 </div>
                 <div className="flex gap-2 md:items-end">
-                  <button
+                  <Button
+                    variant="primary"
                     onClick={create}
-                    className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
+                    className="flex-1 md:flex-none px-6 py-3 md:py-2 font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
                   >
                     <Plus className="w-5 h-5" />
                     <span>{t("common:actions.create")}</span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="warning"
                     onClick={() => setShowLibrary(true)}
-                    className="flex-1 md:flex-none bg-amber-600 hover:bg-amber-700 px-6 py-3 md:py-2 rounded transition font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
+                    className="flex-1 md:flex-none px-6 py-3 md:py-2 font-semibold h-[42px] whitespace-nowrap flex items-center justify-center gap-2"
                     title={t("common:actions.library")}
                   >
                     <BookOpen className="w-5 h-5" />
                     <span className="hidden sm:inline">Library</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

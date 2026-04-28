@@ -7,6 +7,7 @@ import InitiativeGroupInput from "./InitiativeGroupInput";
 import { Save, Sword, CircleParking, Dice3 } from "lucide-react";
 import CombatantNameWithSearch from "./CombatantNameWithSearch";
 import { isNewCombatantInvalid, safeParseInt } from "../../utils/utils";
+import Button from "../common/Button";
 
 type ButtonType = "fight" | "park" | "addToLibrary" | "addInitGroup";
 
@@ -203,55 +204,63 @@ export default function AddCombatantForm({
 
       <div className="grid grid-cols-2 md:flex gap-2 md:gap-3 mt-4">
         {isButtonVisible("fight") && (
-          <button
+          <Button
+            variant="primary"
+            size="lg"
             onClick={onSubmit}
-            className="disabled:pointer-events-none disabled:opacity-50 bg-lime-600 hover:bg-lime-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
             title={t("forms:combatant.actions.fight")}
             disabled={isNewCombatantInvalid(newCombatant)}
+            className="bg-lime-600 hover:bg-lime-700 flex items-center justify-center gap-2"
           >
             <Sword className="w-5 h-5" />
             <span className="hidden md:inline">
               {t("forms:combatant.actions.fight")}
             </span>
-          </button>
+          </Button>
         )}
         {isButtonVisible("park") && (
-          <button
+          <Button
+            variant="primary"
+            size="lg"
             onClick={onAddGroup}
-            className="disabled:pointer-events-none disabled:opacity-50 bg-sky-600 hover:bg-sky-500 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
             title={t("forms:combatant.actions.park")}
             disabled={isNewCombatantInvalid(newCombatant)}
+            className="bg-sky-600 hover:bg-sky-500 flex items-center justify-center gap-2"
           >
             <CircleParking className="w-5 h-5" />
             <span className="hidden md:inline">
               {t("forms:combatant.actions.park")}
             </span>
-          </button>
+          </Button>
         )}
         {isButtonVisible("addToLibrary") && (
-          <button
+          <Button
+            variant="warning"
+            size="lg"
             onClick={onAddToLibrary}
-            className="disabled:pointer-events-none disabled:opacity-50 bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded flex items-center justify-center gap-2 transition"
             title={t("forms:combatant.actions.addToLibrary")}
             disabled={isNewCombatantInvalid(newCombatant)}
+            className="flex items-center justify-center gap-2"
           >
             <Save className="w-5 h-5" />
             <span className="hidden md:inline">
               {t("forms:combatant.actions.addToLibrary")}
             </span>
-          </button>
+          </Button>
         )}
         {isButtonVisible("addInitGroup") && (
-          <button
+          <Button
+            variant="secondary"
+            size="lg"
             onClick={onAddInitiativeGroup}
-            className="bg-panel-secondary hover:bg-panel-secondary/80 text-text-primary px-4 py-3 rounded flex items-center justify-center gap-2 transition"
             title={t("forms:combatant.actions.addInitGroup")}
+            className="flex items-center justify-center gap-2"
           >
             <Dice3 className="w-5 h-5" />
             <span className="hidden md:inline">
               {t("forms:combatant.actions.addInitGroup")}
             </span>
-          </button>
+          </Button>
         )}
       </div>
     </div>

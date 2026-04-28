@@ -1,7 +1,9 @@
-import { X, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { InitiativeGroup, NewCombatant, SearchResult } from "../../types";
 import AddCombatantForm from "./AddCombatantForm";
+import Modal from "../common/Modal";
+import IconButton from "../common/IconButton";
 
 export type AddCombatantModalMode = "group" | "fight";
 
@@ -62,13 +64,10 @@ export default function AddCombatantModal({
 }: Props) {
   const { t } = useTranslation("forms");
 
-  if (!isOpen) return null;
-
   const visibleButtons = BUTTON_MODE_MAP[mode];
   const titleKey = newCombatant.name ? `${mode}-edit` : mode;
   const modalTitle = t(`forms:combatant.modalTitle.${titleKey}`);
 
-  // Determine library button title based on template origin
   const hasMonsterTemplate =
     newCombatant.templateOrigin?.origin === "monster_library" &&
     newCombatant.templateOrigin?.id;
@@ -77,63 +76,44 @@ export default function AddCombatantModal({
     : t("forms:combatant.actions.library");
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="!mt-0 fixed inset-0 bg-black/50 backdrop-blur-sm z-20"
-        onClick={onClose}
-      />
-
-      {/* Modal Container */}
-      <div className="fixed inset-0 z-20 flex items-center justify-center p-4">
-        <div className="bg-panel-bg rounded-lg border border-border-primary max-w-4xl w-full max-h-[90vh] shadow-xl overflow-hidden flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 md:p-6 border-b border-border-primary">
-            <h2 className="text-xl md:text-2xl font-bold text-text-primary">
-              {modalTitle}
-            </h2>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={onOpenLibrary}
-                className="bg-amber-600 hover:bg-amber-700 text-white p-2 rounded transition"
-                title={libraryButtonTitle}
-              >
-                <BookOpen className="w-5 h-5" />
-              </button>
-              <button
-                onClick={onClose}
-                className="text-text-muted hover:text-text-primary transition"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="overflow-y-auto p-4 md:p-6">
-            <AddCombatantForm
-              newCombatant={newCombatant}
-              stagedFrom={stagedFrom}
-              totalCount={totalCount}
-              visibleButtons={visibleButtons}
-              disableInitiativeCount={false}
-              addToFightChecked={addToFightChecked}
-              onAddToFightChange={onAddToFightChange}
-              addAnotherChecked={addAnotherChecked}
-              onAddAnotherChange={onAddAnotherChange}
-              onChange={onChange}
-              onSubmit={onSubmit}
-              onAddGroup={onAddGroup}
-              onAddInitiativeGroup={onAddInitiativeGroup}
-              onRemoveInitiativeGroup={onRemoveInitiativeGroup}
-              onUpdateInitiativeGroup={onUpdateInitiativeGroup}
-              onSearchMonsters={onSearchMonsters}
-              onSelectSearchResult={onSelectSearchResult}
-              onAddToLibrary={onAddToLibrary}
-            />
-          </div>
-        </div>
-      </div>
-    </>
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title={modalTitle}
+      size="xl"
+      headerActions={
+        <IconButton
+          variant="filled"
+          onClick={onOpenLibrary}
+          title={libraryButtonTitle}
+          className="bg-amber-600 hover:bg-amber-700 text-white"
+        >
+          <BookOpen className="w-5 h-5" />
+        </IconButton>
+      }
+    >
+      <Modal.Body>
+        <AddCombatantForm
+          newCombatant={newCombatant}
+          stagedFrom={stagedFrom}
+          totalCount={totalCount}
+          visibleButtons={visibleButtons}
+          disableInitiativeCount={false}
+          addToFightChecked={addToFightChecked}
+          onAddToFightChange={onAddToFightChange}
+          addAnotherChecked={addAnotherChecked}
+          onAddAnotherChange={onAddAnotherChange}
+          onChange={onChange}
+          onSubmit={onSubmit}
+          onAddGroup={onAddGroup}
+          onAddInitiativeGroup={onAddInitiativeGroup}
+          onRemoveInitiativeGroup={onRemoveInitiativeGroup}
+          onUpdateInitiativeGroup={onUpdateInitiativeGroup}
+          onSearchMonsters={onSearchMonsters}
+          onSelectSearchResult={onSelectSearchResult}
+          onAddToLibrary={onAddToLibrary}
+        />
+      </Modal.Body>
+    </Modal>
   );
 }
