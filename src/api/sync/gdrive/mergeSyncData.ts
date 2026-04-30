@@ -63,6 +63,24 @@ function mergeEntities<T extends Timestamped>(
 }
 
 /**
+ * Merge two mapState JSON strings by picking the one with the higher updatedAt.
+ * Local wins on tie or when timestamps are absent (safe default: preserve local edits).
+ */
+function mergeMapState(
+  localStr: string | null,
+  remoteStr: string | null,
+): string | null {
+  if (!localStr && !remoteStr) return null;
+  if (!localStr) return remoteStr;
+  if (!remoteStr) return localStr;
+  const local = JSON.parse(localStr) as { updatedAt?: number };
+  const remote = JSON.parse(remoteStr) as { updatedAt?: number };
+  return (remote.updatedAt ?? 0) > (local.updatedAt ?? 0)
+    ? remoteStr
+    : localStr;
+}
+
+/**
  * Merge two full SyncData snapshots using a 3-way merge strategy.
  * Built-in block types (isBuiltIn: true) are never stored and are excluded.
  */
@@ -98,8 +116,10 @@ export function mergeSyncData(
     blocks: mergeField(localRaw.blocks, remoteRaw.blocks),
     campaigns: mergeField(localRaw.campaigns, remoteRaw.campaigns),
     blockTypes: safeStringify(mergedBlockTypes),
-    // Single global object — remote wins, fallback to local
-    mapState: remoteRaw.mapState ?? localRaw.mapState ?? null,
+    mapState: mergeMapState(
+      localRaw.mapState ?? null,
+      remoteRaw.mapState ?? null,
+    ),
     lastSynced: Date.now(),
   };
 }

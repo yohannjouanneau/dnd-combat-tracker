@@ -257,3 +257,81 @@ describe("mergeSyncData — lastSynced", () => {
     expect(result.lastSynced).toBeGreaterThanOrEqual(before);
   });
 });
+
+// --- mergeMapState ---
+
+const baseSync = (): SyncData => ({
+  combats: null,
+  players: null,
+  monsters: null,
+  blocks: null,
+  campaigns: null,
+  blockTypes: null,
+  mapState: null,
+  lastSynced: 0,
+});
+
+const mapStateStr = (updatedAt?: number) =>
+  JSON.stringify({
+    tokens: [
+      {
+        id: "t1",
+        x: 0,
+        y: 0,
+        radius: 20,
+        color: "#ff0000",
+        hidden: false,
+        revealsFog: false,
+      },
+    ],
+    revealedZones: [],
+    camera: { x: 0, y: 0, scale: 1 },
+    ...(updatedAt !== undefined ? { updatedAt } : {}),
+  });
+
+describe("mergeSyncData — mapState", () => {
+  it("returns null when both sides are null", () => {
+    const result = mergeSyncData(baseSync(), baseSync(), 0);
+    expect(result.mapState).toBeNull();
+  });
+
+  it("returns local when only local has mapState", () => {
+    const local = { ...baseSync(), mapState: mapStateStr(100) };
+    const result = mergeSyncData(local, baseSync(), 0);
+    expect(result.mapState).toBe(local.mapState);
+  });
+
+  it("returns remote when only remote has mapState", () => {
+    const remote = { ...baseSync(), mapState: mapStateStr(100) };
+    const result = mergeSyncData(baseSync(), remote, 0);
+    expect(result.mapState).toBe(remote.mapState);
+  });
+
+  it("picks remote when remote is strictly newer", () => {
+    const local = { ...baseSync(), mapState: mapStateStr(100) };
+    const remote = { ...baseSync(), mapState: mapStateStr(200) };
+    const result = mergeSyncData(local, remote, 0);
+    expect(result.mapState).toBe(remote.mapState);
+  });
+
+  it("picks local when local is strictly newer (the bug fix)", () => {
+    const local = { ...baseSync(), mapState: mapStateStr(200) };
+    const remote = { ...baseSync(), mapState: mapStateStr(100) };
+    const result = mergeSyncData(local, remote, 0);
+    expect(result.mapState).toBe(local.mapState);
+  });
+
+  it("picks local on tie", () => {
+    const local = { ...baseSync(), mapState: mapStateStr(100) };
+    const remote = { ...baseSync(), mapState: mapStateStr(100) };
+    const result = mergeSyncData(local, remote, 0);
+    expect(result.mapState).toBe(local.mapState);
+  });
+
+  it("picks local when neither side has a timestamp", () => {
+    const local = { ...baseSync(), mapState: mapStateStr() };
+    const remote = { ...baseSync(), mapState: mapStateStr() };
+    const result = mergeSyncData(local, remote, 0);
+    expect(result.mapState).toBe(local.mapState);
+  });
+});

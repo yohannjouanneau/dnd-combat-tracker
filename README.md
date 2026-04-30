@@ -66,7 +66,7 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 
 - **Saved Players** - Reuse characters across encounters
 - **Monster Library** - Build your personal collection with full stats and notes
-- **Parked Groups** - Stage combatants before adding to combat
+- **Combatant Pool** - Stage combatants before adding to combat
 - **D&D 5e SRD Integration** - Search and auto-fill official monsters
 - **Bulk Creation** - Generate multiple combatants at once (e.g., "Goblin A, B, C")
 
@@ -275,7 +275,7 @@ The application uses a modular store architecture with specialized hooks:
 
 - **useCombatantStore** - Combatants list with full stats and tracking
 - **useCombatStore** - Current turn, round tracking, and combat metadata
-- **useParkedGroupStore** - Parked groups for staging
+- **useParkedGroupStore** - Combatant pool for staging
 - **usePlayerStore** - Saved players for reuse
 - **useMonsterStore** - Monster library management
 - **useCombatantFormStore** - Form state for new combatants

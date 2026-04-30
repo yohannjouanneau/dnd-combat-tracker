@@ -33,14 +33,14 @@ export default function TurnControls({
       ? t("combat:turn.round", { number: round })
       : t("combat:turn.notStarted", { number: round });
   return (
-    <div className="bg-panel-bg rounded-lg p-3 md:p-4 mb-3 border border-border-primary flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-6">
+    <div className="bg-panel-bg rounded-lg p-3 md:p-4 mb-3 border border-border-primary flex flex-col md:flex-row items-stretch md:items-center gap-3">
       {/* Round info - left on desktop, top on mobile */}
       <div className="md:flex-1 text-xl md:text-2xl font-bold text-center md:text-left">
         {roundCountText}
       </div>
 
       {/* Timer - center */}
-      <div className="flex justify-center">
+      <div className="md:flex-1 flex justify-center">
         <CombatTimer onRunningChange={onTimerRunningChange} />
       </div>
 

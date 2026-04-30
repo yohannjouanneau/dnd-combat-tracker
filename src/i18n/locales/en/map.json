@@ -58,6 +58,7 @@
     "hiddenTitle": "Hidden — click to reveal",
     "visibleTitle": "Visible — click to hide",
     "deleteTitle": "Delete token",
+    "duplicateTitle": "Duplicate token",
     "addToken": "Add Token",
     "edit": "Edit: {{name}}",
     "label": "Label",

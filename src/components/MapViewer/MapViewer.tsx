@@ -125,6 +125,7 @@ export default function MapViewer() {
         ),
         revealedZones: mapState.revealedZones,
         camera,
+        updatedAt: Date.now(),
       });
     }, 500);
   }, [mapState, camera]);
@@ -177,6 +178,7 @@ export default function MapViewer() {
     updateToken,
     addToken,
     removeToken,
+    duplicateToken,
     undo,
     redo,
     resetFog,
@@ -380,6 +382,7 @@ export default function MapViewer() {
           onSelectToken={setSelectedTokenId}
           onClose={() => setTokenModalOpen(false)}
           onAddToken={addToken}
+          onDuplicateToken={duplicateToken}
           onRemoveToken={removeToken}
           onUpdateToken={updateToken}
         />

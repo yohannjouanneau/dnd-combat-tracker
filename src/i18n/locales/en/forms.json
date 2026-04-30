@@ -68,8 +68,8 @@
     "addNew": "Add a player"
   },
   "parkedGroups": {
-    "title": "Parked groups",
-    "empty": "Park combatants to use them later in this combat",
+    "title": "Combatant Pool",
+    "empty": "Add combatants to the pool to use them later in this combat",
     "edit": "Edit",
     "fight": "Fight",
     "remove": "Remove"

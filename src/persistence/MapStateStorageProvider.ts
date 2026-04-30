@@ -13,6 +13,7 @@ export interface PersistedMapMeta {
   tokens: PersistedMapToken[];
   revealedZones: { x: number; y: number; radius: number }[];
   camera: { x: number; y: number; scale: number };
+  updatedAt?: number;
 }
 
 export class MapStateStorageProvider {
