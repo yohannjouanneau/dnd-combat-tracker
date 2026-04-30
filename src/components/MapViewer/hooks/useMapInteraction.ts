@@ -502,6 +502,26 @@ export function useMapInteraction({
     [mapStateRef, transportRef, setMapState, setSelectedTokenId],
   );
 
+  const duplicateToken = useCallback(
+    (id: string) => {
+      const source = mapStateRef.current!.tokens.find((t) => t.id === id);
+      if (!source) return;
+      const newId = crypto.randomUUID();
+      const copy: Token = {
+        ...source,
+        id: newId,
+        x: source.x + 30,
+        y: source.y + 30,
+      };
+      const tokens = [...mapStateRef.current!.tokens, copy];
+      mapStateRef.current = { ...mapStateRef.current!, tokens };
+      setMapState(mapStateRef.current);
+      transportRef.current?.send({ type: "TOKENS_UPDATED", tokens });
+      setSelectedTokenId(newId);
+    },
+    [mapStateRef, transportRef, setMapState, setSelectedTokenId],
+  );
+
   // --- History ---
 
   const undo = useCallback(() => {
@@ -656,6 +676,7 @@ export function useMapInteraction({
     updateToken,
     addToken,
     removeToken,
+    duplicateToken,
     undo,
     redo,
     resetFog,

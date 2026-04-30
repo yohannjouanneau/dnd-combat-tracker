@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
+import { Copy, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Token } from "../types";
 import IconButton from "../../common/IconButton";
@@ -17,6 +17,7 @@ interface Props {
   onSelectToken: (id: string | null) => void;
   onClose: () => void;
   onAddToken: () => void;
+  onDuplicateToken: (id: string) => void;
   onRemoveToken: (id: string) => void;
   onUpdateToken: (id: string, patch: Partial<Token>) => void;
 }
@@ -27,6 +28,7 @@ export default function TokenModal({
   onSelectToken,
   onClose,
   onAddToken,
+  onDuplicateToken,
   onRemoveToken,
   onUpdateToken,
 }: Props) {
@@ -98,6 +100,16 @@ export default function TokenModal({
                 ) : (
                   <Eye className="w-3.5 h-3.5" />
                 )}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDuplicateToken(token.id);
+                }}
+                className="p-1 rounded text-text-muted hover:text-blue-400 transition"
+                title={t("token.duplicateTitle")}
+              >
+                <Copy className="w-3.5 h-3.5" />
               </button>
               {token.id !== "player" && (
                 <button

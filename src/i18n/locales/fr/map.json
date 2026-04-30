@@ -58,6 +58,7 @@
     "hiddenTitle": "Caché — cliquez pour révéler",
     "visibleTitle": "Visible — cliquez pour masquer",
     "deleteTitle": "Supprimer le pion",
+    "duplicateTitle": "Dupliquer le pion",
     "addToken": "Ajouter un pion",
     "edit": "Modifier : {{name}}",
     "label": "Étiquette",
