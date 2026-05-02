@@ -52,6 +52,12 @@
     "connectionFailed": "Connection failed",
     "tryAgain": "Try again"
   },
+  "contextMenu": {
+    "show": "Show",
+    "hide": "Hide",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
   "token": {
     "playerToken": "Player Token",
     "token": "Token",
