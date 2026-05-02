@@ -3,6 +3,25 @@ import { useTranslation } from "react-i18next";
 import type { Token } from "../types";
 import IconButton from "../../common/IconButton";
 
+function resizeImage(file: File, maxSize: number): Promise<string> {
+  return new Promise((resolve) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+    img.src = objectUrl;
+  });
+}
+
 function tokenLabel(
   token: Token,
   playerToken: string,
@@ -196,13 +215,11 @@ export default function TokenModal({
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
+                      resizeImage(file, 256).then((dataUrl) =>
                         onUpdateToken(selectedToken.id, {
-                          imageDataUrl: ev.target?.result as string,
-                        });
-                      };
-                      reader.readAsDataURL(file);
+                          imageDataUrl: dataUrl,
+                        }),
+                      );
                       e.target.value = "";
                     }}
                   />
@@ -244,13 +261,11 @@ export default function TokenModal({
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
+                      resizeImage(file, 800).then((dataUrl) =>
                         onUpdateToken(selectedToken.id, {
-                          portraitDataUrl: ev.target?.result as string,
-                        });
-                      };
-                      reader.readAsDataURL(file);
+                          portraitDataUrl: dataUrl,
+                        }),
+                      );
                       e.target.value = "";
                     }}
                   />

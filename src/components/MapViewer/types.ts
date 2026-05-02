@@ -30,7 +30,10 @@ export interface MapState {
 }
 
 export type MapMessage =
-  | { type: "TOKENS_UPDATED"; tokens: Token[] }
+  | {
+      type: "TOKENS_UPDATED";
+      tokens: Omit<Token, "imageDataUrl" | "portraitDataUrl">[];
+    }
   | { type: "FOG_UPDATED"; revealedZones: RevealedZone[] }
   | { type: "MAP_LOADED"; imageDataUrl: string }
   | { type: "REQUEST_FULL_STATE" }

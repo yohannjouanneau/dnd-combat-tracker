@@ -22,6 +22,15 @@ function screenToWorld(
   };
 }
 
+function stripImages(
+  tokens: Token[],
+): Omit<Token, "imageDataUrl" | "portraitDataUrl">[] {
+  return tokens.map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ({ imageDataUrl: _i, portraitDataUrl: _p, ...rest }) => rest,
+  );
+}
+
 function findClosestToken(
   tokens: Token[],
   worldX: number,
@@ -243,7 +252,10 @@ export function useMapInteraction({
             ]);
             setRedoStack([]);
 
-            transportRef.current?.send({ type: "TOKENS_UPDATED", tokens });
+            transportRef.current?.send({
+              type: "TOKENS_UPDATED",
+              tokens: stripImages(tokens),
+            });
             if (draggingToken.revealsFog) {
               transportRef.current?.send({
                 type: "FOG_UPDATED",
@@ -500,7 +512,10 @@ export function useMapInteraction({
       );
       mapStateRef.current = { ...mapStateRef.current!, tokens };
       setMapState(mapStateRef.current);
-      transportRef.current?.send({ type: "TOKENS_UPDATED", tokens });
+      transportRef.current?.send({
+        type: "TOKENS_UPDATED",
+        tokens: stripImages(tokens),
+      });
     },
     [mapStateRef, transportRef, setMapState],
   );
@@ -519,7 +534,10 @@ export function useMapInteraction({
     const tokens = [...mapStateRef.current!.tokens, newToken];
     mapStateRef.current = { ...mapStateRef.current!, tokens };
     setMapState(mapStateRef.current);
-    transportRef.current?.send({ type: "TOKENS_UPDATED", tokens });
+    transportRef.current?.send({
+      type: "TOKENS_UPDATED",
+      tokens: stripImages(tokens),
+    });
     setSelectedTokenId(id);
   }, [mapStateRef, transportRef, setMapState, setSelectedTokenId]);
 
@@ -528,7 +546,10 @@ export function useMapInteraction({
       const tokens = mapStateRef.current!.tokens.filter((t) => t.id !== id);
       mapStateRef.current = { ...mapStateRef.current!, tokens };
       setMapState(mapStateRef.current);
-      transportRef.current?.send({ type: "TOKENS_UPDATED", tokens });
+      transportRef.current?.send({
+        type: "TOKENS_UPDATED",
+        tokens: stripImages(tokens),
+      });
       setSelectedTokenId((prev) => (prev === id ? null : prev));
     },
     [mapStateRef, transportRef, setMapState, setSelectedTokenId],
@@ -548,7 +569,10 @@ export function useMapInteraction({
       const tokens = [...mapStateRef.current!.tokens, copy];
       mapStateRef.current = { ...mapStateRef.current!, tokens };
       setMapState(mapStateRef.current);
-      transportRef.current?.send({ type: "TOKENS_UPDATED", tokens });
+      transportRef.current?.send({
+        type: "TOKENS_UPDATED",
+        tokens: stripImages(tokens),
+      });
       setSelectedTokenId(newId);
     },
     [mapStateRef, transportRef, setMapState, setSelectedTokenId],
@@ -576,7 +600,7 @@ export function useMapInteraction({
     setMapState(newState);
     transportRef.current?.send({
       type: "TOKENS_UPDATED",
-      tokens: entry.tokens,
+      tokens: stripImages(entry.tokens),
     });
     transportRef.current?.send({
       type: "FOG_UPDATED",
@@ -611,7 +635,7 @@ export function useMapInteraction({
     setMapState(newState);
     transportRef.current?.send({
       type: "TOKENS_UPDATED",
-      tokens: entry.tokens,
+      tokens: stripImages(entry.tokens),
     });
     transportRef.current?.send({
       type: "FOG_UPDATED",

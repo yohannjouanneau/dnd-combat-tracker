@@ -4,7 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useToast } from "../../common/Toast/useToast";
 import { BroadcastChannelTransport } from "../BroadcastChannelTransport";
 import { PeerJSTransport } from "../PeerJSTransport";
-import type { MapMessage, MapState, MapTransport, PingEntry } from "../types";
+import type {
+  MapMessage,
+  MapState,
+  MapTransport,
+  PingEntry,
+  Token,
+} from "../types";
 
 interface Params {
   view: "dm" | "player";
@@ -86,7 +92,22 @@ export function useMapSync({
           }
           break;
         case "TOKENS_UPDATED":
-          setMapState((s) => ({ ...s, tokens: msg.tokens }));
+          setMapState((s) => {
+            const imageMap = new Map(
+              s.tokens.map((t) => [
+                t.id,
+                {
+                  imageDataUrl: t.imageDataUrl,
+                  portraitDataUrl: t.portraitDataUrl,
+                },
+              ]),
+            );
+            const tokens = msg.tokens.map((t) => ({
+              ...imageMap.get(t.id),
+              ...t,
+            })) as Token[];
+            return { ...s, tokens };
+          });
           break;
         case "FOG_UPDATED":
           setMapState((s) => ({ ...s, revealedZones: msg.revealedZones }));
