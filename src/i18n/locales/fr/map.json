@@ -52,6 +52,12 @@
     "connectionFailed": "Connexion échouée",
     "tryAgain": "Réessayer"
   },
+  "contextMenu": {
+    "show": "Afficher",
+    "hide": "Masquer",
+    "edit": "Modifier",
+    "delete": "Supprimer"
+  },
   "token": {
     "playerToken": "Pion du Joueur",
     "token": "Pion",

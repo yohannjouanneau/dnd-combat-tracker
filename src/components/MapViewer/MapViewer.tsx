@@ -6,6 +6,7 @@ import { MAP_ROOM_CODE_STORAGE_KEY } from "../../constants";
 import { dataStore } from "../../persistence/storage";
 import PeerJSConnector from "./PeerJSConnector";
 import MapToolbar from "./components/MapToolbar";
+import TokenContextMenu from "./components/TokenContextMenu";
 import TokenModal from "./components/TokenModal";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useMapRenderer } from "./hooks/useMapRenderer";
@@ -84,6 +85,11 @@ export default function MapViewer() {
   const [portraitViewTokenId, setPortraitViewTokenId] = useState<string | null>(
     null,
   );
+  const [contextMenu, setContextMenu] = useState<{
+    tokenId: string;
+    x: number;
+    y: number;
+  } | null>(null);
 
   // Shared refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -175,6 +181,7 @@ export default function MapViewer() {
     handleMouseMove,
     handleMouseUp,
     handleMouseLeave,
+    handleContextMenu,
     updateToken,
     addToken,
     removeToken,
@@ -210,6 +217,11 @@ export default function MapViewer() {
     onFocusToken: useCallback((x: number, y: number) => {
       transportRef.current?.send({ type: "FOCUS_TOKEN", x, y });
     }, []),
+    onContextMenuToken: useCallback(
+      (tokenId: string, x: number, y: number) =>
+        setContextMenu({ tokenId, x, y }),
+      [],
+    ),
   });
 
   useMapRenderer({
@@ -307,6 +319,9 @@ export default function MapViewer() {
 
   const portraitToken = portraitViewTokenId
     ? (mapState.tokens.find((t) => t.id === portraitViewTokenId) ?? null)
+    : null;
+  const contextMenuToken = contextMenu
+    ? (mapState.tokens.find((t) => t.id === contextMenu.tokenId) ?? null)
     : null;
 
   const cursorStyle = isPointerMode
@@ -478,7 +493,32 @@ export default function MapViewer() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
+        onContextMenu={handleContextMenu}
       />
+
+      {contextMenu && contextMenuToken && (
+        <TokenContextMenu
+          token={contextMenuToken}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          onToggleVisibility={() => {
+            updateToken(contextMenuToken.id, {
+              hidden: !contextMenuToken.hidden,
+            });
+            setContextMenu(null);
+          }}
+          onEdit={() => {
+            setSelectedTokenId(contextMenu.tokenId);
+            setTokenModalOpen(true);
+            setContextMenu(null);
+          }}
+          onDelete={() => {
+            removeToken(contextMenu.tokenId);
+            setContextMenu(null);
+          }}
+        />
+      )}
     </div>
   );
 }

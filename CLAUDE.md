@@ -70,6 +70,7 @@ Hash-based routing in `App.tsx`:
 - Backed by one `*StorageProvider` class per entity type (all localStorage) — see `src/persistence/`
 
 **IMPORTANT — how to add persistence for a new data type:**
+
 1. Add a storage key constant to `src/constants.ts` following the `dnd-ct:<entity>:v<version>` pattern
 2. Create `src/persistence/<Entity>StorageProvider.ts` — a plain class with `get`/`set` (single object) or `list`/`get`/`create`/`update`/`delete` (collection). See `MapStateStorageProvider` (single object) or `CampaignStorageProvider` (collection) for reference.
 3. Inject the provider into `DataStore` (constructor default + private field) and expose methods on it

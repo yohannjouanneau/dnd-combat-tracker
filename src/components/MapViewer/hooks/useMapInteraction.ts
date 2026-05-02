@@ -22,6 +22,23 @@ function screenToWorld(
   };
 }
 
+function findClosestToken(
+  tokens: Token[],
+  worldX: number,
+  worldY: number,
+): Token | null {
+  let closest: Token | null = null;
+  let closestDist = Infinity;
+  for (const token of tokens) {
+    const d = Math.hypot(worldX - token.x, worldY - token.y);
+    if (d <= token.radius * 1.5 && d < closestDist) {
+      closestDist = d;
+      closest = token;
+    }
+  }
+  return closest;
+}
+
 interface Params {
   view: "dm" | "player";
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -40,6 +57,7 @@ interface Params {
   setSelectedTokenId: React.Dispatch<React.SetStateAction<string | null>>;
   onTokenTap: (tokenId: string) => void;
   onFocusToken: (x: number, y: number) => void;
+  onContextMenuToken: (tokenId: string, x: number, y: number) => void;
 }
 
 export function useMapInteraction({
@@ -60,6 +78,7 @@ export function useMapInteraction({
   setSelectedTokenId,
   onTokenTap,
   onFocusToken,
+  onContextMenuToken,
 }: Params) {
   // Owned refs — internal to interaction logic
   const draggingTokenIdRef = useRef<string | null>(null);
@@ -112,15 +131,7 @@ export function useMapInteraction({
       const { tokens } = mapStateRef.current!;
       const visibleTokens =
         view === "player" ? tokens.filter((t) => !t.hidden) : tokens;
-      let closest: Token | null = null;
-      let closestDist = Infinity;
-      for (const token of visibleTokens) {
-        const d = Math.hypot(world.x - token.x, world.y - token.y);
-        if (d <= token.radius * 1.5 && d < closestDist) {
-          closestDist = d;
-          closest = token;
-        }
-      }
+      const closest = findClosestToken(visibleTokens, world.x, world.y);
       if (closest) {
         tapTokenIdRef.current = closest.id;
         tokenDragStartScreenRef.current = { sx, sy };
@@ -253,6 +264,25 @@ export function useMapInteraction({
       setUndoStack,
       setRedoStack,
     ],
+  );
+
+  // --- Context menu ---
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (view !== "dm") return;
+      e.preventDefault();
+      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+      const world = screenToWorld(
+        e.clientX - rect.left,
+        e.clientY - rect.top,
+        cameraRef.current!,
+      );
+      const { tokens } = mapStateRef.current!;
+      const closest = findClosestToken(tokens, world.x, world.y);
+      if (closest) onContextMenuToken(closest.id, e.clientX, e.clientY);
+    },
+    [view, cameraRef, mapStateRef, onContextMenuToken],
   );
 
   // --- Mouse handlers ---
@@ -673,6 +703,7 @@ export function useMapInteraction({
     handleMouseMove,
     handleMouseUp,
     handleMouseLeave,
+    handleContextMenu,
     updateToken,
     addToken,
     removeToken,
