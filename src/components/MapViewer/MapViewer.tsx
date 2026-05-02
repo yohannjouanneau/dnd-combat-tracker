@@ -47,8 +47,6 @@ const DEFAULT_MAP_STATE: MapState = {
 export const PLAYER_WINDOW_NAME = "dnd-map-player-view";
 
 export default function MapViewer() {
-  const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const [view, setView] = useState<"dm" | "player">(
     window.name === PLAYER_WINDOW_NAME ? "player" : "dm",
   );
@@ -95,6 +93,10 @@ export default function MapViewer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mapStateRef = useRef(mapState);
   mapStateRef.current = mapState;
+  // Tracks updatedAt for sync — only advances when tokens/fog change, not on
+  // camera moves, so a browser that only panned doesn't "win" the merge.
+  const mapStateUpdatedAtRef = useRef(dataStore.getMapState()?.updatedAt ?? 0);
+  const prevMapStateRef = useRef(mapState);
   const cameraRef = useRef(camera);
   cameraRef.current = camera;
   const revealRadiusRef = useRef(revealRadius);
@@ -112,29 +114,21 @@ export default function MapViewer() {
     }
   }, [lastRoomCode]);
 
-  // Auto-save token positions, fog zones, and camera (debounced)
+  // Clear stored map state when entering player view — players always receive
+  // fresh state from the DM, so local persistence is unnecessary and wasteful.
   useEffect(() => {
-    if (saveDebounceRef.current !== null) clearTimeout(saveDebounceRef.current);
-    saveDebounceRef.current = setTimeout(() => {
-      dataStore.setMapState({
-        tokens: mapState.tokens.map(
-          ({ id, x, y, radius, color, label, hidden, revealsFog }) => ({
-            id,
-            x,
-            y,
-            radius,
-            color,
-            label,
-            hidden,
-            revealsFog,
-          }),
-        ),
-        revealedZones: mapState.revealedZones,
-        camera,
-        updatedAt: Date.now(),
-      });
-    }, 500);
-  }, [mapState, camera]);
+    if (view === "player") dataStore.clearMapState();
+  }, [view]);
+
+  // Track updatedAt — only advances when tokens/fog change, not on camera
+  // moves, so a browser that only panned doesn't "win" the merge.
+  useEffect(() => {
+    if (view !== "dm") return;
+    if (mapState !== prevMapStateRef.current) {
+      mapStateUpdatedAtRef.current = Date.now();
+      prevMapStateRef.current = mapState;
+    }
+  }, [view, mapState]);
 
   // Warn before leaving when a map is loaded
   useEffect(() => {
@@ -222,6 +216,25 @@ export default function MapViewer() {
         setContextMenu({ tokenId, x, y }),
       [],
     ),
+    onBeforeBack: useCallback(() => {
+      dataStore.setMapState({
+        tokens: mapStateRef.current!.tokens.map(
+          ({ id, x, y, radius, color, label, hidden, revealsFog }) => ({
+            id,
+            x,
+            y,
+            radius,
+            color,
+            label,
+            hidden,
+            revealsFog,
+          }),
+        ),
+        revealedZones: mapStateRef.current!.revealedZones,
+        camera: cameraRef.current!,
+        updatedAt: mapStateUpdatedAtRef.current,
+      });
+    }, []),
   });
 
   useMapRenderer({

@@ -297,6 +297,9 @@ export class DataStore {
   setMapState(meta: PersistedMapMeta): void {
     this.mapStateProvider.set(meta);
   }
+  clearMapState(): void {
+    this.mapStateProvider.clear();
+  }
 }
 
 export const dataStore = new DataStore(import.meta.env.VITE_GOOGLE_CLIENT_ID);

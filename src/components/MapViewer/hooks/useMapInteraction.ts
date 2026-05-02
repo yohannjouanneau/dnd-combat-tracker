@@ -58,6 +58,7 @@ interface Params {
   onTokenTap: (tokenId: string) => void;
   onFocusToken: (x: number, y: number) => void;
   onContextMenuToken: (tokenId: string, x: number, y: number) => void;
+  onBeforeBack: () => void;
 }
 
 export function useMapInteraction({
@@ -79,6 +80,7 @@ export function useMapInteraction({
   onTokenTap,
   onFocusToken,
   onContextMenuToken,
+  onBeforeBack,
 }: Params) {
   // Owned refs — internal to interaction logic
   const draggingTokenIdRef = useRef<string | null>(null);
@@ -675,8 +677,9 @@ export function useMapInteraction({
       !window.confirm(i18n.t("map:confirm.leaveMap"))
     )
       return;
+    onBeforeBack();
     location.hash = "";
-  }, [mapStateRef]);
+  }, [mapStateRef, onBeforeBack]);
 
   const recenterOnPlayer = useCallback(() => {
     const tokens = mapStateRef.current!.tokens;

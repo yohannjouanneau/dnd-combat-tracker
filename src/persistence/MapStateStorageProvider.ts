@@ -40,4 +40,12 @@ export class MapStateStorageProvider {
       // localStorage quota exceeded — silently ignore
     }
   }
+
+  clear(): void {
+    try {
+      localStorage.removeItem(this.key);
+    } catch {
+      // ignore
+    }
+  }
 }
