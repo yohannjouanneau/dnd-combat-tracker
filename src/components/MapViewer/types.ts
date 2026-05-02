@@ -37,9 +37,17 @@ export type MapMessage =
   | { type: "FOG_UPDATED"; revealedZones: RevealedZone[] }
   | { type: "MAP_LOADED"; imageDataUrl: string }
   | { type: "REQUEST_FULL_STATE" }
-  | { type: "FULL_STATE_RESPONSE"; state: MapState }
+  | { type: "FULL_STATE_RESPONSE"; state: Omit<MapState, "imageDataUrl"> }
   | { type: "POINTER_PING"; x: number; y: number }
-  | { type: "FOCUS_TOKEN"; x: number; y: number };
+  | { type: "FOCUS_TOKEN"; x: number; y: number }
+  | {
+      type: "TOKEN_IMAGES_UPDATED";
+      images: Array<{
+        id: string;
+        imageDataUrl?: string;
+        portraitDataUrl?: string;
+      }>;
+    };
 
 export interface HistoryEntry {
   tokens: Token[];

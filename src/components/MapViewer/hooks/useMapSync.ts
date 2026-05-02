@@ -79,15 +79,19 @@ export function useMapSync({
       switch (msg.type) {
         case "REQUEST_FULL_STATE":
           if (view === "dm") {
+            const { imageDataUrl, ...stateWithoutImage } = mapStateRef.current!;
             transport.send({
               type: "FULL_STATE_RESPONSE",
-              state: mapStateRef.current!,
+              state: stateWithoutImage,
             });
+            if (imageDataUrl) {
+              transport.send({ type: "MAP_LOADED", imageDataUrl });
+            }
           }
           break;
         case "FULL_STATE_RESPONSE":
           if (view === "player") {
-            setMapState(msg.state);
+            setMapState({ ...msg.state, imageDataUrl: null });
             setSynced(true);
           }
           break;
@@ -115,6 +119,17 @@ export function useMapSync({
         case "MAP_LOADED":
           setMapState((s) => ({ ...s, imageDataUrl: msg.imageDataUrl }));
           break;
+        case "TOKEN_IMAGES_UPDATED": {
+          const imageMap = new Map(msg.images.map((i) => [i.id, i]));
+          setMapState((s) => ({
+            ...s,
+            tokens: s.tokens.map((t) => {
+              const img = imageMap.get(t.id);
+              return img ? { ...t, ...img } : t;
+            }),
+          }));
+          break;
+        }
         case "POINTER_PING":
           pingsRef.current.push({
             id: nextPingIdRef.current++,

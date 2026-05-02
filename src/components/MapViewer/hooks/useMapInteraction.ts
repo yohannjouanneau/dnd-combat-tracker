@@ -31,6 +31,18 @@ function stripImages(
   );
 }
 
+function pickImages(
+  tokens: Token[],
+): Array<{ id: string; imageDataUrl?: string; portraitDataUrl?: string }> {
+  return tokens
+    .filter((t) => t.imageDataUrl != null || t.portraitDataUrl != null)
+    .map(({ id, imageDataUrl, portraitDataUrl }) => ({
+      id,
+      imageDataUrl,
+      portraitDataUrl,
+    }));
+}
+
 function findClosestToken(
   tokens: Token[],
   worldX: number,
@@ -516,6 +528,21 @@ export function useMapInteraction({
         type: "TOKENS_UPDATED",
         tokens: stripImages(tokens),
       });
+      if ("imageDataUrl" in patch || "portraitDataUrl" in patch) {
+        const updated = tokens.find((t) => t.id === id);
+        if (updated) {
+          transportRef.current?.send({
+            type: "TOKEN_IMAGES_UPDATED",
+            images: [
+              {
+                id,
+                imageDataUrl: updated.imageDataUrl,
+                portraitDataUrl: updated.portraitDataUrl,
+              },
+            ],
+          });
+        }
+      }
     },
     [mapStateRef, transportRef, setMapState],
   );
@@ -573,6 +600,12 @@ export function useMapInteraction({
         type: "TOKENS_UPDATED",
         tokens: stripImages(tokens),
       });
+      if (copy.imageDataUrl != null || copy.portraitDataUrl != null) {
+        transportRef.current?.send({
+          type: "TOKEN_IMAGES_UPDATED",
+          images: pickImages([copy]),
+        });
+      }
       setSelectedTokenId(newId);
     },
     [mapStateRef, transportRef, setMapState, setSelectedTokenId],
