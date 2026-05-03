@@ -8,24 +8,34 @@
 
 [![Under Active Development](https://img.shields.io/badge/status-active%20development-brightgreen)]()
 
-![Combat Tracker Demo](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_1.png)
+![Landing Page](./screenshots/screenshot_landing.png)
 
 <details>
 <summary>📸 More Screenshots</summary>
 
-![Screenshot 2](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_2.png)
+**Combats list**
+![Combats List](./screenshots/screenshot_combats_list.png)
 
-![Screenshot 3](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_3.png)
+**Combat tracker – focus mode** (initiative order, HP bars, conditions, combatant detail)
+![Combat Tracker Focus Mode](./screenshots/screenshot_combat_focus.png)
 
-![Screenshot 4](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_4.png)
+**Combat tracker – full view** (players panel, combatant pool, fighting groups)
+![Combat Tracker Desktop](./screenshots/screenshot_combat_desktop.png)
 
-![Screenshot 5](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_5.png)
+**Combat tracker – mobile**
+![Combat Tracker Mobile](./screenshots/screenshot_combat_mobile.png)
 
-![Screenshot 6](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_6.png)
+**Campaign list**
+![Campaigns List](./screenshots/screenshot_campaigns_list.png)
 
-![Screenshot 7](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_7.png)
+**Campaign detail – tree view**
+![Campaign Detail Tree](./screenshots/screenshot_campaign_detail.png)
 
-![Screenshot 8](https://github.com/yohannjouanneau/dnd-combat-tracker/blob/main/screenshots/dnd_combat_tracker_screenshot_8.png)
+**Campaign detail – canvas view**
+![Campaign Detail Canvas](./screenshots/screenshot_campaign_canvas.png)
+
+**Tactical map viewer**
+![Map Viewer](./screenshots/screenshot_map_viewer.png)
 
 </details>
 
@@ -51,6 +61,8 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - 📝 Rich Markdown notes with combat-specific tags and dice notation
 - 🎯 Detailed combatant view with ability scores and modifiers
 - 💡 Smart storage optimization with lightweight references
+- 🗺️ Interactive tactical map viewer with fog of war and real-time P2P sync
+- 📋 Campaign system with building blocks, notes, and visual canvas layout
 
 ## ✨ Features
 
@@ -85,6 +97,21 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **Smart Storage** - Optimized references for library-sourced combatants
 - **Combat History** - Save, rename, and load encounters
 
+### Campaign System
+
+- **Campaigns** - Organize sessions with hierarchical building blocks (rooms, characters, combats, loot, etc.)
+- **Building Blocks** - Structured notes with Markdown support, stat checks, and linked NPCs
+- **Custom Block Types** - Create your own block types with emoji icons and feature toggles
+- **Visual Canvas** - Interactive node layout for visualizing campaign structure
+
+### Tactical Map
+
+- **Map Viewer** - Canvas-based tactical map with token placement and fog of war
+- **Real-Time P2P Sync** - Share map with players via PeerJS (with BroadcastChannel fallback for local use)
+- **DM/Player Views** - Separate DM view with full fog and player view with revealed areas
+- **Token Management** - Create, move, and edit tokens; context menu for quick actions
+- **Undo/Redo** - Full history of map actions
+
 ### User Interface
 
 - **Responsive Design** - Optimized for desktop, tablet, and mobile
@@ -104,6 +131,9 @@ D&D Combat Tracker is a web-based application designed to streamline combat enco
 - **Internationalization**: i18next with browser language detection
 - **Authentication**: Google Identity Services
 - **Markdown**: react-markdown with remark-gfm
+- **Canvas/Flow**: @xyflow/react for campaign visual canvas
+- **P2P Networking**: PeerJS for real-time map sync
+- **Emoji Picker**: emoji-mart for block type icons
 
 ## 🚀 Getting Started
 
@@ -152,52 +182,28 @@ npm run build
 
 The production-ready files will be in the `dist/` directory.
 
-## 📖 Usage Guide
+## 📖 Quick Start
 
-### Quick Start
+### ⚔️ Combat Tracker
 
-1. **Create Combat** - Enter name/description and click "Create"
-2. **Add Combatants** - Fill in stats (Name, HP, AC, Initiative) or search for monsters
-3. **Navigate Turns** - Use Arrow keys or Next/Previous buttons
-4. **Apply Damage** - Enter value and press Enter, or use quick buttons on mobile
-5. **Save Progress** - Press Ctrl/Cmd+S to save your combat
+1. Go to **Combat Tracker** → name your encounter → **Create**
+2. Add combatants manually or search the D&D 5e SRD (type a monster name in the form)
+3. Use **`→` / `←`** to navigate turns; apply HP changes with the input field
+4. Press **`F`** to enter Focus Mode — hides all panels, shows only the initiative list and combatant detail
+5. **`Ctrl/Cmd+S`** to save progress
 
-### Monster Search
+### 📋 Campaign Manager
 
-- Type monster name in combatant field
-- Results show from both your Library (amber) and D&D API (blue)
-- Click any result to auto-fill stats
+1. Go to **Campaign Manager** → name your campaign → **Create**
+2. Add **blocks** (rooms, characters, combats, loot…) with **+ Add Block**
+3. Switch between **Tree** view (list) and **Canvas** view (interactive node graph)
+4. Click any block to open its detail: Markdown notes, stat checks, linked NPCs, and linked combats
 
-### Combat Actions
+### 🗺️ Map Viewer
 
-- **Fight!** - Add combatants to combat immediately
-- **Park Group** - Stage combatants for later (cleared between combats)
-- **Save Player** - Reuse characters in future encounters
-- **Add to Library** - Save monsters to your personal collection
-- **Add to Fight checkbox** - Combine Park/Save with Fight! for faster workflow
-- **Add Another checkbox** - Keep form open to quickly add multiple groups
-
-### During Combat
-
-- **Edit Initiative** - Click value to modify, Enter to save, Escape to cancel
-- **Conditions** - Click "Add Condition" to toggle status effects
-- **Death Saves** - Click boxes when HP reaches 0
-- **Focus Mode** - Press F to hide forms and minimize distractions
-- **Combatant Details** - Click card to view full stats and notes
-
-### Cloud Sync
-
-1. Open Settings → Sign in with Google
-2. First sync: Choose Download (from cloud) or Upload (to cloud)
-3. Click "Sync" anytime to backup changes across devices
-
-### Keyboard Shortcuts
-
-- `→` / `←` - Navigate turns
-- `F` - Toggle Focus Mode
-- `Ctrl/Cmd + S` - Save combat
-- `Enter` - Apply HP changes
-- `Escape` - Cancel editing
+1. Go to **Map Viewer** → **Import Map** to upload a battle map image
+2. Place tokens on the map; the DM view shows full fog, drag tokens to reveal areas
+3. Click **Connect** to generate a room code — open the player view in a second tab to share the map in real time
 
 ## 📁 Project Structure
 
@@ -206,28 +212,34 @@ src/
 ├── api/
 │   ├── sync/                    # Cloud sync providers
 │   │   ├── gdrive/             # Google Drive implementation
+│   │   ├── hooks/              # useSyncApi hook
 │   │   ├── SyncProvider.ts
 │   │   └── types.ts
 │   ├── DnD5eGraphQLClient.ts   # D&D API client
 │   ├── fragments.ts             # GraphQL fragments
 │   └── types.ts                 # API type definitions
 ├── components/
+│   ├── Campaign/                # Campaign building blocks UI
+│   │   ├── BlockEditModal.tsx
+│   │   ├── BlockDetailModal.tsx
+│   │   └── BlockTreeNode.tsx
 │   ├── CombatForm/              # Form for adding combatants
 │   ├── CombatantsList/          # Combat participants display
 │   ├── CombatLayout/            # Responsive layout components
 │   │   ├── CombatLayout.tsx
 │   │   ├── DesktopCombatLayout.tsx
 │   │   └── MobileCombatLayout.tsx
-│   ├── CombatantDetailPanel/   # Detailed combatant view
+│   ├── CombatantDetailPanel/    # Detailed combatant view
 │   ├── CombatsList/             # Combat list page
 │   ├── GroupsOverview/          # Group summary
-│   ├── MonsterLibrary/          # Monster library components
+│   ├── Library/                 # Unified monster/player/block library
+│   ├── MapViewer/               # Tactical map with fog of war + P2P sync
 │   ├── ParkedGroups/            # Staged combatants
 │   ├── Settings/                # Settings modal
-│   ├── TurnControls/            # Turn navigation
+│   ├── TurnControls/            # Turn navigation + combat timer
 │   ├── SyncButton.tsx           # Google Drive sync control
 │   ├── TopBar.tsx               # Top navigation bar
-│   └── common/                  # Reusable components
+│   └── common/                  # Reusable UI primitives (Button, Modal, Select, …)
 ├── contexts/                    # React contexts
 │   ├── ThemeProvider.tsx
 │   ├── ToastContext.tsx
@@ -244,12 +256,20 @@ src/
 │   │   └── fr/                  # French translations
 │   └── index.ts
 ├── pages/
+│   ├── LandingPage.tsx
 │   ├── CombatTrackerPage.tsx
-│   └── CombatsPage.tsx
+│   ├── CombatsPage.tsx
+│   ├── CampaignListPage.tsx
+│   └── CampaignDetailPage.tsx
 ├── persistence/                 # Storage layer
 │   ├── CombatStorageProvider.ts
 │   ├── CombatantTemplateStorageProvider.ts
-│   └── storage.ts
+│   ├── CampaignStorageProvider.ts
+│   ├── BuildingBlockStorageProvider.ts
+│   ├── BlockTypeStorageProvider.ts
+│   ├── MapStateStorageProvider.ts
+│   ├── combatStateOptimizer.ts
+│   └── storage.ts               # DataStore — single access point for all persistence
 ├── store/                       # State management
 │   ├── hooks/                   # Store hooks
 │   │   ├── useCombatantStore.ts
@@ -257,21 +277,23 @@ src/
 │   │   ├── useCombatantFormStore.ts
 │   │   ├── useMonsterStore.ts
 │   │   ├── useParkedGroupStore.ts
-│   │   └── usePlayerStore.ts
+│   │   ├── usePlayerStore.ts
+│   │   └── useCampaignStore.ts
 │   ├── state.ts
 │   └── types.ts
+├── types/
+│   ├── campaign.ts              # Campaign, BuildingBlock, BlockTypeDef types
+│   └── …
 ├── utils/                       # Utility functions
-│   ├── utils.ts
-│   └── monsterNotes.ts
-├── types.ts                     # TypeScript definitions
-└── constants.ts                 # App constants
+├── types.ts                     # Core TypeScript definitions
+└── constants.ts                 # Storage keys, built-in block types, editor tags
 ```
 
 ## 🏗️ Architecture
 
 ### State Management
 
-The application uses a modular store architecture with specialized hooks:
+The application uses a modular store architecture with specialized hooks, composed by `useCombatState()` in `src/store/state.ts`:
 
 - **useCombatantStore** - Combatants list with full stats and tracking
 - **useCombatStore** - Current turn, round tracking, and combat metadata
@@ -279,6 +301,8 @@ The application uses a modular store architecture with specialized hooks:
 - **usePlayerStore** - Saved players for reuse
 - **useMonsterStore** - Monster library management
 - **useCombatantFormStore** - Form state for new combatants
+- **useCampaignStore** - Campaigns, building blocks, and custom block types
+- **useSyncApi** (`src/api/sync/hooks/`) - Google Drive sync state
 
 Each store hook manages its own slice of state with dedicated actions and persistence logic.
 
@@ -306,7 +330,13 @@ Each store hook manages its own slice of state with dedicated actions and persis
   - `dnd-ct:combats:v1` for combat encounters
   - `dnd-ct:players:v1` for saved players
   - `dnd-ct:monsters:v1` for monster library
+  - `dnd-ct:blocks:v1` for campaign building blocks
+  - `dnd-ct:campaigns:v1` for campaigns
+  - `dnd-ct:block-types:v1` for custom block type definitions
+  - `dnd-ct:map-state:v1` for tactical map state
+  - `dnd-ct:map-room-code` for active P2P map room code
   - `dnd-ct:lastSynced` for sync timestamp
+  - `dnd-ct:lastBackup` for last backup timestamp
   - `dnd-ct:settings:v1` for user settings
 
 ### API Integration
@@ -350,15 +380,20 @@ Contributions are welcome! Here's how you can help:
 ### Planned Features or ideas
 
 - [ ] Drag-and-drop initiative reordering
-- [ ] Include Players in Library
 - [ ] Dice roller integration
 - [ ] Spell slot tracking
 - [ ] Export / Import combat JSON
 - [ ] Temporary HP tracking
-- [ ] Combat timer
 
 ### Recently Added Features
 
+- ✅ Tactical map viewer with fog of war and token management
+- ✅ Real-time P2P map sync (PeerJS + BroadcastChannel)
+- ✅ Campaign system with hierarchical building blocks
+- ✅ Visual canvas layout for campaigns
+- ✅ Custom block types with emoji icons
+- ✅ Players included in unified Library
+- ✅ Combat timer (turn timing in TurnControls)
 - ✅ Google Drive cloud sync
 - ✅ Multi-language support (English & French)
 - ✅ Monster library system
