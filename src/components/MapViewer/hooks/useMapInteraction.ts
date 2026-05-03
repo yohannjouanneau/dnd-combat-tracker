@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { dataStore } from "../../../persistence/storage";
 import { PLAYER_WINDOW_NAME } from "../MapViewer";
 import type {
   Camera,
@@ -8,6 +9,7 @@ import type {
   MapTransport,
   PingEntry,
   RevealedZone,
+  RoomPolygon,
   Token,
 } from "../types";
 
@@ -41,6 +43,16 @@ function pickImages(
       imageDataUrl,
       portraitDataUrl,
     }));
+}
+
+export function serializeMapToken(
+  token: Token,
+): Pick<
+  Token,
+  "id" | "x" | "y" | "radius" | "color" | "label" | "hidden" | "revealsFog"
+> {
+  const { id, x, y, radius, color, label, hidden, revealsFog } = token;
+  return { id, x, y, radius, color, label, hidden, revealsFog };
 }
 
 function findClosestToken(
@@ -124,6 +136,17 @@ export function useMapInteraction({
   const isFocusModeRef = useRef(isFocusMode);
   isFocusModeRef.current = isFocusMode;
 
+  const [isRoomDrawMode, setIsRoomDrawMode] = useState(false);
+  const isRoomDrawModeRef = useRef(isRoomDrawMode);
+  isRoomDrawModeRef.current = isRoomDrawMode;
+  const inProgressRoomPointsRef = useRef<{ x: number; y: number }[]>([]);
+  const roomHoverPosRef = useRef<{ x: number; y: number } | null>(null);
+  const shiftPanActiveRef = useRef(false);
+  const draggingRoomVertexRef = useRef<{
+    roomId: string;
+    pointIndex: number;
+  } | null>(null);
+
   // --- Ping ---
 
   const emitPing = useCallback(
@@ -140,10 +163,51 @@ export function useMapInteraction({
     [cameraRef, pingsRef, nextPingIdRef, transportRef],
   );
 
+  // --- Persistence ---
+
+  const persistMapState = useCallback(() => {
+    if (view !== "dm") return;
+    const state = mapStateRef.current!;
+    dataStore.setMapState({
+      tokens: state.tokens.map(serializeMapToken),
+      revealedZones: state.revealedZones,
+      rooms: state.rooms,
+      camera: cameraRef.current!,
+      updatedAt: Date.now(),
+    });
+  }, [view, mapStateRef, cameraRef]);
+
   // --- Pointer interactions ---
 
   const startPointerInteraction = useCallback(
     (sx: number, sy: number, clientX: number, clientY: number) => {
+      // Room draw mode: start vertex drag or record down for new vertex
+      if (
+        isRoomDrawModeRef.current &&
+        !shiftPanActiveRef.current &&
+        view === "dm"
+      ) {
+        const world = screenToWorld(sx, sy, cameraRef.current!);
+        // Check proximity to any existing room vertex (12 screen px threshold)
+        for (const room of mapStateRef.current!.rooms) {
+          for (let i = 0; i < room.points.length; i++) {
+            const screenDist =
+              Math.hypot(
+                world.x - room.points[i].x,
+                world.y - room.points[i].y,
+              ) * cameraRef.current!.scale;
+            if (screenDist < 12) {
+              draggingRoomVertexRef.current = {
+                roomId: room.id,
+                pointIndex: i,
+              };
+              return; // vertex drag started — skip pointerDownScreenRef
+            }
+          }
+        }
+        pointerDownScreenRef.current = { sx, sy };
+        return;
+      }
       if (isPointerModeRef.current) {
         pointerDownScreenRef.current = { sx, sy };
         isPanningRef.current = true;
@@ -172,6 +236,14 @@ export function useMapInteraction({
 
   const updatePointerInteraction = useCallback(
     (sx: number, sy: number, clientX: number, clientY: number) => {
+      if (
+        isRoomDrawModeRef.current &&
+        !shiftPanActiveRef.current &&
+        view === "dm"
+      ) {
+        roomHoverPosRef.current = screenToWorld(sx, sy, cameraRef.current!);
+        return;
+      }
       if (draggingTokenIdRef.current) {
         draggingTokenPosRef.current = screenToWorld(sx, sy, cameraRef.current!);
       } else if (isPanningRef.current) {
@@ -181,11 +253,68 @@ export function useMapInteraction({
         setCamera((c) => ({ ...c, x: c.x + dx, y: c.y + dy }));
       }
     },
-    [cameraRef, setCamera],
+    [view, cameraRef, setCamera],
   );
 
   const endInteraction = useCallback(
     (sx?: number, sy?: number) => {
+      // Room draw mode: commit vertex drag or add new vertex
+      if (
+        isRoomDrawModeRef.current &&
+        !shiftPanActiveRef.current &&
+        view === "dm"
+      ) {
+        // Commit vertex drag if one was started on mousedown
+        if (draggingRoomVertexRef.current) {
+          const { roomId, pointIndex } = draggingRoomVertexRef.current;
+          draggingRoomVertexRef.current = null;
+          if (sx === undefined || sy === undefined) return;
+          const world = screenToWorld(sx, sy, cameraRef.current!);
+          const rooms = mapStateRef.current!.rooms.map((r) =>
+            r.id === roomId
+              ? {
+                  ...r,
+                  points: r.points.map((p, i) =>
+                    i === pointIndex ? world : p,
+                  ),
+                }
+              : r,
+          );
+          mapStateRef.current = { ...mapStateRef.current!, rooms };
+          setMapState(mapStateRef.current);
+          persistMapState();
+          transportRef.current?.send({ type: "ROOMS_UPDATED", rooms });
+          return;
+        }
+
+        const down = pointerDownScreenRef.current;
+        pointerDownScreenRef.current = null;
+        if (!down || sx === undefined || sy === undefined) return;
+        if (Math.hypot(sx - down.sx, sy - down.sy) > 6) return; // was a drag, skip
+        const world = screenToWorld(sx, sy, cameraRef.current!);
+        const pts = inProgressRoomPointsRef.current;
+        // Snap to first vertex to close polygon
+        if (pts.length >= 3) {
+          const screenDist =
+            Math.hypot(world.x - pts[0].x, world.y - pts[0].y) *
+            cameraRef.current!.scale;
+          if (screenDist < 15) {
+            const room: RoomPolygon = {
+              id: crypto.randomUUID(),
+              points: [...pts],
+            };
+            inProgressRoomPointsRef.current = [];
+            const rooms = [...mapStateRef.current!.rooms, room];
+            mapStateRef.current = { ...mapStateRef.current!, rooms };
+            setMapState(mapStateRef.current);
+            persistMapState();
+            transportRef.current?.send({ type: "ROOMS_UPDATED", rooms });
+            return;
+          }
+        }
+        inProgressRoomPointsRef.current = [...pts, world];
+        return;
+      }
       if (isPointerModeRef.current && pointerDownScreenRef.current !== null) {
         const down = pointerDownScreenRef.current;
         pointerDownScreenRef.current = null;
@@ -258,6 +387,7 @@ export function useMapInteraction({
               revealedZones,
             };
             setMapState(mapStateRef.current);
+            persistMapState();
             setUndoStack((s) => [
               ...s.slice(-49),
               { tokens: prevTokens, revealedZones: prevZones },
@@ -280,15 +410,18 @@ export function useMapInteraction({
       isPanningRef.current = false;
     },
     [
+      view,
       emitPing,
       onTokenTap,
       onFocusToken,
+      cameraRef,
       mapStateRef,
       revealRadiusRef,
       transportRef,
       setMapState,
       setUndoStack,
       setRedoStack,
+      persistMapState,
     ],
   );
 
@@ -349,6 +482,8 @@ export function useMapInteraction({
   );
 
   const handleMouseLeave = useCallback(() => {
+    roomHoverPosRef.current = null;
+    draggingRoomVertexRef.current = null;
     endInteraction();
   }, [endInteraction]);
 
@@ -515,6 +650,29 @@ export function useMapInteraction({
     handleTouchEnd,
   ]);
 
+  // Escape cancels in-progress room polygon; Shift temporarily enables panning
+  useLayoutEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isRoomDrawModeRef.current) {
+        inProgressRoomPointsRef.current = [];
+      }
+      if (e.key === "Shift" && isRoomDrawModeRef.current) {
+        shiftPanActiveRef.current = true;
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "Shift") {
+        shiftPanActiveRef.current = false;
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
   // --- Token CRUD ---
 
   const updateToken = useCallback(
@@ -524,6 +682,7 @@ export function useMapInteraction({
       );
       mapStateRef.current = { ...mapStateRef.current!, tokens };
       setMapState(mapStateRef.current);
+      persistMapState();
       transportRef.current?.send({
         type: "TOKENS_UPDATED",
         tokens: stripImages(tokens),
@@ -544,7 +703,7 @@ export function useMapInteraction({
         }
       }
     },
-    [mapStateRef, transportRef, setMapState],
+    [mapStateRef, transportRef, setMapState, persistMapState],
   );
 
   const addToken = useCallback(() => {
@@ -561,25 +720,39 @@ export function useMapInteraction({
     const tokens = [...mapStateRef.current!.tokens, newToken];
     mapStateRef.current = { ...mapStateRef.current!, tokens };
     setMapState(mapStateRef.current);
+    persistMapState();
     transportRef.current?.send({
       type: "TOKENS_UPDATED",
       tokens: stripImages(tokens),
     });
     setSelectedTokenId(id);
-  }, [mapStateRef, transportRef, setMapState, setSelectedTokenId]);
+  }, [
+    mapStateRef,
+    transportRef,
+    setMapState,
+    setSelectedTokenId,
+    persistMapState,
+  ]);
 
   const removeToken = useCallback(
     (id: string) => {
       const tokens = mapStateRef.current!.tokens.filter((t) => t.id !== id);
       mapStateRef.current = { ...mapStateRef.current!, tokens };
       setMapState(mapStateRef.current);
+      persistMapState();
       transportRef.current?.send({
         type: "TOKENS_UPDATED",
         tokens: stripImages(tokens),
       });
       setSelectedTokenId((prev) => (prev === id ? null : prev));
     },
-    [mapStateRef, transportRef, setMapState, setSelectedTokenId],
+    [
+      mapStateRef,
+      transportRef,
+      setMapState,
+      setSelectedTokenId,
+      persistMapState,
+    ],
   );
 
   const duplicateToken = useCallback(
@@ -596,6 +769,7 @@ export function useMapInteraction({
       const tokens = [...mapStateRef.current!.tokens, copy];
       mapStateRef.current = { ...mapStateRef.current!, tokens };
       setMapState(mapStateRef.current);
+      persistMapState();
       transportRef.current?.send({
         type: "TOKENS_UPDATED",
         tokens: stripImages(tokens),
@@ -608,7 +782,13 @@ export function useMapInteraction({
       }
       setSelectedTokenId(newId);
     },
-    [mapStateRef, transportRef, setMapState, setSelectedTokenId],
+    [
+      mapStateRef,
+      transportRef,
+      setMapState,
+      setSelectedTokenId,
+      persistMapState,
+    ],
   );
 
   // --- History ---
@@ -631,6 +811,7 @@ export function useMapInteraction({
     };
     mapStateRef.current = newState;
     setMapState(newState);
+    persistMapState();
     transportRef.current?.send({
       type: "TOKENS_UPDATED",
       tokens: stripImages(entry.tokens),
@@ -646,6 +827,7 @@ export function useMapInteraction({
     setMapState,
     setUndoStack,
     setRedoStack,
+    persistMapState,
   ]);
 
   const redo = useCallback(() => {
@@ -666,6 +848,7 @@ export function useMapInteraction({
     };
     mapStateRef.current = newState;
     setMapState(newState);
+    persistMapState();
     transportRef.current?.send({
       type: "TOKENS_UPDATED",
       tokens: stripImages(entry.tokens),
@@ -681,7 +864,34 @@ export function useMapInteraction({
     setMapState,
     setUndoStack,
     setRedoStack,
+    persistMapState,
   ]);
+
+  // --- Rooms ---
+
+  const deleteRoom = useCallback(
+    (id: string) => {
+      const rooms = mapStateRef.current!.rooms.filter((r) => r.id !== id);
+      mapStateRef.current = { ...mapStateRef.current!, rooms };
+      setMapState(mapStateRef.current);
+      persistMapState();
+      transportRef.current?.send({ type: "ROOMS_UPDATED", rooms });
+    },
+    [mapStateRef, transportRef, setMapState, persistMapState],
+  );
+
+  const renameRoom = useCallback(
+    (id: string, name: string) => {
+      const rooms = mapStateRef.current!.rooms.map((r) =>
+        r.id === id ? { ...r, name } : r,
+      );
+      mapStateRef.current = { ...mapStateRef.current!, rooms };
+      setMapState(mapStateRef.current);
+      persistMapState();
+      transportRef.current?.send({ type: "ROOMS_UPDATED", rooms });
+    },
+    [mapStateRef, transportRef, setMapState, persistMapState],
+  );
 
   // --- Fog ---
 
@@ -697,8 +907,16 @@ export function useMapInteraction({
     const newState = { ...mapStateRef.current!, revealedZones };
     mapStateRef.current = newState;
     setMapState(newState);
+    persistMapState();
     transportRef.current?.send({ type: "FOG_UPDATED", revealedZones });
-  }, [mapStateRef, transportRef, setMapState, setUndoStack, setRedoStack]);
+  }, [
+    mapStateRef,
+    transportRef,
+    setMapState,
+    setUndoStack,
+    setRedoStack,
+    persistMapState,
+  ]);
 
   // --- Map / navigation ---
 
@@ -758,6 +976,14 @@ export function useMapInteraction({
     isFocusMode,
     setIsFocusMode,
     setIsPointerMode,
+    isRoomDrawMode,
+    setIsRoomDrawMode,
+    isRoomDrawModeRef,
+    inProgressRoomPointsRef,
+    roomHoverPosRef,
+    draggingRoomVertexRef,
+    deleteRoom,
+    renameRoom,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,

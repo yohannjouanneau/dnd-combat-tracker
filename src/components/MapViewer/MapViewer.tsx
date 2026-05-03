@@ -6,9 +6,13 @@ import { MAP_ROOM_CODE_STORAGE_KEY } from "../../constants";
 import { dataStore } from "../../persistence/storage";
 import PeerJSConnector from "./PeerJSConnector";
 import MapToolbar from "./components/MapToolbar";
+import RoomPanel from "./components/RoomPanel";
 import TokenContextMenu from "./components/TokenContextMenu";
-import TokenModal from "./components/TokenModal";
-import { useMapInteraction } from "./hooks/useMapInteraction";
+import TokenPanel from "./components/TokenPanel";
+import {
+  serializeMapToken,
+  useMapInteraction,
+} from "./hooks/useMapInteraction";
 import { useMapRenderer } from "./hooks/useMapRenderer";
 import { useMapSync } from "./hooks/useMapSync";
 import type {
@@ -42,6 +46,7 @@ const DEFAULT_MAP_STATE: MapState = {
     },
   ],
   revealedZones: [],
+  rooms: [],
 };
 
 export const PLAYER_WINDOW_NAME = "dnd-map-player-view";
@@ -66,6 +71,7 @@ export default function MapViewer() {
           imageDataUrl: null,
           tokens: saved.tokens,
           revealedZones: saved.revealedZones,
+          rooms: saved.rooms ?? [],
         }
       : DEFAULT_MAP_STATE;
   });
@@ -80,6 +86,8 @@ export default function MapViewer() {
   const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
+  const [roomPanelOpen, setRoomPanelOpen] = useState(false);
+  const highlightedRoomIdRef = useRef<string | null>(null);
   const [portraitViewTokenId, setPortraitViewTokenId] = useState<string | null>(
     null,
   );
@@ -171,6 +179,14 @@ export default function MapViewer() {
     isPointerMode,
     isFocusMode,
     setIsPointerMode,
+    isRoomDrawMode,
+    setIsRoomDrawMode,
+    isRoomDrawModeRef,
+    inProgressRoomPointsRef,
+    roomHoverPosRef,
+    draggingRoomVertexRef,
+    deleteRoom,
+    renameRoom,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
@@ -218,19 +234,9 @@ export default function MapViewer() {
     ),
     onBeforeBack: useCallback(() => {
       dataStore.setMapState({
-        tokens: mapStateRef.current!.tokens.map(
-          ({ id, x, y, radius, color, label, hidden, revealsFog }) => ({
-            id,
-            x,
-            y,
-            radius,
-            color,
-            label,
-            hidden,
-            revealsFog,
-          }),
-        ),
+        tokens: mapStateRef.current!.tokens.map(serializeMapToken),
         revealedZones: mapStateRef.current!.revealedZones,
+        rooms: mapStateRef.current!.rooms,
         camera: cameraRef.current!,
         updatedAt: mapStateUpdatedAtRef.current,
       });
@@ -249,6 +255,11 @@ export default function MapViewer() {
     revealRadiusRef,
     isRadiusPreviewActiveRef,
     pingsRef,
+    isRoomDrawModeRef,
+    inProgressRoomPointsRef,
+    roomHoverPosRef,
+    draggingRoomVertexRef,
+    highlightedRoomIdRef,
   });
 
   const { t } = useTranslation("map");
@@ -337,13 +348,15 @@ export default function MapViewer() {
     ? (mapState.tokens.find((t) => t.id === contextMenu.tokenId) ?? null)
     : null;
 
-  const cursorStyle = isPointerMode
-    ? "crosshair"
-    : view === "player"
-      ? "grab"
-      : draggingTokenIdRef.current
-        ? "grabbing"
-        : "crosshair";
+  const cursorStyle = isRoomDrawMode
+    ? "cell"
+    : isPointerMode
+      ? "crosshair"
+      : view === "player"
+        ? "grab"
+        : draggingTokenIdRef.current
+          ? "grabbing"
+          : "crosshair";
 
   return (
     <div className="w-full h-screen bg-black flex flex-col relative overflow-hidden">
@@ -380,6 +393,10 @@ export default function MapViewer() {
             setSelectedTokenId(mapState.tokens[0].id);
           }
         }}
+        isRoomDrawMode={isRoomDrawMode}
+        onToggleRoomDrawMode={() => setIsRoomDrawMode((v) => !v)}
+        roomCount={mapState.rooms.length}
+        onOpenRoomPanel={() => setRoomPanelOpen((v) => !v)}
         onOpenPeerModal={() => setPeerModalOpen(true)}
         isPeerConnected={isPeerOnline}
         isReconnecting={isReconnecting}
@@ -404,7 +421,7 @@ export default function MapViewer() {
       )}
 
       {tokenModalOpen && (
-        <TokenModal
+        <TokenPanel
           tokens={mapState.tokens}
           selectedTokenId={selectedTokenId}
           onSelectToken={setSelectedTokenId}
@@ -413,6 +430,19 @@ export default function MapViewer() {
           onDuplicateToken={duplicateToken}
           onRemoveToken={removeToken}
           onUpdateToken={updateToken}
+        />
+      )}
+
+      {roomPanelOpen && view === "dm" && (
+        <RoomPanel
+          rooms={mapState.rooms}
+          onRename={renameRoom}
+          onDelete={deleteRoom}
+          onClose={() => {
+            setRoomPanelOpen(false);
+            highlightedRoomIdRef.current = null;
+          }}
+          onHighlightRoom={(id) => (highlightedRoomIdRef.current = id)}
         />
       )}
 
