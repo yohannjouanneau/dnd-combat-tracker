@@ -17,6 +17,12 @@ export interface RevealedZone {
   radius: number;
 }
 
+export interface RoomPolygon {
+  id: string;
+  name?: string;
+  points: { x: number; y: number }[];
+}
+
 export interface Camera {
   x: number;
   y: number;
@@ -27,6 +33,7 @@ export interface MapState {
   imageDataUrl: string | null;
   tokens: Token[];
   revealedZones: RevealedZone[];
+  rooms: RoomPolygon[];
 }
 
 export type MapMessage =
@@ -35,6 +42,7 @@ export type MapMessage =
       tokens: Omit<Token, "imageDataUrl" | "portraitDataUrl">[];
     }
   | { type: "FOG_UPDATED"; revealedZones: RevealedZone[] }
+  | { type: "ROOMS_UPDATED"; rooms: RoomPolygon[] }
   | { type: "MAP_LOADED"; imageDataUrl: string }
   | { type: "REQUEST_FULL_STATE" }
   | { type: "FULL_STATE_RESPONSE"; state: Omit<MapState, "imageDataUrl"> }

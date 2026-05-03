@@ -58,6 +58,17 @@
     "edit": "Edit",
     "delete": "Delete"
   },
+  "rooms": {
+    "draw": "Draw Room",
+    "drawTitle": "Draw a room polygon — click to place vertices, click near start to close, Escape to cancel",
+    "rooms": "Rooms",
+    "panel": "Rooms",
+    "unnamed": "Unnamed room",
+    "empty": "No rooms defined. Use the Draw Room tool to add one.",
+    "rename": "Rename",
+    "delete": "Delete room",
+    "clickToRename": "Click to rename"
+  },
   "token": {
     "playerToken": "Player Token",
     "token": "Token",

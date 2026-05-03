@@ -116,6 +116,9 @@ export function useMapSync({
         case "FOG_UPDATED":
           setMapState((s) => ({ ...s, revealedZones: msg.revealedZones }));
           break;
+        case "ROOMS_UPDATED":
+          setMapState((s) => ({ ...s, rooms: msg.rooms }));
+          break;
         case "MAP_LOADED":
           setMapState((s) => ({ ...s, imageDataUrl: msg.imageDataUrl }));
           break;

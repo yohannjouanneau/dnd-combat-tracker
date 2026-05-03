@@ -4,7 +4,7 @@
 
 # ⚔️ D&D Combat Tracker
 
-> A modern, intuitive combat tracker for Dungeons & Dragons 5th Edition
+> A modern, intuitive set of tools for Dungeons & Dragons 5th Edition
 
 [![Under Active Development](https://img.shields.io/badge/status-active%20development-brightgreen)]()
 

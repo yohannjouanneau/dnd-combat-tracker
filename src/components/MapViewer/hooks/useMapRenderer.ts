@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { Camera, MapState, PingEntry, Token } from "../types";
+import type { Camera, MapState, PingEntry, RoomPolygon, Token } from "../types";
 
 const FOG_DM_OPACITY = 0.4;
 const PLACEHOLDER_SIZE = 2000;
@@ -20,6 +20,14 @@ interface Params {
   revealRadiusRef: React.RefObject<number>;
   isRadiusPreviewActiveRef: React.RefObject<boolean>;
   pingsRef: React.RefObject<PingEntry[]>;
+  isRoomDrawModeRef: React.RefObject<boolean>;
+  inProgressRoomPointsRef: React.RefObject<{ x: number; y: number }[]>;
+  roomHoverPosRef: React.RefObject<{ x: number; y: number } | null>;
+  draggingRoomVertexRef: React.RefObject<{
+    roomId: string;
+    pointIndex: number;
+  } | null>;
+  highlightedRoomIdRef: React.RefObject<string | null>;
 }
 
 // --- Internal render steps ---
@@ -54,6 +62,25 @@ function drawMap(
   }
 }
 
+// Ray-casting point-in-polygon test (world coordinates)
+function pointInPolygon(
+  x: number,
+  y: number,
+  points: { x: number; y: number }[],
+): boolean {
+  let inside = false;
+  for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+    const xi = points[i].x,
+      yi = points[i].y;
+    const xj = points[j].x,
+      yj = points[j].y;
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
 function drawFog(
   ctx: CanvasRenderingContext2D,
   fogCanvasRef: React.RefObject<OffscreenCanvas | null>,
@@ -65,6 +92,7 @@ function drawFog(
   view: "dm" | "player",
   tokens: Token[],
   revealedZones: MapState["revealedZones"],
+  rooms: RoomPolygon[],
   draggingTokenIdRef: React.RefObject<string | null>,
   draggingTokenPosRef: React.RefObject<{ x: number; y: number } | null>,
   revealRadiusRef: React.RefObject<number>,
@@ -96,6 +124,8 @@ function drawFog(
     fogCtx.setTransform(scale, 0, 0, scale, panX, panY);
     fogCtx.globalCompositeOperation = "destination-out";
 
+    const validRooms = rooms.filter((r) => r.points.length >= 3);
+
     const drawZone = (x: number, y: number, radius: number) => {
       const grad = fogCtx.createRadialGradient(x, y, 0, x, y, radius);
       grad.addColorStop(0, "rgba(0,0,0,1)");
@@ -107,11 +137,43 @@ function drawFog(
       fogCtx.fill();
     };
 
+    // Per-zone clipping: a zone is clipped only if its centre falls inside a
+    // room polygon. Zones placed outside rooms (or before rooms were drawn)
+    // keep their original circle shape — drawing a room never re-fogs already
+    // revealed areas.
+    const drawZoneMaybeClipped = (x: number, y: number, radius: number) => {
+      if (validRooms.length === 0) {
+        drawZone(x, y, radius);
+        return;
+      }
+      const containing = validRooms.filter((r) =>
+        pointInPolygon(x, y, r.points),
+      );
+      if (containing.length === 0) {
+        // Outside every room — draw as plain circle
+        drawZone(x, y, radius);
+        return;
+      }
+      // Inside one or more rooms — clip circle to those rooms
+      fogCtx.save();
+      fogCtx.beginPath();
+      for (const room of containing) {
+        fogCtx.moveTo(room.points[0].x, room.points[0].y);
+        for (const p of room.points.slice(1)) fogCtx.lineTo(p.x, p.y);
+        fogCtx.closePath();
+      }
+      fogCtx.clip("evenodd");
+      drawZone(x, y, radius);
+      fogCtx.restore();
+      // restore() resets globalCompositeOperation — re-apply
+      fogCtx.globalCompositeOperation = "destination-out";
+    };
+
     for (const zone of revealedZones) {
-      drawZone(zone.x, zone.y, zone.radius);
+      drawZoneMaybeClipped(zone.x, zone.y, zone.radius);
     }
     if (showDragFog) {
-      drawZone(dragPos.x, dragPos.y, revealRadiusRef.current!);
+      drawZoneMaybeClipped(dragPos.x, dragPos.y, revealRadiusRef.current!);
     }
     fogCtx.restore();
   }
@@ -119,6 +181,138 @@ function drawFog(
   ctx.globalAlpha = view === "dm" ? FOG_DM_OPACITY : FOG_PLAYER_OPACITY;
   ctx.drawImage(fogCanvasRef.current, 0, 0);
   ctx.globalAlpha = 1;
+}
+
+function drawRooms(
+  ctx: CanvasRenderingContext2D,
+  scale: number,
+  panX: number,
+  panY: number,
+  rooms: RoomPolygon[],
+  isRoomDrawModeRef: React.RefObject<boolean>,
+  inProgressRoomPointsRef: React.RefObject<{ x: number; y: number }[]>,
+  roomHoverPosRef: React.RefObject<{ x: number; y: number } | null>,
+  draggingRoomVertexRef: React.RefObject<{
+    roomId: string;
+    pointIndex: number;
+  } | null>,
+  highlightedRoomIdRef: React.RefObject<string | null>,
+) {
+  const isDrawMode = isRoomDrawModeRef.current;
+  if (rooms.length === 0 && !isDrawMode) return;
+
+  ctx.setTransform(scale, 0, 0, scale, panX, panY);
+
+  const hover = roomHoverPosRef.current;
+  const dv = draggingRoomVertexRef.current;
+  const highlightedId = highlightedRoomIdRef.current;
+
+  // Draw completed room outlines + vertex handles in draw mode
+  for (const room of rooms) {
+    if (room.points.length < 3) continue;
+
+    const isHighlighted = room.id === highlightedId;
+
+    // Outline (use drag-adjusted position for the vertex being dragged)
+    ctx.beginPath();
+    for (let i = 0; i < room.points.length; i++) {
+      const isDraggingThis = dv?.roomId === room.id && dv?.pointIndex === i;
+      const pos = isDraggingThis && hover ? hover : room.points[i];
+      if (i === 0) ctx.moveTo(pos.x, pos.y);
+      else ctx.lineTo(pos.x, pos.y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = isHighlighted
+      ? "rgba(96, 165, 250, 0.18)"
+      : "rgba(96, 165, 250, 0.07)";
+    ctx.fill();
+    ctx.strokeStyle = isHighlighted
+      ? "rgba(96, 165, 250, 0.95)"
+      : "rgba(96, 165, 250, 0.55)";
+    ctx.lineWidth = (isHighlighted ? 2 : 1.5) / scale;
+    if (!isHighlighted) ctx.setLineDash([4 / scale, 3 / scale]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Vertex handles (only in draw mode)
+    if (isDrawMode) {
+      for (let i = 0; i < room.points.length; i++) {
+        const isDraggingThis = dv?.roomId === room.id && dv?.pointIndex === i;
+        const pos = isDraggingThis && hover ? hover : room.points[i];
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 6 / scale, 0, Math.PI * 2);
+        ctx.fillStyle = isDraggingThis ? "#f97316" : "#60a5fa";
+        ctx.fill();
+        ctx.strokeStyle = isDraggingThis ? "#7c2d12" : "#1e3a8a";
+        ctx.lineWidth = 1.5 / scale;
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Draw in-progress polygon while in draw mode
+  if (isDrawMode) {
+    const pts = inProgressRoomPointsRef.current;
+    const hover = roomHoverPosRef.current;
+
+    // Hover crosshair — visible immediately when moving the mouse, even before
+    // any vertex is placed so the DM gets immediate feedback that draw mode works
+    if (hover) {
+      const arm = 10 / scale;
+      ctx.strokeStyle = "rgba(250, 204, 21, 0.9)";
+      ctx.lineWidth = 1.5 / scale;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(hover.x - arm, hover.y);
+      ctx.lineTo(hover.x + arm, hover.y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(hover.x, hover.y - arm);
+      ctx.lineTo(hover.x, hover.y + arm);
+      ctx.stroke();
+    }
+
+    if (pts.length > 0) {
+      // Lines connecting placed vertices, then a ghost line to the cursor
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (const p of pts.slice(1)) ctx.lineTo(p.x, p.y);
+      if (hover) ctx.lineTo(hover.x, hover.y);
+      ctx.strokeStyle = "rgba(250, 204, 21, 0.85)";
+      ctx.lineWidth = 1.5 / scale;
+      ctx.setLineDash([4 / scale, 3 / scale]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Vertex dots
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        const isFirst = i === 0;
+        const nearFirst =
+          isFirst &&
+          hover !== null &&
+          pts.length >= 3 &&
+          Math.hypot(hover.x - pts[0].x, hover.y - pts[0].y) * scale < 15;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6 / scale, 0, Math.PI * 2);
+        ctx.fillStyle = nearFirst ? "#4ade80" : "#fbbf24";
+        ctx.fill();
+        ctx.strokeStyle = nearFirst ? "#166534" : "#92400e";
+        ctx.lineWidth = 1.5 / scale;
+        ctx.stroke();
+
+        // Highlight ring on snap — signals "click here to close"
+        if (nearFirst) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 12 / scale, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(74, 222, 128, 0.7)";
+          ctx.lineWidth = 2 / scale;
+          ctx.stroke();
+        }
+      }
+    }
+  }
 }
 
 function drawTokens(
@@ -264,6 +458,11 @@ export function useMapRenderer({
   revealRadiusRef,
   isRadiusPreviewActiveRef,
   pingsRef,
+  isRoomDrawModeRef,
+  inProgressRoomPointsRef,
+  roomHoverPosRef,
+  draggingRoomVertexRef,
+  highlightedRoomIdRef,
 }: Params): void {
   const fogCanvasRef = useRef<OffscreenCanvas | null>(null);
   const mapImageRef = useRef<HTMLImageElement | null>(null);
@@ -332,7 +531,11 @@ export function useMapRenderer({
       }
 
       const { x: panX, y: panY, scale } = cameraRef.current!;
-      const { tokens: stateTokens, revealedZones } = mapStateRef.current!;
+      const {
+        tokens: stateTokens,
+        revealedZones,
+        rooms,
+      } = mapStateRef.current!;
 
       // 1. Clear
       ctx.clearRect(0, 0, w, h);
@@ -352,12 +555,29 @@ export function useMapRenderer({
         view,
         stateTokens,
         revealedZones,
+        rooms,
         draggingTokenIdRef,
         draggingTokenPosRef,
         revealRadiusRef,
       );
 
-      // 4. Tokens
+      // 4. Room overlays (DM only — always rendered above fog so boundaries stay visible)
+      if (view === "dm") {
+        drawRooms(
+          ctx,
+          scale,
+          panX,
+          panY,
+          rooms,
+          isRoomDrawModeRef,
+          inProgressRoomPointsRef,
+          roomHoverPosRef,
+          draggingRoomVertexRef,
+          highlightedRoomIdRef,
+        );
+      }
+
+      // 5. Tokens
       drawTokens(
         ctx,
         scale,
@@ -370,15 +590,15 @@ export function useMapRenderer({
         draggingTokenPosRef,
       );
 
-      // 5. Radius preview (while adjusting the slider)
+      // 6. Radius preview (while adjusting the slider)
       if (isRadiusPreviewActiveRef.current && view === "dm") {
         drawRadiusPreview(ctx, scale, panX, panY, stateTokens, revealRadiusRef);
       }
 
-      // 6. Pointer pings
+      // 7. Pointer pings
       drawPings(ctx, scale, panX, panY, pingsRef);
 
-      // 7. Reset transform
+      // 8. Reset transform
       ctx.setTransform(1, 0, 0, 1, 0, 0);
 
       rafId = requestAnimationFrame(render);
@@ -396,5 +616,10 @@ export function useMapRenderer({
     revealRadiusRef,
     isRadiusPreviewActiveRef,
     pingsRef,
+    isRoomDrawModeRef,
+    inProgressRoomPointsRef,
+    roomHoverPosRef,
+    draggingRoomVertexRef,
+    highlightedRoomIdRef,
   ]);
 }

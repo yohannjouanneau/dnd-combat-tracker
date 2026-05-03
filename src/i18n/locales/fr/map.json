@@ -58,6 +58,17 @@
     "edit": "Modifier",
     "delete": "Supprimer"
   },
+  "rooms": {
+    "draw": "Dessiner salle",
+    "drawTitle": "Dessiner un polygone de salle — cliquez pour placer des sommets, cliquez près du départ pour fermer, Échap pour annuler",
+    "rooms": "Salles",
+    "panel": "Salles",
+    "unnamed": "Salle sans nom",
+    "empty": "Aucune salle définie. Utilisez l'outil Dessiner salle pour en ajouter une.",
+    "rename": "Renommer",
+    "delete": "Supprimer la salle",
+    "clickToRename": "Cliquez pour renommer"
+  },
   "token": {
     "playerToken": "Pion du Joueur",
     "token": "Pion",

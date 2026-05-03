@@ -2,8 +2,10 @@ import {
   ArrowLeft,
   CircleUser,
   Crosshair,
+  LayoutGrid,
   LocateFixed,
   MapPin,
+  PenLine,
   RotateCcw,
   Trash2,
   Upload,
@@ -31,6 +33,10 @@ interface Props {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   tokenCount: number;
   onOpenTokenModal: () => void;
+  isRoomDrawMode: boolean;
+  onToggleRoomDrawMode: () => void;
+  roomCount: number;
+  onOpenRoomPanel: () => void;
   onOpenPeerModal: () => void;
   isPeerConnected: boolean;
   isReconnecting: boolean;
@@ -56,6 +62,10 @@ export default function MapToolbar({
   onImport,
   tokenCount,
   onOpenTokenModal,
+  isRoomDrawMode,
+  onToggleRoomDrawMode,
+  roomCount,
+  onOpenRoomPanel,
   onOpenPeerModal,
   isPeerConnected,
   isReconnecting,
@@ -208,7 +218,35 @@ export default function MapToolbar({
             </button>
           </div>
 
-          {/* Section 4 — connect */}
+          {/* Section 4 — rooms */}
+          <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
+            <button
+              onClick={onToggleRoomDrawMode}
+              className={`px-2 py-1 rounded text-sm transition flex items-center gap-1.5 ${
+                isRoomDrawMode
+                  ? "bg-blue-500 text-white"
+                  : "text-text-muted hover:text-text-primary"
+              }`}
+              title={t("rooms.drawTitle")}
+            >
+              <PenLine className="w-4 h-4" />
+              {t("rooms.draw")}
+            </button>
+            <span className="w-px h-4 bg-border-primary mx-0.5" />
+            <button
+              onClick={onOpenRoomPanel}
+              className="hover:bg-panel-secondary text-text-primary px-2 py-1 rounded text-sm transition flex items-center gap-1.5"
+              title={t("rooms.panel")}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              {t("rooms.rooms")}
+              <span className="text-xs text-text-muted tabular-nums">
+                {roomCount}
+              </span>
+            </button>
+          </div>
+
+          {/* Section 5 — connect */}
           <div className="flex items-center gap-1 bg-panel-bg/90 border border-border-primary rounded-lg px-2 py-1">
             <button
               onClick={onOpenPeerModal}
