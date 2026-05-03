@@ -712,7 +712,6 @@ export function useMapInteraction({
         const newState: MapState = {
           ...mapStateRef.current!,
           imageDataUrl,
-          revealedZones: [],
         };
         mapStateRef.current = newState;
         setMapState(newState);
