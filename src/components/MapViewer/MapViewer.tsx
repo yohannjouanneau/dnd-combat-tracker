@@ -2,9 +2,12 @@ import { Loader2, X } from "lucide-react";
 import Button from "../common/Button";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import Peer from "peerjs";
 import { MAP_ROOM_CODE_STORAGE_KEY } from "../../constants";
 import { dataStore } from "../../persistence/storage";
 import PeerJSConnector from "./PeerJSConnector";
+import { MulticastTransport } from "./MulticastTransport";
+import { PeerJSTransport } from "./PeerJSTransport";
 import MapToolbar from "./components/MapToolbar";
 import RoomPanel from "./components/RoomPanel";
 import TokenContextMenu from "./components/TokenContextMenu";
@@ -63,6 +66,12 @@ export default function MapViewer() {
     () => localStorage.getItem(MAP_ROOM_CODE_STORAGE_KEY) ?? null,
   );
   const [isReconnecting, setIsReconnecting] = useState(false);
+
+  // DM hosting state — lives here so it persists across PeerJSConnector modal open/close
+  const dmPeerRef = useRef<InstanceType<typeof Peer> | null>(null);
+  const multicastTransportRef = useRef<MulticastTransport | null>(null);
+  const [dmRoomCode, setDmRoomCode] = useState<string | null>(null);
+  const [connectedPlayerCount, setConnectedPlayerCount] = useState(0);
 
   const [mapState, setMapState] = useState<MapState>(() => {
     const saved = dataStore.getMapState();
@@ -147,6 +156,42 @@ export default function MapViewer() {
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
+  }, []);
+
+  const startDmHosting = useCallback(() => {
+    if (dmPeerRef.current) return; // idempotent — already hosting
+    const peer = new Peer();
+    dmPeerRef.current = peer;
+
+    peer.on("open", (id) => setDmRoomCode(id));
+
+    peer.on("connection", (conn) => {
+      conn.on("open", () => {
+        const transport = new PeerJSTransport(conn);
+        if (!multicastTransportRef.current) {
+          const mc = new MulticastTransport();
+          mc.onCountChange(setConnectedPlayerCount); // unsubscribe not needed — mc outlives the callback
+          multicastTransportRef.current = mc;
+          setPeerTransport(mc);
+          setPeerDisconnected(false);
+          setPeerModalOpen(false);
+        }
+        multicastTransportRef.current.add(transport);
+      });
+      conn.on("error", () => {});
+    });
+
+    peer.on("disconnected", () => {
+      if (!peer.destroyed) peer.reconnect();
+    });
+    peer.on("error", () => {});
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      multicastTransportRef.current?.close();
+      dmPeerRef.current?.destroy();
+    };
   }, []);
 
   const { synced, reconnectToRoom } = useMapSync({
@@ -301,6 +346,7 @@ export default function MapViewer() {
     }
     setIsPeerOnline(true);
     const id = setInterval(() => {
+      multicastTransportRef.current?.pruneDisconnected();
       const next = transportRef.current?.isConnected() ?? false;
       setIsPeerOnline((prev) => (prev === next ? prev : next));
     }, 3000);
@@ -400,11 +446,19 @@ export default function MapViewer() {
         onOpenPeerModal={() => setPeerModalOpen(true)}
         isPeerConnected={isPeerOnline}
         isReconnecting={isReconnecting}
+        connectedPlayerCount={connectedPlayerCount}
       />
 
       {peerModalOpen && (
         <PeerJSConnector
+          dmSession={{
+            roomCode: dmRoomCode,
+            connectedCount: connectedPlayerCount,
+            isHosting: !!dmPeerRef.current,
+          }}
+          onStartDm={startDmHosting}
           onConnected={(transport, role, roomCode) => {
+            // Only called for the player path
             setPeerTransport(transport);
             if (role === "player") {
               window.name = PLAYER_WINDOW_NAME;
