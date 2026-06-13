@@ -152,6 +152,7 @@ export function useMapSync({
     }
 
     const unsubClose = transport.onClose(() => {
+      if (view !== "player") return;
       setPeerTransport(null);
       setPeerDisconnected(true);
     });
