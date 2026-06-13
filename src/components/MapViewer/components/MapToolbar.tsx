@@ -40,6 +40,7 @@ interface Props {
   onOpenPeerModal: () => void;
   isPeerConnected: boolean;
   isReconnecting: boolean;
+  connectedPlayerCount: number;
 }
 
 export default function MapToolbar({
@@ -69,6 +70,7 @@ export default function MapToolbar({
   onOpenPeerModal,
   isPeerConnected,
   isReconnecting,
+  connectedPlayerCount,
 }: Props) {
   const { t } = useTranslation("map");
 
@@ -263,7 +265,10 @@ export default function MapToolbar({
                 ) : (
                   <span className="w-2 h-2 rounded-full bg-green-400" />
                 )}
-                {!isReconnecting && t("toolbar.playerConnected")}
+                {!isReconnecting &&
+                  t("toolbar.playersConnected", {
+                    count: connectedPlayerCount,
+                  })}
               </span>
             )}
           </div>
