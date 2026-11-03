@@ -141,9 +141,15 @@ export type MonsterCombatant = CombatantTemplate<"monster">;
 export type PlayerCombatant = CombatantTemplate<"player">;
 
 export type SearchSource = "api" | "library";
+/** D&D API ruleset: 2014 (legacy SRD) or 2024 (SRD 5.2). */
+export type ApiVersion = "2014" | "2024";
+/** Which API(s) a search queries: one ruleset, or both merged. */
+export type ApiSearchMode = ApiVersion | "both";
 export type SearchResult = {
   source: SearchSource;
   monster: ApiMonster | SavedMonster;
+  /** Set for `source: "api"` results: which ruleset produced the monster. */
+  apiVersion?: ApiVersion;
 };
 
 export type GroupSummary = {

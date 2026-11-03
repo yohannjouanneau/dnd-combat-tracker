@@ -6,10 +6,13 @@ import {
   CAMPAIGN_STORAGE_KEY,
   COMBAT_STORAGE_KEY,
   MAP_STATE_STORAGE_KEY,
+  API_SEARCH_MODE_STORAGE_KEY,
+  THEME_STORAGE_KEY,
   MONSTER_STORAGE_KEY,
   PLAYER_STORAGE_KEY,
 } from "../constants";
 import type {
+  ApiSearchMode,
   MonsterCombatant,
   PlayerCombatant,
   SavedCombat,
@@ -34,6 +37,8 @@ import {
   MapStateStorageProvider,
   type PersistedMapMeta,
 } from "./MapStateStorageProvider";
+import { ApiSearchModeStorageProvider } from "./ApiSearchModeStorageProvider";
+import { ThemeStorageProvider, type StoredTheme } from "./ThemeStorageProvider";
 import {
   cleanCombatStateForStorage,
   restoreCombatState,
@@ -47,6 +52,8 @@ export class DataStore {
   private blockTypeProvider: BlockTypeStorageProvider;
   private campaignProvider: CampaignStorageProvider;
   private mapStateProvider: MapStateStorageProvider;
+  private apiSearchModeProvider: ApiSearchModeStorageProvider;
+  private themeProvider: ThemeStorageProvider;
   private syncProvider: SyncProvider;
 
   constructor(
@@ -72,6 +79,12 @@ export class DataStore {
     mapStateProvider: MapStateStorageProvider = new MapStateStorageProvider(
       MAP_STATE_STORAGE_KEY,
     ),
+    apiSearchModeProvider: ApiSearchModeStorageProvider = new ApiSearchModeStorageProvider(
+      API_SEARCH_MODE_STORAGE_KEY,
+    ),
+    themeProvider: ThemeStorageProvider = new ThemeStorageProvider(
+      THEME_STORAGE_KEY,
+    ),
   ) {
     this.combatProvider = combatProvider;
     this.playerProvider = playerProvider;
@@ -80,6 +93,8 @@ export class DataStore {
     this.blockTypeProvider = blockTypeProvider;
     this.campaignProvider = campaignProvider;
     this.mapStateProvider = mapStateProvider;
+    this.apiSearchModeProvider = apiSearchModeProvider;
+    this.themeProvider = themeProvider;
     this.syncProvider = new GoogleDriveSyncProvider(clientId);
   }
 
@@ -299,6 +314,22 @@ export class DataStore {
   }
   clearMapState(): void {
     this.mapStateProvider.clear();
+  }
+
+  // API search mode methods
+  getApiSearchMode(): ApiSearchMode | null {
+    return this.apiSearchModeProvider.get();
+  }
+  setApiSearchMode(mode: ApiSearchMode): void {
+    this.apiSearchModeProvider.set(mode);
+  }
+
+  // Theme methods
+  getTheme(): StoredTheme | null {
+    return this.themeProvider.get();
+  }
+  setTheme(theme: StoredTheme): void {
+    this.themeProvider.set(theme);
   }
 }
 

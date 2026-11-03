@@ -1,5 +1,6 @@
 import type { SyncApi } from "../api/sync/types";
 import type {
+  ApiSearchMode,
   CombatState,
   SavedCombat,
   SavedPlayer,
@@ -88,6 +89,8 @@ export type CombatStateManager = {
   removeMonster: (id: string) => Promise<void>;
   updateMonster: (id: string, monster: SavedMonster) => Promise<void>;
   loadMonsterToForm: (searchTerm: SearchResult) => void;
+  apiMode: ApiSearchMode;
+  setApiMode: (mode: ApiSearchMode) => void;
   searchWithLibrary: (
     query: string,
     source?: SearchSource,

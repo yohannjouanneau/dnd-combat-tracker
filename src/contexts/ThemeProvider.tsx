@@ -1,23 +1,11 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { ThemeContext, type Theme } from "./ThemeContext";
+import { dataStore } from "../persistence/storage";
 
-const THEME_STORAGE_KEY = "dnd-ct:theme:v1";
 const DEFAULT_THEME: Theme = "dark";
 
 function loadTheme(): Theme {
-  try {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored === "light" || stored === "dark" || stored === "forest") {
-      return stored;
-    }
-  } catch {
-    // If reading fails, return default
-  }
-  return DEFAULT_THEME;
-}
-
-function saveTheme(theme: Theme): void {
-  localStorage.setItem(THEME_STORAGE_KEY, theme);
+  return dataStore.getTheme() ?? DEFAULT_THEME;
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -34,7 +22,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    saveTheme(newTheme);
+    dataStore.setTheme(newTheme);
   };
 
   const toggleTheme = () => {

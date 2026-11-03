@@ -131,17 +131,25 @@ export function formatActionsAsMarkdown(monster: ApiMonster): string {
     }
   }
 
-  // Add actions section if present
-  if (monster.actions && monster.actions.length > 0) {
-    // Add separator if we already have special abilities
+  // Action sections, in statblock order
+  const actionSections: Array<[string, Action[] | undefined]> = [
+    ["Actions", monster.actions],
+    ["Bonus Actions", monster.bonus_actions],
+    ["Reactions", monster.reactions],
+    ["Legendary Actions", monster.legendary_actions],
+  ];
+  for (const [title, actions] of actionSections) {
+    if (!actions || actions.length === 0) continue;
+
+    // Add separator if we already have content
     if (parts.length > 0) {
       parts.push(""); // Extra space before new section
     }
 
-    parts.push("## Actions", "");
+    parts.push(`## ${title}`, "");
 
     // Format each action
-    for (const action of monster.actions) {
+    for (const action of actions) {
       const actionParts: string[] = [];
 
       // Bold action name

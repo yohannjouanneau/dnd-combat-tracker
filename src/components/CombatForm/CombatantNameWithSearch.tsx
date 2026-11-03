@@ -29,7 +29,12 @@ export default function CombatantNameWithSearch({
         return results.map((r) => ({
           id: r.monster.name + "_" + r.source,
           label: r.monster.name,
-          group: r.source === "api" ? "D&D API" : "Your Library",
+          group:
+            r.source === "api"
+              ? r.apiVersion === "2014"
+                ? "D&D 2014 (SRD)"
+                : "D&D 2024 (SRD 5.2)"
+              : "Your Library",
           icon:
             r.source === "api" ? (
               <Globe className="w-4 h-4 text-blue-400" />

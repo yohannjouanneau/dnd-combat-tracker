@@ -1,0 +1,122 @@
+{
+  "index": "goblin-warrior",
+  "actions": [
+    {
+      "name": "Scimitar",
+      "desc": "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Slashing damage, plus 2 (1d4) Slashing damage if the attack roll had Advantage.",
+      "damage": [
+        {
+          "damage_type": {
+            "index": "slashing",
+            "name": "Slashing",
+            "url": "/api/2024/damage-types/slashing"
+          },
+          "damage_dice": "1d6+2"
+        },
+        {
+          "damage_type": {
+            "index": "slashing",
+            "name": "Slashing",
+            "url": "/api/2024/damage-types/slashing"
+          },
+          "damage_dice": "1d4"
+        }
+      ],
+      "attack_bonus": 4,
+      "actions": [],
+      "attacks": []
+    },
+    {
+      "name": "Shortbow",
+      "desc": "Ranged Attack Roll: +4, range 80/320 ft. Hit: 5 (1d6 + 2) Piercing damage, plus 2 (1d4) Piercing damage if the attack roll had Advantage.",
+      "damage": [
+        {
+          "damage_type": {
+            "index": "piercing",
+            "name": "Piercing",
+            "url": "/api/2024/damage-types/piercing"
+          },
+          "damage_dice": "1d6+2"
+        },
+        {
+          "damage_type": {
+            "index": "piercing",
+            "name": "Piercing",
+            "url": "/api/2024/damage-types/piercing"
+          },
+          "damage_dice": "1d4"
+        }
+      ],
+      "attack_bonus": 4,
+      "actions": [],
+      "attacks": []
+    }
+  ],
+  "alignment": "chaotic neutral",
+  "armor_class": [
+    {
+      "value": 15,
+      "armor": [
+        {
+          "index": "leather-armor",
+          "name": "Leather Armor",
+          "url": "/api/2024/equipment/leather-armor"
+        },
+        {
+          "index": "shield",
+          "name": "Shield",
+          "url": "/api/2024/equipment/shield"
+        }
+      ]
+    }
+  ],
+  "bonus_actions": [
+    {
+      "damage": [],
+      "name": "Nimble Escape",
+      "desc": "The goblin takes the Disengage or Hide action.",
+      "actions": [],
+      "attacks": []
+    }
+  ],
+  "challenge_rating": 0.25,
+  "charisma": 8,
+  "condition_immunities": [],
+  "constitution": 10,
+  "damage_immunities": [],
+  "damage_resistances": [],
+  "damage_vulnerabilities": [],
+  "dexterity": 15,
+  "gear": "Leather Armor, Scimitar, Shield, Shortbow",
+  "hit_dice": "3d6",
+  "hit_points": 10,
+  "hit_points_roll": "3d6",
+  "image": "/api/images/monsters/goblin-warrior-NYI.png",
+  "intelligence": 10,
+  "languages": "Common, Goblin",
+  "legendary_actions": [],
+  "name": "Goblin Warrior",
+  "proficiencies": [
+    {
+      "value": 6,
+      "proficiency": {
+        "index": "skill-stealth",
+        "name": "Skill: Stealth",
+        "url": "/api/2024/proficiencies/skill-stealth"
+      }
+    }
+  ],
+  "proficiency_bonus": 2,
+  "senses": { "darkvision": "60 ft.", "passive_perception": 9 },
+  "size": "Small",
+  "special_abilities": [],
+  "speed": { "walk": "30 ft." },
+  "strength": 8,
+  "type": "fey",
+  "updated_at": "2026-09-22T23:01:02.696Z",
+  "url": "/api/2024/monsters/goblin-warrior",
+  "wisdom": 8,
+  "xp": 50,
+  "reactions": [],
+  "forms": []
+}
