@@ -69,6 +69,7 @@ export type CombatStateManager = {
   addCombatant: (
     combatant?: NewCombatant,
     templateOrigin?: TemplateOrigin,
+    isPlayer?: boolean,
   ) => void;
   removeCombatant: (id: number) => void;
   removeGroup: (name: string) => void;

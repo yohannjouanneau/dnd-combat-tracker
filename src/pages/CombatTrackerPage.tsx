@@ -141,13 +141,17 @@ export default function CombatTrackerPage({
       externalResourceUrl: player.externalResourceUrl,
     };
     combatStateManager.linkPlayer(player.id);
-    combatStateManager.addCombatant({
-      ...playerCombattant,
-      templateOrigin: {
-        origin: "player_library",
-        id: player.id,
+    combatStateManager.addCombatant(
+      {
+        ...playerCombattant,
+        templateOrigin: {
+          origin: "player_library",
+          id: player.id,
+        },
       },
-    });
+      undefined,
+      true,
+    );
   };
 
   const openAddModal = (mode: AddCombatantModalMode) => {

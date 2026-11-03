@@ -221,7 +221,6 @@ export function buildPlayerCombatantsForFight(
     let globalIndex = 0;
     for (const group of groups) {
       const count = parseInt(group.count) || 1;
-      const initiativeGroupId = crypto.randomUUID();
       for (let i = 0; i < count; i++) {
         const displayName =
           totalCount > 1
@@ -235,8 +234,6 @@ export function buildPlayerCombatantsForFight(
           conditions: [],
           deathSaves: { successes: 0, failures: 0 },
           groupIndex: globalIndex,
-          initiativeGroupId,
-          initiativeBonus: player.initBonus ?? 0,
           templateOrigin: { origin: "player_library", id: player.id },
           color: player.color,
           hp: player.hp,

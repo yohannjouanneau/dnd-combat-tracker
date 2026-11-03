@@ -54,32 +54,36 @@ describe("rerollGroupInitiatives", () => {
     expect(byId[4].initiative).toBe(19);
   });
 
-  it("leaves individual initiatives untouched", () => {
-    const individual = make(1, {
+  it("leaves combatants without a group id (players) untouched", () => {
+    const player = make(1, {
       name: "Aragorn",
       initiative: 12,
       initiativeBonus: 3,
     });
-    const groupOfOne = make(2, {
-      name: "Legolas",
-      initiative: 18,
-      initiativeGroupId: "solo",
-      initiativeBonus: 3,
-    });
-    const legacy = make(3, { name: "Old", initiative: 7 });
+    const legacy = make(2, { name: "Old", initiative: 7 });
     const roll = jest.fn(sequence(10));
 
-    const result = rerollGroupInitiatives(
-      [individual, groupOfOne, legacy],
-      roll,
-    );
+    const result = rerollGroupInitiatives([player, legacy], roll);
 
     expect(roll).not.toHaveBeenCalled();
     expect(result.rerolledGroupCount).toBe(0);
     const byId = Object.fromEntries(result.combatants.map((c) => [c.id, c]));
     expect(byId[1].initiative).toBe(12);
-    expect(byId[2].initiative).toBe(18);
-    expect(byId[3].initiative).toBe(7);
+    expect(byId[2].initiative).toBe(7);
+  });
+
+  it("re-rolls a monster group of one", () => {
+    const monster = make(1, {
+      name: "Dragon",
+      initiative: 18,
+      initiativeGroupId: "solo",
+      initiativeBonus: 3,
+    });
+
+    const result = rerollGroupInitiatives([monster], sequence(10));
+
+    expect(result.rerolledGroupCount).toBe(1);
+    expect(result.combatants[0].initiative).toBe(13);
   });
 
   it("only re-rolls groups and keeps individuals when mixed", () => {
