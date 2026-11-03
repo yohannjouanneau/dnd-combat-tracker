@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Play, Pause, RotateCcw } from "lucide-react";
 
 type Props = {
   onRunningChange?: (isRunning: boolean) => void;
+  /** Rendered in the button row, before the play/pause button. */
+  leadingAction?: ReactNode;
 };
 
 function formatTime(totalSeconds: number): string {
@@ -13,7 +15,7 @@ function formatTime(totalSeconds: number): string {
   return [h, m, s].map((v) => String(v).padStart(2, "0")).join(":");
 }
 
-export default function CombatTimer({ onRunningChange }: Props) {
+export default function CombatTimer({ onRunningChange, leadingAction }: Props) {
   const { t } = useTranslation("combat");
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -52,6 +54,7 @@ export default function CombatTimer({ onRunningChange }: Props) {
         {formatTime(seconds)}
       </span>
       <div className="flex gap-2">
+        {leadingAction}
         <button
           onClick={toggleTimer}
           className={`p-2 rounded transition ${

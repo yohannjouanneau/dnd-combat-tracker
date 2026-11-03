@@ -69,6 +69,8 @@ async function optimizeCombatant(
       initiative: combatant.initiative,
       displayName: combatant.displayName,
       groupIndex: combatant.groupIndex,
+      initiativeGroupId: combatant.initiativeGroupId,
+      initiativeBonus: combatant.initiativeBonus,
       hp: combatant.hp,
       conditions: combatant.conditions,
       deathSaves: combatant.deathSaves,

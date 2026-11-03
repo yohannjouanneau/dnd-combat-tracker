@@ -8,7 +8,11 @@
     "previous": "Tour précédent",
     "previousShort": "Précédent",
     "nextShort": "Suivant",
-    "addToFight": "Ajouter"
+    "addToFight": "Ajouter",
+    "rerollGroupInitiatives": "Relancer les initiatives de groupe",
+    "rerollGroupInitiativesSuccess": "{{count}} groupe relancé",
+    "rerollGroupInitiativesSuccess_plural": "{{count}} groupes relancés",
+    "rerollGroupInitiativesNone": "Aucun groupe d'initiative à relancer"
   },
   "combatant": {
     "name": "Nom",

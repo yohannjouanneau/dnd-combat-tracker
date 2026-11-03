@@ -141,13 +141,17 @@ export default function CombatTrackerPage({
       externalResourceUrl: player.externalResourceUrl,
     };
     combatStateManager.linkPlayer(player.id);
-    combatStateManager.addCombatant({
-      ...playerCombattant,
-      templateOrigin: {
-        origin: "player_library",
-        id: player.id,
+    combatStateManager.addCombatant(
+      {
+        ...playerCombattant,
+        templateOrigin: {
+          origin: "player_library",
+          id: player.id,
+        },
       },
-    });
+      undefined,
+      true,
+    );
   };
 
   const openAddModal = (mode: AddCombatantModalMode) => {
@@ -351,6 +355,12 @@ export default function CombatTrackerPage({
               onNext={handleNextTurn}
               onToggleFocus={() => setIsFocusMode((prev) => !prev)}
               onOpenAddModal={() => openAddModal("fight")}
+              onRerollGroupInitiatives={() =>
+                combatStateManager.rerollGroupInitiatives({
+                  resetToTop: !isTimerRunning,
+                })
+              }
+              isTimerRunning={isTimerRunning}
               onTimerRunningChange={setIsTimerRunning}
             />
           </div>

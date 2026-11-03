@@ -8,17 +8,23 @@ import type {
   TemplateOrigin,
 } from "../../types";
 import { indexToLetter, generateCombatantId } from "../../utils/utils";
+import { rerollGroupInitiatives as computeGroupReroll } from "../../utils/initiativeGroups";
 import { getSettings } from "../../hooks/useSettings";
 import { useToast } from "../../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
 import type { CombatantFormStore } from "./useCombatantFormStore";
 
 interface CombatantActions {
-  addCombatant: (combatant?: NewCombatant) => void;
+  addCombatant: (
+    combatant?: NewCombatant,
+    templateOrigin?: TemplateOrigin,
+    isPlayer?: boolean,
+  ) => void;
   removeCombatant: (id: number) => void;
   removeGroup: (name: string) => void;
   updateHP: (id: number, change: number) => void;
   updateInitiative: (id: number, newInitiative: number) => void;
+  rerollGroupInitiatives: (options?: { resetToTop?: boolean }) => void;
   toggleCondition: (id: number, condition: string) => void;
   updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
   updateCombatantNotes: (id: number, notes: string) => void;
@@ -27,6 +33,8 @@ interface CombatantActions {
   prepareCombatantList: (
     prev: CombatState,
     combatant: NewCombatant,
+    templateOrigin?: TemplateOrigin,
+    isPlayer?: boolean,
   ) => Combatant[];
   getUniqueGroups: () => GroupSummary[];
 }
@@ -77,6 +85,7 @@ export function useCombatantStore({
       prev: CombatState,
       combatant: NewCombatant,
       templateOrigin?: TemplateOrigin,
+      isPlayer = false,
     ) => {
       const nc = combatant;
       if (!nc.name || !nc.hp) return prev.combatants;
@@ -113,6 +122,8 @@ export function useCombatantStore({
       // Create combatants for each initiative group
       nc.initiativeGroups.forEach((group) => {
         const count = parseInt(group.count) || 0;
+        // Players keep their own initiative: only monster groups are re-rolled
+        const initiativeGroupId = isPlayer ? undefined : crypto.randomUUID();
         for (let i = 0; i < count; i++) {
           const identifier = useNumbers
             ? String(globalIndex + 1)
@@ -129,6 +140,8 @@ export function useCombatantStore({
             deathSaves: { successes: 0, failures: 0 },
             color: nc.color,
             groupIndex: globalIndex,
+            initiativeGroupId,
+            initiativeBonus: nc.initBonus ?? 0,
             imageUrl: nc.imageUrl,
             externalResourceUrl: nc.externalResourceUrl,
             cha: nc.cha,
@@ -167,12 +180,17 @@ export function useCombatantStore({
   );
 
   const addCombatant = useCallback(
-    (combatant?: NewCombatant, templateOrigin?: TemplateOrigin) => {
+    (
+      combatant?: NewCombatant,
+      templateOrigin?: TemplateOrigin,
+      isPlayer = false,
+    ) => {
       setState((prev) => {
         const updated = prepareCombatantList(
           prev,
           combatant ?? state.newCombatant,
           templateOrigin,
+          isPlayer,
         );
         return {
           ...prev,
@@ -268,6 +286,35 @@ export function useCombatantStore({
       });
     },
     [setState],
+  );
+
+  const rerollGroupInitiatives = useCallback(
+    (options?: { resetToTop?: boolean }) => {
+      const result = computeGroupReroll(state.combatants);
+      if (result.rerolledGroupCount === 0) {
+        toastApi.info(t("combat:turn.rerollGroupInitiativesNone"));
+        return;
+      }
+
+      // Either move the turn to the highest initiative (index 0 after sort),
+      // or keep the active combatant selected after the re-sort
+      const activeCombatant = state.combatants[state.currentTurn];
+      const newCurrentTurn = options?.resetToTop
+        ? 0
+        : result.combatants.findIndex((c) => c.id === activeCombatant?.id);
+
+      setState((prev) => ({
+        ...prev,
+        combatants: result.combatants,
+        currentTurn: newCurrentTurn >= 0 ? newCurrentTurn : prev.currentTurn,
+      }));
+      toastApi.success(
+        t("combat:turn.rerollGroupInitiativesSuccess", {
+          count: result.rerolledGroupCount,
+        }),
+      );
+    },
+    [setState, state.combatants, state.currentTurn, toastApi, t],
   );
 
   const toggleCondition = useCallback(
@@ -378,6 +425,7 @@ export function useCombatantStore({
       removeGroup,
       updateHP,
       updateInitiative,
+      rerollGroupInitiatives,
       toggleCondition,
       updateDeathSave,
       updateCombatantNotes,

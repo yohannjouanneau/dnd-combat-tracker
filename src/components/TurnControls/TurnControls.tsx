@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import FocusModeToggle from "./FocusModeToggle";
 import CombatTimer from "./CombatTimer";
+import D20Icon from "../common/D20Icon";
+import IconButton from "../common/IconButton";
 
 type Props = {
   round: number;
@@ -12,6 +14,8 @@ type Props = {
   onNext: () => void;
   onToggleFocus: () => void;
   onOpenAddModal: () => void;
+  onRerollGroupInitiatives: () => void;
+  isTimerRunning: boolean;
   onTimerRunningChange?: (isRunning: boolean) => void;
 };
 
@@ -24,6 +28,8 @@ export default function TurnControls({
   onNext,
   onToggleFocus,
   onOpenAddModal,
+  onRerollGroupInitiatives,
+  isTimerRunning,
   onTimerRunningChange,
 }: Props) {
   const { t } = useTranslation("combat");
@@ -39,9 +45,24 @@ export default function TurnControls({
         {roundCountText}
       </div>
 
-      {/* Timer - center */}
+      {/* Timer - center, with the group initiative re-roll on its left */}
       <div className="md:flex-1 flex justify-center">
-        <CombatTimer onRunningChange={onTimerRunningChange} />
+        <CombatTimer
+          onRunningChange={onTimerRunningChange}
+          leadingAction={
+            <IconButton
+              variant="filled"
+              size="md"
+              onClick={onRerollGroupInitiatives}
+              disabled={combatantCount === 0 || isTimerRunning}
+              aria-label={t("combat:turn.rerollGroupInitiatives")}
+              title={t("combat:turn.rerollGroupInitiatives")}
+              className="flex items-center justify-center"
+            >
+              <D20Icon className="w-4 h-4" />
+            </IconButton>
+          }
+        />
       </div>
 
       {/* Controls - right on desktop, bottom on mobile */}
