@@ -8,7 +8,11 @@
     "previous": "Previous Turn",
     "previousShort": "Previous",
     "nextShort": "Next",
-    "addToFight": "Add combatant"
+    "addToFight": "Add combatant",
+    "rerollGroupInitiatives": "Reroll group initiatives",
+    "rerollGroupInitiativesSuccess": "{{count}} group rerolled",
+    "rerollGroupInitiativesSuccess_plural": "{{count}} groups rerolled",
+    "rerollGroupInitiativesNone": "No group initiative to reroll"
   },
   "timer": {
     "start": "Start timer",

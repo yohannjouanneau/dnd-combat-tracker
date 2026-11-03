@@ -351,6 +351,12 @@ export default function CombatTrackerPage({
               onNext={handleNextTurn}
               onToggleFocus={() => setIsFocusMode((prev) => !prev)}
               onOpenAddModal={() => openAddModal("fight")}
+              onRerollGroupInitiatives={() =>
+                combatStateManager.rerollGroupInitiatives({
+                  resetToTop: !isTimerRunning,
+                })
+              }
+              isTimerRunning={isTimerRunning}
               onTimerRunningChange={setIsTimerRunning}
             />
           </div>

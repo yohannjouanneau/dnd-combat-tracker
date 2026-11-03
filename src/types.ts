@@ -76,6 +76,10 @@ export type Combatant = {
   conditions: string[];
   deathSaves: DeathSaves;
   groupIndex: number;
+  /** Shared by all combatants created from the same initiative group (one roll for all). */
+  initiativeGroupId?: string;
+  /** Modifier added to the d20 when the initiative group is re-rolled. */
+  initiativeBonus?: number;
   templateOrigin: TemplateOrigin;
   isReference?: boolean;
   combatNotes?: string;

@@ -74,6 +74,7 @@ export type CombatStateManager = {
   removeGroup: (name: string) => void;
   updateHP: (id: number, change: number) => void;
   updateInitiative: (id: number, newInitiative: number) => void;
+  rerollGroupInitiatives: (options?: { resetToTop?: boolean }) => void;
   toggleCondition: (id: number, condition: string) => void;
   updateDeathSave: (id: number, type: keyof DeathSaves, value: number) => void;
   updateCombatantNotes: (id: number, notes: string) => void;
