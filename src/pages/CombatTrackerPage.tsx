@@ -22,7 +22,11 @@ import { HP_BAR_ID_PREFIX } from "../constants";
 import LibraryModal from "../components/Library/LibraryModal";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
 import SettingsModal from "../components/Settings/SettingsModal";
-import { generateId, generateDefaultNewCombatant } from "../utils/utils";
+import {
+  generateId,
+  generateDefaultNewCombatant,
+  nextApiSearchMode,
+} from "../utils/utils";
 import TopBar from "../components/TopBar";
 
 type Props = {
@@ -446,6 +450,12 @@ export default function CombatTrackerPage({
           onSelectSearchResult={combatStateManager.loadMonsterToForm}
           onAddToLibrary={combatStateManager.addCombatantToLibrary}
           onOpenLibrary={handleOpenLibrary}
+          apiMode={combatStateManager.apiMode}
+          onCycleApiMode={() =>
+            combatStateManager.setApiMode(
+              nextApiSearchMode(combatStateManager.apiMode),
+            )
+          }
           addAnotherChecked={addAnOther}
           addToFightChecked={addToFight}
           onAddToFightChange={handleAddToFightChange}

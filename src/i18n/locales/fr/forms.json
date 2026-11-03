@@ -37,7 +37,13 @@
       "addToLibrary": "Sauvegarder dans la bibliothèque",
       "addInitGroup": "Ajouter un groupe d'init",
       "library": "Ouvrir la bibliothèque",
-      "libraryWithTemplate": "Ouvrir dans la bibliothèque"
+      "libraryWithTemplate": "Ouvrir dans la bibliothèque",
+      "apiMode": {
+        "2014": "API 2014",
+        "2024": "API 2024",
+        "both": "API 2014 + 2024"
+      },
+      "switchApiMode": "Passer à : {{mode}}"
     },
     "modalTitle": {
       "player": "Créer un joueur",

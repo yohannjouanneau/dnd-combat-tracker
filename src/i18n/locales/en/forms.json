@@ -37,7 +37,13 @@
       "addToLibrary": "Save in library",
       "addInitGroup": "Add init group",
       "library": "Open the library",
-      "libraryWithTemplate": "Open in the library"
+      "libraryWithTemplate": "Open in the library",
+      "apiMode": {
+        "2014": "API 2014",
+        "2024": "API 2024",
+        "both": "API 2014 + 2024"
+      },
+      "switchApiMode": "Switch to: {{mode}}"
     },
     "modalTitle": {
       "player": "Create a player",

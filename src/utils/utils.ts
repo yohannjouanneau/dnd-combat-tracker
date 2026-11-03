@@ -1,6 +1,7 @@
 import type { ApiMonster } from "../api/types";
 import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "../constants";
 import type {
+  ApiSearchMode,
   Combatant,
   NewCombatant,
   SavedPlayer,
@@ -94,7 +95,14 @@ export function getAbilityModifier(score: number) {
   return mod && mod >= 0 ? `+${mod}` : `${mod}`;
 }
 
-export function getApiImageUrl(monster: ApiMonster) {
+/** Cycles the API search mode: 2024 -> 2014 -> both -> 2024. */
+export function nextApiSearchMode(mode: ApiSearchMode): ApiSearchMode {
+  const order: ApiSearchMode[] = ["2024", "2014", "both"];
+  return order[(order.indexOf(mode) + 1) % order.length];
+}
+
+export function getApiImageUrl(monster: ApiMonster): string | undefined {
+  if (!monster.image) return undefined;
   return `${DND_API_HOST}${monster.image}`;
 }
 

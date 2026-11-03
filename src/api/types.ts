@@ -93,6 +93,7 @@ export interface ApiMonster {
   xp?: number;
   special_abilities?: SpecialAbility[];
   actions?: Action[];
+  bonus_actions?: Action[];
   legendary_actions?: Action[];
   reactions?: Action[];
 }

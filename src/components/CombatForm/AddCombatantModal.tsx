@@ -1,8 +1,15 @@
 import { BookOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { InitiativeGroup, NewCombatant, SearchResult } from "../../types";
+import type {
+  ApiSearchMode,
+  InitiativeGroup,
+  NewCombatant,
+  SearchResult,
+} from "../../types";
 import AddCombatantForm from "./AddCombatantForm";
 import Modal from "../common/Modal";
+import Button from "../common/Button";
+import { nextApiSearchMode } from "../../utils/utils";
 import IconButton from "../common/IconButton";
 
 export type AddCombatantModalMode = "group" | "fight";
@@ -33,6 +40,8 @@ type Props = {
   onSelectSearchResult: (searchResult: SearchResult) => void;
   onAddToLibrary: () => void;
   onOpenLibrary: () => void;
+  apiMode: ApiSearchMode;
+  onCycleApiMode: () => void;
 };
 
 const BUTTON_MODE_MAP: Record<AddCombatantModalMode, ButtonType[]> = {
@@ -61,6 +70,8 @@ export default function AddCombatantModal({
   onSelectSearchResult,
   onAddToLibrary,
   onOpenLibrary,
+  apiMode,
+  onCycleApiMode,
 }: Props) {
   const { t } = useTranslation("forms");
 
@@ -71,6 +82,7 @@ export default function AddCombatantModal({
   const hasMonsterTemplate =
     newCombatant.templateOrigin?.origin === "monster_library" &&
     newCombatant.templateOrigin?.id;
+  const nextApiMode = nextApiSearchMode(apiMode);
   const libraryButtonTitle = hasMonsterTemplate
     ? t("forms:combatant.actions.libraryWithTemplate")
     : t("forms:combatant.actions.library");
@@ -82,14 +94,26 @@ export default function AddCombatantModal({
       title={modalTitle}
       size="xl"
       headerActions={
-        <IconButton
-          variant="filled"
-          onClick={onOpenLibrary}
-          title={libraryButtonTitle}
-          className="bg-amber-600 hover:bg-amber-700 text-white"
-        >
-          <BookOpen className="w-5 h-5" />
-        </IconButton>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onCycleApiMode}
+            title={t("forms:combatant.actions.switchApiMode", {
+              mode: t(`forms:combatant.actions.apiMode.${nextApiMode}`),
+            })}
+          >
+            {t(`forms:combatant.actions.apiMode.${apiMode}`)}
+          </Button>
+          <IconButton
+            variant="filled"
+            onClick={onOpenLibrary}
+            title={libraryButtonTitle}
+            className="bg-amber-600 hover:bg-amber-700 text-white"
+          >
+            <BookOpen className="w-5 h-5" />
+          </IconButton>
+        </div>
       }
     >
       <Modal.Body>

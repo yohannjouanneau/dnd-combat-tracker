@@ -1,5 +1,7 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
 import type {
+  ApiSearchMode,
+  ApiVersion,
   CombatState,
   MonsterCombatant,
   SavedMonster,
@@ -9,6 +11,7 @@ import type {
 import type { ApiMonster } from "../../api/types";
 import type { CombatantFormStore } from "./useCombatantFormStore";
 import { dataStore } from "../../persistence/storage";
+import { searchMonsters2024 } from "../../api/dnd5e2024Client";
 import { createGraphQLClient } from "../../api/DnD5eGraphQLClient";
 import { getStatModifier, getApiImageUrl } from "../../utils/utils";
 import { appendFormattedActions } from "../../utils/monsterNotes";
@@ -21,6 +24,7 @@ interface MonsterStoreActions {
   removeMonster: (id: string) => Promise<void>;
   updateMonster: (id: string, monster: SavedMonster) => Promise<void>;
   loadMonsterToForm: (searchTerm: SearchResult) => void;
+  setApiMode: (mode: ApiSearchMode) => void;
   searchWithLibrary: (
     query: string,
     source?: SearchSource,
@@ -31,6 +35,7 @@ interface MonsterStoreActions {
 
 interface MonsterStoreState {
   monsters: SavedMonster[];
+  apiMode: ApiSearchMode;
 }
 
 interface MonsterStore {
@@ -51,9 +56,17 @@ export function useMonsterStore({
 }: Props): MonsterStore {
   // Internal state for monsters
   const [monsters, setMonsters] = useState<SavedMonster[]>([]);
+  // Choice of the D&D API ruleset(s) used for API searches (persisted locally)
+  const [apiMode, setApiModeState] = useState<ApiSearchMode>(
+    () => dataStore.getApiSearchMode() ?? "2024",
+  );
+  const setApiMode = useCallback((mode: ApiSearchMode) => {
+    dataStore.setApiSearchMode(mode);
+    setApiModeState(mode);
+  }, []);
 
   // Internal dependencies
-  const apiClient = useMemo(() => createGraphQLClient(), []);
+  const apiClient2014 = useMemo(() => createGraphQLClient(), []);
   const toastApi = useToast();
   const { t } = useTranslation(["common"]);
 
@@ -180,18 +193,32 @@ export function useMonsterStore({
       const results: SearchResult[] = [];
 
       if (source === "api" || !source) {
-        // Search API
-        try {
-          const apiMonsters = await apiClient.searchMonsters(query);
+        // Search the selected ruleset(s); one failing API must not hide the other
+        const versions: ApiVersion[] =
+          apiMode === "both" ? ["2024", "2014"] : [apiMode];
+        const searches = await Promise.allSettled(
+          versions.map((version) =>
+            version === "2024"
+              ? searchMonsters2024(query)
+              : apiClient2014.searchMonsters(query),
+          ),
+        );
+        searches.forEach((outcome, i) => {
+          if (outcome.status === "rejected") {
+            console.error(
+              `API search failed (${versions[i]}):`,
+              outcome.reason,
+            );
+            return;
+          }
           results.push(
-            ...apiMonsters.map((m) => ({
+            ...outcome.value.map((m) => ({
               source: "api" as const,
               monster: m,
+              apiVersion: versions[i],
             })),
           );
-        } catch (error) {
-          console.error("API search failed:", error);
-        }
+        });
       }
 
       if (source === "library" || !source) {
@@ -211,7 +238,7 @@ export function useMonsterStore({
 
       return results;
     },
-    [apiClient],
+    [apiMode, apiClient2014],
   );
 
   const addCombatantToLibrary = useCallback(async () => {
@@ -279,6 +306,7 @@ export function useMonsterStore({
   return {
     state: {
       monsters,
+      apiMode,
     },
     actions: {
       loadMonsters,
@@ -286,6 +314,7 @@ export function useMonsterStore({
       removeMonster,
       updateMonster,
       loadMonsterToForm,
+      setApiMode,
       searchWithLibrary,
       addCombatantToLibrary,
       isUsedAsTemplate,

@@ -268,8 +268,14 @@ export default function SearchSelect<T = unknown>({
           onChange={(e) => handleInputChange(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-            if (inputValue.trim() && (flatItems.length > 0 || onSearch))
+            if (!inputValue.trim()) return;
+            // Re-run the async search so results reflect the current settings
+            // (e.g. API ruleset changed since the last search)
+            if (onSearch) {
+              performSearch(inputValue);
+            } else if (flatItems.length > 0) {
               setShowDropdown(true);
+            }
           }}
           onBlur={() => {
             setTimeout(() => setShowDropdown(false), 200);

@@ -1,0 +1,236 @@
+{
+  "index": "adult-red-dragon",
+  "actions": [
+    {
+      "damage": [],
+      "name": "Multiattack",
+      "desc": "The dragon makes three Rend attacks. It can replace one attack with a use of Spellcasting to cast Scorching Ray.",
+      "multiattack_type": "actions",
+      "actions": [{ "action_name": "Rend", "count": "2", "type": "melee" }],
+      "action_options": {
+        "choose": 1,
+        "type": "action",
+        "from": {
+          "option_set_type": "options_array",
+          "options": [
+            {
+              "option_type": "action",
+              "action_name": "Rend",
+              "count": 1,
+              "type": "melee"
+            },
+            {
+              "option_type": "action",
+              "action_name": "Scorching Ray",
+              "count": 1,
+              "type": "ranged"
+            }
+          ]
+        }
+      },
+      "attacks": []
+    },
+    {
+      "name": "Rend",
+      "desc": "Melee Attack Roll: +14, reach 10 ft. Hit: 13 (1d10 + 8) Slashing damage plus 5 (2d4) Fire damage.",
+      "damage": [
+        {
+          "damage_type": {
+            "index": "slashing",
+            "name": "Slashing",
+            "url": "/api/2024/damage-types/slashing"
+          },
+          "damage_dice": "1d10+8"
+        },
+        {
+          "damage_type": {
+            "index": "fire",
+            "name": "Fire",
+            "url": "/api/2024/damage-types/fire"
+          },
+          "damage_dice": "2d4"
+        }
+      ],
+      "attack_bonus": 14,
+      "actions": [],
+      "attacks": []
+    },
+    {
+      "name": "Fire Breath",
+      "desc": "Dexterity Saving Throw: DC 21, each creature in a 60-foot Cone. Failure: 59 (17d6) Fire damage. Success: Half damage.",
+      "damage": [
+        {
+          "damage_type": {
+            "index": "fire",
+            "name": "Fire",
+            "url": "/api/2024/damage-types/fire"
+          },
+          "damage_dice": "17d6"
+        }
+      ],
+      "dc": {
+        "dc_type": {
+          "index": "dex",
+          "name": "DEX",
+          "url": "/api/2024/ability-scores/dex"
+        },
+        "dc_value": 21,
+        "success_type": "half"
+      },
+      "usage": {
+        "type": "recharge on roll",
+        "dice": "1d6",
+        "min_value": 5,
+        "rest_types": []
+      },
+      "actions": [],
+      "attacks": []
+    },
+    {
+      "damage": [],
+      "name": "Spellcasting",
+      "desc": "The dragon casts one of the following spells, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 20, +12 to hit with spell attacks):",
+      "spellcasting": {
+        "ability": {
+          "index": "cha",
+          "name": "CHA",
+          "url": "/api/2024/ability-scores/cha"
+        },
+        "dc": 20,
+        "modifier": 12,
+        "components_required": ["V", "S"],
+        "spells": [
+          {
+            "index": "command",
+            "name": "Command",
+            "level": 2,
+            "url": "/api/2024/spells/command",
+            "usage": { "type": "at will" }
+          },
+          {
+            "index": "detect-magic",
+            "name": "Detect Magic",
+            "level": 1,
+            "url": "/api/2024/spells/detect-magic",
+            "usage": { "type": "at will" }
+          },
+          {
+            "index": "scorching-ray",
+            "name": "Scorching Ray",
+            "level": 2,
+            "url": "/api/2024/spells/scorching-ray",
+            "usage": { "type": "at will" }
+          },
+          {
+            "index": "fireball",
+            "name": "Fireball",
+            "level": 3,
+            "url": "/api/2024/spells/fireball",
+            "usage": { "type": "per day", "times": 1 }
+          }
+        ]
+      },
+      "actions": [],
+      "attacks": []
+    }
+  ],
+  "alignment": "chaotic evil",
+  "armor_class": [{ "value": 19, "armor": [] }],
+  "challenge_rating": 17,
+  "charisma": 23,
+  "condition_immunities": [],
+  "constitution": 25,
+  "damage_immunities": ["fire"],
+  "damage_resistances": [],
+  "damage_vulnerabilities": [],
+  "dexterity": 10,
+  "hit_dice": "19d12",
+  "hit_points": 256,
+  "hit_points_roll": "19d12 + 133",
+  "image": "/api/images/monsters/adult-red-dragon.png",
+  "intelligence": 16,
+  "languages": "Common, Draconic",
+  "legendary_actions": [
+    {
+      "name": "Commanding Presence",
+      "desc": "The dragon uses Spellcasting to cast Command (level 2 version). The dragon can’t take this action again until the start of its next turn.",
+      "damage": []
+    },
+    {
+      "name": "Fiery Rays",
+      "desc": "The dragon uses Spellcasting to cast Scorching Ray. The dragon can’t take this action again until the start of its next turn.",
+      "damage": []
+    },
+    {
+      "name": "Pounce",
+      "desc": "The dragon moves up to half its Speed, and it makes one Rend attack.",
+      "damage": []
+    }
+  ],
+  "name": "Adult Red Dragon",
+  "proficiencies": [
+    {
+      "value": 6,
+      "proficiency": {
+        "index": "saving-throw-dex",
+        "name": "Saving Throw: DEX",
+        "url": "/api/2024/proficiencies/saving-throw-dex"
+      }
+    },
+    {
+      "value": 7,
+      "proficiency": {
+        "index": "saving-throw-wis",
+        "name": "Saving Throw: WIS",
+        "url": "/api/2024/proficiencies/saving-throw-wis"
+      }
+    },
+    {
+      "value": 13,
+      "proficiency": {
+        "index": "skill-perception",
+        "name": "Skill: Perception",
+        "url": "/api/2024/proficiencies/skill-perception"
+      }
+    },
+    {
+      "value": 6,
+      "proficiency": {
+        "index": "skill-stealth",
+        "name": "Skill: Stealth",
+        "url": "/api/2024/proficiencies/skill-stealth"
+      }
+    }
+  ],
+  "proficiency_bonus": 6,
+  "senses": {
+    "darkvision": "120 ft.",
+    "blindsight": "60 ft.",
+    "passive_perception": 23
+  },
+  "size": "Huge",
+  "special_abilities": [
+    {
+      "name": "Legendary Resistance",
+      "desc": "If the dragon fails a saving throw, it can choose to succeed instead.",
+      "usage": {
+        "type": "per day",
+        "times": 3,
+        "times_in_lair": 4,
+        "rest_types": []
+      },
+      "damage": []
+    }
+  ],
+  "speed": { "walk": "40 ft.", "climb": "40 ft.", "fly": "80 ft." },
+  "strength": 27,
+  "type": "dragon",
+  "updated_at": "2026-09-22T23:01:02.697Z",
+  "url": "/api/2024/monsters/adult-red-dragon",
+  "wisdom": 13,
+  "xp": 18000,
+  "xp_in_lair": 20000,
+  "bonus_actions": [],
+  "reactions": [],
+  "forms": []
+}
