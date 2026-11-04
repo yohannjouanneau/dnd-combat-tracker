@@ -6,6 +6,7 @@ import type {
   MovementSpeed,
   NewCombatant,
   SavingThrows,
+  PlayerCombatant,
   SavedPlayer,
   SkillProficiency,
 } from "../types";
@@ -262,6 +263,41 @@ export function generateDefaultNewCombatant() {
   return {
     ...DEFAULT_NEW_COMBATANT,
     id: generateId(),
+  };
+}
+
+/**
+ * Builds the player template used to add a library player to the fight.
+ * Carries the ability scores and proficiency data needed by focus mode.
+ */
+export function toPlayerCombatant(player: SavedPlayer): PlayerCombatant & {
+  templateOrigin: { origin: "player_library"; id: string };
+} {
+  return {
+    id: generateId(),
+    type: "player",
+    name: player.name,
+    initiativeGroups: player.initiativeGroups,
+    hp: player.hp,
+    maxHp: player.maxHp,
+    ac: player.ac,
+    color: player.color,
+    imageUrl: player.imageUrl,
+    initBonus: player.initBonus,
+    externalResourceUrl: player.externalResourceUrl,
+    str: player.str,
+    dex: player.dex,
+    con: player.con,
+    int: player.int,
+    wis: player.wis,
+    cha: player.cha,
+    level: player.level,
+    proficiencyBonus: player.proficiencyBonus,
+    spellcastingAbility: player.spellcastingAbility,
+    perceptionProficiency: player.perceptionProficiency,
+    insightProficiency: player.insightProficiency,
+    investigationProficiency: player.investigationProficiency,
+    templateOrigin: { origin: "player_library", id: player.id },
   };
 }
 

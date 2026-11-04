@@ -79,11 +79,6 @@ export default function DerivedStatsPanel({
           <span className="bg-panel-secondary rounded px-2 py-0.5 text-xs font-bold text-blue-400">
             +{profBonus}
           </span>
-          {combatant.level && (
-            <span className="text-xs text-text-muted">
-              {t("combat:combatant.details.level", { level: combatant.level })}
-            </span>
-          )}
         </div>
 
         {/* Passive checks */}
@@ -172,13 +167,6 @@ export default function DerivedStatsPanel({
             <span className="bg-panel-secondary rounded px-3 py-1 text-sm font-bold text-blue-400">
               +{profBonus}
             </span>
-            {combatant.level && (
-              <span className="text-xs text-text-muted">
-                {t("combat:combatant.details.level", {
-                  level: combatant.level,
-                })}
-              </span>
-            )}
           </>
         )}
         {walkSpeed && (

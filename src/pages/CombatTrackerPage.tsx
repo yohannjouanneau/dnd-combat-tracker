@@ -13,7 +13,6 @@ import type {
   GroupSummary,
   SavedPlayer,
   NewCombatant,
-  PlayerCombatant,
   SavedMonster,
 } from "../types";
 import type { CombatStateManager } from "../store/types";
@@ -22,7 +21,7 @@ import { HP_BAR_ID_PREFIX } from "../constants";
 import LibraryModal from "../components/Library/LibraryModal";
 import LibraryEditModal from "../components/Library/LibraryEditModal";
 import SettingsModal from "../components/Settings/SettingsModal";
-import { generateId, generateDefaultNewCombatant } from "../utils/utils";
+import { generateDefaultNewCombatant, toPlayerCombatant } from "../utils/utils";
 import TopBar from "../components/TopBar";
 
 type Props = {
@@ -127,27 +126,8 @@ export default function CombatTrackerPage({
   const handleEditPlayer = (player: SavedPlayer) => setEditingPlayer(player);
 
   const addPlayerToFight = (player: SavedPlayer) => {
-    const playerCombattant: PlayerCombatant = {
-      id: generateId(),
-      type: "player",
-      name: player.name,
-      initiativeGroups: player.initiativeGroups,
-      hp: player.hp,
-      maxHp: player.maxHp,
-      ac: player.ac,
-      color: player.color,
-      imageUrl: player.imageUrl,
-      initBonus: player.initBonus,
-      externalResourceUrl: player.externalResourceUrl,
-    };
     combatStateManager.linkPlayer(player.id);
-    combatStateManager.addCombatant({
-      ...playerCombattant,
-      templateOrigin: {
-        origin: "player_library",
-        id: player.id,
-      },
-    });
+    combatStateManager.addCombatant(toPlayerCombatant(player));
   };
 
   const openAddModal = (mode: AddCombatantModalMode) => {

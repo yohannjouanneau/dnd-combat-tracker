@@ -92,6 +92,13 @@ describe("DerivedStatsPanel speed (large mode)", () => {
     );
   });
 
+  it("does not display the level, but still uses it for the proficiency bonus", () => {
+    const html = render({ combatant: { level: 5 } });
+
+    expect(html).not.toContain("combat:combatant.details.level");
+    expect(html).toContain("+3");
+  });
+
   it("renders nothing without proficiency, speed or saving throws", () => {
     expect(render({ combatant: {} })).toBe("");
   });
