@@ -131,6 +131,8 @@ export function useCombatantStore({
             groupIndex: globalIndex,
             imageUrl: nc.imageUrl,
             externalResourceUrl: nc.externalResourceUrl,
+            speed: nc.speed,
+            savingThrows: nc.savingThrows,
             cha: nc.cha,
             con: nc.con,
             dex: nc.dex,
