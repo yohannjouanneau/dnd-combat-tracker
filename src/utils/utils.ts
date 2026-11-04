@@ -1,8 +1,12 @@
 import type { ApiMonster } from "../api/types";
 import { DEFAULT_NEW_COMBATANT, DND_API_HOST } from "../constants";
 import type {
+  AbilityScores,
   Combatant,
+  MovementSpeed,
   NewCombatant,
+  SavingThrows,
+  PlayerCombatant,
   SavedPlayer,
   SkillProficiency,
 } from "../types";
@@ -42,6 +46,26 @@ export function safeStringify<T>(data: T[]): string {
 
 export function getProficiencyBonusFromLevel(level: number): number {
   return Math.ceil(level / 4) + 1;
+}
+
+/**
+ * Proficiency bonus of a monster, derived from its challenge rating (DMG table).
+ * dnd5eapi does not expose the bonus directly, only the challenge rating.
+ */
+export function getProficiencyBonusFromChallengeRating(
+  challengeRating?: number,
+): number | undefined {
+  if (challengeRating === undefined || challengeRating === null) {
+    return undefined;
+  }
+  if (challengeRating <= 4) return 2;
+  if (challengeRating <= 8) return 3;
+  if (challengeRating <= 12) return 4;
+  if (challengeRating <= 16) return 5;
+  if (challengeRating <= 20) return 6;
+  if (challengeRating <= 24) return 7;
+  if (challengeRating <= 28) return 8;
+  return 9;
 }
 
 export function getEffectiveProficiencyBonus(
@@ -96,6 +120,51 @@ export function getAbilityModifier(score: number) {
 
 export function getApiImageUrl(monster: ApiMonster) {
   return `${DND_API_HOST}${monster.image}`;
+}
+
+/**
+ * Keeps only the walk and fly speeds of a dnd5eapi monster.
+ * Returns undefined when neither is available.
+ */
+export function getApiSpeed(monster: ApiMonster): MovementSpeed | undefined {
+  const walk = monster.speed?.walk ?? undefined;
+  const fly = monster.speed?.fly ?? undefined;
+  if (!walk && !fly) return undefined;
+  return { walk, fly };
+}
+
+const SAVING_THROW_NAME = /^Saving Throw: (STR|DEX|CON|INT|WIS|CHA)$/i;
+
+/**
+ * Extracts the saving throws of a dnd5eapi monster from its proficiencies.
+ * The API value is the full bonus (ability modifier + proficiency bonus).
+ * Returns undefined when the monster has no saving throw proficiency.
+ */
+export function getApiSavingThrows(
+  monster: ApiMonster,
+): SavingThrows | undefined {
+  const savingThrows: SavingThrows = {};
+  for (const entry of monster.proficiencies ?? []) {
+    const match = SAVING_THROW_NAME.exec(entry.proficiency?.name ?? "");
+    if (!match || typeof entry.value !== "number") continue;
+    savingThrows[match[1].toLowerCase() as keyof AbilityScores] = entry.value;
+  }
+  return Object.keys(savingThrows).length > 0 ? savingThrows : undefined;
+}
+
+/**
+ * Maps the ability scores of a dnd5eapi monster (long names) to the
+ * short keys used by combatants and templates.
+ */
+export function getApiAbilityScores(monster: ApiMonster): AbilityScores {
+  return {
+    str: monster.strength,
+    dex: monster.dexterity,
+    con: monster.constitution,
+    int: monster.intelligence,
+    wis: monster.wisdom,
+    cha: monster.charisma,
+  };
 }
 
 export function safeParseInt(
@@ -198,6 +267,41 @@ export function generateDefaultNewCombatant() {
 }
 
 /**
+ * Builds the player template used to add a library player to the fight.
+ * Carries the ability scores and proficiency data needed by focus mode.
+ */
+export function toPlayerCombatant(player: SavedPlayer): PlayerCombatant & {
+  templateOrigin: { origin: "player_library"; id: string };
+} {
+  return {
+    id: generateId(),
+    type: "player",
+    name: player.name,
+    initiativeGroups: player.initiativeGroups,
+    hp: player.hp,
+    maxHp: player.maxHp,
+    ac: player.ac,
+    color: player.color,
+    imageUrl: player.imageUrl,
+    initBonus: player.initBonus,
+    externalResourceUrl: player.externalResourceUrl,
+    str: player.str,
+    dex: player.dex,
+    con: player.con,
+    int: player.int,
+    wis: player.wis,
+    cha: player.cha,
+    level: player.level,
+    proficiencyBonus: player.proficiencyBonus,
+    spellcastingAbility: player.spellcastingAbility,
+    perceptionProficiency: player.perceptionProficiency,
+    insightProficiency: player.insightProficiency,
+    investigationProficiency: player.investigationProficiency,
+    templateOrigin: { origin: "player_library", id: player.id },
+  };
+}
+
+/**
  * Builds an array of Combatant objects from a list of SavedPlayers,
  * used when auto-adding players at new combat creation time.
  * Mirrors the core logic of prepareCombatantList in useCombatantStore.
@@ -241,6 +345,12 @@ export function buildPlayerCombatantsForFight(
           ac: player.ac,
           imageUrl: player.imageUrl,
           externalResourceUrl: player.externalResourceUrl,
+          str: player.str,
+          dex: player.dex,
+          con: player.con,
+          int: player.int,
+          wis: player.wis,
+          cha: player.cha,
           level: player.level,
           proficiencyBonus: player.proficiencyBonus,
           spellcastingAbility: player.spellcastingAbility,

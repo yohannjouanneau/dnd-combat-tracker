@@ -15,6 +15,9 @@ import type { ApiMonster } from "../../api/types";
 import {
   getStatModifier,
   getApiImageUrl,
+  getProficiencyBonusFromChallengeRating,
+  getApiSpeed,
+  getApiSavingThrows,
   safeParseInt,
 } from "../../utils/utils";
 import { appendFormattedActions } from "../../utils/monsterNotes";
@@ -75,13 +78,17 @@ export default function LibraryEditModal({
         imageUrl: getApiImageUrl(apiMonster),
         color: DEFAULT_COLOR_PRESET[0].value,
         initiativeGroups: [],
+        speed: getApiSpeed(apiMonster),
+        savingThrows: getApiSavingThrows(apiMonster),
         str: apiMonster.strength,
         dex: apiMonster.dexterity,
         con: apiMonster.constitution,
         int: apiMonster.intelligence,
         wis: apiMonster.wisdom,
         cha: apiMonster.charisma,
-        proficiencyBonus: apiMonster.proficiency_bonus,
+        proficiencyBonus: getProficiencyBonusFromChallengeRating(
+          apiMonster.challenge_rating,
+        ),
         notes: appendFormattedActions(formData.notes ?? "", apiMonster),
       };
       setFormData(libraryMonster);

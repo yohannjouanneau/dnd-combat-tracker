@@ -10,7 +10,14 @@ import type { ApiMonster } from "../../api/types";
 import type { CombatantFormStore } from "./useCombatantFormStore";
 import { dataStore } from "../../persistence/storage";
 import { createGraphQLClient } from "../../api/DnD5eGraphQLClient";
-import { getStatModifier, getApiImageUrl } from "../../utils/utils";
+import {
+  getStatModifier,
+  getApiImageUrl,
+  getApiAbilityScores,
+  getProficiencyBonusFromChallengeRating,
+  getApiSpeed,
+  getApiSavingThrows,
+} from "../../utils/utils";
 import { appendFormattedActions } from "../../utils/monsterNotes";
 import { useToast } from "../../components/common/Toast/useToast";
 import { useTranslation } from "react-i18next";
@@ -131,6 +138,12 @@ export function useMonsterStore({
           : undefined,
         ac: monster.armor_class?.at(0)?.value ?? 0,
         imageUrl: getApiImageUrl(monster),
+        ...getApiAbilityScores(monster),
+        speed: getApiSpeed(monster),
+        savingThrows: getApiSavingThrows(monster),
+        proficiencyBonus: getProficiencyBonusFromChallengeRating(
+          monster.challenge_rating,
+        ),
         notes: appendFormattedActions(state.newCombatant.notes, monster),
       });
     },
@@ -154,6 +167,8 @@ export function useMonsterStore({
         int: monster.int,
         wis: monster.wis,
         cha: monster.cha,
+        speed: monster.speed,
+        savingThrows: monster.savingThrows,
         notes: monster.notes,
         templateOrigin: {
           origin: "monster_library",

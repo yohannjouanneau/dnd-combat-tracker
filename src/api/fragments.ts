@@ -9,6 +9,17 @@ export const MonsterFragments = {
         wisdom
         charisma
         hit_points
+        challenge_rating
+        speed {
+          walk
+          fly
+        }
+        proficiencies {
+          value
+          proficiency {
+            name
+          }
+        }
         image
         condition_immunities {
           name

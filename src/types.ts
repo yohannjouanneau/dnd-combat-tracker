@@ -42,6 +42,23 @@ export type CombatStats = {
   ac?: number;
 };
 
+// Movement speeds shown in the detail panel (walk and fly only)
+export type MovementSpeed = {
+  walk?: string; // e.g. "30 ft."
+  fly?: string;
+};
+
+export type SpeedData = {
+  speed?: MovementSpeed;
+};
+
+// Total saving throw bonuses (proficiency already included), only for proficient saves
+export type SavingThrows = Partial<Record<keyof AbilityScores, number>>;
+
+export type SavingThrowData = {
+  savingThrows?: SavingThrows;
+};
+
 // Visual and reference data
 export type Presentation = {
   color: string;
@@ -82,7 +99,9 @@ export type Combatant = {
 } & Presentation &
   CombatStats &
   AbilityScores &
-  Partial<ProficiencyData>;
+  Partial<ProficiencyData> &
+  Partial<SpeedData> &
+  Partial<SavingThrowData>;
 
 export type InitiativeGroup = {
   id: string;
@@ -107,7 +126,9 @@ export type CombatantTemplate<T extends CombatantTemplateType> = {
   Presentation &
   Partial<AbilityScores> &
   InitiativeData &
-  Partial<ProficiencyData>;
+  Partial<ProficiencyData> &
+  Partial<SpeedData> &
+  Partial<SavingThrowData>;
 
 export type SavedCombatantTemplate<T extends CombatantTemplateType> =
   CombatantTemplate<T> & TimestampedEntity & { autoAddToCombat?: boolean };
